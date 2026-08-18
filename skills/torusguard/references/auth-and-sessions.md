@@ -1,136 +1,56 @@
 # Authentication, Sessions, and Authorization
 
-## Scope
+## When to load
 
-Make authentication and authorization server-enforced and resistant to session and object-access failures (including IDOR).
+Load during `/torusguard check auth`, login/signup/reset implementation, or resource route reviews.
 
-## Threat Model
+## Linked rules
 
-- Credential stuffing and brute force on login
-- Session hijacking via insecure cookies or localStorage
-- IDOR: accessing another user's resources by changing IDs
-- Account enumeration via error messages
-- Weak password hashing
+- [TG-AUTH-001](../../rules/TG-AUTH-001-weak-password-storage.md) — Weak Password Storage (Critical)
+- [TG-AUTH-002](../../rules/TG-AUTH-002-client-only-authorization.md) — Client-Only Authorization (High)
+- [TG-AUTH-003](../../rules/TG-AUTH-003-missing-object-authorization.md) — IDOR/BOLA (High)
+- [TG-AUTH-004](../../rules/TG-AUTH-004-insecure-session-cookie.md) — Insecure Session Cookie (High)
+- [TG-AUTH-005](../../rules/TG-AUTH-005-unsafe-password-reset.md) — Unsafe Password Reset (High)
 
-## Detection Patterns
+## Hard bans
 
-| Pattern | Severity |
-|---------|----------|
-| Plaintext password storage or comparison | Critical |
-| MD5 or SHA1 password hashing | Critical |
-| Role checks only in frontend routing | Critical |
-| Trust in client-provided user ID | Critical |
-| Missing auth middleware on sensitive routes | Critical |
-| Missing ownership check on resource routes | Critical |
-| JWT in localStorage without documented tradeoff | High |
-| Session cookie missing httpOnly, Secure, or SameSite | High |
-| Predictable password reset tokens | High |
-| Login errors revealing "user not found" vs "wrong password" | Medium |
+- No plaintext, MD5, or SHA1 password storage
+- No authorization enforced only in frontend routing
+- No trust in client-supplied user IDs or roles
+- No session cookies missing httpOnly/Secure/SameSite in production
+- No predictable or reusable password reset tokens
 
-## Hard Bans
+## Safe defaults
 
-- No plaintext passwords
-- No MD5 or SHA1 password hashes
-- No role checks only in frontend routing
-- No trust in user IDs passed by the client
-- No predictable password reset tokens
-- No authentication tokens in localStorage by default without documented threat tradeoffs
-- No session cookie missing httpOnly, Secure, or appropriate SameSite
-- No endpoint returning another user's data solely because its ID appears in the URL
+- Argon2id or bcrypt (cost ≥ 12) for passwords
+- httpOnly, Secure, SameSite cookies for browser sessions
+- Server-side role and ownership checks on every sensitive route
+- Neutral login/reset responses (no account enumeration)
+- CSRF protection for cookie-authenticated state changes
+- Reset tokens: random, single-use, expiring
 
-## Required Safe Defaults
+## IDOR test procedure
 
-### Password hashing
+For each route with a resource ID (`/api/users/:id`, `/api/orders/:orderId`):
 
-```javascript
-import bcrypt from 'bcrypt';
+> Can User A change the ID and access User B's resource?
 
-const SALT_ROUNDS = 12;
-const hash = await bcrypt.hash(password, SALT_ROUNDS);
-const valid = await bcrypt.compare(password, storedHash);
-// Prefer Argon2id where available
-```
+If yes → fails TG-AUTH-003.
 
-### Secure cookies
+## Audit checklist
 
-```javascript
-res.cookie('session', token, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax', // or 'strict' for sensitive apps
-  maxAge: 24 * 60 * 60 * 1000,
-  path: '/',
-});
-```
+- [ ] Strong password hashing (TG-AUTH-001)
+- [ ] Server enforces authZ (TG-AUTH-002)
+- [ ] Object ownership verified (TG-AUTH-003)
+- [ ] Secure cookie flags (TG-AUTH-004)
+- [ ] Safe reset flow + rate limits (TG-AUTH-005)
 
-### Authorization middleware
+## Manual review
 
-```javascript
-async function requireOwnership(req, res, next) {
-  const resource = await db.query('SELECT user_id FROM posts WHERE id = $1', [req.params.id]);
-  if (!resource.rows[0] || resource.rows[0].user_id !== req.user.id) {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-  next();
-}
-```
+- Organization/tenant-scoped authorization
+- Privilege escalation via mass assignment
+- Session fixation and logout invalidation
 
-### Neutral login responses
+## Related rules
 
-```javascript
-// Prevent account enumeration
-if (!user || !(await bcrypt.compare(password, user.password_hash))) {
-  return res.status(401).json({ error: 'Invalid email or password' });
-}
-```
-
-### Password reset tokens
-
-- Cryptographically random (32+ bytes)
-- Expire within 15–60 minutes
-- Single-use: invalidate after successful reset
-
-## IDOR Test Requirement
-
-For each sensitive route, ask:
-
-> Can User A change the resource ID in this request and access User B's resource?
-
-If yes, the route **fails** the audit.
-
-Test routes like:
-
-- `GET /api/users/:id`
-- `PUT /api/posts/:id`
-- `DELETE /api/orders/:id`
-
-## CSRF Protection
-
-When using cookie-based auth:
-
-- Use CSRF tokens for state-changing requests, or
-- SameSite=Strict/Lax cookies + verify Origin/Referer headers
-
-## Verification Checklist
-
-- [ ] All sensitive API endpoints authenticate users
-- [ ] Each sensitive endpoint checks role, ownership, or org membership
-- [ ] Passwords use Argon2id or bcrypt
-- [ ] Reset tokens expire and are one-time use
-- [ ] Session cookies use secure flags in production
-- [ ] Login/reset responses do not enumerate accounts
-- [ ] IDOR test passed for all resource routes
-
-## False-Positive Guidance
-
-- Public read endpoints intentionally unauthenticated (e.g., blog posts) — document in SECURITY.md
-- JWT in Authorization header (not cookie) — CSRF less relevant; ensure XSS protection
-- OAuth flows handled by provider — verify callback state parameter
-
-## Remediation Steps
-
-1. Add auth middleware to protected routes
-2. Add ownership/role checks per resource
-3. Upgrade password hashing
-4. Fix cookie flags
-5. Neutralize enumeration-prone error messages
+TG-RATE-001, TG-SEC-004, TG-INPUT-001

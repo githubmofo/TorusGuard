@@ -1,136 +1,53 @@
 # Frontend Database Protection
 
-## Scope
+## When to load
 
-Ensure the browser never directly contains raw database queries, privileged database clients, database connection strings, or admin SDK credentials.
+Load during `/torusguard check database`, full-stack audits, or when frontend code connects to data stores.
 
-## Threat Model
+## Linked rules
 
-- Attackers read all JavaScript delivered to the browser
-- Direct DB access from frontend bypasses authorization
-- Service-role keys grant full database access
-- Client-side "hidden admin routes" are not access control
+- [TG-DB-001](../../rules/TG-DB-001-frontend-database-query.md) — Database Query in Frontend (High)
+- [TG-DB-002](../../rules/TG-DB-002-privileged-database-credential.md) — Privileged Credential in Browser (Critical)
+- [TG-DB-003](../../rules/TG-DB-003-frontend-admin-sdk.md) — Frontend Admin SDK (Critical)
 
-## Core Rule
+## Hard bans
 
-The frontend may call an authenticated API. The backend or trusted server function performs authorization and database operations.
+- No SQL in frontend directories (`src/`, `app/`, `pages/`, `components/`, `client/`, `public/`)
+- No imports of `pg`, `mysql`, `mongoose`, `@prisma/client`, Sequelize, TypeORM, Drizzle server client
+- No Supabase service-role key or Firebase Admin SDK in browser code
+- No trust in client-provided user ID or role without server verification
 
-## Frontend Directories to Scan
-
-```
-src/
-app/
-pages/
-components/
-client/
-public/
-```
-
-## Detection Patterns
-
-| Pattern | Severity |
-|---------|----------|
-| SQL keywords in frontend: `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER` | Critical |
-| Imports: `pg`, `mysql`, `mysql2`, `mongoose`, `@prisma/client`, `sequelize`, `typeorm` | Critical |
-| Connection strings: `postgres://`, `mysql://`, `mongodb+srv://` | Critical |
-| `firebase-admin`, Supabase service-role key usage | Critical |
-| Prisma client in React/Vue components | Critical |
-| `createClient(url, serviceRoleKey)` in frontend | Critical |
-
-## Hard Bans
-
-- No SQL query may exist in frontend files
-- No database driver may be imported by frontend files
-- No service-role key, admin key, or database connection string may ship to the browser
-- No client-provided user ID or role may be trusted without server-side verification
-- No client-side "hidden admin route" may be considered access control
-
-## Safe Architecture
+## Safe architecture
 
 ```
-React/Vite/Next client
-        |
-        | HTTPS request with validated payload
-        v
-Express route / Next server action / Edge function
-        |
-        | authenticate user + authorize action
-        v
-Parameterized database query / ORM
-        |
-        v
-Database
+Browser → HTTPS API → AuthZ → Parameterized query/ORM → Database
 ```
 
-### Unsafe (never allow)
+## Supabase
 
-```javascript
-// frontend file — NEVER
-const result = await db.query(
-  `SELECT * FROM users WHERE email = '${email}'`
-);
-```
+- Browser: anon key + **RLS enabled** on all exposed tables
+- Server: service-role key only for admin tasks
+- **Manual review required:** RLS policies for every table
 
-### Safe pattern
+## Firebase
 
-```javascript
-// frontend — call API only
-const res = await fetch('/api/users/me', { credentials: 'include' });
-const user = await res.json();
-```
+- Browser: client SDK + Security Rules
+- Server: Admin SDK only
+- **Manual review required:** Firestore/Storage rules
 
-```javascript
-// server/routes/users.js
-router.get('/me', requireAuth, async (req, res) => {
-  const user = await db.query('SELECT id, email FROM users WHERE id = $1', [req.user.id]);
-  res.json(user.rows[0]);
-});
-```
+## Audit checklist
 
-## Supabase Requirements
+- [ ] No DB queries or drivers in client code (TG-DB-001, TG-DB-003)
+- [ ] No connection strings or service-role keys in bundle (TG-DB-002)
+- [ ] All mutations authorized server-side
+- [ ] Supabase RLS / Firebase rules reviewed and tested
 
-- Browser clients use **anon/public key only**
-- Row Level Security (RLS) **enabled** on all exposed tables
-- Service-role key **server-only**
-- Policies verify ownership and role requirements
+## Framework guides
 
-```sql
--- Example RLS policy
-CREATE POLICY "Users read own profile"
-  ON profiles FOR SELECT
-  USING (auth.uid() = user_id);
-```
+- [Supabase](../../guides/supabase-security.md)
+- [Firebase](../../guides/firebase-security.md)
+- [React/Vite](../../guides/react-vite-security.md)
 
-## Firebase Requirements
+## Related rules
 
-- Client SDK constrained by **Firebase Security Rules**
-- Admin SDK **server-only**
-- Rules verify ownership and role requirements
-
-```javascript
-// firestore.rules — verify ownership
-match /users/{userId} {
-  allow read, write: if request.auth != null && request.auth.uid == userId;
-}
-```
-
-## Verification Checklist
-
-- [ ] No frontend directory contains DB credentials or driver imports
-- [ ] All database operations go through trusted server path or secure BaaS policies
-- [ ] Each data mutation verifies authenticated user's authorization
-- [ ] Supabase RLS enabled (manual review)
-- [ ] Firebase rules deployed (manual review)
-
-## False-Positive Guidance
-
-- SQL strings in **server** directories (`server/`, `api/`, `app/api/`) — expected
-- ORM query builders in Next.js **server components** or **route handlers** — OK
-- Display text containing "SELECT" in UI copy — not a finding
-
-## Remediation Steps
-
-1. Remove DB client/query from frontend file
-2. Create API endpoint or server action
-3. Add authentication and authorization on server
-4. Use parameterized queries on server side
+TG-SEC-002, TG-AUTH-002, TG-AUTH-003

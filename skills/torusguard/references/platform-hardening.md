@@ -1,146 +1,56 @@
 # Platform and HTTP Hardening
 
-## Scope
+## When to load
 
-Apply essential web-platform protections around headers, CORS, errors, uploads, dependencies, and production deployment.
+Load during `/torusguard check platform`, deployment prep, or `/torusguard verify`.
 
-## Threat Model
+## Linked rules
 
-- Cross-origin attacks via misconfigured CORS
-- Clickjacking via missing frame protection
-- MIME sniffing attacks
-- Information disclosure via verbose errors
-- Dependency vulnerabilities
-- Insecure production configuration (debug mode, HTTP)
+- [TG-PLATFORM-001](../../rules/TG-PLATFORM-001-wildcard-cors-with-credentials.md) — Wildcard CORS + Credentials (High)
+- [TG-PLATFORM-002](../../rules/TG-PLATFORM-002-missing-security-headers.md) — Missing Security Headers (Medium)
+- [TG-PLATFORM-003](../../rules/TG-PLATFORM-003-production-stack-trace-exposure.md) — Stack Trace Exposure (Medium)
+- [TG-PLATFORM-004](../../rules/TG-PLATFORM-004-missing-request-size-limits.md) — Missing Request Size Limits (Medium)
 
-## Detection Patterns
+## Hard bans
 
-| Pattern | Severity |
-|---------|----------|
-| `Access-Control-Allow-Origin: *` with `credentials: true` | Critical |
-| Production stack traces returned to users | High |
-| Debug mode enabled in production | High |
-| Missing body limits on public JSON endpoints | Medium |
-| Raw database/provider errors returned to clients | High |
-| Executable files uploaded to public web directories | Critical |
-| Missing security headers (Helmet not used) | Medium |
-| HTTP without HTTPS redirect in production | High |
-
-## Hard Bans
-
-- No `Access-Control-Allow-Origin: *` together with credentials
-- No production stack traces returned to users
-- No debug mode enabled in production
-- No uploading executable files into public web directories
+- No `Access-Control-Allow-Origin: *` with credentials
+- No production stack traces or raw DB errors to clients
+- No debug mode in production
 - No missing body limits on public JSON endpoints
-- No raw database or provider errors returned to clients
+- No executable uploads in public web directories
 
-## Required Headers
+## Safe defaults
 
-Where applicable, configure:
+- CORS explicit allowlist
+- Helmet or equivalent: CSP, `X-Content-Type-Options`, HSTS (production), `Referrer-Policy`, clickjacking protection
+- Generic user-facing errors; detailed logs server-side with request ID
+- HTTPS enforced in production
+- `express.json({ limit: '100kb' })` or appropriate caps
+- Dependency audit before deploy
 
-| Header | Purpose |
-|--------|---------|
-| `Content-Security-Policy` | Restrict script/style/load sources |
-| `X-Content-Type-Options: nosniff` | Prevent MIME sniffing |
-| `Referrer-Policy` | Control referrer leakage |
-| `Permissions-Policy` | Restrict browser features |
-| `Strict-Transport-Security` | Enforce HTTPS |
-| `X-Frame-Options` or CSP `frame-ancestors` | Prevent clickjacking |
+## Audit checklist
 
-## Implementation Examples
+- [ ] CORS allowlist (TG-PLATFORM-001)
+- [ ] Security headers configured (TG-PLATFORM-002)
+- [ ] Errors sanitized (TG-PLATFORM-003)
+- [ ] Request/upload limits set (TG-PLATFORM-004)
 
-### Express with Helmet
+## Framework notes
 
-```javascript
-import helmet from 'helmet';
-import cors from 'cors';
+- **Express** — Helmet + central error handler
+- **Next.js** — headers in `next.config` or middleware
+- **Reverse proxy** — TLS termination, HSTS, rate limits
 
-app.use(helmet());
+## Manual review
 
-const allowedOrigins = ['https://app.example.com', 'http://localhost:5173'];
-app.use(cors({
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));
-```
+- CSP compatibility with actual script/style sources
+- Infrastructure firewall and WAF rules
+- Backup and monitoring configuration
 
-### Sanitized error responses
+## Related rules
 
-```javascript
-app.use((err, req, res, next) => {
-  console.error(err); // log server-side only
-  res.status(err.status || 500).json({
-    error: process.env.NODE_ENV === 'production'
-      ? 'Internal server error'
-      : err.message,
-  });
-});
-```
+TG-RATE-003, TG-SEC-004, TG-CLIENT-001
 
-### Request limits
+## Framework guide
 
-```javascript
-app.use(express.json({ limit: '100kb' }));
-```
-
-### HTTPS enforcement
-
-```javascript
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect(301, `https://${req.headers.host}${req.url}`);
-    }
-    next();
-  });
-}
-```
-
-### Dependency audit
-
-```bash
-npm audit
-npm audit fix
-```
-
-Run in CI; address high/critical findings before deploy.
-
-## File Upload Security
-
-- Validate MIME type and size
-- Generate server-side filenames
-- Store outside executable web directories
-- Require authentication for uploads
-- Scan or restrict executable types (.exe, .sh, .php, .js if served statically)
-
-## Verification Checklist
-
-- [ ] CORS uses explicit allowlist
-- [ ] Error responses generic to users; details logged server-side
-- [ ] Security headers configured (Helmet or equivalent)
-- [ ] HTTPS used in production
-- [ ] Request and upload size limits exist
-- [ ] Debug mode disabled in production
-- [ ] Dependency audit process exists
-
-## False-Positive Guidance
-
-- CORS `*` without credentials on fully public read-only API — lower risk; still prefer allowlist
-- Verbose errors in development — expected; gate by NODE_ENV
-- Internal microservices without browser clients — CORS may not apply
-
-## Remediation Steps
-
-1. Replace wildcard CORS with allowlist
-2. Add Helmet or equivalent headers
-3. Sanitize error handler
-4. Set body/upload limits
-5. Enable HTTPS and HSTS
-6. Run dependency audit
+[Express Security](../../guides/express-security.md)

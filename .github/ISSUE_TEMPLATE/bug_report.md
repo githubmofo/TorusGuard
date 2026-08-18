@@ -1,14 +1,13 @@
 ---
 name: Bug Report
-about: Report a bug in TorusGuard skill or scripts
+about: Report a bug in TorusGuard skill, rules, or documentation
 title: '[Bug] '
 labels: bug
-assignees: ''
 ---
 
 ## Description
 
-A clear description of the bug.
+Clear description of the bug.
 
 ## Steps to Reproduce
 
@@ -16,13 +15,7 @@ A clear description of the bug.
 2.
 3.
 
-## Expected Behavior
-
-What you expected to happen.
-
-## Actual Behavior
-
-What actually happened.
+## Expected vs Actual
 
 ## Environment
 
@@ -31,5 +24,3 @@ What actually happened.
 - OS:
 
 ## Additional Context
-
-Add any other context, logs, or screenshots.

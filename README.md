@@ -1,30 +1,45 @@
 # TorusGuard
 
-**Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, auth, rate limits, and production exposure.**
+**Security guardrails for AI-built web apps.**
 
-TorusGuard is a portable AI-agent security skill for AI-built web applications. It audits and hardens common security issues including hardcoded secrets, frontend database queries or admin keys, unsafe input validation, SQL/NoSQL injection, authentication and authorization flaws, IDOR, missing rate limits, unsafe CORS, public production source maps, and insecure deployment configuration.
+Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, auth, rate limits, and production exposure.
 
-## What TorusGuard Does
+TorusGuard is a Markdown-first, portable AI-agent skill that helps developers audit and harden AI-built web applications. It is **not** an npm package, hosted service, browser extension, or automated vulnerability scanner.
 
-- Guides AI agents to build secure-by-default web applications
-- Audits repositories before changing code
-- Identifies frontend, backend, database, auth, and deployment risks
-- Applies stack-aware safe implementation patterns
-- Generates a persistent project `SECURITY.md` with your app's security context
+## What it protects against
 
-## What TorusGuard Does Not Do
+- Hardcoded secrets and tracked `.env` files
+- Frontend database queries, drivers, and privileged admin keys
+- Missing input validation, SQL injection, XSS, and unsafe uploads
+- Weak authentication, client-only authorization, and IDOR
+- Missing rate limits and unbounded resource consumption
+- Public production source maps and sensitive client bundle content
+- Unsafe CORS, missing security headers, verbose errors, and missing body limits
 
-- Replace a professional penetration test
-- Guarantee PCI-DSS, HIPAA, ISO 27001, SOC 2, or GDPR compliance
-- Detect every business-logic vulnerability
-- Block DevTools or hide browser JavaScript (see below)
-- Provide a hosted dashboard or SaaS product
+## The browser-code truth
 
-## Core Principle
+**If the browser receives it, users can inspect it.**
 
-**Anything sent to the browser is public.**
+DevTools, Inspect Element, and Sources cannot be blocked. TorusGuard keeps secrets, database access, and authorization on trusted server-side code — it does not claim to hide JavaScript or make apps "unhackable."
 
-DevTools, Inspect Element, and browser Sources cannot be blocked — browsers must receive JavaScript to execute it. TorusGuard prevents secrets and privileged logic from reaching the browser, disables public production source maps, and moves authorization and database access to trusted server code.
+## Commands
+
+| Command | Purpose | Changes code? |
+|---------|---------|---------------|
+| `/torusguard init` | Create/update `SECURITY.md` and threat model | Docs only |
+| `/torusguard audit` | Scan 25 rules; structured audit report | No |
+| `/torusguard harden` | Fix approved findings; re-verify | Yes |
+| `/torusguard check <area>` | Audit one rule group | No by default |
+| `/torusguard verify` | Production pre-flight checklist | No |
+
+**Check areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`
+
+## Audit vs harden
+
+| Mode | Behavior |
+|------|----------|
+| **Audit** | Read-only. Reports findings with rule IDs, severity, confidence, evidence, and verification steps. Never modifies application code. |
+| **Harden** | Requires audit first. Applies least-invasive fixes for high-confidence findings. Preserves business behavior; explains breaking changes. |
 
 ## Installation
 
@@ -32,89 +47,87 @@ DevTools, Inspect Element, and browser Sources cannot be blocked — browsers mu
 npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
 ```
 
-Or copy `skills/torusguard/` to your agent's skills directory:
+Or copy `skills/torusguard/` to your agent skills directory:
 
 | Agent | Path |
 |-------|------|
 | Cursor (project) | `.cursor/skills/torusguard/` |
 | Cursor (personal) | `~/.cursor/skills/torusguard/` |
 
-## Commands
-
-| Command | Purpose |
-|---------|---------|
-| `/torusguard init` | Analyze project and create `SECURITY.md` |
-| `/torusguard audit` | Scan repository and report vulnerabilities (no code changes) |
-| `/torusguard harden` | Fix approved findings and re-check |
-| `/torusguard check <area>` | Audit one area: `secrets`, `frontend-db`, `input`, `auth`, `rate-limit`, `client-exposure`, `platform` |
-
-## Supported Stacks
-
-React/Vite, Next.js, Node.js/Express, Supabase, Firebase, PostgreSQL, MySQL, MongoDB, and common REST APIs.
-
-## Seven Security Areas
-
-1. **Secrets and environment** — No hardcoded keys, proper `.env` handling
-2. **Frontend database protection** — No SQL or DB drivers in browser code
-3. **Input validation and injection** — Schema validation, parameterized queries
-4. **Authentication and authorization** — Secure cookies, IDOR prevention
-5. **Rate limiting and abuse** — Login, OTP, contact form protection
-6. **Client code exposure** — Source maps, CSP, no secrets in bundles
-7. **Platform hardening** — CORS, Helmet, error sanitization, HTTPS
-
-## Quick Start
+## Quick start
 
 ```text
 /torusguard init
 /torusguard audit
 /torusguard harden
+/torusguard verify
 /torusguard check auth
 ```
 
-## Before / After Example
+## Rule catalog (v0.2.0)
 
-This repository includes two demo apps:
+| Category | Rules | Default severities |
+|----------|-------|-------------------|
+| Secrets | TG-SEC-001 … 004 | Critical – Medium |
+| Database exposure | TG-DB-001 … 003 | Critical – High |
+| Input/injection | TG-INPUT-001 … 004 | Critical – High |
+| Auth | TG-AUTH-001 … 005 | Critical – High |
+| Rate limits | TG-RATE-001 … 003 | High – Medium |
+| Client exposure | TG-CLIENT-001 … 002 | High – Medium |
+| Platform | TG-PLATFORM-001 … 004 | High – Medium |
 
-| App | Description |
-|-----|-------------|
-| [`examples/vulnerable-express-react-app/`](examples/vulnerable-express-react-app/) | Intentionally insecure React + Vite + Express app |
-| [`examples/hardened-express-react-app/`](examples/hardened-express-react-app/) | Secure counterpart with all fixes applied |
+Full catalog: [rules/README.md](rules/README.md)
 
-Each vulnerability in the demo maps to a reference module under `skills/torusguard/references/`.
+## Supported stacks
 
-## Repository Structure
+React/Vite, Next.js, Node.js/Express, Supabase, Firebase, PostgreSQL, MySQL, MongoDB, and common REST APIs.
+
+## Repository layout
 
 ```
 TorusGuard/
-├── skills/torusguard/
-│   ├── SKILL.md              # Main skill entry point
-│   └── references/           # Detailed security modules
-├── examples/                   # Vulnerable + hardened demo apps
-├── research/                   # Threat rationale and research notes
-└── scripts/                    # Validation scripts
+├── skills/torusguard/       # Main installable skill
+├── rules/                   # 25 documented security rules
+├── templates/               # SECURITY, audit, pre-flight, threat model
+├── guides/                  # Stack-specific implementation guides
+├── examples/                # Vulnerable + hardened reference apps
+├── research/                # Threat rationale notes
+└── docs/releases/           # Release notes
 ```
 
-## Development
+## Examples
 
-```bash
-npm run validate
-npm run check-examples
-```
+| Example | Description |
+|---------|-------------|
+| [examples/vulnerable-react-express/](examples/vulnerable-react-express/) | Intentionally insecure — **never deploy** |
+| [examples/hardened-react-express/](examples/hardened-react-express/) | Secure patterns mapped to rule IDs |
+
+## Templates and guides
+
+**Templates:** [SECURITY](templates/SECURITY.template.md), [threat model](templates/threat-model.template.md), [audit report](templates/audit-report.template.md), [deployment pre-flight](templates/deployment-preflight.template.md), [endpoint review](templates/api-endpoint-review.template.md), [security exception](templates/security-exception.template.md)
+
+**Guides:** [React/Vite](guides/react-vite-security.md), [Next.js](guides/nextjs-security.md), [Express](guides/express-security.md), [Supabase](guides/supabase-security.md), [Firebase](guides/firebase-security.md)
+
+## Limitations
+
+TorusGuard does not replace penetration testing, compliance certification, or threat modeling. It cannot detect every business-logic flaw or block DevTools. Findings require human judgment for false positives and manual items (RLS, Firebase rules, infrastructure).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). We welcome security rule proposals, false-positive reports, and stack-specific examples.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Propose rules via issue template; include unsafe/safe examples and verification steps.
 
-## Security Reporting
+## Security reporting
 
-See [SECURITY.md](SECURITY.md) for reporting vulnerabilities in TorusGuard itself.
+Report TorusGuard vulnerabilities **privately** — see [SECURITY.md](SECURITY.md). Do not use public GitHub Issues for security disclosures.
 
 ## Roadmap
 
-- **v0.2** — Machine-readable rule catalog (`TG-001`, etc.)
-- **v0.3** — CLI detector (`npx torusguard detect`)
-- **v0.4** — CI integration for pull requests
-- **v0.5** — AI remediation plans (`/torusguard plan TG-001`)
+| Version | Focus |
+|---------|-------|
+| v0.1.0 | Core skill and reference modules |
+| **v0.2.0** | Structured audit framework — 25 rules, templates, guides, examples |
+| v0.3.0 | Optional local detector (not npm-published by default) |
+| v1.0.0 | Stable rule catalog and comprehensive examples |
 
 ## License
 
@@ -122,4 +135,4 @@ MIT — see [LICENSE](LICENSE)
 
 ## Author
 
-Jenish Lad — TorusGuard v0.1.0
+Jenish Lad

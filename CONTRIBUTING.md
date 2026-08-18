@@ -1,72 +1,63 @@
 # Contributing to TorusGuard
 
-Thank you for helping make AI-built web applications safer. This guide explains how to contribute security rules, fixes, and examples.
+TorusGuard is a Markdown-first agent skill — not an npm package. Contributions are documentation, rules, examples, and guides.
 
-## Ways to Contribute
+## Ways to contribute
 
-1. **Propose a new security rule** — Open an issue using the "Security Rule Proposal" template.
-2. **Report a false positive** — Open an issue using the "False Positive Report" template.
-3. **Improve reference modules** — Submit a PR editing files under `skills/torusguard/references/`.
-4. **Add stack-specific examples** — Extend examples or add new demo apps with before/after documentation.
-5. **Fix documentation** — Clarify wording, add detection patterns, or improve remediation steps.
+1. **Propose a security rule** — use the [rule proposal template](.github/ISSUE_TEMPLATE/rule_proposal.md)
+2. **Report a false positive** — use the [false positive template](.github/ISSUE_TEMPLATE/false_positive.md)
+3. **Improve an existing rule** — use the [rule improvement template](.github/ISSUE_TEMPLATE/security_rule_improvement.md)
+4. **Submit a PR** — edit rules, references, guides, templates, or examples
 
-## Development Setup
+## Development setup
 
 ```bash
 git clone https://github.com/githubmofo/TorusGuard.git
 cd TorusGuard
-npm run validate
-npm run check-examples
+# No npm install required — review Markdown locally
 ```
 
-## Pull Request Guidelines
+## Pull request guidelines
 
-1. **One concern per PR** — Keep changes focused (one module, one rule, or one example fix).
-2. **Include before/after code** — Every new hard ban needs a vulnerable example and a safe alternative.
-3. **No real secrets** — Use placeholders like `YOUR_JWT_SECRET`, never real credentials.
-4. **Run validation** — Ensure `npm run validate` passes before submitting.
-5. **Update CHANGELOG.md** — Add an entry under `[Unreleased]` for user-visible changes.
+1. One concern per PR
+2. Every new rule needs: ID proposal, rationale, severity, unsafe example, safe example, detection, remediation, verification, false positives
+3. No real secrets — placeholders only
+4. Update `rules/README.md` and relevant reference module
+5. Update `CHANGELOG.md` under `[Unreleased]` for user-visible changes
 
-## Security Rule Format
+## New rule requirements
 
-When proposing a rule, include:
+Every proposed rule must include:
 
-| Field | Description |
-|-------|-------------|
-| **ID** | Proposed ID (e.g., `TG-042`) |
-| **Title** | Short name |
-| **Severity** | Critical, High, Medium, Low, Informational |
-| **Category** | One of the seven modules |
-| **Detection** | What to search for in code |
-| **Hard ban** | Yes/No |
-| **Remediation** | Concrete fix with code example |
-| **False positives** | When this rule should not apply |
+| Field | Required |
+|-------|----------|
+| Rule ID proposal | e.g., `TG-SEC-005` |
+| Security rationale | Why it matters |
+| Default severity | Critical / High / Medium / Low / Info |
+| Unsafe example | Original, framework-appropriate |
+| Safe example | Corrected pattern |
+| Detection approach | What to search for |
+| Remediation | Numbered steps |
+| Verification steps | How to confirm fix |
+| False positives / exceptions | When not to flag |
+| Framework notes | Where relevant |
+| Test/example impact | Which examples to update |
 
-## Module Structure
+## Rule file format
 
-Each reference file in `skills/torusguard/references/` should contain:
+Follow the section order in existing `rules/TG-*.md` files. Link related rules in **Related Rules**.
 
-- Scope
-- Threat model
-- Detection patterns
-- Hard bans
-- Required safe defaults
-- Framework-specific examples
-- Verification checklist
-- False-positive guidance
+## Example apps
 
-## Example Apps
+- Vulnerable examples must include `WARNING: intentionally vulnerable` in README
+- Mark flaws with `// TG-RULE-ID` comments
+- Hardened examples must demonstrate the fix
+- All secrets must be fake and labeled non-functional
 
-The `examples/` directory contains intentionally vulnerable and hardened demo apps. When adding vulnerabilities to the vulnerable app:
+## Code of conduct
 
-- Mark each with a comment: `// TORUSGUARD-DEMO: TG-xxx description`
-- Link the vulnerability to the relevant reference module in README
-- Ensure the hardened app demonstrates the fix
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
-## Code of Conduct
+## Security vulnerabilities in TorusGuard
 
-Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Be respectful and constructive.
-
-## Questions
-
-Open a GitHub Discussion or issue if you are unsure whether a change fits the project scope.
+Do **not** open public issues for security flaws in TorusGuard itself. See [SECURITY.md](SECURITY.md).

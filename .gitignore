@@ -1,14 +1,30 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+service-account*.json
+
+# Dependencies and build output
 node_modules/
 dist/
 build/
-.env
-.env.local
-*.log
-.DS_Store
-data/
-*.db
+.next/
+out/
+*.map
 
-# Example app artifacts
-examples/*/node_modules/
-examples/*/dist/
+# OS and editor
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+
+# Example app local data
 examples/*/data/
+examples/*/*.db
+
+# Local agent copies
+.cursor/

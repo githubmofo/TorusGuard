@@ -1,125 +1,57 @@
 # Rate Limiting and Abuse Prevention
 
-## Scope
+## When to load
 
-Protect public and expensive endpoints against brute force, enumeration, spam, denial of service, OTP abuse, and resource exhaustion.
+Load during `/torusguard check rate-limit`, auth endpoint reviews, or public API design.
 
-## Threat Model
+## Linked rules
 
-- Brute force on login and password reset
-- OTP flooding and SMS/email cost abuse
-- Contact form spam
-- API scraping and DoS via high request volume
-- Resource exhaustion via large payloads or uploads
+- [TG-RATE-001](../../rules/TG-RATE-001-unlimited-auth-endpoint.md) — Unlimited Auth Endpoint (High)
+- [TG-RATE-002](../../rules/TG-RATE-002-unlimited-public-write-endpoint.md) — Unlimited Public Write (Medium)
+- [TG-RATE-003](../../rules/TG-RATE-003-unbounded-resource-consumption.md) — Unbounded Resource Use (High)
 
-## Endpoints That Must Be Reviewed
-
-```
-/login, /signup, /logout
-/forgot-password, /reset-password
-/verify-otp, /send-otp
-/contact, /feedback, /search
-/api/*, AI/LLM endpoints
-File upload endpoints
-Payment, coupon, webhook endpoints
-```
-
-## Detection Patterns
-
-| Pattern | Severity |
-|---------|----------|
-| Login endpoint with no rate limit | High |
-| Password reset with no per-email limit | High |
-| OTP send with no per-identifier limit | High |
-| Public POST with no body size limit | Medium |
-| In-memory rate limiter as sole protection in distributed prod | Medium |
-| Frontend-only throttling with no server limit | High |
-| Missing 429 response on limit exceeded | Low |
-
-## Required Rules
-
-- Per-IP limits for public endpoints
-- Per-account or per-identifier limits for login, OTP, and password reset
-- Body-size limits on JSON endpoints
-- Upload-size limits
-- Return HTTP **429 Too Many Requests** when limits exceeded
-- Include `Retry-After` header when practical
-- Backoff or temporary lockout for repeated failed auth
-- Shared rate-limit store (Redis) in distributed production — not in-memory only
-
-## Suggested Initial Defaults
-
-| Endpoint type | Suggested limit |
-|---------------|-----------------|
-| Login | 5 attempts per IP per 15 min + account-level backoff |
-| Password reset | 3 requests per email per hour |
-| OTP send | 3 requests per phone/email per 15 min |
-| Contact form | 5 requests per IP per hour |
-| General public API | 60 requests per IP per minute |
-| Search | 30 requests per IP per minute |
-| File upload | 10 uploads per IP per hour + size limits |
-| AI endpoint | Cost-based limit per user and per IP |
-
-Defaults are configurable — adjust for traffic profiles.
-
-## Implementation Examples
-
-### Express with express-rate-limit
-
-```javascript
-import rateLimit from 'express-rate-limit';
-
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many login attempts. Try again later.' },
-});
-
-app.post('/api/login', loginLimiter, loginHandler);
-```
-
-### Per-email reset limiter (Redis example)
-
-```javascript
-async function checkResetLimit(email) {
-  const key = `reset:${email}`;
-  const count = await redis.incr(key);
-  if (count === 1) await redis.expire(key, 3600);
-  if (count > 3) throw new RateLimitError('Too many reset requests');
-}
-```
-
-### Body size limits
-
-```javascript
-app.use(express.json({ limit: '100kb' }));
-app.use(express.urlencoded({ extended: true, limit: '100kb' }));
-```
-
-## Hard Bans
+## Hard bans
 
 - Never rely only on frontend throttling
 - Never leave login, reset, OTP, or contact endpoints unlimited in production
+- Never use in-memory-only rate limits as sole protection in distributed production
 
-## Verification Checklist
+## Configurable default limits
 
-- [ ] All public write endpoints have appropriate rate limits
-- [ ] Auth and reset flows have per-account protections
-- [ ] Rate-limit response is 429
-- [ ] Body and upload size limits configured
-- [ ] Production distributed deployments use shared limit store
+| Endpoint | Suggested starting point |
+|----------|-------------------------|
+| Login | 5 / IP / 15 min + account backoff |
+| Password reset | 3 / email / hour |
+| OTP | 3 / identifier / 15 min |
+| Contact/feedback | 5 / IP / hour |
+| Public API | 60 / IP / minute |
+| Search | 30 / IP / minute |
+| Upload | 10 / IP / hour + size limits |
+| AI/LLM | Per-user and per-IP cost limits |
 
-## False-Positive Guidance
+Adjust for your traffic profile — these are defaults, not universal values.
 
-- Internal admin endpoints behind VPN — may use different limits; document in SECURITY.md
-- Webhook endpoints — rate limit by IP + signature verification, not generic public limits
-- GraphQL — apply query complexity limits in addition to request rate limits
+## Safe defaults
 
-## Remediation Steps
+- Per-IP limits on public endpoints
+- Per-account limits on auth flows
+- HTTP 429 with `Retry-After` when practical
+- Body, upload, and pagination caps (TG-RATE-003)
+- Timeouts and concurrency limits on expensive endpoints
+- Shared store (Redis) for multi-instance deployments
 
-1. Identify unprotected public endpoints
-2. Add appropriate limiter middleware
-3. Configure body/upload size limits
-4. Use Redis or equivalent for multi-instance deployments
+## Audit checklist
+
+- [ ] Auth endpoints rate-limited (TG-RATE-001)
+- [ ] Public write/AI endpoints protected (TG-RATE-002)
+- [ ] Body/upload/pagination limits set (TG-RATE-003)
+
+## Manual review
+
+- Webhook endpoints (signature + IP limits)
+- GraphQL complexity/depth limits
+- Spend alerts for metered third-party APIs
+
+## Related rules
+
+TG-AUTH-005, TG-PLATFORM-004, TG-INPUT-004

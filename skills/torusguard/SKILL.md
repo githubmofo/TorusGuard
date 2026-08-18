@@ -1,205 +1,164 @@
 ---
 name: torusguard
-description: Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, auth, rate limits, and production exposure.
+description: Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, and APIs.
 ---
 
 # TorusGuard
 
-TorusGuard is a portable AI-agent security skill for AI-built web applications. It audits and hardens common security issues including hardcoded secrets, frontend database queries or admin keys, unsafe input validation, SQL/NoSQL injection, authentication and authorization flaws, IDOR, missing rate limits, unsafe CORS, public production source maps, and insecure deployment configuration.
+**Tagline:** Security guardrails for AI-built web apps.
 
-**Core principle:** Anything sent to the browser is public. DevTools cannot be blocked. Security comes from server-side enforcement, not hiding client code.
+**Core principle:** If the browser receives it, users can inspect it. Keep secrets, database access, and authorization decisions on trusted server-side code.
+
+TorusGuard is a Markdown-first, portable AI-agent skill. It is not an npm package, hosted service, browser extension, or automated vulnerability scanner. It guides audit and remediation through structured rules, templates, and references.
+
+TorusGuard must never claim it can block DevTools, make an application fully secure, or replace professional penetration testing, code review, compliance work, or threat modeling.
 
 ## When to Activate
 
-Use this skill when the user:
-
-- Builds a full-stack web application
-- Adds login, signup, reset-password, OTP, payment, contact, upload, or admin features
-- Adds an API endpoint or connects a database
-- Uses Supabase, Firebase, PostgreSQL, MySQL, MongoDB, Prisma, Drizzle, or Sequelize
-- Deploys an application or asks to review, audit, or fix security
-- Asks about rate limiting, secrets, source maps, or CORS
+Use when the user builds or deploys web apps, adds APIs, connects databases, implements auth, reviews security, audits repositories, fixes vulnerabilities, or asks about rate limits, secrets, source maps, or CORS.
 
 ## Commands
 
 | Command | Purpose | Changes code? |
 |---------|---------|---------------|
-| `/torusguard init` | Understand project and create `SECURITY.md` | Yes (docs only) |
-| `/torusguard audit` | Scan repository and report vulnerabilities | No |
-| `/torusguard harden` | Fix approved findings and re-check | Yes |
-| `/torusguard check <area>` | Audit one area: `secrets`, `frontend-db`, `input`, `auth`, `rate-limit`, `client-exposure`, `platform` | No by default |
+| `/torusguard init` | Create/update project `SECURITY.md` and threat model | Docs only |
+| `/torusguard audit` | Scan all 25 rules; produce audit report | No |
+| `/torusguard harden` | Fix approved findings; re-verify | Yes |
+| `/torusguard check <area>` | Audit one rule group | No by default |
+| `/torusguard verify` | Production pre-flight checklist | No |
+
+**Check areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`
 
 ## Mandatory Security Read
 
-Before editing application code, produce this summary and wait until stack/auth/routes are identified:
+Before editing application code, print:
 
 ```text
 Security Read
-- Stack: [frontend, backend, database]
+- Stack: [frontend, backend, database, deployment]
 - Authentication: [mechanism]
 - Public surfaces: [routes]
 - Sensitive assets: [data types]
-- Trust boundary: browser -> API -> database
-- High-risk areas: [login abuse, IDOR, uploads, etc.]
+- Trust boundaries: [browser -> API -> DB -> third parties]
+- Relevant modules: [secrets, database, input, auth, rate-limit, client, platform]
+- Auto-verifiable vs manual-review: [list]
 ```
 
-Identify: frontend framework, backend framework, database, auth mechanism, deployment config, public routes, sensitive routes, and data types handled.
+In existing repositories: **audit before hardening**. Do not rewrite unrelated product UI or features.
 
-## Security Modules
+## Rule Catalog (v0.2.0)
 
-Load detailed rules only when auditing or hardening that area:
+Load rule details from `rules/` when auditing or hardening.
 
-| Module | Reference |
-|--------|-----------|
-| Secrets and environment | [secrets-and-config.md](references/secrets-and-config.md) |
-| Frontend database protection | [frontend-no-db.md](references/frontend-no-db.md) |
-| Input validation and injection | [input-and-injection.md](references/input-and-injection.md) |
-| Auth, sessions, authorization | [auth-and-sessions.md](references/auth-and-sessions.md) |
-| Rate limiting and abuse | [rate-limit-and-abuse.md](references/rate-limit-and-abuse.md) |
-| Client code exposure | [client-code-exposure.md](references/client-code-exposure.md) |
-| Platform and HTTP hardening | [platform-hardening.md](references/platform-hardening.md) |
+| Area | Rule IDs |
+|------|----------|
+| Secrets | TG-SEC-001 … TG-SEC-004 |
+| Database exposure | TG-DB-001 … TG-DB-003 |
+| Input/injection | TG-INPUT-001 … TG-INPUT-004 |
+| Auth | TG-AUTH-001 … TG-AUTH-005 |
+| Rate limits | TG-RATE-001 … TG-RATE-003 |
+| Client exposure | TG-CLIENT-001 … TG-CLIENT-002 |
+| Platform | TG-PLATFORM-001 … TG-PLATFORM-004 |
 
-## Hard Bans
+Full catalog: [rules/README.md](../../rules/README.md)
 
-Never produce or approve code that:
+## Reference Modules
 
-1. Hardcodes database URLs, JWT secrets, passwords, or API keys in source
-2. Exposes service-role or admin credentials to the browser
-3. Runs SQL queries or imports DB drivers in frontend files
-4. Concatenates user input into SQL strings
-5. Uses `eval`, `Function()`, or shell execution with untrusted input
-6. Renders unsanitized user HTML via `dangerouslySetInnerHTML`
-7. Stores auth tokens in `localStorage` without documented tradeoffs
-8. Checks roles or authorization only in frontend routing
-9. Trusts client-provided `userId`, `role`, or `isAdmin`
-10. Uses MD5/SHA1/plaintext for passwords
-11. Sets `Access-Control-Allow-Origin: *` with credentials
-12. Returns production stack traces or raw DB errors to clients
-13. Logs passwords, tokens, session IDs, or full auth headers
-14. Treats frontend env vars (`VITE_*`, `NEXT_PUBLIC_*`, `REACT_APP_*`) as secret
+Load only relevant references during audit/harden:
+
+| Area | Reference | Rules |
+|------|-----------|-------|
+| secrets | [secrets-and-config.md](references/secrets-and-config.md) | TG-SEC-* |
+| database | [frontend-no-db.md](references/frontend-no-db.md) | TG-DB-* |
+| input | [input-and-injection.md](references/input-and-injection.md) | TG-INPUT-* |
+| auth | [auth-and-sessions.md](references/auth-and-sessions.md) | TG-AUTH-* |
+| rate-limit | [rate-limit-and-abuse.md](references/rate-limit-and-abuse.md) | TG-RATE-* |
+| client | [client-code-exposure.md](references/client-code-exposure.md) | TG-CLIENT-* |
+| platform | [platform-hardening.md](references/platform-hardening.md) | TG-PLATFORM-* |
+
+## Templates
+
+| Template | Use |
+|----------|-----|
+| [SECURITY.template.md](../../templates/SECURITY.template.md) | `/torusguard init` |
+| [threat-model.template.md](../../templates/threat-model.template.md) | `/torusguard init` |
+| [audit-report.template.md](../../templates/audit-report.template.md) | `/torusguard audit` |
+| [deployment-preflight.template.md](../../templates/deployment-preflight.template.md) | `/torusguard verify` |
+| [api-endpoint-review.template.md](../../templates/api-endpoint-review.template.md) | Endpoint review |
+| [security-exception.template.md](../../templates/security-exception.template.md) | Documented exceptions |
 
 ## Workflow: `/torusguard init`
 
-1. Detect project structure, frameworks, env files, and deployment config
-2. Identify public endpoints and sensitive assets
-3. Map trust boundaries
-4. Create root-level `SECURITY.md` using the template below
-5. Do **not** alter application code
-
-```markdown
-# Security Context
-
-## Stack
-- Frontend:
-- Backend:
-- Database:
-- Authentication:
-- Hosting:
-
-## Sensitive Assets
-- User credentials:
-- Personal data:
-- Payment data:
-- API tokens:
-- Files:
-
-## Public Endpoints
-- Method and path:
-
-## Trust Boundaries
-- Browser -> API
-- API -> Database
-- API -> Third-party services
-
-## Security Controls
-- Input validation:
-- Authentication:
-- Authorization:
-- Rate limiting:
-- Security headers:
-- Logging:
-
-## Known Risks / Follow-ups
-- [ ]
-```
+1. Inspect repository **without modifying application code**
+2. Detect frontend, backend, database, auth, deployment, public endpoints, sensitive assets
+3. Generate root `SECURITY.md` from [SECURITY.template.md](../../templates/SECURITY.template.md) if missing; if present, update only stale/missing sections
+4. Create compact threat model from [threat-model.template.md](../../templates/threat-model.template.md)
+5. Never include actual secrets in generated files
 
 ## Workflow: `/torusguard audit`
 
-1. Read project `SECURITY.md` if it exists
-2. Detect stack and scan all seven modules
-3. Report findings — **do not change code**
-4. Include file path and line number when available
-5. Assign risk: Critical, High, Medium, Low, Informational
-6. Distinguish verified, not found, and needs manual review
+1. Read project `SECURITY.md` if present
+2. Detect stack; load relevant references and all 25 rules where applicable
+3. **Do not change source code**
+4. Produce report using [audit-report.template.md](../../templates/audit-report.template.md)
 
-```markdown
-# TorusGuard Audit Report
+Each finding must include: **rule ID, severity, confidence** (confirmed/likely/manual), **location, evidence, security impact, remediation, verification step**.
 
-## Security Read
-- Stack:
-- Auth:
-- Database:
-- Public routes:
+Separate: **confirmed findings**, **likely findings**, **passed checks**, **manual-review items**.
 
-## Critical Findings
-| ID | Finding | Location | Risk | Recommended Fix |
-|---|---|---|---|---|
-
-## High Findings
-| ID | Finding | Location | Risk | Recommended Fix |
-|---|---|---|---|---|
-
-## Passed Checks
-- [x] Example passed check
-
-## Manual Review Required
-- Example: Verify Supabase RLS policies
-
-## Pre-Flight Result
-FAIL / PASS WITH WARNINGS / PASS
-```
+End with pre-flight result: **FAIL**, **PASS WITH WARNINGS**, or **PASS**.
 
 ## Workflow: `/torusguard harden`
 
-1. Run or read the latest audit
-2. Present exact proposed changes before applying
-3. Apply least-invasive safe fixes only
-4. Do not remove business features or replace entire auth systems without approval
-5. Do not change DB schema unless necessary
-6. Explain any new dependency
-7. Re-run audit and report unresolved risks
+1. Run or read latest audit
+2. Present remediation plan grouped by severity
+3. Modify code only for relevant, safe, high-confidence findings
+4. Preserve business behavior and public APIs; explain breaking changes first
+5. Add/update tests where test setup exists
+6. Re-run relevant checks
+7. Produce remediation summary: fixed rule IDs + remaining manual-review items
+8. Never expose real secrets in output, code, docs, or logs
 
 ## Workflow: `/torusguard check <area>`
 
-Audit a single module. Valid areas: `secrets`, `frontend-db`, `input`, `auth`, `rate-limit`, `client-exposure`, `platform`.
+Audit only the selected rule group. Do not modify source by default. Report pass/fail and manual verification instructions.
 
-Use the corresponding reference file. Output a focused report for that area only.
+| Area | Rules |
+|------|-------|
+| secrets | TG-SEC-001 … 004 |
+| database | TG-DB-001 … 003 |
+| input | TG-INPUT-001 … 004 |
+| auth | TG-AUTH-001 … 005 |
+| rate-limit | TG-RATE-001 … 003 |
+| client | TG-CLIENT-001 … 002 |
+| platform | TG-PLATFORM-001 … 004 |
 
-## Pre-Flight Release Gate
+## Workflow: `/torusguard verify`
 
-**FAIL** deployment pre-flight if any of these are true:
+1. Run [deployment-preflight.template.md](../../templates/deployment-preflight.template.md)
+2. Unresolved **Critical** or **High** findings → **FAIL**
+3. Do not claim "fully secure"
+4. State browser source cannot be hidden; authorization must remain server-side
 
-- [ ] Real secret, API key, password, service-role key, or database URL in tracked source
-- [ ] Database query, DB driver, or privileged admin SDK in frontend code
-- [ ] Public POST endpoint with no auth, rate limit, or explicit justification
-- [ ] User input reaches SQL via string concatenation
-- [ ] User input reaches HTML rendering without appropriate handling
-- [ ] Passwords use plaintext, MD5, or SHA1
-- [ ] Authorization happens only in frontend
-- [ ] Sensitive resource route lacks ownership or role checks
-- [ ] Cookie auth lacks appropriate CSRF protection
-- [ ] CORS uses wildcard origin with credentials
-- [ ] Public production source maps expose original source unintentionally
-- [ ] Production errors expose stack traces or internal secrets
-- [ ] Uploads lack authorization, type checks, or size limits
+## Hard Bans
+
+Never produce or approve:
+
+1. Hardcoded secrets, DB URLs, JWT signing keys, or API keys in tracked source
+2. Sensitive values in `VITE_*`, `NEXT_PUBLIC_*`, `REACT_APP_*` or equivalent
+3. SQL queries or DB driver imports in browser/client code
+4. SQL string concatenation with request input
+5. `eval`, `Function()`, or shell execution with untrusted input
+6. Unsanitized `dangerouslySetInnerHTML` with user content
+7. Client-only authorization or trust in client `userId`/`role`/`isAdmin`
+8. MD5/SHA1/plaintext password storage
+9. `Access-Control-Allow-Origin: *` with credentials
+10. Production stack traces or raw DB errors to clients
+11. Logging passwords, tokens, session IDs, or full auth headers
 
 ## IDOR Test
 
-For every sensitive route, ask:
-
-> Can User A change the resource ID in this request and access User B's resource?
-
-If yes, the route **fails** the audit.
+For every sensitive object route: **Can User A change the resource ID and access User B's resource?** If yes → fails TG-AUTH-003.
 
 ## Browser Code Truth
 
@@ -207,21 +166,26 @@ State explicitly when relevant:
 
 - DevTools and Inspect Element cannot be blocked
 - Browser-delivered JavaScript is public
-- Disable public production source maps; upload privately to monitoring tools if needed
-- Move secrets, authorization, and database logic server-side
+- Disable public production source maps; upload privately to monitoring if needed
+- Obfuscation is not a security control
 
-## Supported Stacks
+## Framework Guides
 
-React/Vite, Next.js, Node.js/Express, Supabase, Firebase, PostgreSQL, MySQL, MongoDB, and common REST APIs. Load framework-specific guidance from reference modules; do not apply Express middleware to Firebase-only apps.
-
-## What TorusGuard Does Not Do
-
-- Replace professional penetration testing
-- Guarantee PCI-DSS, HIPAA, ISO 27001, SOC 2, or GDPR compliance
-- Detect every business-logic vulnerability
-- Block DevTools or obfuscate frontend code as primary security
-- Provide hosted dashboards or SaaS
+- [React/Vite](../../guides/react-vite-security.md)
+- [Next.js](../../guides/nextjs-security.md)
+- [Express](../../guides/express-security.md)
+- [Supabase](../../guides/supabase-security.md)
+- [Firebase](../../guides/firebase-security.md)
 
 ## Examples
 
-See repository `examples/vulnerable-express-react-app/` and `examples/hardened-express-react-app/` for before/after patterns.
+- [vulnerable-react-express](../../examples/vulnerable-react-express/) — intentionally insecure; never deploy
+- [hardened-react-express](../../examples/hardened-react-express/) — secure patterns
+
+## What TorusGuard Does Not Do
+
+- Block DevTools or hide browser JavaScript
+- Guarantee compliance (PCI, HIPAA, SOC 2, GDPR)
+- Detect every business-logic flaw
+- Replace penetration testing or threat modeling
+- Provide hosted dashboards, telemetry, or SaaS

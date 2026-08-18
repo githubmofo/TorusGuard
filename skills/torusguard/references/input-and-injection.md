@@ -1,133 +1,51 @@
 # Input Validation and Injection Prevention
 
-## Scope
+## When to load
 
-Treat all external input as untrusted and validate it at the server boundary.
+Load during `/torusguard check input`, API route reviews, or upload/webhook implementation.
 
-## Threat Model
+## Linked rules
 
-- SQL/NoSQL injection via concatenated queries
-- XSS via unsanitized HTML rendering
-- Command injection via shell execution
-- Open redirects via user-controlled URLs
-- Malicious file uploads
+- [TG-INPUT-001](../../rules/TG-INPUT-001-missing-server-validation.md) — Missing Server Validation (High)
+- [TG-INPUT-002](../../rules/TG-INPUT-002-raw-sql-concatenation.md) — Raw SQL Concatenation (Critical)
+- [TG-INPUT-003](../../rules/TG-INPUT-003-unsafe-html-or-code-execution.md) — Unsafe HTML/Code Execution (High)
+- [TG-INPUT-004](../../rules/TG-INPUT-004-unrestricted-file-upload.md) — Unrestricted File Upload (High)
 
-## Untrusted Input Sources
+## Hard bans
 
-- Request body, query params, path params, headers, cookies
-- Form submissions, webhooks, file uploads
-- Imported CSV/Excel/JSON files
-- Third-party API responses, LLM responses
-- Database values later rendered as HTML
-
-## Detection Patterns
-
-| Pattern | Severity |
-|---------|----------|
-| SQL string concatenation with `req.body`, `req.query`, `req.params` | Critical |
-| `eval()`, `new Function()`, `child_process.exec` with user input | Critical |
-| `dangerouslySetInnerHTML` without sanitization | High |
-| Missing validation before business logic in API routes | High |
-| Redirect: `res.redirect(req.query.url)` without allowlist | High |
-| File upload accepted by extension only | Medium |
-| Trust in `req.body.role`, `req.body.isAdmin`, `req.body.userId` | Critical |
-
-## Hard Bans
-
-- No raw string-concatenated SQL
-- No `eval`, `Function()`, or dynamic code execution with untrusted input
-- No direct shell execution with user input
-- No unsanitized user-generated HTML rendering
-- No user-controlled redirect without an allowlist
-- No file upload accepted only by filename extension
+- No raw SQL concatenation with request input
+- No `eval`, `Function()`, or shell execution with untrusted input
+- No unsanitized user HTML via `dangerouslySetInnerHTML`
+- No file upload without size, type, and authorization checks
 - No trust in `req.body.role`, `isAdmin`, or `userId`
 
-## Required Safe Defaults
+## Safe defaults
 
-### Schema validation (Zod example)
+- Validate all external input on the server: body, query, params, headers, cookies, webhooks, uploads
+- Treat third-party API and **LLM output** as untrusted
+- Use Zod, Joi, Yup, or Ajv schemas at route entry
+- Parameterized queries or safe ORM APIs only
+- Redirect URLs must use allowlists
+- Uploads: MIME allowlist, size cap, server-generated filenames, storage outside web root
 
-```javascript
-import { z } from 'zod';
+## Audit checklist
 
-const loginSchema = z.object({
-  email: z.string().email().max(255),
-  password: z.string().min(8).max(128),
-});
+- [ ] Every API route validates input (TG-INPUT-001)
+- [ ] No concatenated SQL (TG-INPUT-002)
+- [ ] No unsafe HTML/code execution (TG-INPUT-003)
+- [ ] Upload routes restricted (TG-INPUT-004)
 
-router.post('/login', async (req, res) => {
-  const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: 'Invalid input' });
-  }
-  const { email, password } = parsed.data;
-  // business logic
-});
-```
+## Framework notes
 
-### Parameterized queries
+- **Express** — validation middleware before handlers
+- **Next.js** — validate in route handlers and Server Actions
+- **Supabase** — Edge Functions validate before privileged ops
 
-```javascript
-// Safe
-await db.query('SELECT * FROM users WHERE email = $1', [email]);
+## Manual review
 
-// Unsafe — NEVER
-await db.query(`SELECT * FROM users WHERE email = '${email}'`);
-```
+- Business-logic validation beyond schema (e.g., cross-field rules)
+- NoSQL injection patterns in MongoDB query builders
 
-### File uploads
+## Related rules
 
-```javascript
-const upload = multer({
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
-    if (!allowed.includes(file.mimetype)) {
-      return cb(new Error('Invalid file type'));
-    }
-    cb(null, true);
-  },
-});
-// Store outside web root; generate server-side filename
-```
-
-### Redirect allowlist
-
-```javascript
-const ALLOWED_REDIRECTS = ['/dashboard', '/settings', '/'];
-
-function safeRedirect(url) {
-  if (!url.startsWith('/') || url.startsWith('//')) return '/';
-  return ALLOWED_REDIRECTS.includes(url) ? url : '/';
-}
-```
-
-## Framework-Specific Examples
-
-| Stack | Validation approach |
-|-------|---------------------|
-| Express | Zod/Joi middleware before route handler |
-| Next.js API routes | Zod parse in route handler or middleware |
-| Next.js Server Actions | Validate with Zod at action entry |
-| Supabase | RLS + Edge Function validation for mutations |
-
-## Verification Checklist
-
-- [ ] Every API route validates request input
-- [ ] Every database query uses parameters or safe ORM
-- [ ] File upload routes have size, type, and authorization checks
-- [ ] HTML rendering of untrusted content is sanitized or avoided
-- [ ] Redirect URLs use allowlist
-- [ ] No shell/command execution with user input
-
-## False-Positive Guidance
-
-- ORM methods like `prisma.user.findMany({ where: { id } })` — parameterized by ORM, not injection
-- Validated enums after Zod parse — safe
-- Server-side template rendering with auto-escaped engines (EJS default) — lower risk
-
-## Remediation Steps
-
-1. Add schema validation at route entry
-2. Replace concatenated SQL with parameterized queries
-3. Add upload restrictions and server-side filenames
-4. Sanitize HTML only when rich HTML is genuinely required (use DOMPurify)
+TG-AUTH-002, TG-RATE-003, TG-PLATFORM-004

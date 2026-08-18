@@ -1,12 +1,15 @@
 # Security Policy
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-If you discover a security vulnerability in **TorusGuard itself** (the skill, scripts, or repository infrastructure), please report it responsibly.
+If you discover a security vulnerability in **TorusGuard itself** (skill content, templates, examples, or repository infrastructure), report it **privately**.
 
-**Do not** open a public GitHub issue for security vulnerabilities.
+**Do not** open a public GitHub Issue for security vulnerabilities.
 
-Instead, email the maintainer or use GitHub's private vulnerability reporting feature on the repository.
+### How to report
+
+1. Use [GitHub Private Vulnerability Reporting](https://github.com/githubmofo/TorusGuard/security/advisories/new) if enabled, **or**
+2. Email the maintainer at: **security@example.com** *(replace with your private contact before publishing)*
 
 Include:
 
@@ -19,16 +22,21 @@ We aim to acknowledge reports within 72 hours and provide a status update within
 
 ## Scope
 
-This policy covers the TorusGuard skill repository, validation scripts, and documentation.
+This policy covers the TorusGuard skill repository: skill files, rules, templates, guides, examples, and documentation.
 
-It does **not** cover applications you build using TorusGuard. For those, use the generated project `SECURITY.md` created by `/torusguard init`.
+It does **not** cover applications you secure using TorusGuard. For those projects, use the generated `SECURITY.md` from `/torusguard init`.
 
-## Supported Versions
+## Supported versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+| Version | Supported |
+|---------|-----------|
+| 0.2.x   | Yes |
+| 0.1.x   | Best effort |
 
-## What TorusGuard Is Not
+## What TorusGuard is not
 
 TorusGuard is guidance for AI coding agents. It is not a penetration test, compliance certification, or guarantee of security for your application.
+
+## Coordinated disclosure
+
+We appreciate responsible disclosure. We will credit reporters who wish to be acknowledged, unless they prefer anonymity.

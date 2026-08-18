@@ -1,109 +1,55 @@
 # Client Code Exposure and Source Maps
 
-## Scope
+## When to load
 
-Reduce unnecessary exposure of original source files, comments, route hints, API details, and secrets through production builds.
+Load during `/torusguard check client`, production build review, or frontend bundle audits.
 
-## Important Truth
+## Linked rules
 
-**DevTools cannot be blocked.** Browser-delivered JavaScript is public. Security comes from server-side enforcement, not from hiding client code.
+- [TG-CLIENT-001](../../rules/TG-CLIENT-001-public-production-source-maps.md) — Public Production Source Maps (Medium)
+- [TG-CLIENT-002](../../rules/TG-CLIENT-002-sensitive-client-bundle-content.md) — Sensitive Bundle Content (High)
 
-TorusGuard must never claim that Inspect Element, DevTools, or browser Sources can be blocked.
+## Important truth
 
-## Threat Model
+**Inspect Element and DevTools cannot be prevented.** Browser-delivered JavaScript is public. TorusGuard must never claim client code can be hidden. Security comes from server-side enforcement, not obfuscation.
 
-- Public source maps reveal original TypeScript/React source
-- Comments expose internal routes, admin endpoints, or credentials
-- `console.log` leaks tokens and user objects in production
-- Sensitive business rules or admin logic in browser bundles
-- Missing CSP allows XSS exploitation
+Obfuscation is a minor deterrent only — never a security control.
 
-## Detection Patterns
+## Hard bans
 
-| Pattern | Severity |
-|---------|----------|
-| Vite `build.sourcemap: true` in production config | High |
-| Next.js `productionBrowserSourceMaps: true` | High |
-| `.map` files in `dist/` or `build/` deployed publicly | High |
-| `console.log` with tokens, users, or config in production code | Medium |
-| Admin/role logic only in frontend components | Critical |
-| Secrets in frontend bundle (via env or hardcode) | Critical |
-| Missing Content-Security-Policy | Medium |
+- No secrets, privileged routes, or auth decisions only in client code
+- No production `console.log` of tokens, users, or config
+- No public `.map` files unless explicitly required
 
-## Required Fixes
+## Safe defaults
 
-### Vite
+| Framework | Production setting |
+|-----------|-------------------|
+| Vite | `build.sourcemap: false` |
+| Next.js | `productionBrowserSourceMaps: false` |
+| CRA | `GENERATE_SOURCEMAP=false` |
 
-```javascript
-// vite.config.js
-export default defineConfig({
-  build: {
-    sourcemap: false,
-  },
-});
-```
-
-### Next.js
-
-```javascript
-// next.config.js
-const nextConfig = {
-  productionBrowserSourceMaps: false,
-};
-export default nextConfig;
-```
-
-### Create React App
-
-```env
-GENERATE_SOURCEMAP=false
-```
-
-### Additional requirements
-
-- Do not deploy public `.map` files unless explicitly required
-- If Sentry or monitoring requires maps, upload privately — do not serve publicly
-- CDN/deployment should return 404 for public `.map` files when disabled
-- Strip development logs in production builds where appropriate
-- Keep secrets and authorization logic server-side
+- Upload source maps privately to Sentry/monitoring — do not serve publicly
+- Verify public `.map` URLs return 404 when disabled
 - Add CSP where practical
+- Move authorization and secrets server-side
 
-### Content-Security-Policy example
+## Audit checklist
 
-```javascript
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.example.com"
-  );
-  next();
-});
-```
+- [ ] Production source maps disabled or private (TG-CLIENT-001)
+- [ ] No secrets or privileged logic in bundle (TG-CLIENT-002)
+- [ ] No sensitive console logging
+- [ ] CSP configured appropriately
 
-## Hard Bans
+## Manual review
 
-- No secret in browser-delivered code
-- No client-only authorization decision protecting sensitive data
-- No production logs exposing authentication material
+- Third-party script dependencies
+- Comments revealing internal routes or admin endpoints
 
-## Verification Checklist
+## Related rules
 
-- [ ] Production source maps not publicly accessible (unless intentional)
-- [ ] No secret in browser bundle
-- [ ] No client-only authorization for sensitive data
-- [ ] Production builds strip or disable debug logging
-- [ ] CSP configured where practical
+TG-SEC-002, TG-AUTH-002, TG-PLATFORM-002
 
-## False-Positive Guidance
+## Framework guide
 
-- Source maps enabled in **development** only — expected
-- Private source map upload to Sentry during CI — OK if not publicly served
-- Minified variable names still expose logic — focus on secrets and auth, not obfuscation
-
-## Remediation Steps
-
-1. Disable public production source maps
-2. Remove secrets and privileged logic from frontend
-3. Move authorization to server
-4. Add CSP headers
-5. Remove or guard production console.log statements
+[React/Vite Security](../../guides/react-vite-security.md)
