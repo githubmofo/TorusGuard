@@ -20,7 +20,7 @@
 
 ## Testing
 
-<!-- How did you verify? e.g., ran /torusguard audit against example app -->
+<!-- How did you verify? e.g., ran /TorusGuard audit against example app -->
 
 ## Changelog
 

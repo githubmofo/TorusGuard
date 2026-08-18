@@ -94,4 +94,4 @@ Define CSP at the reverse proxy or Express/Next layer. Account for Vite dev serv
 
 - [rules/TG-SEC-002-public-environment-secrets.md](../rules/TG-SEC-002-public-environment-secrets.md)
 - [rules/TG-CLIENT-001-public-production-source-maps.md](../rules/TG-CLIENT-001-public-production-source-maps.md)
-- [skills/torusguard/references/client-code-exposure.md](../skills/torusguard/references/client-code-exposure.md)
+- [skills/TorusGuard/references/client-code-exposure.md](../skills/TorusGuard/references/client-code-exposure.md)

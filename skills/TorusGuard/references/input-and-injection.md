@@ -2,7 +2,7 @@
 
 ## When to load
 
-Load during `/torusguard check input`, API route reviews, or upload/webhook implementation.
+Load during `/TorusGuard check input`, API route reviews, or upload/webhook implementation.
 
 ## Linked rules
 

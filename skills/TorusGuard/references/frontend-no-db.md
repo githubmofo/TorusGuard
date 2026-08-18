@@ -2,7 +2,7 @@
 
 ## When to load
 
-Load during `/torusguard check database`, full-stack audits, or when frontend code connects to data stores.
+Load during `/TorusGuard check database`, full-stack audits, or when frontend code connects to data stores.
 
 ## Linked rules
 

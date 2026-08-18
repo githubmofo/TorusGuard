@@ -10,4 +10,4 @@ Stack-specific security checklists and patterns for TorusGuard audits and harden
 | [supabase-security.md](supabase-security.md) | Supabase | TG-DB-002, TG-DB-003, TG-AUTH-003 |
 | [firebase-security.md](firebase-security.md) | Firebase | TG-DB-003, TG-AUTH-002, TG-AUTH-003 |
 
-Use with `/torusguard check <area>` and the matching reference module in `skills/torusguard/references/`.
+Use with `/TorusGuard check <area>` and the matching reference module in `skills/TorusGuard/references/`.

@@ -2,7 +2,7 @@
 
 ## When to load
 
-Load during `/torusguard check client`, production build review, or frontend bundle audits.
+Load during `/TorusGuard check client`, production build review, or frontend bundle audits.
 
 ## Linked rules
 

@@ -2,7 +2,7 @@
 
 ## When to load
 
-Load during `/torusguard check platform`, deployment prep, or `/torusguard verify`.
+Load during `/TorusGuard check platform`, deployment prep, or `/TorusGuard verify`.
 
 ## Linked rules
 

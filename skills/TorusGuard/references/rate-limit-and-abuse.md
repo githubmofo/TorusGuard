@@ -2,7 +2,7 @@
 
 ## When to load
 
-Load during `/torusguard check rate-limit`, auth endpoint reviews, or public API design.
+Load during `/TorusGuard check rate-limit`, auth endpoint reviews, or public API design.
 
 ## Linked rules
 

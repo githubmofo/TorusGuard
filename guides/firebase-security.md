@@ -75,4 +75,4 @@ For custom backends verifying Firebase ID tokens, use Admin SDK `verifyIdToken` 
 
 - [rules/TG-DB-003-frontend-admin-sdk.md](../rules/TG-DB-003-frontend-admin-sdk.md)
 - [rules/TG-AUTH-003-missing-object-authorization.md](../rules/TG-AUTH-003-missing-object-authorization.md)
-- [skills/torusguard/references/frontend-no-db.md](../skills/torusguard/references/frontend-no-db.md)
+- [skills/TorusGuard/references/frontend-no-db.md](../skills/TorusGuard/references/frontend-no-db.md)

@@ -32,4 +32,4 @@ Every intentional flaw maps to a TorusGuard rule ID.
 
 ## Audit exercise
 
-Run `/torusguard audit` against this folder and verify your agent finds each rule with file evidence.
+Run `/TorusGuard audit` against this folder and verify your agent finds each rule with file evidence.

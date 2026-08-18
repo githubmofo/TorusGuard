@@ -26,11 +26,11 @@ DevTools, Inspect Element, and Sources cannot be blocked. TorusGuard keeps secre
 
 | Command | Purpose | Changes code? |
 |---------|---------|---------------|
-| `/torusguard init` | Create/update `SECURITY.md` and threat model | Docs only |
-| `/torusguard audit` | Scan 25 rules; structured audit report | No |
-| `/torusguard harden` | Fix approved findings; re-verify | Yes |
-| `/torusguard check <area>` | Audit one rule group | No by default |
-| `/torusguard verify` | Production pre-flight checklist | No |
+| `/TorusGuard init` | Create/update `SECURITY.md` and threat model | Docs only |
+| `/TorusGuard audit` | Scan 25 rules; structured audit report | No |
+| `/TorusGuard harden` | Fix approved findings; re-verify | Yes |
+| `/TorusGuard check <area>` | Audit one rule group | No by default |
+| `/TorusGuard verify` | Production pre-flight checklist | No |
 
 **Check areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`
 
@@ -44,24 +44,24 @@ DevTools, Inspect Element, and Sources cannot be blocked. TorusGuard keeps secre
 ## Installation
 
 ```bash
-npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
+npx skills add https://github.com/githubmofo/TorusGuard --skill "TorusGuard"
 ```
 
-Or copy `skills/torusguard/` to your agent skills directory:
+Or copy `skills/TorusGuard/` to your agent skills directory:
 
 | Agent | Path |
 |-------|------|
-| Cursor (project) | `.cursor/skills/torusguard/` |
-| Cursor (personal) | `~/.cursor/skills/torusguard/` |
+| Cursor (project) | `.cursor/skills/TorusGuard/` |
+| Cursor (personal) | `~/.cursor/skills/TorusGuard/` |
 
 ## Quick start
 
 ```text
-/torusguard init
-/torusguard audit
-/torusguard harden
-/torusguard verify
-/torusguard check auth
+/TorusGuard init
+/TorusGuard audit
+/TorusGuard harden
+/TorusGuard verify
+/TorusGuard check auth
 ```
 
 ## Rule catalog (v0.2.0)
@@ -86,7 +86,7 @@ React/Vite, Next.js, Node.js/Express, Supabase, Firebase, PostgreSQL, MySQL, Mon
 
 ```
 TorusGuard/
-├── skills/torusguard/       # Main installable skill
+├── skills/TorusGuard/       # Main installable skill
 ├── rules/                   # 25 documented security rules
 ├── templates/               # SECURITY, audit, pre-flight, threat model
 ├── guides/                  # Stack-specific implementation guides

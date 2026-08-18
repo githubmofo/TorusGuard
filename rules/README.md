@@ -74,7 +74,7 @@ Stable rule IDs for TorusGuard v0.2.0. Each rule has a dedicated document in thi
 | [TG-PLATFORM-003](TG-PLATFORM-003-production-stack-trace-exposure.md) | Production Stack Trace or Internal Error Exposure | Medium |
 | [TG-PLATFORM-004](TG-PLATFORM-004-missing-request-size-limits.md) | Missing Request Size Limits | Medium |
 
-## Area Mapping for `/torusguard check`
+## Area Mapping for `/TorusGuard check`
 
 | Area | Rules |
 |------|-------|
@@ -88,6 +88,6 @@ Stable rule IDs for TorusGuard v0.2.0. Each rule has a dedicated document in thi
 
 ## Related Documentation
 
-- Reference modules: `skills/torusguard/references/`
+- Reference modules: `skills/TorusGuard/references/`
 - Framework guides: `guides/`
 - Example mappings: `examples/vulnerable-react-express/vulnerabilities.md`, `examples/hardened-react-express/fixes.md`

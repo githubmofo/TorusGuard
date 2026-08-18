@@ -13,11 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standardized audit report, security context, threat model, deployment pre-flight, endpoint review, and security exception templates.
 - Vulnerable and hardened React + Express reference examples.
 - Security implementation guides for React/Vite, Next.js, Express, Supabase, and Firebase.
-- `/torusguard verify` production pre-flight workflow.
+- `/TorusGuard verify` production pre-flight workflow.
 
 ### Changed
-- Expanded `/torusguard audit` with rule IDs, severity, confidence, evidence, verification steps, and manual-review sections.
-- Expanded `/torusguard harden` to require audit-first remediation and post-fix verification.
+- Expanded `/TorusGuard audit` with rule IDs, severity, confidence, evidence, verification steps, and manual-review sections.
+- Expanded `/TorusGuard harden` to require audit-first remediation and post-fix verification.
 - Improved skill references with framework-aware safe defaults and hard bans.
 
 ### Security
@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial `torusguard` agent skill with four commands: `init`, `audit`, `harden`, `check`
+- Initial `TorusGuard` agent skill with four commands: `init`, `audit`, `harden`, `check`
 - Seven security reference modules
 - Early example applications and research notes
 

@@ -100,4 +100,4 @@ Use Redis or similar shared store in multi-instance production — in-memory lim
 ## Related documentation
 
 - [rules/TG-PLATFORM-001-wildcard-cors-with-credentials.md](../rules/TG-PLATFORM-001-wildcard-cors-with-credentials.md)
-- [skills/torusguard/references/platform-hardening.md](../skills/torusguard/references/platform-hardening.md)
+- [skills/TorusGuard/references/platform-hardening.md](../skills/TorusGuard/references/platform-hardening.md)

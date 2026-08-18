@@ -8,8 +8,7 @@ If you discover a security vulnerability in **TorusGuard itself** (skill content
 
 ### How to report
 
-1. Use [GitHub Private Vulnerability Reporting](https://github.com/githubmofo/TorusGuard/security/advisories/new) if enabled, **or**
-2. Email the maintainer at: **security@example.com** *(replace with your private contact before publishing)*
+1. Use [GitHub Private Vulnerability Reporting](https://github.com/githubmofo/TorusGuard/security/advisories/new)
 
 Include:
 
@@ -24,7 +23,7 @@ We aim to acknowledge reports within 72 hours and provide a status update within
 
 This policy covers the TorusGuard skill repository: skill files, rules, templates, guides, examples, and documentation.
 
-It does **not** cover applications you secure using TorusGuard. For those projects, use the generated `SECURITY.md` from `/torusguard init`.
+It does **not** cover applications you secure using TorusGuard. For those projects, use the generated `SECURITY.md` from `/TorusGuard init`.
 
 ## Supported versions
 

@@ -81,4 +81,4 @@ Apply bucket policies mirroring database ownership. Do not use public buckets fo
 
 - [rules/TG-DB-002-privileged-database-credential.md](../rules/TG-DB-002-privileged-database-credential.md)
 - [rules/TG-DB-003-frontend-admin-sdk.md](../rules/TG-DB-003-frontend-admin-sdk.md)
-- [skills/torusguard/references/frontend-no-db.md](../skills/torusguard/references/frontend-no-db.md)
+- [skills/TorusGuard/references/frontend-no-db.md](../skills/TorusGuard/references/frontend-no-db.md)

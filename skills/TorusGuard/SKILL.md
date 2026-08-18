@@ -1,5 +1,5 @@
 ---
-name: torusguard
+name: TorusGuard
 description: Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, and APIs.
 ---
 
@@ -21,11 +21,11 @@ Use when the user builds or deploys web apps, adds APIs, connects databases, imp
 
 | Command | Purpose | Changes code? |
 |---------|---------|---------------|
-| `/torusguard init` | Create/update project `SECURITY.md` and threat model | Docs only |
-| `/torusguard audit` | Scan all 25 rules; produce audit report | No |
-| `/torusguard harden` | Fix approved findings; re-verify | Yes |
-| `/torusguard check <area>` | Audit one rule group | No by default |
-| `/torusguard verify` | Production pre-flight checklist | No |
+| `/TorusGuard init` | Create/update project `SECURITY.md` and threat model | Docs only |
+| `/TorusGuard audit` | Scan all 25 rules; produce audit report | No |
+| `/TorusGuard harden` | Fix approved findings; re-verify | Yes |
+| `/TorusGuard check <area>` | Audit one rule group | No by default |
+| `/TorusGuard verify` | Production pre-flight checklist | No |
 
 **Check areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`
 
@@ -80,14 +80,14 @@ Load only relevant references during audit/harden:
 
 | Template | Use |
 |----------|-----|
-| [SECURITY.template.md](../../templates/SECURITY.template.md) | `/torusguard init` |
-| [threat-model.template.md](../../templates/threat-model.template.md) | `/torusguard init` |
-| [audit-report.template.md](../../templates/audit-report.template.md) | `/torusguard audit` |
-| [deployment-preflight.template.md](../../templates/deployment-preflight.template.md) | `/torusguard verify` |
+| [SECURITY.template.md](../../templates/SECURITY.template.md) | `/TorusGuard init` |
+| [threat-model.template.md](../../templates/threat-model.template.md) | `/TorusGuard init` |
+| [audit-report.template.md](../../templates/audit-report.template.md) | `/TorusGuard audit` |
+| [deployment-preflight.template.md](../../templates/deployment-preflight.template.md) | `/TorusGuard verify` |
 | [api-endpoint-review.template.md](../../templates/api-endpoint-review.template.md) | Endpoint review |
 | [security-exception.template.md](../../templates/security-exception.template.md) | Documented exceptions |
 
-## Workflow: `/torusguard init`
+## Workflow: `/TorusGuard init`
 
 1. Inspect repository **without modifying application code**
 2. Detect frontend, backend, database, auth, deployment, public endpoints, sensitive assets
@@ -95,7 +95,7 @@ Load only relevant references during audit/harden:
 4. Create compact threat model from [threat-model.template.md](../../templates/threat-model.template.md)
 5. Never include actual secrets in generated files
 
-## Workflow: `/torusguard audit`
+## Workflow: `/TorusGuard audit`
 
 1. Read project `SECURITY.md` if present
 2. Detect stack; load relevant references and all 25 rules where applicable
@@ -108,7 +108,7 @@ Separate: **confirmed findings**, **likely findings**, **passed checks**, **manu
 
 End with pre-flight result: **FAIL**, **PASS WITH WARNINGS**, or **PASS**.
 
-## Workflow: `/torusguard harden`
+## Workflow: `/TorusGuard harden`
 
 1. Run or read latest audit
 2. Present remediation plan grouped by severity
@@ -119,7 +119,7 @@ End with pre-flight result: **FAIL**, **PASS WITH WARNINGS**, or **PASS**.
 7. Produce remediation summary: fixed rule IDs + remaining manual-review items
 8. Never expose real secrets in output, code, docs, or logs
 
-## Workflow: `/torusguard check <area>`
+## Workflow: `/TorusGuard check <area>`
 
 Audit only the selected rule group. Do not modify source by default. Report pass/fail and manual verification instructions.
 
@@ -133,7 +133,7 @@ Audit only the selected rule group. Do not modify source by default. Report pass
 | client | TG-CLIENT-001 … 002 |
 | platform | TG-PLATFORM-001 … 004 |
 
-## Workflow: `/torusguard verify`
+## Workflow: `/TorusGuard verify`
 
 1. Run [deployment-preflight.template.md](../../templates/deployment-preflight.template.md)
 2. Unresolved **Critical** or **High** findings → **FAIL**

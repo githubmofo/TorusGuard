@@ -2,7 +2,7 @@
 
 ## When to load
 
-Load during `/torusguard check auth`, login/signup/reset implementation, or resource route reviews.
+Load during `/TorusGuard check auth`, login/signup/reset implementation, or resource route reviews.
 
 ## Linked rules
 

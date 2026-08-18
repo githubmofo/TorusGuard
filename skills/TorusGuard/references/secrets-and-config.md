@@ -2,7 +2,7 @@
 
 ## When to load
 
-Load during `/torusguard check secrets`, secret-related audits, or before adding environment variables, CI config, or deployment secrets.
+Load during `/TorusGuard check secrets`, secret-related audits, or before adding environment variables, CI config, or deployment secrets.
 
 ## Linked rules
 
