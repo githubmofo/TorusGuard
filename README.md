@@ -47,12 +47,6 @@ DevTools, Inspect Element, and Sources cannot be blocked. TorusGuard keeps secre
 npx skills add https://github.com/githubmofo/TorusGuard --skill "TorusGuard"
 ```
 
-Or copy `skills/TorusGuard/` to your agent skills directory:
-
-| Agent | Path |
-|-------|------|
-| Cursor (project) | `.cursor/skills/TorusGuard/` |
-| Cursor (personal) | `~/.cursor/skills/TorusGuard/` |
 
 ## Quick start
 
