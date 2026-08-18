@@ -1,0 +1,26 @@
+{
+  "name": "torusguard",
+  "version": "0.1.0",
+  "description": "Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, auth, rate limits, and production exposure.",
+  "private": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/githubmofo/TorusGuard.git"
+  },
+  "scripts": {
+    "validate": "node scripts/validate-skill.js",
+    "check-examples": "node scripts/check-examples.js"
+  },
+  "keywords": [
+    "security",
+    "cursor",
+    "agent-skill",
+    "web-security",
+    "ai-coding",
+    "torusguard"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
