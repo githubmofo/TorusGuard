@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <linearGradient id="gold-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE8A3"/>
+      <stop offset="35%" stop-color="#E5BA55"/>
+      <stop offset="70%" stop-color="#C2922E"/>
+      <stop offset="100%" stop-color="#8C6008"/>
+    </linearGradient>
+    <linearGradient id="gold-dark" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#664100"/>
+      <stop offset="50%" stop-color="#A6780C"/>
+      <stop offset="100%" stop-color="#F7E7B4"/>
+    </linearGradient>
+    <linearGradient id="gold-facet" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FFF0C2"/>
+      <stop offset="40%" stop-color="#D9A436"/>
+      <stop offset="100%" stop-color="#7A4E04"/>
+    </linearGradient>
+    <linearGradient id="shield-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF2B8"/>
+      <stop offset="40%" stop-color="#E1AB38"/>
+      <stop offset="85%" stop-color="#A6730F"/>
+      <stop offset="100%" stop-color="#6E4804"/>
+    </linearGradient>
+    <linearGradient id="shield-inner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F3C458"/>
+      <stop offset="100%" stop-color="#8A5C07"/>
+    </linearGradient>
+    <filter id="glow-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  
+  <!-- Outer Interlocking Geometric Torus Ring -->
+  <g filter="url(#glow-shadow)">
+    <!-- Interwoven Faceted Segments -->
+    <!-- Top -->
+    <path d="M50 14 L78 14 L88 24 L76 28 L64 20 L48 22 Z" fill="url(#gold-light)"/>
+    <path d="M78 14 L88 24 L76 28 L64 20 Z" fill="url(#gold-dark)"/>
+
+    <!-- Top Right -->
+    <path d="M88 24 L106 38 L108 52 L94 48 L92 38 L76 28 Z" fill="url(#gold-facet)"/>
+    <path d="M106 38 L108 52 L94 48 L92 38 Z" fill="url(#gold-dark)"/>
+
+    <!-- Right -->
+    <path d="M108 52 L114 74 L106 88 L96 76 L98 64 L94 48 Z" fill="url(#gold-light)"/>
+    <path d="M114 74 L106 88 L96 76 L98 64 Z" fill="url(#gold-dark)"/>
+
+    <!-- Bottom Right -->
+    <path d="M106 88 L94 108 L78 116 L76 102 L86 94 L96 76 Z" fill="url(#gold-facet)"/>
+    <path d="M94 108 L78 116 L76 102 L86 94 Z" fill="url(#gold-dark)"/>
+
+    <!-- Bottom -->
+    <path d="M78 116 L52 116 L40 106 L52 100 L64 104 L76 102 Z" fill="url(#gold-light)"/>
+    <path d="M52 116 L40 106 L52 100 L64 104 Z" fill="url(#gold-dark)"/>
+
+    <!-- Bottom Left -->
+    <path d="M40 106 L22 92 L20 78 L34 82 L36 92 L52 100 Z" fill="url(#gold-facet)"/>
+    <path d="M22 92 L20 78 L34 82 L36 92 Z" fill="url(#gold-dark)"/>
+
+    <!-- Left -->
+    <path d="M20 78 L14 56 L22 42 L32 54 L30 66 L34 82 Z" fill="url(#gold-light)"/>
+    <path d="M14 56 L22 42 L32 54 L30 66 Z" fill="url(#gold-dark)"/>
+
+    <!-- Top Left -->
+    <path d="M22 42 L34 22 L50 14 L52 28 L42 36 L32 54 Z" fill="url(#gold-facet)"/>
+    <path d="M34 22 L50 14 L52 28 L42 36 Z" fill="url(#gold-dark)"/>
+  </g>
+
+  <!-- Central Shield -->
+  <g filter="url(#glow-shadow)">
+    <!-- Outer Shield with Rim -->
+    <path d="M64 32 Q82 32 86 48 Q86 74 64 92 Q42 74 42 48 Q46 32 64 32 Z" fill="url(#shield-grad)" stroke="#FFE89E" stroke-width="1.2"/>
+    
+    <!-- Inner Shield Inset -->
+    <path d="M64 36 Q78 36 81 49 Q81 70 64 85 Q47 70 47 49 Q50 36 64 36 Z" fill="url(#shield-inner)" opacity="0.9"/>
+    
+    <!-- Central Keyhole Cutout -->
+    <!-- Keyhole Upper Circle -->
+    <circle cx="64" cy="53" r="5" fill="#0C1017"/>
+    <!-- Keyhole Lower Trapezoid Slot -->
+    <path d="M61.8 54 L59.5 69 Q64 70.5 68.5 69 L66.2 54 Z" fill="#0C1017"/>
+  </g>
+</svg>

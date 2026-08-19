@@ -2,7 +2,7 @@
   <img src="TorusGuard.png" alt="TorusGuard Logo" width="300">
 </div>
 
-# TorusGuard 🛡️
+# <img src="assets/icon.svg" width="32" height="32" valign="middle" alt="TorusGuard Icon" /> TorusGuard
 
 > **Security guardrails for AI-built web applications.**
 
