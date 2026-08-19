@@ -1,84 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
   <defs>
-    <linearGradient id="gold-light" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFE8A3"/>
-      <stop offset="35%" stop-color="#E5BA55"/>
-      <stop offset="70%" stop-color="#C2922E"/>
-      <stop offset="100%" stop-color="#8C6008"/>
+    <!-- High-Luminance Gold Gradients -->
+    <linearGradient id="gold-highlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF8D6"/>
+      <stop offset="30%" stop-color="#FCD364"/>
+      <stop offset="70%" stop-color="#D89A1E"/>
+      <stop offset="100%" stop-color="#8F5C00"/>
     </linearGradient>
-    <linearGradient id="gold-dark" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#664100"/>
-      <stop offset="50%" stop-color="#A6780C"/>
-      <stop offset="100%" stop-color="#F7E7B4"/>
+
+    <linearGradient id="gold-shade" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5E3800"/>
+      <stop offset="50%" stop-color="#A87510"/>
+      <stop offset="100%" stop-color="#FFE79A"/>
     </linearGradient>
-    <linearGradient id="gold-facet" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" stop-color="#FFF0C2"/>
-      <stop offset="40%" stop-color="#D9A436"/>
-      <stop offset="100%" stop-color="#7A4E04"/>
+
+    <linearGradient id="gold-face" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF2BE"/>
+      <stop offset="45%" stop-color="#E5AD35"/>
+      <stop offset="80%" stop-color="#B37A0F"/>
+      <stop offset="100%" stop-color="#694101"/>
     </linearGradient>
-    <linearGradient id="shield-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFF2B8"/>
-      <stop offset="40%" stop-color="#E1AB38"/>
-      <stop offset="85%" stop-color="#A6730F"/>
-      <stop offset="100%" stop-color="#6E4804"/>
-    </linearGradient>
-    <linearGradient id="shield-inner" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#F3C458"/>
-      <stop offset="100%" stop-color="#8A5C07"/>
-    </linearGradient>
-    <filter id="glow-shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.5"/>
+
+    <!-- Core Dark Backdrop for Theme Neutrality (pops on both Light & Dark GitHub) -->
+    <radialGradient id="core-bg" cx="50%" cy="50%" r="50%">
+      <stop offset="60%" stop-color="#0F141F"/>
+      <stop offset="100%" stop-color="#070A10"/>
+    </radialGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="badge-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#000000" flood-opacity="0.45"/>
     </filter>
+
+    <!-- Reusable Symmetrical Torus Blade -->
+    <g id="torus-blade">
+      <!-- Main Blade Facet -->
+      <path d="M 50 3.5 L 61.5 12.5 L 56 22 L 48 16.5 Z" fill="url(#gold-highlight)"/>
+      <!-- Shadow Under-Facet -->
+      <path d="M 61.5 12.5 L 66.5 23.5 L 56 22 Z" fill="url(#gold-shade)"/>
+      <!-- Crisp Inner Edge -->
+      <path d="M 50 3.5 L 61.5 12.5" stroke="#FFFDE6" stroke-width="0.8" stroke-linecap="round"/>
+    </g>
   </defs>
+
+  <!-- Base Badge Disc for crisp visibility on all backgrounds -->
+  <circle cx="50" cy="50" r="46" fill="url(#core-bg)" stroke="url(#gold-highlight)" stroke-width="1.2" filter="url(#badge-shadow)"/>
   
-  <!-- Outer Interlocking Geometric Torus Ring -->
-  <g filter="url(#glow-shadow)">
-    <!-- Interwoven Faceted Segments -->
-    <!-- Top -->
-    <path d="M50 14 L78 14 L88 24 L76 28 L64 20 L48 22 Z" fill="url(#gold-light)"/>
-    <path d="M78 14 L88 24 L76 28 L64 20 Z" fill="url(#gold-dark)"/>
+  <!-- Subtle Inner Concentric Guide Ring -->
+  <circle cx="50" cy="50" r="33.5" fill="none" stroke="#D89A1E" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.6"/>
 
-    <!-- Top Right -->
-    <path d="M88 24 L106 38 L108 52 L94 48 L92 38 L76 28 Z" fill="url(#gold-facet)"/>
-    <path d="M106 38 L108 52 L94 48 L92 38 Z" fill="url(#gold-dark)"/>
-
-    <!-- Right -->
-    <path d="M108 52 L114 74 L106 88 L96 76 L98 64 L94 48 Z" fill="url(#gold-light)"/>
-    <path d="M114 74 L106 88 L96 76 L98 64 Z" fill="url(#gold-dark)"/>
-
-    <!-- Bottom Right -->
-    <path d="M106 88 L94 108 L78 116 L76 102 L86 94 L96 76 Z" fill="url(#gold-facet)"/>
-    <path d="M94 108 L78 116 L76 102 L86 94 Z" fill="url(#gold-dark)"/>
-
-    <!-- Bottom -->
-    <path d="M78 116 L52 116 L40 106 L52 100 L64 104 L76 102 Z" fill="url(#gold-light)"/>
-    <path d="M52 116 L40 106 L52 100 L64 104 Z" fill="url(#gold-dark)"/>
-
-    <!-- Bottom Left -->
-    <path d="M40 106 L22 92 L20 78 L34 82 L36 92 L52 100 Z" fill="url(#gold-facet)"/>
-    <path d="M22 92 L20 78 L34 82 L36 92 Z" fill="url(#gold-dark)"/>
-
-    <!-- Left -->
-    <path d="M20 78 L14 56 L22 42 L32 54 L30 66 L34 82 Z" fill="url(#gold-light)"/>
-    <path d="M14 56 L22 42 L32 54 L30 66 Z" fill="url(#gold-dark)"/>
-
-    <!-- Top Left -->
-    <path d="M22 42 L34 22 L50 14 L52 28 L42 36 L32 54 Z" fill="url(#gold-facet)"/>
-    <path d="M34 22 L50 14 L52 28 L42 36 Z" fill="url(#gold-dark)"/>
+  <!-- 8-Blade Mathematical Torus Aperture -->
+  <g filter="url(#badge-shadow)">
+    <use href="#torus-blade" transform="rotate(0, 50, 50)"/>
+    <use href="#torus-blade" transform="rotate(45, 50, 50)"/>
+    <use href="#torus-blade" transform="rotate(90, 50, 50)"/>
+    <use href="#torus-blade" transform="rotate(135, 50, 50)"/>
+    <use href="#torus-blade" transform="rotate(180, 50, 50)"/>
+    <use href="#torus-blade" transform="rotate(225, 50, 50)"/>
+    <use href="#torus-blade" transform="rotate(270, 50, 50)"/>
+    <use href="#torus-blade" transform="rotate(315, 50, 50)"/>
   </g>
 
   <!-- Central Shield -->
-  <g filter="url(#glow-shadow)">
-    <!-- Outer Shield with Rim -->
-    <path d="M64 32 Q82 32 86 48 Q86 74 64 92 Q42 74 42 48 Q46 32 64 32 Z" fill="url(#shield-grad)" stroke="#FFE89E" stroke-width="1.2"/>
-    
-    <!-- Inner Shield Inset -->
-    <path d="M64 36 Q78 36 81 49 Q81 70 64 85 Q47 70 47 49 Q50 36 64 36 Z" fill="url(#shield-inner)" opacity="0.9"/>
-    
-    <!-- Central Keyhole Cutout -->
-    <!-- Keyhole Upper Circle -->
-    <circle cx="64" cy="53" r="5" fill="#0C1017"/>
-    <!-- Keyhole Lower Trapezoid Slot -->
-    <path d="M61.8 54 L59.5 69 Q64 70.5 68.5 69 L66.2 54 Z" fill="#0C1017"/>
+  <g filter="url(#badge-shadow)">
+    <!-- Outer Golden Shield Plate -->
+    <path d="M 37 36 Q 50 38 63 36 Q 66 50 61 62 Q 56 71 50 77 Q 44 71 39 62 Q 34 50 37 36 Z" 
+          fill="url(#gold-face)" 
+          stroke="#FFF6D1" 
+          stroke-width="1"/>
+
+    <!-- Inner Shield Inset Ridge -->
+    <path d="M 40 39 Q 50 40.5 60 39 Q 62.5 50 58.5 59.5 Q 54.5 67 50 71.5 Q 45.5 67 41.5 59.5 Q 37.5 50 40 39 Z" 
+          fill="url(#gold-shade)" 
+          opacity="0.85"/>
+
+    <!-- Keyhole Emblem -->
+    <!-- Keyhole Head -->
+    <circle cx="50" cy="50.5" r="3.8" fill="#0A0E17" stroke="#FFE9A0" stroke-width="0.7"/>
+    <!-- Keyhole Shaft -->
+    <path d="M 48.2 52 L 46.5 61.5 Q 50 62.8 53.5 61.5 L 51.8 52 Z" fill="#0A0E17" stroke="#FFE9A0" stroke-width="0.7"/>
   </g>
 </svg>
