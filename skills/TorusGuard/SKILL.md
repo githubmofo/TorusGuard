@@ -1,5 +1,5 @@
 ---
-name: TorusGuard
+name: torusguard
 description: Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, and APIs.
 ---
 

@@ -44,7 +44,7 @@ DevTools, Inspect Element, and Sources cannot be blocked. TorusGuard keeps secre
 ## Installation
 
 ```bash
-npx skills add https://github.com/githubmofo/TorusGuard --skill "TorusGuard"
+npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
 ```
 
 
