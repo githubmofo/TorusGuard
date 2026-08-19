@@ -1,83 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="100%" height="100%" fill="none">
   <defs>
-    <!-- High-Luminance Gold Gradients -->
-    <linearGradient id="gold-highlight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFF8D6"/>
-      <stop offset="30%" stop-color="#FCD364"/>
-      <stop offset="70%" stop-color="#D89A1E"/>
-      <stop offset="100%" stop-color="#8F5C00"/>
+    <linearGradient id="shieldGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE08B"/>
+      <stop offset="50%" stop-color="#E5AA28"/>
+      <stop offset="100%" stop-color="#A56E05"/>
     </linearGradient>
-
-    <linearGradient id="gold-shade" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#5E3800"/>
-      <stop offset="50%" stop-color="#A87510"/>
-      <stop offset="100%" stop-color="#FFE79A"/>
-    </linearGradient>
-
-    <linearGradient id="gold-face" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFF2BE"/>
-      <stop offset="45%" stop-color="#E5AD35"/>
-      <stop offset="80%" stop-color="#B37A0F"/>
-      <stop offset="100%" stop-color="#694101"/>
-    </linearGradient>
-
-    <!-- Core Dark Backdrop for Theme Neutrality (pops on both Light & Dark GitHub) -->
-    <radialGradient id="core-bg" cx="50%" cy="50%" r="50%">
-      <stop offset="60%" stop-color="#0F141F"/>
-      <stop offset="100%" stop-color="#070A10"/>
-    </radialGradient>
-
-    <!-- Subtle Drop Shadow -->
-    <filter id="badge-shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#000000" flood-opacity="0.45"/>
-    </filter>
-
-    <!-- Reusable Symmetrical Torus Blade -->
-    <g id="torus-blade">
-      <!-- Main Blade Facet -->
-      <path d="M 50 3.5 L 61.5 12.5 L 56 22 L 48 16.5 Z" fill="url(#gold-highlight)"/>
-      <!-- Shadow Under-Facet -->
-      <path d="M 61.5 12.5 L 66.5 23.5 L 56 22 Z" fill="url(#gold-shade)"/>
-      <!-- Crisp Inner Edge -->
-      <path d="M 50 3.5 L 61.5 12.5" stroke="#FFFDE6" stroke-width="0.8" stroke-linecap="round"/>
-    </g>
   </defs>
-
-  <!-- Base Badge Disc for crisp visibility on all backgrounds -->
-  <circle cx="50" cy="50" r="46" fill="url(#core-bg)" stroke="url(#gold-highlight)" stroke-width="1.2" filter="url(#badge-shadow)"/>
-  
-  <!-- Subtle Inner Concentric Guide Ring -->
-  <circle cx="50" cy="50" r="33.5" fill="none" stroke="#D89A1E" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.6"/>
-
-  <!-- 8-Blade Mathematical Torus Aperture -->
-  <g filter="url(#badge-shadow)">
-    <use href="#torus-blade" transform="rotate(0, 50, 50)"/>
-    <use href="#torus-blade" transform="rotate(45, 50, 50)"/>
-    <use href="#torus-blade" transform="rotate(90, 50, 50)"/>
-    <use href="#torus-blade" transform="rotate(135, 50, 50)"/>
-    <use href="#torus-blade" transform="rotate(180, 50, 50)"/>
-    <use href="#torus-blade" transform="rotate(225, 50, 50)"/>
-    <use href="#torus-blade" transform="rotate(270, 50, 50)"/>
-    <use href="#torus-blade" transform="rotate(315, 50, 50)"/>
-  </g>
-
-  <!-- Central Shield -->
-  <g filter="url(#badge-shadow)">
-    <!-- Outer Golden Shield Plate -->
-    <path d="M 37 36 Q 50 38 63 36 Q 66 50 61 62 Q 56 71 50 77 Q 44 71 39 62 Q 34 50 37 36 Z" 
-          fill="url(#gold-face)" 
-          stroke="#FFF6D1" 
-          stroke-width="1"/>
-
-    <!-- Inner Shield Inset Ridge -->
-    <path d="M 40 39 Q 50 40.5 60 39 Q 62.5 50 58.5 59.5 Q 54.5 67 50 71.5 Q 45.5 67 41.5 59.5 Q 37.5 50 40 39 Z" 
-          fill="url(#gold-shade)" 
-          opacity="0.85"/>
-
-    <!-- Keyhole Emblem -->
-    <!-- Keyhole Head -->
-    <circle cx="50" cy="50.5" r="3.8" fill="#0A0E17" stroke="#FFE9A0" stroke-width="0.7"/>
-    <!-- Keyhole Shaft -->
-    <path d="M 48.2 52 L 46.5 61.5 Q 50 62.8 53.5 61.5 L 51.8 52 Z" fill="#0A0E17" stroke="#FFE9A0" stroke-width="0.7"/>
-  </g>
+  <!-- Clean minimalist gold shield -->
+  <path d="M16 2.5 L5 6.5 V14.5 C5 21.5 9.8 27.8 16 29.5 C22.2 27.8 27 21.5 27 14.5 V6.5 L16 2.5 Z" 
+        fill="url(#shieldGold)" 
+        stroke="#8D5B00" 
+        stroke-width="1" 
+        stroke-linejoin="round"/>
+  <!-- Keyhole Icon -->
+  <circle cx="16" cy="13" r="2.5" fill="#111827"/>
+  <path d="M14.8 14.5 L13.5 20 H18.5 L17.2 14.5 Z" fill="#111827"/>
 </svg>
