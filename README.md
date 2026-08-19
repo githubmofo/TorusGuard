@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="TorusGuard.png" alt="TorusGuard Logo" width="300">
+</div>
+
 # TorusGuard 🛡️
 
 > **Security guardrails for AI-built web applications.**
