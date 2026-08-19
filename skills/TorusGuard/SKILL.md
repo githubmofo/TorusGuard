@@ -189,3 +189,27 @@ State explicitly when relevant:
 - Detect every business-logic flaw
 - Replace penetration testing or threat modeling
 - Provide hosted dashboards, telemetry, or SaaS
+
+## v0.3.0 Advanced Checks
+/torusguard check ssrf
+/torusguard check business-logic
+/torusguard check csrf
+/torusguard check webhook
+/torusguard check graphql
+/torusguard check websocket
+/torusguard check supply-chain
+/torusguard check cache
+
+## Evidence Confidence
+- **Confirmed**: directly observed in source/configuration/runtime.
+- **Likely**: strong evidence, runtime or configuration confirmation needed.
+- **Manual review**: requires business or deployment context.
+- **Informational**: not a vulnerability by itself.
+
+## Rules of Engagement Constraints
+- Never report an outdated dependency as exploitable without an advisory or audit result.
+- Never report cache vulnerability solely because a middleware call is commented out; inspect actual response headers.
+- Never call SSRF confirmed merely because a project uses an HTTP client.
+- Never call business-logic abuse confirmed without identifying a concrete workflow and abuse path.
+- Never claim that a static Markdown skill executed a real scan unless an actual scanner was used.
+- Never include sensitive values from the target repository in an audit report.

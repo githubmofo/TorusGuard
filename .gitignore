@@ -28,3 +28,6 @@ examples/*/*.db
 
 # Local agent copies
 .cursor/
+
+# TorusGuard local tests and scripts
+test_repos/

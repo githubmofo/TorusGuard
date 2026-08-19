@@ -1,0 +1,12 @@
+# Outbound Request Review
+- Request source:
+- URL source:
+- Allowed schemes:
+- Allowed hosts:
+- Blocked networks:
+- Redirect behavior:
+- Timeout:
+- Response-size limit:
+- Content-type validation:
+- Network isolation:
+- Logging policy:

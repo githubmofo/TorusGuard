@@ -1,0 +1,9 @@
+# WebSocket Review
+- Handshake authentication:
+- Origin policy:
+- Channel authorization:
+- Message schema:
+- Message size:
+- Connection limits:
+- Subscription cleanup:
+- Tenant isolation:

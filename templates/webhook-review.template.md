@@ -1,0 +1,11 @@
+# Webhook Review
+- Provider:
+- Signature mechanism:
+- Raw-body handling:
+- Timestamp tolerance:
+- Event ID:
+- Idempotency storage:
+- Event allowlist:
+- Retry behavior:
+- Payload limit:
+- Manual test cases:

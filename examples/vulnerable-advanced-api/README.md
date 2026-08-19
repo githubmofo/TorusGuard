@@ -1,0 +1,1 @@
+WARNING: This application is intentionally vulnerable. Do not deploy it, expose it to the internet, or reuse its security patterns. All credentials and tokens are fake and nonfunctional.
