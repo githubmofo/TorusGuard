@@ -1,184 +1,173 @@
 <div align="center">
-  <img src="TorusGuard.png" alt="TorusGuard Logo" width="300">
+  <img src="TorusGuard.png" alt="TorusGuard Banner" width="400">
 </div>
 
 # TorusGuard
 
-> **Security guardrails for AI-built web applications.**
+**Security guardrails for AI-built web applications.**
 
-TorusGuard is a Markdown-first, portable AI-agent skill that helps developers audit and harden AI-built web applications. It provides actionable, framework-aware guidance to secure secrets, frontend database access, input validation, authentication, rate limits, and production exposure.
-
-*Note: TorusGuard is **not** an npm package, hosted service, browser extension, or automated vulnerability scanner. It is a contextual guidance framework for developers and their AI coding assistants.*
+TorusGuard is a Markdown-first, portable AI-agent skill that helps developers audit and harden AI-built web applications. It provides structured rules, references, and remediation workflows across frontend database isolation, secrets management, input validation, authentication, rate limits, SSRF, webhooks, and production deployment safety.
 
 ---
 
-## 🎯 Value Proposition
+## Why This Exists
 
-When building applications rapidly with AI, security fundamentals can sometimes be overlooked. TorusGuard integrates directly into your workflow to ensure your applications are robust against common web vulnerabilities before they hit production.
+AI code generators accelerate product development, but they can easily introduce critical security oversights—such as client-side database queries, exposed API secrets, missing authorization checks, or unvalidated outbound requests. Security decisions still require structure, boundaries, and systematic verification. TorusGuard gives AI coding agents the context and guardrails needed to build and deploy securely.
 
-### What it Protects Against
-TorusGuard's comprehensive rule catalog addresses critical attack vectors:
-
-* **Authentication & Authorization:** Weak authentication, client-only authorization, IDOR, mass assignment, and property-level authorization.
-* **Network & Architecture:** SSRF, outbound-request protection, and unsafe CORS.
-* **Business Logic:** Sensitive business-flow protection, replayable operations, and webhook integrity (signature, replay, idempotency).
-* **Data & Input:** Missing input validation, SQL injection, XSS, unsafe uploads, and frontend database exposure.
-* **Infrastructure & State:** Hardcoded secrets, tracked `.env` files, unbounded resource consumption (rate limits), and caching vulnerabilities.
-* **Modern APIs:** GraphQL (depth, complexity, batching) and WebSocket (handshake auth, channel auth, message validation).
-* **Supply Chain:** Dependency risks, CI/CD secret exposure, and unpinned actions.
+### Core Principle: The Browser-Code Truth
+> **If the browser receives it, users can inspect it.**  
+> DevTools, Inspect Element, and the Sources tab cannot be blocked. TorusGuard enforces that database credentials, sensitive business logic, and authorization decisions must always remain on trusted server-side code.
 
 ---
 
-## 🧠 Core Philosophy: The Browser-Code Truth
+## Key Features
 
-**If the browser receives it, users can inspect it.**
-
-DevTools, Inspect Element, and the Sources tab cannot be blocked. TorusGuard enforces the principle that secrets, direct database access, and authorization decisions must remain in trusted server-side code. It does not claim to hide JavaScript or make applications magically "unhackable."
+- **Markdown-First & Agent-Portable:** Works out-of-the-box in Cursor, Antigravity, Claude Code, Cline, Codex, Gemini CLI, and other agent environments without requiring npm dependencies or compilation.
+- **Framework-Aware Security Catalog:** 60+ structured security rules across secrets, database access, input validation, authentication, rate limits, SSRF, CSRF, webhooks, GraphQL, WebSockets, and supply-chain dependencies.
+- **Human-First Findings:** Generates clear, readable audit reports featuring severity levels, plain-English risk explanations, and concrete before/after code snippets.
+- **Evidence-Confidence System:** Distinguishes verified code vulnerabilities from architecture-dependent manual review items.
+- **Least-Invasive Hardening:** Modifies only code directly tied to verified findings while preserving business logic and application routes.
 
 ---
 
-## 🚀 Getting Started
+## Current Release Scope (v0.3.0)
 
-### Installation
-TorusGuard is installed as a skill for your AI coding assistant.
+TorusGuard v0.3.0 (*Advanced Web and API Security*) expands baseline guardrails into modern API architectures:
+
+- **Server-Side Request Forgery (SSRF):** Internal network protection, DNS rebinding awareness, and outbound request bounding (`TG-SSRF-*`).
+- **Business-Logic & Flow Abuse:** Replayable operations, sensitive parameter tampering, and state validation (`TG-BIZ-*`).
+- **Authorization & Mass Assignment:** Property-level authorization and payload filtering (`TG-AUTH-006`, `TG-AUTH-007`).
+- **Webhooks & Integrations:** Signature validation, replay prevention, and idempotency (`TG-WEBHOOK-*`).
+- **GraphQL & WebSockets:** Query depth/complexity limits, resolver authorization, connection limits, and handshake auth (`TG-GQL-*`, `TG-WS-*`).
+- **Supply Chain & Caching:** Lockfile integrity, CVE review boundaries, and sensitive response header caching (`TG-SUPPLY-*`, `TG-CACHE-*`).
+
+---
+
+## Quick Start
+
+### 1. Installation
+Install TorusGuard into your AI coding tool using the open `skills` CLI:
 
 ```bash
 npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
 ```
 
-### Quick Start Workflow
-Once installed, interact with your AI assistant using the following command sequence to secure your project:
+### 2. Workflow
+Once installed, interact with your AI assistant in chat using the `/torusguard` command:
 
-1. **Initialize:** Setup your security baseline.
+1. **Initialize Project Security Baseline:**
    ```text
    /torusguard init
    ```
-2. **Audit:** Identify vulnerabilities without modifying code.
+2. **Audit Codebase (Read-Only Scan):**
    ```text
    /torusguard audit
    ```
-3. **Harden:** Apply recommended fixes for identified vulnerabilities.
+3. **Harden & Apply Fixes:**
    ```text
    /torusguard harden
    ```
-4. **Verify:** Run a final pre-flight check before deployment.
+4. **Pre-Flight Deployment Verification:**
    ```text
    /torusguard verify
    ```
 
 ---
 
-## 🛠️ Command Reference
+## Core Commands
 
-| Command | Description | Modifies Code? |
-|---------|-------------|:---:|
-| `/torusguard init` | Generates or updates `SECURITY.md` and the project threat model. | ❌ Docs only |
-| `/torusguard audit` | Scans the codebase against the TorusGuard rule catalog and generates a structured audit report. | ❌ No |
-| `/torusguard harden` | Applies least-invasive, secure fixes for high-confidence findings from the audit. Preserves business logic. | ✅ Yes |
-| `/torusguard check <area>` | Audits a specific rule group (e.g., `auth`, `ssrf`, `database`). | ❌ No |
-| `/torusguard verify` | Executes a comprehensive production pre-flight security checklist. | ❌ No |
+| Command | Purpose | Modifies Code? |
+|---|---|:---:|
+| `/torusguard init` | Generates a project `SECURITY.md` and readable threat model. | ❌ Docs only |
+| `/torusguard audit` | Scans repository against TorusGuard rules and outputs a structured report. | ❌ No |
+| `/torusguard harden` | Applies least-invasive, safe fixes for confirmed findings from the audit report. | ✅ Yes |
+| `/torusguard check <area>` | Audits a single rule category (e.g., `auth`, `ssrf`, `database`, `secrets`). | ❌ No |
+| `/torusguard verify` | Runs a production pre-flight deployment verification checklist. | ❌ No |
 
-### Check Areas
-You can narrow your focus by passing specific areas to the `check` command:
-`secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`, `ssrf`, `business-logic`, `csrf`, `webhook`, `graphql`, `websocket`, `supply-chain`, `cache`
+**Supported Check Areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`, `ssrf`, `business-logic`, `csrf`, `webhook`, `graphql`, `websocket`, `supply-chain`, `cache`.
 
 ---
 
-## 📚 Rule Catalog (v0.3.0)
+## Validation Summary
 
-TorusGuard v0.3.0 includes an advanced, structured catalog of security rules spanning modern architectures.
+TorusGuard v0.3.0 has been locally validated against real-world and test architectures:
 
-| Category | Rule Prefix | Default Severities |
-|----------|-------------|--------------------|
-| **Secrets Management** | `TG-SEC-` | Critical – Medium |
-| **Database Exposure** | `TG-DB-` | Critical – High |
-| **Input & Injection** | `TG-INPUT-` | Critical – High |
-| **Authentication & AuthZ** | `TG-AUTH-` | Critical – High |
-| **Rate Limiting & DoS** | `TG-RATE-` | High – Medium |
-| **Client Exposure** | `TG-CLIENT-` | High – Medium |
-| **Platform Hardening** | `TG-PLATFORM-` | High – Medium |
-| **Server-Side Request Forgery** | `TG-SSRF-` | Critical – High |
-| **Business Logic & Flows** | `TG-BIZ-` | Critical – High |
-| **Webhooks** | `TG-WEBHOOK-` | Critical – High |
-| **GraphQL** | `TG-GQL-` | Critical – High |
-| **WebSockets** | `TG-WS-` | Critical – High |
-| **Supply Chain & CI/CD** | `TG-SUPPLY-` | Critical – High |
-| **Caching** | `TG-CACHE-` | High – Medium |
+1. **[OWASP NodeGoat](docs/validation/nodegoat-v0.3.0-validation.md):** An intentionally vulnerable Node.js / Express / MongoDB training application.
+2. **[FastAPI Test Application](docs/validation/fastapi-v0.3.0-validation.md):** A Python / FastAPI application testing SSRF, webhook signatures, and mass-assignment detection.
 
-*For the complete catalog and individual rule definitions, see [rules/README.md](rules/README.md).*
+### Evidence-Confidence Classification
+TorusGuard classifies every audit finding by confidence level:
+- **`Confirmed`:** Directly observed in source code or configuration (e.g., hardcoded secret, missing CSRF middleware, public source map).
+- **`Likely`:** Strong static indicators; requires runtime or deployment environment confirmation.
+- **`Manual Review`:** Architectural or business-context decisions that static analysis cannot reliably determine (e.g., business workflow logic, database RLS policies).
+- **`Informational`:** Hardening advice and defensive best practices.
+
+*Read the complete validation summary in [docs/validation/README.md](docs/validation/README.md).*
 
 ---
 
-## 🏗️ Supported Stacks
+## What TorusGuard Is Not
 
-TorusGuard is framework-agnostic but provides highly tailored guidance for:
-* **Frontend/Fullstack:** React, Vite, Next.js
-* **Backend:** Node.js, Express, common REST & GraphQL APIs
-* **Databases/BaaS:** PostgreSQL, MySQL, MongoDB, Supabase, Firebase
+To maintain technical honesty and clear boundaries:
+- **Not an automated vulnerability scanner:** TorusGuard is a contextual guidance framework for developers and AI agents. It does not replace dynamic application security testing (DAST) or static binary analyzers.
+- **Not a penetration-testing replacement:** It elevates baseline security hygiene but cannot replace authorized professional penetration testing.
+- **Not an "unhackable" guarantee:** No tool can guarantee 100% security.
+- **Not a client-side DRM:** Browser-delivered JavaScript cannot be hidden from DevTools; security must reside on the backend.
 
 ---
 
-## 📁 Repository Structure
+## Project Structure Overview
 
 ```text
 TorusGuard/
-├── skills/torusguard/       # Main installable skill and reference documents
-├── rules/                   # Comprehensive documented security rules (v0.2 + v0.3)
-├── templates/               # Standardized templates (SECURITY, audit, pre-flight, threat model)
-├── guides/                  # Stack-specific implementation and hardening guides
-├── examples/                # Vulnerable & hardened reference applications
-├── research/                # Threat rationale and vulnerability research notes
-└── docs/                  
-    └── validation/          # Official validation reports (e.g., NodeGoat)
+├── skills/torusguard/       # Portable skill instructions and reference modules
+├── rules/                   # 60+ documented security rules across 14 categories
+│   ├── authorization/       # Mass assignment, object authorization
+│   ├── business-logic/      # Workflow state, replay protection
+│   ├── database/            # Frontend database access isolation
+│   ├── input/               # SQLi, XSS, upload validation
+│   ├── secrets/             # Hardcoded keys, .env, build artifact leakage
+│   ├── ssrf/                # Outbound request & network boundary checks
+│   └── webhook/             # Signature validation, replay prevention
+├── templates/               # Standardized templates (SECURITY, audit, pre-flight)
+├── guides/                  # Stack-specific implementation guides (React, Next.js, Express)
+├── examples/                # Educational vulnerable & hardened reference applications
+├── docs/                    
+│   ├── validation/          # Official validation reports & methodology
+│   ├── roadmap.md           # Project roadmap & milestones
+│   └── demo.md              # Sample audit walkthrough & finding format
+└── tests/                   # Test fixtures and rule validation matrices
 ```
 
 ---
 
-## ✅ Validation Status
+## Roadmap
 
-TorusGuard v0.3.0 has been locally validated against **OWASP NodeGoat** (an intentionally vulnerable Node.js training application) and a custom vulnerable **FastAPI** test application. 
+- **v0.1.0 (Released):** Initial core skill and reference modules.
+- **v0.2.0 (Released):** Baseline 25-rule catalog, templates, guides, and reference apps.
+- **v0.3.0 (Released):** Advanced Web and API Security (SSRF, Webhooks, GraphQL, WebSockets, Cache).
+- **v0.4.0 (In Progress):** Python & Django / FastAPI native platform expansion.
+- **v1.0.0 (Planned):** Full rule freeze, expanded test fixtures, and multi-framework coverage.
 
-The validation confirmed actionable findings for CSRF configurations, sensitive-response caching, and dependency risks. It also verified that TorusGuard successfully generates structured manual-review tasks for complex logic issues (like SSRF and business-logic abuse) where static analysis alone cannot determine application intent.
-
----
-
-## ⚠️ Limitations
-
-TorusGuard is an exceptional tool for elevating baseline security, but it **does not replace**:
-1. Professional Penetration Testing
-2. Compliance Certification (SOC2, HIPAA, etc.)
-3. Manual Threat Modeling
-4. Human judgment for false positives, complex business-logic flaws, and infrastructural configurations (e.g., Database RLS, cloud IAM).
+*See [docs/roadmap.md](docs/roadmap.md) for full milestone details.*
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. 
-When proposing new rules via issues, please include unsafe/safe code examples and verification steps.
+Contributions are welcome! You can help by proposing new security rules, improving existing guidance, reporting false positives, or adding framework implementation guides.
 
----
-
-## 🔒 Security Reporting
-
-Please report TorusGuard vulnerabilities **privately**. See [SECURITY.md](SECURITY.md) for our disclosure policy. **Do not use public GitHub Issues for security disclosures.**
+Please review [CONTRIBUTING.md](CONTRIBUTING.md) and our [Code of Conduct](CODE_OF_CONDUCT.md) before submitting an issue or pull request.
 
 ---
 
-## 🗺️ Roadmap
+## Security
 
-| Version | Focus | Status |
-|---------|-------|:---:|
-| `v0.1.0` | Core skill and reference modules | ✅ Released |
-| `v0.2.0` | Structured audit framework (25 rules, templates, guides) | ✅ Released |
-| `v0.3.0` | Advanced Web and API Security (GraphQL, Webhooks, SSRF, etc.) | ✅ Released |
-| `v1.0.0` | Stable rule catalog and comprehensive integration examples | 🚧 Planned |
+If you discover a security issue within the TorusGuard repository or its skill definitions, please review our [Security Policy](SECURITY.md) for private responsible disclosure instructions. Do not file public GitHub issues for security vulnerabilities.
 
 ---
 
-## 📝 License
+## License
 
-Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
-
----
-*Maintained by Jenish Lad*
+TorusGuard is licensed under the [MIT License](LICENSE).  
+Copyright (c) 2026 Jenish Lad.

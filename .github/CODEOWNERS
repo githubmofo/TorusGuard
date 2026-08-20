@@ -1,0 +1,20 @@
+# TorusGuard Code Owners
+# These owners will be requested for review when pull requests modify matching files.
+
+# Global default owner
+* @githubmofo
+
+# Core skill instructions and references
+/skills/ @githubmofo
+
+# Security rule catalog
+/rules/ @githubmofo
+
+# Community health, workflows, and issue templates
+/.github/ @githubmofo
+
+# Documentation and validation reports
+/docs/ @githubmofo
+/README.md @githubmofo
+/SECURITY.md @githubmofo
+/CONTRIBUTING.md @githubmofo

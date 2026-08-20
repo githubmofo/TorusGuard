@@ -1,26 +1,40 @@
 ---
 name: Bug Report
-about: Report a bug in TorusGuard skill, rules, or documentation
-title: '[Bug] '
-labels: bug
+about: Report a bug in TorusGuard skill instructions, rules, or templates
+title: '[Bug]: '
+labels: ['bug']
+assignees: ''
 ---
 
-## Description
+### Summary
+<!-- A clear and concise description of the bug. -->
 
-Clear description of the bug.
+### Expected Behavior
+<!-- What you expected to happen. -->
 
-## Steps to Reproduce
+### Actual Behavior
+<!-- What actually happened. -->
 
-1.
-2.
-3.
+### Steps to Reproduce
+1. In your AI coding agent, run `/torusguard ...`
+2. Open file `...`
+3. Notice error / unexpected behavior `...`
 
-## Expected vs Actual
+### TorusGuard Version
+- Version: [e.g., v0.3.0]
 
-## Environment
+### Target Stack & Environment
+- OS: [e.g., Windows, macOS, Linux]
+- AI Tool / IDE: [e.g., Cursor, Antigravity, Claude Code, Cline, Codex]
+- Framework: [e.g., Next.js 14, Express, FastAPI]
 
-- Agent (Cursor, Claude Code, etc.):
-- TorusGuard version:
-- OS:
+### Relevant Files or Paths
+<!-- e.g. rules/cache/TG-CACHE-001.md, skills/torusguard/SKILL.md -->
 
-## Additional Context
+### Logs or Output
+```text
+<!-- Paste relevant command output or error messages here -->
+```
+
+### Additional Context
+<!-- Any other context or screenshots about the problem. -->
