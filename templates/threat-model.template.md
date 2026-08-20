@@ -1,61 +1,53 @@
-# Threat Model - [PROJECT_NAME]
+# 🛡️ Project Threat Model - [PROJECT_NAME]
 
-## System overview
-- **System name:** [PROJECT_NAME]
-- **Business purpose:** [SYSTEM_PURPOSE]
-- **Architecture summary:** [ARCHITECTURE_SUMMARY]
-- **Primary components:** [PRIMARY_COMPONENTS]
-- **Data flow summary:** [DATA_FLOW_SUMMARY]
+> **Overview:** Security context, trust boundaries, and high-risk scenarios for `[PROJECT_NAME]`.  
+> **Last Updated:** [DATE] • **Status:** Active
 
-## Assets to protect
-- **User identity data:** [IDENTITY_DATA_ASSETS]
-- **Sensitive business data:** [BUSINESS_DATA_ASSETS]
-- **Credentials/secrets/keys:** [SECRETS_AND_KEYS]
-- **Operational integrity assets:** [OPERATIONAL_ASSETS]
-- **Availability-critical services:** [AVAILABILITY_CRITICAL_ASSETS]
+---
 
-## Actors and attacker goals
-- **Legitimate actors:** [LEGITIMATE_ACTORS]
-- **External attacker goals:** [EXTERNAL_ATTACKER_GOALS]
-- **Insider threat goals:** [INSIDER_THREAT_GOALS]
-- **Automated abuse goals:** [AUTOMATED_ABUSE_GOALS]
+## 🏗️ 1. Architecture & Boundaries
 
-## Trust boundaries
-- **Client boundary:** [CLIENT_TRUST_BOUNDARY]
-- **Perimeter/edge boundary:** [EDGE_TRUST_BOUNDARY]
-- **Application boundary:** [APPLICATION_TRUST_BOUNDARY]
-- **Data storage boundary:** [DATASTORE_TRUST_BOUNDARY]
-- **Third-party boundary:** [THIRD_PARTY_TRUST_BOUNDARY]
+```text
+[Browser / Client]  -->  (Public API Routes)  -->  [Backend Server]  -->  [Database / Storage]
+     (Untrusted)               (Boundary 1)           (Trusted)            (Boundary 2)
+```
 
-## Entry points
-- **Public HTTP endpoints:** [PUBLIC_HTTP_ENTRY_POINTS]
-- **Authentication endpoints:** [AUTH_ENTRY_POINTS]
-- **Admin/ops interfaces:** [ADMIN_ENTRY_POINTS]
-- **Background job/event inputs:** [ASYNC_ENTRY_POINTS]
-- **Third-party callbacks/webhooks:** [WEBHOOK_ENTRY_POINTS]
+* **Frontend:** [React / Next.js / Vite / etc.]
+* **Backend:** [Node.js / Express / Python / etc.]
+* **Database / Services:** [PostgreSQL / Supabase / Firebase / MongoDB / Redis]
+* **External APIs:** [Stripe / GitHub OAuth / Cloud Storage / Webhooks]
 
-## Threat scenarios
-| Scenario ID | Threat description | Affected assets | Attack path | Likelihood | Impact | Risk level |
-|---|---|---|---|---|---|---|
-| [SCENARIO_ID_01] | [THREAT_DESCRIPTION_01] | [AFFECTED_ASSETS_01] | [ATTACK_PATH_01] | [LIKELIHOOD_01] | [IMPACT_01] | [RISK_LEVEL_01] |
-| [SCENARIO_ID_02] | [THREAT_DESCRIPTION_02] | [AFFECTED_ASSETS_02] | [ATTACK_PATH_02] | [LIKELIHOOD_02] | [IMPACT_02] | [RISK_LEVEL_02] |
-| [SCENARIO_ID_03] | [THREAT_DESCRIPTION_03] | [AFFECTED_ASSETS_03] | [ATTACK_PATH_03] | [LIKELIHOOD_03] | [IMPACT_03] | [RISK_LEVEL_03] |
+---
 
-## Existing controls
-- **Preventive controls:** [PREVENTIVE_CONTROLS]
-- **Detective controls:** [DETECTIVE_CONTROLS]
-- **Corrective controls:** [CORRECTIVE_CONTROLS]
-- **Recovery controls:** [RECOVERY_CONTROLS]
+## 💎 2. Critical Assets to Protect
 
-## Residual risks
-- **High residual risks:** [HIGH_RESIDUAL_RISKS]
-- **Medium residual risks:** [MEDIUM_RESIDUAL_RISKS]
-- **Accepted residual risks:** [ACCEPTED_RESIDUAL_RISKS]
-- **Risk owners:** [RESIDUAL_RISK_OWNERS]
+| Asset | Why It's Critical | Primary Protection |
+|---|---|---|
+| 🔑 **Secrets & API Keys** | Database passwords, payment signing keys | Server-side `.env` (never in client bundles) |
+| 👤 **User Private Data** | PII, profile data, billing info | Server-side authorization & ownership checks |
+| 🛡️ **Admin Capabilities** | User management, balance adjustments | Strict role verification on server APIs |
 
-## Required follow-ups
-- **Immediate actions (0-7 days):** [IMMEDIATE_ACTIONS]
-- **Near-term actions (8-30 days):** [NEAR_TERM_ACTIONS]
-- **Quarterly actions (31-90 days):** [QUARTERLY_ACTIONS]
-- **Tracking ticket references:** [TRACKING_TICKETS]
-- **Next model review date:** [NEXT_THREAT_MODEL_REVIEW_DATE]
+---
+
+## ⚠️ 3. Key Threat Scenarios & Mitigations
+
+### 1. Unauthorized Data Access (IDOR)
+* **Risk:** User A accesses User B's records by changing IDs in the request URL.
+* **Defense:** Every database query must filter by the authenticated session user ID (`WHERE user_id = req.user.id`).
+
+### 2. Privilege Escalation (Mass Assignment)
+* **Risk:** Attacker sends `{ isAdmin: true }` in profile updates.
+* **Defense:** Whitelist only allowed fields before passing input to the database.
+
+### 3. Server-Side Request Forgery (SSRF)
+* **Risk:** Server fetches arbitrary URLs provided by users and accesses internal cloud metadata.
+* **Defense:** Validate protocols (http/https only), resolve DNS, and block private IP ranges (`10.x`, `192.168.x`, `169.254.x`).
+
+---
+
+## 📋 4. Security Checklist for Developers
+
+- [ ] All database queries and admin actions happen on trusted server-side code.
+- [ ] No `NEXT_PUBLIC_*` or `VITE_*` environment variables contain secret keys.
+- [ ] Rate limiting is enabled on public endpoints (login, register, search).
+- [ ] CORS is restricted to approved production domains.
