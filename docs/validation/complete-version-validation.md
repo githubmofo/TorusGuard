@@ -6,11 +6,11 @@
 - **Repository:** `https://github.com/githubmofo/TorusGuard`
 - **Versions Covered:** `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.4.1`
 - **Current Stable Release:** `v0.4.1`
-- **Final Release Commit SHA:** `1aa69093eb19dfff2a51760b50bbae1373f86881`
-- **Lead Tester / Maintainer:** Jenish Lad (`@githubmofo`)
+- **Release Verification Tag:** `v0.4.1`
+- **Lead Maintainer:** Jenish Lad (`@githubmofo`)
 - **Evaluation Date:** 2026-08-21
-- **Operating System:** Windows 11 Pro (Build 22631) / PowerShell 5.1 & 7.4
-- **Runtime Environment:** Node.js `v24.11.0`, Python `3.11.9`, Git `2.51.2.windows.1`
+- **Operating Environments:** Cross-Platform (Windows PowerShell / Linux CI Ubuntu 22.04 LTS)
+- **Runtimes Evaluated:** Node.js (v18.x – v24.x), Python (3.10.x – 3.12.x), Git (2.40+)
 - **Authorized Repositories:** 3 multi-framework reference codebases (Django/DRF, FastAPI, Flask/SQLAlchemy) under strict source-only static inspection boundaries.
 
 ---
