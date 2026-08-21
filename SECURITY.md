@@ -16,22 +16,21 @@ The TorusGuard project takes security seriously. If you believe you have discove
 | 🔒 Insecure defaults in `templates/` or `guides/` | 🐛 Reporting a false positive or minor rule detection bug |
 | 🔒 Credential leaks or malicious dependencies in the TorusGuard repository | ❓ General usage questions, installation help, or feature ideas |
 
-> **Note on Third-Party Applications & Examples:**  
-> - TorusGuard is an open-source guidance framework. If you find a security vulnerability in an application audited with TorusGuard, please report it directly to the maintainers of that application.  
-> - Files located in `examples/vulnerable-*/` and `tests/fixtures/vulnerable/` are **intentionally vulnerable educational fixtures**. They are deliberately insecure by design and should never be deployed to production.
+> **Note on Third-Party Applications & Educational Fixtures:**  
+> - **External Codebases:** TorusGuard is an open-source guidance framework. If you find a security vulnerability in an application audited with TorusGuard, please report it directly to the maintainers of that application following their private disclosure policy.  
+> - **Educational Fixtures:** Files located in `examples/vulnerable-*/`, `examples/python/*-vuln/`, and `tests/fixtures/*/` are **intentionally vulnerable educational fixtures**. They are deliberately insecure by design for validation purposes and must never be deployed to production.
 
 ---
 
 ## How to Submit a Private Report
 
 1. **Preferred Method:** Use [GitHub Private Vulnerability Reporting](https://github.com/githubmofo/TorusGuard/security/advisories/new).
-2. **Alternative Method:** If GitHub Advisories is unavailable, contact the maintainer directly at:  
-   `[Maintainer Security Contact: security@example.com / Jenish Lad via GitHub]` *(Maintainer: replace with dedicated email if applicable)*
+2. **Alternative Method:** Contact the project maintainer directly via GitHub ([@githubmofo](https://github.com/githubmofo) / Jenish Lad).
 
 ### What to Include in Your Report
 Please provide:
 - A clear description of the issue.
-- Affected files or rule identifiers.
+- Affected files, guides, templates, or rule identifiers.
 - Step-by-step reproduction instructions or code snippet.
 - Assessment of potential security impact.
 - Any suggested remediations or mitigations.
@@ -42,16 +41,24 @@ Please provide:
 
 * **Initial Acknowledgment / Triage:** Within **48 to 72 hours**.
 * **Status Update & Remediation Plan:** Within **7 days** of initial triage.
-* **Coordinated Disclosure:** We follow coordinated disclosure principles. Once a fix is verified and released, a public security advisory will be published crediting the researcher (unless anonymity is requested).
+* **Coordinated Disclosure:** We adhere to standard coordinated disclosure principles. Once a fix is verified and released, a public security advisory will be published crediting the researcher (unless anonymity is requested).
+
+---
+
+## Authorized Testing & Legal Boundaries
+
+In alignment with OWASP and NIST vulnerability disclosure guidelines:
+- Security testing against TorusGuard must be non-destructive and limited to repository source code, templates, and portable skill definitions.
+- Probing or scanning live infrastructure, production accounts, or external services is strictly out of scope.
 
 ---
 
 ## Supported Versions
 
-Security updates are prioritized for the current active release line:
+Security updates and patches are prioritized for the current active release line:
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v0.3.x` | ✅ Yes | Current active release |
-| `v0.2.x` | ⚠️ Best effort | Critical fixes only |
-| `< v0.2.0` | ❌ No | Deprecated |
+| `v0.4.x` | ✅ Yes | Current active release line (Python Platform Security & Quality Patches) |
+| `v0.3.x` | ⚠️ Best effort | Critical security fixes only |
+| `< v0.3.0` | ❌ No | Deprecated |
