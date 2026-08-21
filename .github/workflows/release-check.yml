@@ -1,0 +1,39 @@
+name: Release Verification Check
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-release:
+    name: Validate Release State
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Set up Python
+        uses: actions/setup-python@0a570d65701e988facfb6e0f63e987be797e6b61 # v5.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Check Version in CHANGELOG.md
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG_NAME#v}"
+          echo "Verifying tag $TAG_NAME (version $VERSION)..."
+          grep -F "## [$VERSION]" CHANGELOG.md || (echo "Version $VERSION missing from CHANGELOG.md" && exit 1)
+
+      - name: Compile All Python Fixtures
+        run: |
+          python -m compileall examples/python/
+
+      - name: Verify Documentation Structure
+        run: |
+          test -f docs/release-checklists/v0.4.0.md || exit 1
+          test -f docs/python-rule-mapping.md || exit 1
+          test -f docs/validation/cross-platform-rule-parity.md || exit 1

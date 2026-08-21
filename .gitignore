@@ -15,6 +15,17 @@ build/
 out/
 *.map
 
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.venv/
+venv/
+
 # OS and editor
 .DS_Store
 Thumbs.db
@@ -25,6 +36,7 @@ Thumbs.db
 # Example app local data
 examples/*/data/
 examples/*/*.db
+examples/*/*/*.db
 
 # Local agent copies
 .cursor/

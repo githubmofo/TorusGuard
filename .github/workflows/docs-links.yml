@@ -1,0 +1,49 @@
+name: Documentation and Link Integrity
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.md'
+      - '.github/workflows/docs-links.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.md'
+      - '.github/workflows/docs-links.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    name: Markdown Structure & Link Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Verify Key Documentation Files Exist
+        run: |
+          test -f README.md || exit 1
+          test -f CHANGELOG.md || exit 1
+          test -f CODE_OF_CONDUCT.md || exit 1
+          test -f CONTRIBUTING.md || exit 1
+          test -f SECURITY.md || exit 1
+          test -f LICENSE || exit 1
+          test -f docs/python-rule-mapping.md || exit 1
+          test -f docs/roadmap.md || exit 1
+          test -f docs/demo.md || exit 1
+          test -f docs/validation/README.md || exit 1
+          test -f docs/validation/cross-platform-rule-parity.md || exit 1
+
+      - name: Verify SKILL.md Frontmatter and References
+        run: |
+          test -f skills/TorusGuard/SKILL.md || exit 1
+          test -f skills/TorusGuard/references/django-security.md || exit 1
+          test -f skills/TorusGuard/references/drf-security.md || exit 1
+          test -f skills/TorusGuard/references/fastapi-security.md || exit 1
+          test -f skills/TorusGuard/references/flask-security.md || exit 1
+          test -f skills/TorusGuard/references/sqlalchemy-security.md || exit 1
+          test -f skills/TorusGuard/references/python-dependencies.md || exit 1
+          test -f skills/TorusGuard/references/python-security-overview.md || exit 1

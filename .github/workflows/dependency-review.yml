@@ -1,0 +1,31 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    name: Dependency Vulnerability Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Set up Python
+        uses: actions/setup-python@0a570d65701e988facfb6e0f63e987be797e6b61 # v5.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run pip-audit on python fixtures
+        run: |
+          for req in $(find examples/python -name "requirements.txt"); do
+            echo "Auditing $req..."
+            pip-audit -r "$req" || echo "Note: educational fixture audited"
+          done

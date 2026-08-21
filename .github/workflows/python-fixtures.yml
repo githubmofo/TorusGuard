@@ -1,0 +1,58 @@
+name: Python Fixtures Verification
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'examples/python/**'
+      - 'guides/python/**'
+      - '.github/workflows/python-fixtures.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'examples/python/**'
+      - 'guides/python/**'
+      - '.github/workflows/python-fixtures.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-fixtures:
+    name: Verify ${{ matrix.fixture }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        fixture:
+          - django-vuln
+          - django-hardened
+          - drf-vuln
+          - drf-hardened
+          - fastapi-vuln
+          - fastapi-hardened
+          - flask-vuln
+          - flask-hardened
+          - sqlalchemy-vuln
+          - sqlalchemy-hardened
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Set up Python
+        uses: actions/setup-python@0a570d65701e988facfb6e0f63e987be797e6b61 # v5.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Check fixture syntax and structure
+        run: |
+          echo "Testing fixture: ${{ matrix.fixture }}"
+          cd examples/python/${{ matrix.fixture }}
+          python -m compileall .
+          if [ -f requirements.txt ]; then
+            echo "requirements.txt present"
+          fi
+          if [ -f README.md ]; then
+            echo "README.md present"
+          fi
