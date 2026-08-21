@@ -31,9 +31,9 @@ AI code generators accelerate product development, but they can easily introduce
 
 ---
 
-## Current Release Scope (v0.4.0)
+## Current Release: v0.4.0 (Python Platform Security)
 
-TorusGuard v0.4.0 (*Python Platform Security*) introduces tested framework-specific guidance for Python while maintaining framework-agnostic universal rules:
+TorusGuard v0.4.0 introduces tested framework-specific guidance for Python while maintaining framework-agnostic universal rules:
 
 - **Django & DRF:** Production settings (`manage.py check --deploy`), CSRF middleware, ORM safety, ModelForm mass assignment, ViewSet queryset scoping, and throttling.
 - **FastAPI & Pydantic:** Request schema validation (`extra="forbid"`), dependency-based auth, object ownership scoping, outbound SSRF filtering, and raw HMAC webhook validation.
@@ -41,19 +41,27 @@ TorusGuard v0.4.0 (*Python Platform Security*) introduces tested framework-speci
 - **SQLAlchemy:** Parameterized queries with `text(:param)` bindings, multi-tenant query scoping, and bulk update protection.
 - **Python Supply Chain:** Virtual environment isolation, reproducible lockfiles (`poetry.lock`, `uv.lock`), `pip-audit` integration, and pinned GitHub Actions.
 
+*Read the complete release notes in [docs/releases/v0.4.0.md](docs/releases/v0.4.0.md).*
+
 ---
 
-## Python Platform Support
+## Supported Platforms & Frameworks
 
-TorusGuard v0.4.0 includes tested guidance and educational reference applications for:
-* **[Django](guides/python/django.md)**
-* **[Django REST Framework (DRF)](guides/python/django-rest-framework.md)**
-* **[FastAPI](guides/python/fastapi.md)**
-* **[Flask](guides/python/flask.md)**
-* **[SQLAlchemy](guides/python/sqlalchemy.md)**
-* **[Python Dependencies & CI/CD](guides/python/python-dependencies.md)**
+### 🐍 Python (v0.4.0)
+* **[Django Guide](guides/python/django.md)** — Settings, CSRF, ORM queries, ModelForms, object ownership.
+* **[Django REST Framework Guide](guides/python/django-rest-framework.md)** — Default permissions, ViewSets, serializers, throttles, pagination.
+* **[FastAPI Guide](guides/python/fastapi.md)** — Pydantic v2 schemas, dependencies, outbound SSRF checks, HMAC webhooks.
+* **[Flask Guide](guides/python/flask.md)** — Factory setup, session cookies, CSRFProtect, Werkzeug upload boundaries.
+* **[SQLAlchemy Guide](guides/python/sqlalchemy.md)** — Parameterized `text()` bindings, query scoping, update allowlists.
+* **[Python Dependencies & CI/CD](guides/python/python-dependencies.md)** — Reproducible lockfiles, `pip-audit`, GitHub Actions pinning.
+* **[Python Rule Mapping Matrix](docs/python-rule-mapping.md)** — Framework implementation matrix for universal rule IDs.
 
-*See the [Python Rule Mapping Matrix](docs/python-rule-mapping.md) for how universal rule IDs apply across Python stacks.*
+### 🌐 JavaScript & TypeScript
+* **[React + Vite Guide](guides/react-vite-security.md)** — Frontend environment variables, build artifact leakage, source maps.
+* **[Next.js Guide](guides/nextjs-security.md)** — App Router / Pages Router security, Server Components, API routes.
+* **[Node.js + Express Guide](guides/express-security.md)** — Middleware hardening, CORS, Helmet, session cookies, rate limiting.
+* **[Supabase Guide](guides/supabase-security.md)** — Row-Level Security (RLS), service role key isolation, database policies.
+* **[Firebase Guide](guides/firebase-security.md)** — Firestore Security Rules, client SDK boundaries, privileged admin tasks.
 
 ---
 
@@ -95,7 +103,7 @@ Once installed, interact with your AI assistant in chat using the `/torusguard` 
 | `/torusguard init` | Generates a project `SECURITY.md` and readable threat model. | ❌ Docs only |
 | `/torusguard audit` | Scans repository against TorusGuard rules and outputs a structured report. | ❌ No |
 | `/torusguard harden` | Applies least-invasive, safe fixes for confirmed findings from the audit report. | ✅ Yes |
-| `/torusguard check <area>` | Audits a single rule category (e.g., `auth`, `ssrf`, `django`, `fastapi`). | ❌ No |
+| `/torusguard check <area>` | Audits a single rule category (e.g., `django`, `fastapi`, `auth`, `ssrf`). | ❌ No |
 | `/torusguard verify` | Runs a production pre-flight deployment verification checklist. | ❌ No |
 
 **Supported Check Areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`, `ssrf`, `business-logic`, `csrf`, `webhook`, `graphql`, `websocket`, `supply-chain`, `cache`, `django`, `drf`, `fastapi`, `flask`, `sqlalchemy`.
@@ -104,14 +112,15 @@ Once installed, interact with your AI assistant in chat using the `/torusguard` 
 
 ## Validation Summary
 
-TorusGuard v0.4.0 has been locally validated against real-world and reference architectures:
+TorusGuard has been locally validated against educational fixtures and real-world architectures:
 
 1. **[OWASP NodeGoat](docs/validation/nodegoat-v0.3.0-validation.md):** An intentionally vulnerable Node.js / Express / MongoDB training application.
-2. **[Django Validation](docs/validation/django-v0.4.0-validation.md):** Validation of settings, IDOR, ModelForms, and caching.
-3. **[DRF Validation](docs/validation/drf-v0.4.0-validation.md):** ViewSet scoping, serializer mass assignment, throttling, and pagination caps.
-4. **[FastAPI Validation](docs/validation/fastapi-v0.4.0-validation.md):** Pydantic schemas, outbound SSRF filtering, and HMAC webhook verification.
-5. **[Flask Validation](docs/validation/flask-v0.4.0-validation.md):** Secret keys, CSRF protection, and file upload boundaries.
+2. **[Django Reference](docs/validation/django-v0.4.0-validation.md):** Validation of settings, IDOR, ModelForms, and caching.
+3. **[DRF API Reference](docs/validation/drf-v0.4.0-validation.md):** ViewSet scoping, serializer mass assignment, throttling, and pagination caps.
+4. **[FastAPI Reference](docs/validation/fastapi-v0.4.0-validation.md):** Pydantic schemas, outbound SSRF filtering, and HMAC webhook verification.
+5. **[Flask Reference](docs/validation/flask-v0.4.0-validation.md):** Secret keys, CSRF protection, and file upload boundaries.
 6. **[Cross-Platform Rule Parity](docs/validation/cross-platform-rule-parity.md):** Architectural comparison across Node.js and Python ecosystems.
+7. **[Real-World Validation Records](docs/validation/real-world/README.md):** Maintainer-authorized codebase evaluations across Django, FastAPI, Flask, and Monorepo architectures.
 
 ### Evidence-Confidence Classification
 TorusGuard classifies every audit finding by confidence level:
@@ -141,13 +150,12 @@ TorusGuard/
 ├── skills/torusguard/       # Portable skill instructions and reference modules
 ├── rules/                   # 60+ documented security rules across 14 categories
 ├── templates/               # Standardized templates (SECURITY, audit, pre-flight)
-├── guides/                  # Stack-specific implementation guides
-│   └── python/              # Django, DRF, FastAPI, Flask, SQLAlchemy, Dependencies
+├── guides/                  # Stack-specific implementation guides (Node.js & Python)
 ├── examples/                # Educational vulnerable & hardened reference applications
-│   └── python/              # Paired Django, DRF, FastAPI, Flask, and SQLAlchemy apps
 ├── docs/                    
+│   ├── releases/            # Release notes (v0.2.0, v0.3.0, v0.4.0)
 │   ├── python-rule-mapping.md # Universal rule mapping across Python stacks
-│   ├── validation/          # Official validation reports & cross-platform parity
+│   ├── validation/          # Official validation reports & real-world records
 │   ├── roadmap.md           # Project roadmap & milestones
 │   └── demo.md              # Sample audit walkthrough & finding format
 └── tests/                   # Test fixtures and rule validation matrices
@@ -161,6 +169,7 @@ TorusGuard/
 - **v0.2.0 (Released):** Baseline 25-rule catalog, templates, guides, and reference apps.
 - **v0.3.0 (Released):** Advanced Web and API Security (SSRF, Webhooks, GraphQL, WebSockets, Cache).
 - **v0.4.0 (Released):** Python Platform Security (Django, DRF, FastAPI, Flask, SQLAlchemy, Dependencies).
+- **v0.5.0 (Next):** Serverless & Edge Compute Security (Cloudflare Workers, Vercel Edge, AWS Lambda).
 - **v1.0.0 (Planned):** Full rule freeze, automated catalog linter, and multi-framework expansion.
 
 *See [docs/roadmap.md](docs/roadmap.md) for full milestone details.*
