@@ -1,6 +1,6 @@
 ---
 name: torusguard
-description: Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, and APIs.
+description: Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
 ---
 
 # TorusGuard
@@ -27,7 +27,24 @@ Use when the user builds or deploys web apps, adds APIs, connects databases, imp
 | `/torusguard check <area>` | Audit one rule group | No by default |
 | `/torusguard verify` | Production pre-flight checklist | No |
 
-**Check areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`, `ssrf`, `business-logic`, `csrf`, `webhook`, `graphql`, `websocket`, `supply-chain`, `cache`
+**Check areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`, `ssrf`, `business-logic`, `csrf`, `webhook`, `graphql`, `websocket`, `supply-chain`, `cache`, `python`, `django`, `drf`, `fastapi`, `flask`, `sqlalchemy`.
+
+---
+
+## 🔍 Stack Detection & Reference Loading
+
+When executing `/torusguard audit`, inspect the repository and dynamically load matching reference modules:
+
+| Detected File / Indicator | Target Stack | Reference Modules to Load |
+|---|---|---|
+| `package.json`, `next.config.js` | Next.js | `secrets-and-config.md`, `client-code-exposure.md`, `platform-hardening.md` |
+| `express`, `server.js`, `app.js` | Node.js / Express | `input-and-injection.md`, `auth-and-sessions.md`, `csrf-and-cross-origin.md` |
+| `manage.py`, `settings.py`, `django` | Django | `python-security-overview.md`, `django-security.md`, `python-dependencies.md` |
+| `rest_framework` | DRF | `drf-security.md`, `django-security.md`, `python-security-overview.md` |
+| `fastapi`, `FastAPI()` | FastAPI | `fastapi-security.md`, `sqlalchemy-security.md`, `python-dependencies.md` |
+| `flask`, `Flask(__name__)` | Flask | `flask-security.md`, `sqlalchemy-security.md`, `python-dependencies.md` |
+| `sqlalchemy` | SQLAlchemy | `sqlalchemy-security.md` |
+| `requirements.txt`, `pyproject.toml` | Python Supply Chain | `python-dependencies.md` |
 
 ---
 
@@ -36,73 +53,21 @@ Use when the user builds or deploys web apps, adds APIs, connects databases, imp
 **All files and messages generated for the developer must be human-first and easy to read.**
 Avoid dense, unreadable multi-column tables. Every generated report must prioritize clear visual hierarchy:
 
-1. **Executive Summary at Top:** Traffic-light posture indicator (`🔴 Action Required` / `🟡 Warnings` / `🟢 Ready`), finding count summary table, and a 2-3 sentence plain-English status overview.
-2. **Card-Style Finding Layout:** Present each finding as a clean section with:
+1. **Stack Statement at Top:**
+   ```text
+   ## 🔍 Detected Stack
+   • Language: [JavaScript / TypeScript / Python]
+   • Framework: [Next.js / Express / Django / DRF / FastAPI / Flask]
+   • Data Layer: [PostgreSQL / MongoDB / Supabase / SQLAlchemy / Django ORM]
+   • Confidence: [Confirmed / Likely]
+   ```
+2. **Executive Summary:** Traffic-light posture indicator (`🔴 Action Required` / `🟡 Warnings` / `🟢 Ready`), finding count summary table, and a 2-3 sentence plain-English status overview.
+3. **Card-Style Finding Layout:** Present each finding as a clean section with:
    - Clear Title & Severity Emoji (`🔴 Critical`, `🟠 High`, `🟡 Medium`, `🔵 Low`)
    - Exact Location (`file:line`) and Rule ID (`TG-...`)
    - **The Risk in Plain English:** Explain what an attacker could do without confusing jargon.
    - **Evidence & Fix Snippet:** Show the exact offending code and the safe **Before / After** fix.
-3. **Clear Next Steps:** Simple, prioritized 1-2-3 remediation steps so the user knows what to do next.
-
----
-
-## Mandatory Security Read
-
-Before editing application code, print a concise security read in chat:
-
-```text
-🛡️ TorusGuard Security Read
-• Stack: [Frontend, Backend, Database, Host]
-• Auth & Trust Boundaries: [Auth mechanism, public vs protected endpoints]
-• Key Assets: [Secrets, user data, admin actions]
-• Audit Scope: [Relevant rule categories]
-```
-
-In existing repositories: **audit before hardening**. Do not rewrite unrelated product UI or features.
-
----
-
-## Workflow: `/torusguard init`
-
-1. Inspect repository **without modifying application code**.
-2. Detect stack (frontend, backend, database, auth, deployment).
-3. Generate root `SECURITY.md` from `templates/SECURITY.template.md` (clean responsible disclosure policy).
-4. Create a clean, readable threat model in `docs/threat-model.md` using `templates/threat-model.template.md`.
-5. Never include real secrets or environment values in generated files.
-
----
-
-## Workflow: `/torusguard audit`
-
-1. Read project `SECURITY.md` and codebase.
-2. Scan against TorusGuard rules (Secrets, Auth, Input, SSRF, CSRF, Database, Webhooks, etc.).
-3. **Do not modify source code** (100% read-only).
-4. Produce a clean, human-first `audit-report.md` using `templates/audit-report.template.md`.
-5. Group findings by severity and include plain-English risk descriptions + concrete code fix examples.
-6. Provide a prioritized remediation order and prompt the user: *"Run `/torusguard harden` to automatically apply recommended fixes."*
-
----
-
-## Workflow: `/torusguard harden`
-
-1. Read the latest `audit-report.md` (or run a quick audit if none exists).
-2. Present a clear, concise remediation plan to the developer.
-3. Apply least-invasive, safe fixes for confirmed high-confidence findings.
-4. Preserve existing application logic, routes, and business behavior.
-5. Explain any necessary breaking changes or dependency upgrades clearly before applying.
-6. Re-verify the fixed files and print a clean summary of resolved issues and remaining manual tasks.
-
----
-
-## Workflow: `/torusguard verify`
-
-1. Run pre-flight checklist against `templates/deployment-preflight.template.md`.
-2. Verify:
-   - No `.env` or secret keys are tracked in git.
-   - Public production source maps are disabled.
-   - Server-side validation and security headers are in place.
-   - Critical routes enforce authentication and authorization.
-3. Output a clear **PASS**, **PASS WITH WARNINGS**, or **FAIL** decision with actionable bullet points.
+4. **Clear Next Steps:** Simple, prioritized 1-2-3 remediation steps so the user knows what to do next.
 
 ---
 

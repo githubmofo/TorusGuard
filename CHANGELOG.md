@@ -5,10 +5,28 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-21
+
+### Added
+- Added comprehensive Python security guides for **Django**, **Django REST Framework (DRF)**, **FastAPI**, **Flask**, and **SQLAlchemy**.
+- Added Python dependency management and CI/CD supply-chain guidance (`pip-audit`, lockfile integrity, GitHub Actions hardening).
+- Added automatic Python stack detection and reference module loading in `skills/torusguard/SKILL.md`.
+- Added paired intentionally vulnerable and hardened Python reference applications (`examples/python/`) for Django, DRF, FastAPI, Flask, and SQLAlchemy with `fixes.md` remediation matrices.
+- Added formal validation reports for Django, DRF, FastAPI, and Flask (`docs/validation/`).
+- Added cross-platform rule parity documentation (`docs/validation/cross-platform-rule-parity.md`) demonstrating universal rule application across Node.js and Python.
+- Added Python security rule mapping matrix (`docs/python-rule-mapping.md`).
+
+### Changed
+- Expanded `/torusguard audit` with framework-native Python remediation patterns.
+- Preserved existing universal TorusGuard rule IDs (`TG-SEC-*`, `TG-AUTH-*`, `TG-INPUT-*`, `TG-SSRF-*`, `TG-CSRF-*`, `TG-RATE-*`, `TG-SUPPLY-*`, `TG-CACHE-*`).
+
+### Security
+- Enforced framework-native defenses (e.g. Django `CsrfViewMiddleware`, DRF `permission_classes`, FastAPI Pydantic v2 schemas).
+- Clarified that TorusGuard remains a guidance framework for AI coding agents, not an automated binary scanner or penetration-testing replacement.
+
 ## [0.3.0] - 2026-08-19
 
 ### Added
-- *Note: TorusGuard is an agent-guidance framework, not a complete automated scanner. Manual review is required for complex logic vulnerabilities.*
 - Added SSRF and outbound-request security rules under `rules/`.
 - Added business-logic abuse and sensitive-flow review.
 - Added mass-assignment and property-level authorization rules.
@@ -25,10 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded `/torusguard verify` with advanced API and integration checks.
 - Preserved all v0.2 rule IDs for compatibility.
 
-### Security
-- Added SSRF network-boundary and outbound-request review.
-- Added business-flow and replay-abuse analysis.
-
 ## [0.2.0] - 2026-08-18
 
 ### Added
@@ -37,19 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standardized audit report, security context, threat model, deployment pre-flight, endpoint review, and security exception templates.
 - Vulnerable and hardened React + Express reference examples.
 - Security implementation guides for React/Vite, Next.js, Express, Supabase, and Firebase.
-- `/TorusGuard verify` production pre-flight workflow.
-
-### Changed
-- Expanded `/TorusGuard audit` with rule IDs, severity, confidence, evidence, verification steps, and manual-review sections.
-- Expanded `/TorusGuard harden` to require audit-first remediation and post-fix verification.
-- Improved skill references with framework-aware safe defaults and hard bans.
-
-### Security
-- Clarified that browser-delivered code is public and that DevTools cannot be blocked.
-- Strengthened server-side requirements for authorization, database access, validation, rate limiting, and production configuration.
-
-### Removed
-- npm package infrastructure (`package.json`, validation scripts) — TorusGuard remains documentation-driven
 
 ## [0.1.0] - 2026-08-18
 

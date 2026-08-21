@@ -33,25 +33,33 @@ This document outlines the development milestones, past releases, and future pri
 - Formal validation suite on OWASP NodeGoat and FastAPI.
 - Human-First output formatting standard for audit reports.
 
----
-
-## 🎯 Next Milestone: v0.4.0 — Python Platform Expansion
-
-**Primary Focus:** Expanding first-class guide and rule coverage for Python web ecosystems.
-
-- [ ] **FastAPI & Pydantic Security Guide:** Native Request body validation, OAuth2 password/bearer workflows, and CORS.
-- [ ] **Django Security Guide:** Django ORM SQLi prevention, CSRF middleware configuration, secure cookie settings, and session store hardening.
-- [ ] **Python ORM / ODM Rule Mapping:** Safe query construction patterns for SQLAlchemy, Django ORM, and Tortoise.
-- [ ] **Serverless & Edge Function Guardrails (`TG-EDGE-*`):** Request-scoped state isolation for Vercel Edge and AWS Lambda.
+### ✅ v0.4.0 — Python Platform Security (2026-08-21)
+- Deep, native security guides and reference modules for **Django**, **Django REST Framework (DRF)**, **FastAPI**, **Flask**, and **SQLAlchemy**.
+- Python dependency management, deterministic lockfile rules, `pip-audit`, and CI/CD hardening.
+- Automatic Python framework detection in `skills/torusguard/SKILL.md`.
+- Paired vulnerable and hardened reference applications in `examples/python/` with `fixes.md` remediation matrices.
+- Formal validation reports for Django, DRF, FastAPI, and Flask in `docs/validation/`.
+- Cross-Platform Rule Parity analysis (`docs/validation/cross-platform-rule-parity.md`) demonstrating universal rule consistency across Node.js and Python.
+- Python security rule mapping matrix (`docs/python-rule-mapping.md`).
 
 ---
 
-## 🔭 Future Horizons: v1.0.0 & Beyond
+## 🎯 Next Milestone: v0.5.0 — Serverless & Edge Compute Security
 
-- **Broader Ecosystem Guides:** Go (Fiber / Gin), Ruby on Rails, and Spring Boot security guides.
-- **Next.js App Router & Server Actions Deep-Dive:** Guardrails for React Server Actions, Server Components, and data cache revalidation leaks.
+**Primary Focus:** Guardrails for modern serverless runtimes and edge compute platforms.
+
+- [ ] **Cloudflare Workers Security Guide:** Request context isolation, KV/D1 binding authorization, and subrequest bounding.
+- [ ] **Vercel Edge Functions & Server Actions:** Next.js Server Actions authorization, ephemeral memory state leak prevention, and cache revalidation limits.
+- [ ] **AWS Lambda / Serverless Framework:** Cold-start credential reuse, IAM execution boundaries, and environment secret loading.
+- [ ] **New Serverless Rules (`TG-EDGE-*`):** Rules for memory-state leakage and ephemeral execution timeouts.
+
+---
+
+## 🔭 Future Horizons: v1.0.0 — Stable Multi-Platform Standard
+
+- **Broader Ecosystem Guides:** Go (Fiber / Gin), Ruby on Rails, and Spring Boot.
 - **Automated Catalog Linter:** GitHub Actions CI workflow to validate Markdown structure, rule IDs, and link integrity.
-- **Comprehensive Fixture Library:** Expanded educational test applications covering diverse languages and architectures.
+- **Interactive Playground / Multi-Language Fixture Suite:** Broadened automated test fixtures for local evaluation.
 
 ---
 
