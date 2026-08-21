@@ -3,7 +3,7 @@ name: torusguard
 description: Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
 ---
 
-# TorusGuard
+# TorusGuard (v0.4.1)
 
 **Tagline:** Security guardrails for AI-built web apps.
 
@@ -33,17 +33,29 @@ Use when the user builds or deploys web apps, adds APIs, connects databases, imp
 
 ## 🔍 Stack Detection & Reference Loading
 
-When executing `/torusguard audit`, inspect the repository and dynamically load matching reference modules:
+When executing `/torusguard audit`, inspect the repository files and declare the detected stack:
 
+### Standard Detected Stack Output Format
+```markdown
+## Detected Stack
+- Language: Python / JavaScript / TypeScript
+- Framework: Django / DRF / FastAPI / Flask / Next.js / Express / None
+- Data layer: SQLAlchemy / Django ORM / Supabase / None
+- Dependency files: pyproject.toml / requirements.txt / package.json
+- Detection evidence: <file and line reference, e.g. manage.py:5>
+- Detection confidence: Confirmed / Likely / Manual Review
+```
+
+### Detection Evidence Mapping
 | Detected File / Indicator | Target Stack | Reference Modules to Load |
 |---|---|---|
 | `package.json`, `next.config.js` | Next.js | `secrets-and-config.md`, `client-code-exposure.md`, `platform-hardening.md` |
 | `express`, `server.js`, `app.js` | Node.js / Express | `input-and-injection.md`, `auth-and-sessions.md`, `csrf-and-cross-origin.md` |
 | `manage.py`, `settings.py`, `django` | Django | `python-security-overview.md`, `django-security.md`, `python-dependencies.md` |
 | `rest_framework` | DRF | `drf-security.md`, `django-security.md`, `python-security-overview.md` |
-| `fastapi`, `FastAPI()` | FastAPI | `fastapi-security.md`, `sqlalchemy-security.md`, `python-dependencies.md` |
+| `fastapi`, `FastAPI()` (in code) | FastAPI | `fastapi-security.md`, `sqlalchemy-security.md`, `python-dependencies.md` |
 | `flask`, `Flask(__name__)` | Flask | `flask-security.md`, `sqlalchemy-security.md`, `python-dependencies.md` |
-| `sqlalchemy` | SQLAlchemy | `sqlalchemy-security.md` |
+| `sqlalchemy` (in imports/models) | SQLAlchemy | `sqlalchemy-security.md` |
 | `requirements.txt`, `pyproject.toml` | Python Supply Chain | `python-dependencies.md` |
 
 ---
@@ -53,14 +65,7 @@ When executing `/torusguard audit`, inspect the repository and dynamically load 
 **All files and messages generated for the developer must be human-first and easy to read.**
 Avoid dense, unreadable multi-column tables. Every generated report must prioritize clear visual hierarchy:
 
-1. **Stack Statement at Top:**
-   ```text
-   ## 🔍 Detected Stack
-   • Language: [JavaScript / TypeScript / Python]
-   • Framework: [Next.js / Express / Django / DRF / FastAPI / Flask]
-   • Data Layer: [PostgreSQL / MongoDB / Supabase / SQLAlchemy / Django ORM]
-   • Confidence: [Confirmed / Likely]
-   ```
+1. **Stack Statement at Top:** Use the standard `## Detected Stack` block with specific file and line evidence.
 2. **Executive Summary:** Traffic-light posture indicator (`🔴 Action Required` / `🟡 Warnings` / `🟢 Ready`), finding count summary table, and a 2-3 sentence plain-English status overview.
 3. **Card-Style Finding Layout:** Present each finding as a clean section with:
    - Clear Title & Severity Emoji (`🔴 Critical`, `🟠 High`, `🟡 Medium`, `🔵 Low`)
@@ -74,13 +79,14 @@ Avoid dense, unreadable multi-column tables. Every generated report must priorit
 ## Evidence Confidence Levels
 - **Confirmed**: Directly observed in source code or configuration.
 - **Likely**: Strong indicators present; runtime/deployment verification recommended.
-- **Manual review**: Requires developer business context (e.g. business workflow intent, cloud IAM).
+- **Manual review**: Requires developer business context (e.g. service-layer authorization, cloud IAM).
 - **Informational**: Hardening recommendation or best practice.
 
 ## Rules of Engagement Constraints
 - Never report an outdated dependency as exploitable without an advisory or audit result.
 - Never report cache vulnerability solely because a middleware call is commented out; inspect actual response headers.
-- Never call SSRF confirmed merely because a project uses an HTTP client.
+- Never call SSRF confirmed merely because a project uses an HTTP client; verify user control over the destination URL.
+- Never call IDOR confirmed if a view delegates lookup to a service layer; classify as Manual Review.
 - Never call business-logic abuse confirmed without identifying a concrete workflow and abuse path.
 - Never claim that a static Markdown skill executed a real scan unless an actual scanner was used.
 - Never include sensitive values from the target repository in an audit report.

@@ -31,23 +31,22 @@ AI code generators accelerate product development, but they can easily introduce
 
 ---
 
-## Current Release: v0.4.0 (Python Platform Security)
+## Current Release: v0.4.1 (Python Validation & Quality Patch)
 
-TorusGuard v0.4.0 introduces tested framework-specific guidance for Python while maintaining framework-agnostic universal rules:
+TorusGuard v0.4.1 stabilizes Python platform security, refines stack detection, sharpens evidence-confidence handling, and includes regression fixtures:
 
-- **Django & DRF:** Production settings (`manage.py check --deploy`), CSRF middleware, ORM safety, ModelForm mass assignment, ViewSet queryset scoping, and throttling.
-- **FastAPI & Pydantic:** Request schema validation (`extra="forbid"`), dependency-based auth, object ownership scoping, outbound SSRF filtering, and raw HMAC webhook validation.
-- **Flask & Jinja:** Application factory configuration, session cookie security, Flask-WTF CSRF defense, and Werkzeug file upload safety.
-- **SQLAlchemy:** Parameterized queries with `text(:param)` bindings, multi-tenant query scoping, and bulk update protection.
-- **Python Supply Chain:** Virtual environment isolation, reproducible lockfiles (`poetry.lock`, `uv.lock`), `pip-audit` integration, and pinned GitHub Actions.
+- **Stack Detection Refinements:** Accurate detection across Django (`manage.py`), DRF (`pyproject.toml`), FastAPI, Flask (`requirements.txt`), Flask+SQLAlchemy, Python libraries, and polyglot monorepos.
+- **Evidence Classification:** Clear criteria for distinguishing direct vulnerabilities from service-layer domain authorization.
+- **Regression Fixture Suite:** 10 paired safe and vulnerable fixtures in `tests/fixtures/python/`.
+- **Framework Guides:** Full guidance for Django, DRF, FastAPI, Flask, SQLAlchemy, and Python dependency management.
 
-*Read the complete release notes in [docs/releases/v0.4.0.md](docs/releases/v0.4.0.md).*
+*Read the complete release notes in [docs/releases/v0.4.1.md](docs/releases/v0.4.1.md).*
 
 ---
 
 ## Supported Platforms & Frameworks
 
-### 🐍 Python (v0.4.0)
+### 🐍 Python (v0.4.1)
 * **[Django Guide](guides/python/django.md)** — Settings, CSRF, ORM queries, ModelForms, object ownership.
 * **[Django REST Framework Guide](guides/python/django-rest-framework.md)** — Default permissions, ViewSets, serializers, throttles, pagination.
 * **[FastAPI Guide](guides/python/fastapi.md)** — Pydantic v2 schemas, dependencies, outbound SSRF checks, HMAC webhooks.
@@ -153,7 +152,7 @@ TorusGuard/
 ├── guides/                  # Stack-specific implementation guides (Node.js & Python)
 ├── examples/                # Educational vulnerable & hardened reference applications
 ├── docs/                    
-│   ├── releases/            # Release notes (v0.2.0, v0.3.0, v0.4.0)
+│   ├── releases/            # Release notes (v0.2.0, v0.3.0, v0.4.0, v0.4.1)
 │   ├── python-rule-mapping.md # Universal rule mapping across Python stacks
 │   ├── validation/          # Official validation reports & real-world records
 │   ├── roadmap.md           # Project roadmap & milestones
@@ -169,6 +168,7 @@ TorusGuard/
 - **v0.2.0 (Released):** Baseline 25-rule catalog, templates, guides, and reference apps.
 - **v0.3.0 (Released):** Advanced Web and API Security (SSRF, Webhooks, GraphQL, WebSockets, Cache).
 - **v0.4.0 (Released):** Python Platform Security (Django, DRF, FastAPI, Flask, SQLAlchemy, Dependencies).
+- **v0.4.1 (Released):** Python Validation & Quality Patch (Stack detection, regression fixtures, evidence hardening).
 - **v0.5.0 (Next):** Serverless & Edge Compute Security (Cloudflare Workers, Vercel Edge, AWS Lambda).
 - **v1.0.0 (Planned):** Full rule freeze, automated catalog linter, and multi-framework expansion.
 

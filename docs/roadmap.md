@@ -42,6 +42,13 @@ This document outlines the development milestones, past releases, and future pri
 - Cross-Platform Rule Parity analysis (`docs/validation/cross-platform-rule-parity.md`) demonstrating universal rule consistency across Node.js and Python.
 - Python security rule mapping matrix (`docs/python-rule-mapping.md`).
 
+### ✅ v0.4.1 — Python Validation & Quality Patch (2026-08-21)
+- Refined Python stack detection across Django (`manage.py`), DRF (`pyproject.toml`), FastAPI, Flask (`requirements.txt`), Flask+SQLAlchemy, libraries, and mixed monorepos.
+- Added 10 paired safe and vulnerable Python regression fixtures in `tests/fixtures/python/`.
+- Established evidence-confidence standards for service-layer authorization and serializer mass-assignment protection.
+- Created authorized repository validation template and legal/ethical scoping boundaries.
+- Streamlined CI workflow suite (link checks, secret scans, matrix fixture verification, release tag checks).
+
 ---
 
 ## 🎯 Next Milestone: v0.5.0 — Serverless & Edge Compute Security

@@ -1,0 +1,8 @@
+[project]
+name = "math-utils"
+version = "1.0.0"
+description = "Pure mathematical calculation utilities"
+dependencies = [
+    "numpy>=1.26.0",
+    "scipy>=1.12.0"
+]

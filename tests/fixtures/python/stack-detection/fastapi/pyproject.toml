@@ -1,0 +1,10 @@
+[project]
+name = "fastapi-service"
+version = "0.1.0"
+description = "FastAPI webhook service"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "pydantic>=2.6.0",
+    "httpx>=0.27.0"
+]

@@ -5,6 +5,26 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-08-21
+
+### Fixed
+- Refined Python stack detection for supported repository layouts (Django, DRF, FastAPI, Flask, SQLAlchemy, libraries, and mixed monorepos).
+- Corrected false-positive conditions for service-layer ownership queries, explicit serializer `read_only_fields`, and bound LIKE parameters in SQLAlchemy.
+- Improved evidence requirements for authorization (`TG-AUTH-007`), SSRF (`TG-SSRF-001`), mass assignment (`TG-AUTH-006`), and dependency findings.
+- Corrected framework-specific remediation examples across Python platform guides.
+
+### Added
+- Added sanitized Python regression fixtures in `tests/fixtures/python/` covering both safe and vulnerable patterns.
+- Added authorized repository validation template (`docs/validation/authorized-repo-validation-template.md`) and initial real-world evaluation records.
+- Added automated CI workflows for fixture syntax validation, link integrity, and release tag verification.
+
+### Changed
+- Clarified when findings must be classified as `Manual Review` instead of `Confirmed` (e.g. domain service-layer authorization delegation).
+- Refined detected stack output schema to mandate file and line evidence citations.
+
+### Limitations
+- TorusGuard remains a security guidance framework for AI coding agents, not an automated binary scanner or penetration-testing replacement.
+
 ## [0.4.0] - 2026-08-21
 
 ### Added
@@ -38,21 +58,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added cache and sensitive-response protection rules.
 - Added advanced API examples and review templates.
 
-### Changed
-- Expanded `/torusguard audit` to detect API styles and advanced resource-consumption risks.
-- Expanded `/torusguard verify` with advanced API and integration checks.
-- Preserved all v0.2 rule IDs for compatibility.
-
 ## [0.2.0] - 2026-08-18
 
 ### Added
-- Stable TorusGuard rule IDs across secrets, database exposure, input handling, authentication, abuse prevention, client exposure, and platform hardening.
-- 25 documented security rules under `rules/`.
-- Standardized audit report, security context, threat model, deployment pre-flight, endpoint review, and security exception templates.
-- Vulnerable and hardened React + Express reference examples.
-- Security implementation guides for React/Vite, Next.js, Express, Supabase, and Firebase.
+- 25 documented rules across 7 core areas with severity, detection, remediation, and verification.
+- 5 core workflow commands: `init`, `audit`, `harden`, `check`, `verify`.
+- Standardized templates for `SECURITY.md`, threat modeling, audit reports, deployment pre-flight, API endpoint reviews, and security exceptions.
+- Framework security guides for React/Vite, Next.js, Express, Supabase, and Firebase.
+- Paired vulnerable and hardened reference applications.
 
 ## [0.1.0] - 2026-08-18
 
 ### Added
-- Initial rules and references.
+- Initial portable AI-agent skill for web application security guidance.
