@@ -28,6 +28,17 @@ def find_user_by_email(session, email: str):
     return session.execute(query, {"email": email}).fetchall()
 ```
 
+### 💡 Safe LIKE Search Queries Pattern
+Never concatenate wildcards directly into the SQL string:
+```python
+# ❌ UNSAFE: query = text(f"SELECT * FROM docs WHERE title LIKE '%{user_term}%'")
+
+# ✅ SAFE: Bind wildcard parameter in the dictionary mapping
+def search_documents(session, user_term: str):
+    query = text("SELECT * FROM docs WHERE title LIKE :pattern")
+    return session.execute(query, {"pattern": f"%{user_term}%"}).fetchall()
+```
+
 ---
 
 ## 👤 2. Query Scoping & Multi-Tenant Authorization (`TG-AUTH-007`)
@@ -86,6 +97,7 @@ def update_profile(session, user_id: int, client_data: dict):
 ## 📋 Manual Review Checklist for SQLAlchemy
 
 - [ ] All `text()` constructs use `:param` bindings rather than f-strings or `.format()`.
+- [ ] LIKE searches bind wildcards in the parameter values rather than concatenating into SQL.
 - [ ] Multi-tenant queries include tenant/user ID filter conditions.
 - [ ] Bulk `.update()` queries validate and whitelist editable fields.
 - [ ] Sessions are scoped to request lifecycles and close cleanly upon completion.

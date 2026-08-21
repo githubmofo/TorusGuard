@@ -60,11 +60,24 @@ class IsInvoiceOwner(permissions.BasePermission):
         return obj.owner == request.user
 ```
 
+### 💡 Service-Layer Authorization Pattern
+When your application offloads data access to a domain service layer:
+```python
+# SAFE: Ensure service layer explicitly accepts and filters by authenticated user
+class InvoiceViewSet(viewsets.ViewSet):
+    def retrieve(self, request, pk=None):
+        # Pass request.user context into service layer
+        invoice = InvoiceService.get_for_user(invoice_id=pk, user=request.user)
+        if not invoice:
+            raise NotFound("Invoice not found.")
+        return Response(InvoiceSerializer(invoice).data)
+```
+
 ---
 
 ## 📝 3. Serializers & Mass Assignment (`TG-AUTH-006`)
 
-Never allow client updates to sensitive fields like `role`, `is_verified`, `balance`, or `tenant_id`.
+Never allow client updates to sensitive fields like `role`, `is_verified`, `is_billing_admin`, `balance`, or `tenant_id`.
 
 ### ❌ Unsafe Pattern
 ```python
@@ -79,8 +92,8 @@ class UserSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'bio', 'is_staff']
-        read_only_fields = ['id', 'is_staff']  # ✅ Client cannot modify is_staff
+        fields = ['id', 'username', 'email', 'bio', 'is_staff', 'is_billing_admin']
+        read_only_fields = ['id', 'is_staff', 'is_billing_admin']  # ✅ Client cannot modify privilege fields
 ```
 
 ---
@@ -92,6 +105,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 ```python
 class PasswordResetView(APIView):
+    throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'sensitive_action'
     # ...
 ```
@@ -114,7 +128,7 @@ class SafePagination(PageNumberPagination):
 ## 📋 Manual Review Checklist for DRF
 
 - [ ] `DEFAULT_PERMISSION_CLASSES` defaults to `IsAuthenticated`.
-- [ ] ViewSets override `get_queryset()` to enforce user/tenant scoping.
-- [ ] Serializers use explicit `read_only_fields` for all privilege and financial fields.
+- [ ] ViewSets override `get_queryset()` or pass `request.user` into domain service layer lookups.
+- [ ] Serializers use explicit `read_only_fields` for all privilege, tier, and financial fields.
 - [ ] Sensitive actions have dedicated `ScopedRateThrottle` applied.
 - [ ] Pagination enforces `max_page_size` limits.

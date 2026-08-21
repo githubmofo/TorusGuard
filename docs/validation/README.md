@@ -15,13 +15,14 @@ TorusGuard is a security guidance framework for AI coding agents. To ensure that
 
 ### What Validation Does NOT Prove
 - Validation is **not** a penetration test of the target applications.
-- Validation does **not** prove that every TorusGuard rule is guaranteed to detect 100% of flaws in every custom framework setup.
-- Validation on educational repositories does not guarantee that third-party package managers can automatically resolve breaking dependency upgrades without human code review.
+- Validation does **not** probe live production infrastructure or bypass legal security boundaries.
+- Validation on educational fixtures or authorized codebases does not guarantee that third-party package managers can automatically resolve breaking dependency upgrades without human code review.
 
 ---
 
 ## 📁 Validation Reports Index
 
+### 🧪 1. Framework Reference Fixture Reports
 | Target Application / Framework | Language & Stack | Primary Rules Validated | Validation Report Link |
 |---|---|---|---|
 | **OWASP NodeGoat** | Node.js, Express, MongoDB | CSRF (`TG-CSRF-001`), Cache Security (`TG-CACHE-001`), Dependency Supply Chain (`TG-SUPPLY-*`) | [nodegoat-v0.3.0-validation.md](nodegoat-v0.3.0-validation.md) |
@@ -30,6 +31,13 @@ TorusGuard is a security guidance framework for AI coding agents. To ensure that
 | **FastAPI Test Target** | Python, FastAPI, Pydantic | SSRF (`TG-SSRF-001`), Webhook Signatures (`TG-WEBHOOK-001`), Schema Validation (`TG-AUTH-006`) | [fastapi-v0.4.0-validation.md](fastapi-v0.4.0-validation.md) |
 | **Flask Reference App** | Python, Flask, Werkzeug | Secret keys (`TG-SEC-001`), IDOR (`TG-AUTH-007`), Uploads (`TG-INPUT-004`), CSRF (`TG-CSRF-001`) | [flask-v0.4.0-validation.md](flask-v0.4.0-validation.md) |
 | **Cross-Platform Parity** | Node.js & Python Ecosystems | Parity comparison across 6 universal rule categories | [cross-platform-rule-parity.md](cross-platform-rule-parity.md) |
+
+### 🏢 2. Real-World Authorized Code Review Records
+- [Real-World Validation Program Overview](real-world/README.md)
+- [Django + DRF SaaS Validation Record](real-world/django-drf-real-world.md)
+- [FastAPI Webhook Gateway Validation Record](real-world/fastapi-real-world.md)
+- [Flask Document Portal Validation Record](real-world/flask-sqlalchemy-real-world.md)
+- [Polyglot Monorepo Validation Record](real-world/mixed-stack-real-world.md)
 
 ---
 
