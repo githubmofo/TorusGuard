@@ -12,6 +12,7 @@ jobs:
   verify-release:
     name: Validate Release State
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Checkout repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -21,12 +22,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Check Version in CHANGELOG.md
+      - name: Check Version in CHANGELOG.md and Releases
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
           VERSION="${TAG_NAME#v}"
           echo "Verifying tag $TAG_NAME (version $VERSION)..."
           grep -F "## [$VERSION]" CHANGELOG.md || (echo "Version $VERSION missing from CHANGELOG.md" && exit 1)
+          test -f "docs/releases/v$VERSION.md" || (echo "Release note docs/releases/v$VERSION.md missing" && exit 1)
 
       - name: Compile All Python Fixtures
         run: |
@@ -34,6 +36,6 @@ jobs:
 
       - name: Verify Documentation Structure
         run: |
-          test -f docs/release-checklists/v0.4.0.md || exit 1
           test -f docs/python-rule-mapping.md || exit 1
           test -f docs/validation/cross-platform-rule-parity.md || exit 1
+          test -f docs/validation/README.md || exit 1
