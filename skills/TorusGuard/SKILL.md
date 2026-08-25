@@ -1,39 +1,54 @@
 ---
 name: torusguard
-description: Security guardrails for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
+description: Security guardrails and structured verification workflow for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
 ---
 
-# TorusGuard (v0.4.1)
+# TorusGuard (v0.5.0)
 
-**Tagline:** Security guardrails for AI-built web apps.
+**Tagline:** Security guardrails and structured verification workflow for AI-built web apps.
 
 **Core principle:** If the browser receives it, users can inspect it. Keep secrets, database access, and authorization decisions on trusted server-side code.
 
-TorusGuard is a Markdown-first, portable AI-agent skill. It is not an npm package, hosted service, browser extension, or automated vulnerability scanner. It guides audit and remediation through structured rules, templates, and human-friendly references.
+TorusGuard is a Markdown-first, portable AI-agent skill and security workflow engine. It is not an npm package, hosted SaaS service, browser extension, or black-box vulnerability scanner. It guides audit, verification, remediation, and re-checking through structured rules, normalized evidence schemas, and human-friendly references.
 
-TorusGuard must never claim it can block DevTools, make an application fully secure, or replace professional penetration testing, code review, compliance work, or threat modeling.
+TorusGuard must never claim it can block DevTools, make an application 100% secure, or replace professional penetration testing, manual code review, compliance audits, or formal threat modeling.
 
-## When to Activate
+---
 
-Use when the user builds or deploys web apps, adds APIs, connects databases, implements auth, reviews security, audits repositories, fixes vulnerabilities, or asks about rate limits, secrets, source maps, SSRF, webhooks, or CORS.
+## 🔄 Finding Lifecycle (v0.5.0 Architecture)
 
-## Commands
+TorusGuard operates on a 6-stage lifecycle for every candidate security finding:
 
-| Command | Purpose | Changes code? |
-|---------|---------|:---:|
-| `/torusguard init` | Create/update project `SECURITY.md` and readable threat model | Docs only |
-| `/torusguard audit` | Scan codebase; produce a clean, human-readable audit report | No |
-| `/torusguard harden` | Fix approved findings; re-verify | Yes |
-| `/torusguard check <area>` | Audit one rule group | No by default |
-| `/torusguard verify` | Production pre-flight checklist | No |
+```text
+[ Detect ] ──► [ Classify ] ──► [ Verify ] ──► [ Remediate ] ──► [ Re-check ] ──► [ Archive ]
+```
 
-**Check areas:** `secrets`, `database`, `input`, `auth`, `rate-limit`, `client`, `platform`, `ssrf`, `business-logic`, `csrf`, `webhook`, `graphql`, `websocket`, `supply-chain`, `cache`, `python`, `django`, `drf`, `fastapi`, `flask`, `sqlalchemy`.
+1. **Detect:** Scan repository source code, environment templates, and configuration files.
+2. **Classify:** Assign a canonical Rule ID (`TG-*`), taxonomy category, risk severity, and initial confidence.
+3. **Verify:** Validate evidence sufficiency and reachable data flow. If evidence is ambiguous, force status to `Needs Review`.
+4. **Remediate:** Formulate least-invasive, framework-native code modifications with before/after diffs.
+5. **Re-check:** Re-audit modified code to verify that the vulnerability is resolved (`Verified Safe`).
+6. **Archive:** Preserve timestamped verification evidence in the project audit record.
+
+---
+
+## 🛠️ Core Commands
+
+| Command | Lifecycle Phase | Purpose | Changes Code? |
+|---------|:---:|---------|:---:|
+| `/torusguard init` | Baseline | Create/update project `SECURITY.md`, threat model, and finding registry | Docs only |
+| `/torusguard audit` | Detect & Classify | Scan codebase; produce a Human-First normalized audit report | No |
+| `/torusguard verify` | Verify | Validate evidence sufficiency and check manual review assumptions | No |
+| `/torusguard harden` | Remediate | Propose least-invasive, framework-idiomatic code fixes | Yes (on approval) |
+| `/torusguard recheck` | Re-check | Execute differential re-audit on post-fix code to assert resolution | No |
+
+**Audit focus areas:** `auth`, `input`, `database`, `files`, `secrets`, `supply-chain`, `network`, `ssrf`, `webhooks`, `websockets`, `graphql`, `business-logic`, `rate-limit`, `client`, `platform`, `cache`, `django`, `drf`, `fastapi`, `flask`, `sqlalchemy`.
 
 ---
 
 ## 🔍 Stack Detection & Reference Loading
 
-When executing `/torusguard audit`, inspect the repository files and declare the detected stack:
+When executing `/torusguard audit`, inspect repository files and output the detected stack block:
 
 ### Standard Detected Stack Output Format
 ```markdown
@@ -43,7 +58,7 @@ When executing `/torusguard audit`, inspect the repository files and declare the
 - Data layer: SQLAlchemy / Django ORM / Supabase / None
 - Dependency files: pyproject.toml / requirements.txt / package.json
 - Detection evidence: <file and line reference, e.g. manage.py:5>
-- Detection confidence: Confirmed / Likely / Manual Review
+- Detection confidence: Confirmed / Likely / Needs Review
 ```
 
 ### Detection Evidence Mapping
@@ -60,33 +75,34 @@ When executing `/torusguard audit`, inspect the repository files and declare the
 
 ---
 
-## 🌟 Human-First Output Standard (Critical)
+## 🌟 Human-First Output Standard
 
-**All files and messages generated for the developer must be human-first and easy to read.**
-Avoid dense, unreadable multi-column tables. Every generated report must prioritize clear visual hierarchy:
+**All files and messages generated for developers must be human-first, structured, and easy to read.**
+Every generated report must follow this card-style hierarchy:
 
-1. **Stack Statement at Top:** Use the standard `## Detected Stack` block with specific file and line evidence.
-2. **Executive Summary:** Traffic-light posture indicator (`🔴 Action Required` / `🟡 Warnings` / `🟢 Ready`), finding count summary table, and a 2-3 sentence plain-English status overview.
-3. **Card-Style Finding Layout:** Present each finding as a clean section with:
-   - Clear Title & Severity Emoji (`🔴 Critical`, `🟠 High`, `🟡 Medium`, `🔵 Low`)
-   - Exact Location (`file:line`) and Rule ID (`TG-...`)
-   - **The Risk in Plain English:** Explain what an attacker could do without confusing jargon.
-   - **Evidence & Fix Snippet:** Show the exact offending code and the safe **Before / After** fix.
-4. **Clear Next Steps:** Simple, prioritized 1-2-3 remediation steps so the user knows what to do next.
+1. **Stack Statement at Top:** Standard `## Detected Stack` block with specific file and line citations.
+2. **Executive Summary:** Posture indicator (`🔴 Action Required` / `🟡 Warnings Found` / `🟢 Ready`), metric table, and a 2-3 sentence overview.
+3. **Card-Style Finding Layout:**
+   - Title & Badges: Severity (`🔴 Critical`, `🟠 High`, `🟡 Medium`, `🔵 Low`) | Confidence (`🔒 Confirmed`, `⚠️ Likely`, `🔍 Needs Review`)
+   - Exact Location (`file:line` or symbol)
+   - **Risk & Rationale:** Plain-English explanation of adversarial abuse.
+   - **Evidence Snippet:** Exact code excerpt with type (`source`, `runtime`, `test`, `manual_review`).
+   - **Remediation & Diff:** Framework-native **Before / After** diff.
+   - **Verification Method:** Step-by-step test instructions.
+4. **Clear Next Steps:** Prioritized 1-2-3 actions.
 
 ---
 
-## Evidence Confidence Levels
-- **Confirmed**: Directly observed in source code or configuration.
-- **Likely**: Strong indicators present; runtime/deployment verification recommended.
-- **Manual review**: Requires developer business context (e.g. service-layer authorization, cloud IAM).
-- **Informational**: Hardening recommendation or best practice.
+## ⚖️ Evidence Confidence & Rules of Engagement
 
-## Rules of Engagement Constraints
-- Never report an outdated dependency as exploitable without an advisory or audit result.
-- Never report cache vulnerability solely because a middleware call is commented out; inspect actual response headers.
-- Never call SSRF confirmed merely because a project uses an HTTP client; verify user control over the destination URL.
-- Never call IDOR confirmed if a view delegates lookup to a service layer; classify as Manual Review.
-- Never call business-logic abuse confirmed without identifying a concrete workflow and abuse path.
-- Never claim that a static Markdown skill executed a real scan unless an actual scanner was used.
-- Never include sensitive values from the target repository in an audit report.
+- **Confirmed:** Directly proven in source code or configuration with reachable data flow.
+- **Likely:** Strong indicators present; runtime/deployment verification recommended.
+- **Needs Review:** Requires developer business context (e.g. service-layer authorization, cloud IAM, upstream proxy).
+- **Informational:** Defensive best practice, not an active vulnerability.
+
+### Strict Safety & Evidence Constraints:
+- Never report a finding as `Confirmed` without direct source code snippet evidence.
+- If a controller delegates authorization to a domain service layer, classify as `Needs Review` (`TG-AUTH-007`).
+- Never report an unpinned dependency as exploitable without an advisory or audit result (`TG-SUPPLY-002`).
+- Never report SSRF as `Confirmed` merely because an HTTP client is imported; verify user control over the destination URL (`TG-SSRF-001`).
+- Never include real production credentials or tokens in generated reports.

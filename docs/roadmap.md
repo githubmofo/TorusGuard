@@ -39,26 +39,43 @@ This document outlines the development milestones, past releases, and future pri
 - Automatic Python framework detection in `skills/torusguard/SKILL.md`.
 - Paired vulnerable and hardened reference applications in `examples/python/` with `fixes.md` remediation matrices.
 - Formal validation reports for Django, DRF, FastAPI, and Flask in `docs/validation/`.
-- Cross-Platform Rule Parity analysis (`docs/validation/cross-platform-rule-parity.md`) demonstrating universal rule consistency across Node.js and Python.
-- Python security rule mapping matrix (`docs/python-rule-mapping.md`).
+- Cross-Platform Rule Parity analysis (`docs/validation/cross-platform-rule-parity.md`).
 
 ### ✅ v0.4.1 — Python Validation & Quality Patch (2026-08-21)
 - Refined Python stack detection across Django (`manage.py`), DRF (`pyproject.toml`), FastAPI, Flask (`requirements.txt`), Flask+SQLAlchemy, libraries, and mixed monorepos.
 - Added 10 paired safe and vulnerable Python regression fixtures in `tests/fixtures/python/`.
 - Established evidence-confidence standards for service-layer authorization and serializer mass-assignment protection.
 - Created authorized repository validation template and legal/ethical scoping boundaries.
-- Streamlined CI workflow suite (link checks, secret scans, matrix fixture verification, release tag checks).
+
+### ✅ v0.5.0 — Architecture & Workflow Release (2026-08-25)
+- **Formal 6-Stage Finding Lifecycle:** `Detect` ──► `Classify` ──► `Verify` ──► `Remediate` ──► `Re-check` ──► `Archive`.
+- **Formal JSON Schemas (`schemas/`):** Standardized schemas for findings, evidence, remediations, rule metadata, and lifecycle transitions.
+- **Repeatable Automated Validation Harness (`harness/runner.py`):** Standalone harness executing schema validation, rule catalog integrity, educational fixture differentials, and lifecycle state assertions.
+- **Core Workflow Package (`core/`):** Normalized data models, lifecycle manager, and Human-First report formatter.
+- **Command Addition:** Added `/torusguard recheck` for differential verification of post-fix codebases.
 
 ---
 
-## 🎯 Next Milestone: v0.5.0 — Serverless & Edge Compute Security
+## 🎯 Next Incremental Milestones: v0.5.x Series
 
-**Primary Focus:** Guardrails for modern serverless runtimes and edge compute platforms.
+The v0.5.0 architecture enables rapid, predictable incremental platform expansions:
 
-- [ ] **Cloudflare Workers Security Guide:** Request context isolation, KV/D1 binding authorization, and subrequest bounding.
-- [ ] **Vercel Edge Functions & Server Actions:** Next.js Server Actions authorization, ephemeral memory state leak prevention, and cache revalidation limits.
-- [ ] **AWS Lambda / Serverless Framework:** Cold-start credential reuse, IAM execution boundaries, and environment secret loading.
-- [ ] **New Serverless Rules (`TG-EDGE-*`):** Rules for memory-state leakage and ephemeral execution timeouts.
+### 🚀 v0.5.1 — Cloudflare Workers & Serverless Edge Isolation
+- [ ] Cloudflare Workers Security Guide: Request context isolation, KV/D1/R2 binding authorization, subrequest bounding.
+- [ ] Rule `TG-EDGE-001`: Cloudflare Worker global memory state leak prevention.
+- [ ] Paired vulnerable and hardened edge worker fixtures.
+
+### 🚀 v0.5.2 — Next.js App Router Server Actions Security
+- [ ] Next.js Server Actions Authorization: Direct action endpoint session/role checks.
+- [ ] Rule `TG-EDGE-002`: Ephemeral memory state leak prevention during edge SSR.
+- [ ] Revalidation rate limits and cache tag poisoning prevention.
+
+### 🚀 v0.5.3 — AWS Lambda & Ephemeral Runtimes
+- [ ] Cold-start credential reuse, IAM execution boundaries, environment secret loading.
+- [ ] Rule `TG-EDGE-003`: Ephemeral execution timeout & subrequest bounding.
+
+### 🚀 v0.5.4 — Microservice Mesh & Distributed Authorization
+- [ ] JWT propagation, RPC gateway boundary enforcement, internal mTLS requirements.
 
 ---
 

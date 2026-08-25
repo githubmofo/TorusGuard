@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/evidence.schema.json",
+  "title": "TorusGuardEvidence",
+  "description": "Evidence item schema for TorusGuard v0.5.0 findings.",
+  "type": "object",
+  "required": [
+    "type",
+    "location",
+    "snippet",
+    "rationale",
+    "confidence_level"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["source", "runtime", "test", "manual_review"],
+      "description": "Origin and modality of the evidence."
+    },
+    "location": {
+      "type": "string",
+      "description": "File path, line number range, configuration key, or route endpoint (e.g. app/views.py:45-52)."
+    },
+    "snippet": {
+      "type": "string",
+      "description": "Sanitized excerpt of the offending source code, configuration, or log."
+    },
+    "context": {
+      "type": "string",
+      "description": "Surrounding architectural context (e.g. within unauthenticated FastAPI route handler)."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Why this specific code snippet or configuration proves the presence of the weakness."
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["Confirmed", "Likely", "Needs Review", "Informational"],
+      "description": "Confidence assessment derived solely from this evidence artifact."
+    },
+    "is_sufficient_for_confirmed": {
+      "type": "boolean",
+      "description": "True only if direct unmitigated vulnerability is proven without external assumptions."
+    }
+  }
+}

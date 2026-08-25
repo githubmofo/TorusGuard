@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/rule.schema.json",
+  "title": "TorusGuardRuleMetadata",
+  "description": "Schema for TorusGuard rule metadata and catalog definitions in v0.5.0.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "category",
+    "severity",
+    "confidence_default",
+    "lifecycle_stage",
+    "description",
+    "evidence_criteria",
+    "remediation_guidance",
+    "verification_strategy",
+    "limitations"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^TG-[A-Z0-9]+-[0-9]{3}$"
+    },
+    "title": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": [
+        "authentication-authorization",
+        "input-validation-encoding",
+        "data-access-orm",
+        "file-upload-handling",
+        "secrets-configuration",
+        "dependency-supply-chain",
+        "network-ssrf-boundaries",
+        "business-logic-rate-limiting",
+        "client-cache-platform"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["Critical", "High", "Medium", "Low", "Informational"]
+    },
+    "confidence_default": {
+      "type": "string",
+      "enum": ["Confirmed", "Likely", "Needs Review", "Informational"]
+    },
+    "lifecycle_stage": {
+      "type": "string",
+      "enum": ["Detect", "Classify", "Verify", "Remediate", "Recheck", "Archive"],
+      "default": "Detect"
+    },
+    "asvs_control": { "type": "string" },
+    "cwe": { "type": "string" },
+    "nist_ssdf": { "type": "string" },
+    "applies_to": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "description": { "type": "string" },
+    "evidence_criteria": {
+      "type": "object",
+      "required": ["confirmed_conditions", "needs_review_conditions"],
+      "properties": {
+        "confirmed_conditions": { "type": "string" },
+        "needs_review_conditions": { "type": "string" },
+        "informational_conditions": { "type": "string" }
+      }
+    },
+    "remediation_guidance": {
+      "type": "string"
+    },
+    "verification_strategy": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "string"
+    }
+  }
+}

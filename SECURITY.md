@@ -59,6 +59,6 @@ Security updates and patches are prioritized for the current active release line
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v0.4.x` | ✅ Yes | Current active release line (Python Platform Security & Quality Patches) |
-| `v0.3.x` | ⚠️ Best effort | Critical security fixes only |
-| `< v0.3.0` | ❌ No | Deprecated |
+| `v0.5.x` | ✅ Yes | Current active release line (Architecture & Workflow Release) |
+| `v0.4.x` | ⚠️ Best effort | Critical security fixes only |
+| `< v0.4.0` | ❌ No | Deprecated |

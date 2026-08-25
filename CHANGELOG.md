@@ -5,6 +5,25 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-08-25
+
+### Added
+- **Formal 6-Stage Finding Lifecycle:** Implemented state machine transitions across `Detect` ──► `Classify` ──► `Verify` ──► `Remediate` ──► `Re-check` ──► `Archive`.
+- **Formal JSON Schemas (`schemas/`):** Defined normalized schemas for findings, evidence, remediations, rule metadata, and lifecycle transitions.
+- **Repeatable Automated Validation Harness (`harness/runner.py`):** Standalone test runner executing schema validation, catalog integrity, educational fixture differential checks, regression suites, and lifecycle state assertions.
+- **Core Engine & Workflow Package (`core/`):** Pydantic-style normalized models, lifecycle manager with constraint enforcement, and report formatter.
+- **Lifecycle & Architecture Documentation:** Added `docs/architecture/v0.5.0-workflow-architecture.md` and `docs/workflow/finding-lifecycle.md`.
+- **Command Addition:** Added `/torusguard recheck` command for differential verification of post-fix codebases.
+
+### Changed
+- Standardized evidence modality typing (`source`, `runtime`, `test`, `manual_review`).
+- Normalized confidence taxonomy (`Confirmed`, `Likely`, `Needs Review`, `Informational`, `Not Applicable`).
+- Enhanced Human-First audit reports with card-style layout, traffic-light posture indicators, and side-by-side Before/After remediation diffs.
+- Updated `skills/TorusGuard/SKILL.md` to `v0.5.0` integrating the new finding lifecycle.
+
+### Limitations
+- TorusGuard is an open-source Markdown-first guidance framework for AI coding agents; findings marked `Needs Review` require manual verification of out-of-band architecture.
+
 ## [0.4.1] - 2026-08-21
 
 ### Fixed

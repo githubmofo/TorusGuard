@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/lifecycle.schema.json",
+  "title": "TorusGuardFindingLifecycle",
+  "description": "State machine transition and lifecycle validation schema for TorusGuard v0.5.0.",
+  "type": "object",
+  "required": ["current_stage", "allowed_transitions", "required_artifacts"],
+  "properties": {
+    "current_stage": {
+      "type": "string",
+      "enum": ["Detect", "Classify", "Verify", "Remediate", "Recheck", "Archive"]
+    },
+    "allowed_transitions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["Detect", "Classify", "Verify", "Remediate", "Recheck", "Archive"]
+      }
+    },
+    "required_artifacts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Artifacts that must exist before advancing to the next stage."
+    },
+    "lifecycle_definitions": {
+      "type": "object",
+      "properties": {
+        "Detect": {
+          "type": "string",
+          "default": "Locate candidate security weakness in source code, configuration, or environment."
+        },
+        "Classify": {
+          "type": "string",
+          "default": "Normalize finding with Rule ID, taxonomy category, severity, and initial confidence level."
+        },
+        "Verify": {
+          "type": "string",
+          "default": "Validate evidence sufficiency and reachable data flow; downgrade to Needs Review if unproven."
+        },
+        "Remediate": {
+          "type": "string",
+          "default": "Formulate least-invasive, framework-native code modification with before/after diffs."
+        },
+        "Recheck": {
+          "type": "string",
+          "default": "Execute differential re-audit on post-remediation codebase to assert finding resolution."
+        },
+        "Archive": {
+          "type": "string",
+          "default": "Preserve verification evidence and timestamp in audit trail record for compliance/auditability."
+        }
+      }
+    }
+  }
+}
