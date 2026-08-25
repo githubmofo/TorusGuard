@@ -47,35 +47,63 @@ This document outlines the development milestones, past releases, and future pri
 - Established evidence-confidence standards for service-layer authorization and serializer mass-assignment protection.
 - Created authorized repository validation template and legal/ethical scoping boundaries.
 
-### ✅ v0.5.0 — Architecture & Workflow Release (2026-08-25)
+### ✅ v0.5.0 — Core Architecture & Workflow Release (2026-08-25)
 - **Formal 6-Stage Finding Lifecycle:** `Detect` ──► `Classify` ──► `Verify` ──► `Remediate` ──► `Re-check` ──► `Archive`.
 - **Formal JSON Schemas (`schemas/`):** Standardized schemas for findings, evidence, remediations, rule metadata, and lifecycle transitions.
 - **Repeatable Automated Validation Harness (`harness/runner.py`):** Standalone harness executing schema validation, rule catalog integrity, educational fixture differentials, and lifecycle state assertions.
 - **Core Workflow Package (`core/`):** Normalized data models, lifecycle manager, and Human-First report formatter.
 - **Command Addition:** Added `/torusguard recheck` for differential verification of post-fix codebases.
 
+### ✅ v0.5.1 — Finding Quality & Provenance Release (2026-08-25)
+- **Structured Provenance Tracking:** Explicit provenance chains documenting discovery module, triggering input, decision path, and verification step.
+- **Auditable 0–100 Confidence Scoring:** Transparent 5-factor mathematical rubric replacing subjective estimates.
+- **Cryptographic Evidence Packaging:** Immutable SHA-256 checksums computed for all raw code evidence snippets.
+- **Explicit Retest State Machine:** Formal post-fix retesting via `/torusguard recheck` before findings can transition to `Verified Fixed`.
+- **New Schemas:** Added `provenance.schema.json`, `confidence.schema.json`, and `retest.schema.json`.
+
+### ✅ v0.5.2 — Validation Engine & Deterministic Replay Release (2026-08-25)
+- **7-Layer Validation Engine (`harness/engine/`):** `FixtureManager`, `ReplayRunner`, `ResultComparator`, `RegressionTracker`, `FalsePositiveAnalyzer`, `ValidationEvidenceCollector`, `ValidationReportEmitter`.
+- **Multi-Pass Deterministic Replay (3x):** Verified identical serialized output hashes across repeated scan passes.
+- **Differential Result Comparator:** Evaluates paired vulnerable vs hardened behavior with standardized outcome labels (`Vulnerable Confirmed`, `Hardened Safe`, `False Positive`, etc.).
+- **Historical Regression Tracker:** Automated tracking ensuring baseline fixes from earlier releases remain clean.
+- **New Schemas:** Added `fixture.schema.json` and `validation-run.schema.json`.
+
+### ✅ v0.5.3 — Python Security Coverage & Framework Guidance (2026-08-25)
+- **4 New Canonical Security Rules (64 Total):**
+  - `TG-AUTH-008`: Untrusted Role or Tenant Header Injection (`X-User-Role`, `X-Tenant-ID`).
+  - `TG-INPUT-005`: Unsafe Template Rendering & Disabled Autoescaping (`mark_safe`, `| safe`, `render_template_string`).
+  - `TG-INPUT-006`: Path Traversal & Unsafe Upload Storage (`os.path.join` with client filename).
+  - `TG-DB-004`: Missing Tenant Query Isolation in Multi-Tenant Models.
+- **Framework-Native Remediations:** Added concrete Before/After remediation patterns for FastAPI, Flask, Django, DRF, and SQLAlchemy.
+- **Validation Engine Expansion:** Added 3 new paired differential fixtures in `FixtureManager` (62 passed automated tests).
+
+### ✅ v0.5.4 — Usability, Clarity & Actionable Remediation Release (2026-08-25)
+- **9-Section Actionable Report Flow:** Standardized flow comprising Header, Executive Summary, Scope & Methodology, Summary Table, Detailed Findings, Prioritized Triage Roadmap, Retest Workflow, Limitations, and Appendix.
+- **Remediation Priority Triage:** Findings classified by urgency (`Immediate P0`, `Near-Term P1`, `Backlog P2`).
+- **Context Separation:** Strict separation of executive Business Impact from technical code mechanics.
+- **Sensitive Data Masking:** Automated redaction of API keys (`sk_live_...`), GitHub tokens, JWTs, and passwords in evidence snippets.
+- **Ticket-Ready Payloads:** Pre-formatted Markdown blocks ready to copy-paste into GitHub Issues, Jira, and Linear.
+- **Validation Harness:** 64 automated tests passing with 100% pass rate (`python harness/runner.py`).
+
 ---
 
-## 🎯 Next Incremental Milestones: v0.5.x Series
+## 🎯 Next Incremental Milestones: v0.6.x Series
 
-The v0.5.0 architecture enables rapid, predictable incremental platform expansions:
+The v0.5.x architecture provides the mature workflow foundation for upcoming platform and cloud-native expansions:
 
-### 🚀 v0.5.1 — Cloudflare Workers & Serverless Edge Isolation
+### 🚀 v0.6.0 — Cloudflare Workers & Edge Isolation
 - [ ] Cloudflare Workers Security Guide: Request context isolation, KV/D1/R2 binding authorization, subrequest bounding.
 - [ ] Rule `TG-EDGE-001`: Cloudflare Worker global memory state leak prevention.
 - [ ] Paired vulnerable and hardened edge worker fixtures.
 
-### 🚀 v0.5.2 — Next.js App Router Server Actions Security
+### 🚀 v0.6.1 — Next.js App Router Server Actions Security
 - [ ] Next.js Server Actions Authorization: Direct action endpoint session/role checks.
 - [ ] Rule `TG-EDGE-002`: Ephemeral memory state leak prevention during edge SSR.
 - [ ] Revalidation rate limits and cache tag poisoning prevention.
 
-### 🚀 v0.5.3 — AWS Lambda & Ephemeral Runtimes
+### 🚀 v0.6.2 — AWS Lambda & Ephemeral Runtimes
 - [ ] Cold-start credential reuse, IAM execution boundaries, environment secret loading.
 - [ ] Rule `TG-EDGE-003`: Ephemeral execution timeout & subrequest bounding.
-
-### 🚀 v0.5.4 — Microservice Mesh & Distributed Authorization
-- [ ] JWT propagation, RPC gateway boundary enforcement, internal mTLS requirements.
 
 ---
 
