@@ -1,5 +1,5 @@
 """
-TorusGuard Validation Harness & Engine Runner (v0.5.2)
+TorusGuard Validation Harness & Engine Runner (v0.5.4)
 Executes comprehensive validation engine cycles: deterministic replay, differential comparison, regression tracking, and schema validation.
 """
 
@@ -31,11 +31,13 @@ from core.models import (
     ConfidenceBand,
     SeverityLevel,
     SeverityInfo,
+    RemediationPriority,
     FindingStatus,
     LifecycleStage,
     TaxonomyCategory,
     EvidenceType,
     AuditReport,
+    mask_sensitive_data,
 )
 from core.lifecycle import FindingLifecycleManager, LifecycleTransitionError
 from core.formatter import ReportFormatter
@@ -76,7 +78,7 @@ class ValidationHarnessRunner:
 
     def run_all(self) -> bool:
         print("=" * 80)
-        print("TORUSGUARD v0.5.3 PYTHON SECURITY & VALIDATION HARNESS")
+        print("TORUSGUARD v0.5.4 REPORTING USABILITY & VALIDATION HARNESS")
         print("=" * 80)
 
         self.test_schema_integrity()
@@ -84,6 +86,7 @@ class ValidationHarnessRunner:
         self.test_skill_definition()
         self.test_confidence_scoring_model()
         self.test_provenance_and_evidence_hashing()
+        self.test_sensitive_data_masking()
         self.test_retest_lifecycle_closure()
         self.test_validation_engine_subsystem()
         self.test_stack_detection_fixtures()
@@ -97,7 +100,7 @@ class ValidationHarnessRunner:
         return self.failed_tests == 0
 
     def test_schema_integrity(self):
-        print("\n1. Testing Formal Schema Integrity (v0.5.2)...")
+        print("\n1. Testing Formal Schema Integrity (v0.5.4)...")
         schemas_dir = self.root_dir / "schemas"
         required_schemas = [
             "finding.schema.json",
@@ -149,7 +152,7 @@ class ValidationHarnessRunner:
             else:
                 self.log_test(f"Rule ID parseable in {rf.name}", False, "No valid TG-* rule ID found in header")
 
-        self.log_test(f"Total Rules Cataloged ({len(rule_ids)})", len(rule_ids) >= 60, f"Found {len(rule_ids)} rules")
+        self.log_test(f"Total Rules Cataloged ({len(rule_ids)})", len(rule_ids) >= 64, f"Found {len(rule_ids)} rules")
 
     def test_skill_definition(self):
         print("\n3. Testing Skill Definition & References...")
@@ -198,7 +201,7 @@ class ValidationHarnessRunner:
         ev = Evidence(
             type=EvidenceType.SOURCE,
             location="server/auth.py:42",
-            raw_snippet="SECRET_KEY = 'hardcoded_jwt_secret_value'",
+            raw_snippet="SECRET_KEY = 'super_secret_jwt_key'",
             rationale="Hardcoded secret credential.",
             confidence_level=ConfidenceBand.CONFIRMED,
             is_sufficient_for_confirmed=True,
@@ -206,8 +209,18 @@ class ValidationHarnessRunner:
         has_hash = bool(ev.sha256_checksum) and len(ev.sha256_checksum) == 64
         self.log_test("Evidence SHA-256 Checksum Computed", has_hash)
 
+    def test_sensitive_data_masking(self):
+        print("\n6. Testing Sensitive Secret & Token Masking...")
+        sample_secret = "API_KEY = 'sk_live_998877665544332211'"
+        masked = mask_sensitive_data(sample_secret)
+        self.log_test("Stripe Secret Key Redaction", "sk_live_***REDACTED***" in masked and "998877665544332211" not in masked)
+
+        sample_jwt = "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.doNotLeakSignature"
+        masked_jwt = mask_sensitive_data(sample_jwt)
+        self.log_test("JWT Token Redaction", "***REDACTED_JWT***" in masked_jwt and "doNotLeakSignature" not in masked_jwt)
+
     def test_retest_lifecycle_closure(self):
-        print("\n6. Testing Retest Execution & Closure State Machine...")
+        print("\n7. Testing Retest Execution & Closure State Machine...")
         ev = Evidence(
             type=EvidenceType.SOURCE,
             location="views.py:15",
@@ -271,10 +284,10 @@ class ValidationHarnessRunner:
         self.log_test("Retest execution -> Verified Fixed", ok and finding.status == FindingStatus.VERIFIED_FIXED)
 
     def test_validation_engine_subsystem(self):
-        print("\n7. Testing Validation Engine Subsystem (v0.5.2)...")
+        print("\n8. Testing Validation Engine Subsystem (v0.5.4)...")
         fm = FixtureManager(str(self.root_dir))
         fixtures = fm.list_fixtures()
-        self.log_test(f"Fixture Manager Catalog Loaded ({len(fixtures)} fixtures)", len(fixtures) >= 5)
+        self.log_test(f"Fixture Manager Catalog Loaded ({len(fixtures)} fixtures)", len(fixtures) >= 8)
 
         rr = ReplayRunner(str(self.root_dir))
         comparator = ResultComparator(str(self.root_dir))
@@ -312,7 +325,7 @@ class ValidationHarnessRunner:
         self.log_test("Validation Report Emitter Markdown Rendering", "# TorusGuard Validation Engine" in report_md and "Execution Summary" in report_md)
 
     def test_stack_detection_fixtures(self):
-        print("\n8. Testing Stack Detection Layouts...")
+        print("\n9. Testing Stack Detection Layouts...")
         stack_dir = self.root_dir / "tests" / "fixtures" / "python" / "stack-detection"
         expected_stacks = [
             "django",
@@ -329,7 +342,7 @@ class ValidationHarnessRunner:
             self.log_test(f"Stack layout fixture: {s}", exists)
 
     def test_educational_differential_fixtures(self):
-        print("\n9. Testing Educational Differential Fixtures...")
+        print("\n10. Testing Educational Differential Fixtures...")
         pairs = [
             ("examples/python/django-vuln", "examples/python/django-hardened"),
             ("examples/python/drf-vuln", "examples/python/drf-hardened"),
@@ -345,7 +358,7 @@ class ValidationHarnessRunner:
             self.log_test(f"Paired differential fixture: {Path(vuln_rel).name}", exists and has_fixes)
 
     def test_regression_fixtures(self):
-        print("\n10. Testing Python Regression Fixtures Suite...")
+        print("\n11. Testing Python Regression Fixtures Suite...")
         regression_dir = self.root_dir / "tests" / "fixtures" / "python"
         cases = [
             "django/safe-service-layer-auth",
@@ -365,19 +378,19 @@ class ValidationHarnessRunner:
             self.log_test(f"Regression fixture: {c}", exists)
 
     def test_report_formatting(self):
-        print("\n11. Testing Canonical v0.5.2 Markdown Report Rendering...")
+        print("\n12. Testing Canonical v0.5.4 9-Section Actionable Markdown Report...")
         ev = Evidence(
             type=EvidenceType.SOURCE,
             location="settings.py:10",
-            raw_snippet="DEBUG = True",
-            rationale="Production debug mode exposure.",
+            raw_snippet="DEBUG = True\nSECRET_KEY = 'sk_live_secret_key_12345'",
+            rationale="Production debug mode exposure and hardcoded secret.",
             confidence_level=ConfidenceBand.CONFIRMED,
             is_sufficient_for_confirmed=True,
         )
         sev = SeverityInfo(
-            level=SeverityLevel.HIGH,
-            rationale="Exposes internal stack traces and server environment.",
-            rubric_justification="High because stack traces leak paths and secrets.",
+            level=SeverityLevel.CRITICAL,
+            rationale="Exposes internal stack traces and hardcoded production secret.",
+            rubric_justification="Critical because secret key enables session forgery and debug leaks internals.",
         )
         conf = ConfidenceScore.calculate(35, 25, 15, 15, 5, "Direct settings file check.")
         prov = ProvenanceChain(
@@ -388,15 +401,15 @@ class ValidationHarnessRunner:
             verification_step="Assert DEBUG is False.",
         )
         rem = Remediation(
-            problem_statement="Debug mode is enabled in configuration.",
-            risk_explanation="Stack traces leak environment variables and code paths.",
-            recommended_fix="Set DEBUG = False in production.",
+            problem_statement="Debug mode is enabled and hardcoded secret present.",
+            risk_explanation="Stack traces leak environment variables and secret allows token forgery.",
+            recommended_fix="Set DEBUG = False and load secret from environment.",
             framework_pattern=FrameworkPattern(
                 framework="Django",
                 unsafe_snippet="DEBUG = True",
                 safe_snippet="DEBUG = False",
             ),
-            verification_method="Assert DEBUG is False.",
+            verification_method="Assert DEBUG is False in production.",
             residual_risk_notes="Ensure 500.html template exists.",
         )
         f = Finding(
@@ -406,6 +419,7 @@ class ValidationHarnessRunner:
             severity=sev,
             confidence=conf,
             status=FindingStatus.CONFIRMED,
+            remediation_priority=RemediationPriority.IMMEDIATE,
             affected_component=AffectedComponent(component_name="Config", target_path="settings.py", start_line=10),
             evidence=[ev],
             provenance=prov,
@@ -422,10 +436,20 @@ class ValidationHarnessRunner:
         )
 
         md_output = ReportFormatter.render_markdown(report)
-        has_title = "# TorusGuard Security Audit & Provenance Report" in md_output
-        has_score = "Auditable Confidence Score Breakdown" in md_output
+        has_header = "# TorusGuard Security Audit & Remediation Report" in md_output
+        has_exec_summary = "## 1. 📋 Executive Summary" in md_output
+        has_scope = "## 2. 🔍 Scope and Methodology" in md_output
+        has_summary_table = "## 3. 📑 Key Findings Summary Table" in md_output
+        has_detailed = "## 4. 🛡️ Detailed Findings" in md_output
+        has_business_context = "🏢 Business Impact & Executive Context" in md_output
+        has_remediation_roadmap = "## 5. 🎯 Remediation Priorities & Triage Roadmap" in md_output
+        has_ticket_payload = "🎫 Copy-Paste Issue Tracker Payload" in md_output
+        has_redaction = "sk_live_***REDACTED***" in md_output
 
-        self.log_test("Render v0.5.2 Provenance Markdown Report", has_title and has_score)
+        self.log_test(
+            "Render v0.5.4 9-Section Actionable Report",
+            has_header and has_exec_summary and has_scope and has_summary_table and has_detailed and has_business_context and has_remediation_roadmap and has_ticket_payload and has_redaction
+        )
 
 
 if __name__ == "__main__":

@@ -50,14 +50,17 @@ TorusGuard v0.5.0 introduces a formal state machine governing every candidate se
 
 ---
 
-## Current Release: v0.5.3 (Python Security Coverage & Framework Guidance)
+## Current Release: v0.5.4 (Usability, Clarity & Actionable Remediation Release)
 
-TorusGuard v0.5.3 deepens practical coverage across real-world Python web application patterns:
-- **Expanded Security Rules (64 Total):** Added `TG-AUTH-008` (Untrusted Header Roles), `TG-INPUT-005` (Template Escaping/SSTI), `TG-INPUT-006` (Path Traversal Uploads), and `TG-DB-004` (Multi-Tenant Query Scoping).
-- **Framework-Native Remediations:** Concrete Before/After patterns for FastAPI, Flask, Django, DRF, and SQLAlchemy.
-- **Validation Engine Expansion:** 62 automated tests passing with 100% test pass rate in `harness/runner.py`.
+TorusGuard v0.5.4 introduces a streamlined, actionable reporting and triage architecture:
+- **9-Section Report Architecture:** Standardized flow from Executive Summary to Detailed Findings and Roadmap.
+- **Remediation Priority Triage:** Findings classified by urgency (`Immediate P0`, `Near-Term P1`, `Backlog P2`).
+- **Context Separation:** Strict separation of executive Business Impact from technical code mechanics.
+- **Sensitive Data Masking:** Automated redaction of API keys (`sk_live_...`), GitHub tokens, and passwords in evidence snippets.
+- **Ticket-Ready Payloads:** Pre-formatted Markdown blocks ready to copy-paste into GitHub Issues, Jira, and Linear.
+- **Validation Harness:** 64 automated tests passing with 100% pass rate (`python harness/runner.py`).
 
-*Read the complete release notes in [docs/releases/v0.5.3.md](docs/releases/v0.5.3.md).*
+*Read the complete release notes in [docs/releases/v0.5.4.md](docs/releases/v0.5.4.md).*
 
 ---
 

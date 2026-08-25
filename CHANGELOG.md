@@ -5,6 +5,16 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.4] - 2026-08-25
+
+### Added
+- **9-Section Actionable Report Architecture (`core/formatter.py`):** Standardized report structure comprising Header, Executive Summary, Scope & Methodology, Summary Table, Detailed Findings, Prioritized Triage Roadmap, Retest Workflow, Limitations, and Appendix.
+- **Remediation Priority Triage:** Added `RemediationPriority` (`Immediate P0`, `Near-Term P1`, `Backlog P2`) enabling multi-stakeholder triage.
+- **Business vs Technical Context Separation:** Explicit separation between executive business impact and deep technical mechanics in finding cards.
+- **Automated Sensitive Data Masking (`mask_sensitive_data`):** Redacts Stripe keys, GitHub tokens, JWTs, and passwords from raw evidence snippets.
+- **Ticket-Ready Issue Tracker Payloads:** Pre-formatted copy-pasteable Markdown snippets for GitHub Issues, Jira, and Linear.
+- **Validation Harness Expansion:** Expanded `harness/runner.py` with 64 automated checks (100% pass rate).
+
 ## [0.5.3] - 2026-08-25
 
 ### Added

@@ -1,6 +1,6 @@
 """
-TorusGuard Core Architecture & Workflow Engine (v0.5.1)
-Provides normalized finding models, provenance chains, auditable confidence scoring, and explicit retest state management.
+TorusGuard Core Architecture & Workflow Engine (v0.5.4)
+Provides normalized finding models, provenance chains, auditable confidence scoring, prioritized remediations, and ticket-ready reports.
 """
 
 from .models import (
@@ -19,16 +19,18 @@ from .models import (
     ConfidenceBand,
     SeverityLevel,
     SeverityInfo,
+    RemediationPriority,
     FindingStatus,
     LifecycleStage,
     TaxonomyCategory,
     EvidenceType,
     AuditReport,
+    mask_sensitive_data,
 )
 from .lifecycle import FindingLifecycleManager, LifecycleTransitionError
 from .formatter import ReportFormatter
 
-__version__ = "0.5.3"
+__version__ = "0.5.4"
 __all__ = [
     "Finding",
     "Evidence",
@@ -45,11 +47,13 @@ __all__ = [
     "ConfidenceBand",
     "SeverityLevel",
     "SeverityInfo",
+    "RemediationPriority",
     "FindingStatus",
     "LifecycleStage",
     "TaxonomyCategory",
     "EvidenceType",
     "AuditReport",
+    "mask_sensitive_data",
     "FindingLifecycleManager",
     "LifecycleTransitionError",
     "ReportFormatter",

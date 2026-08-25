@@ -1,6 +1,6 @@
 """
-TorusGuard Core Data Models (v0.5.1)
-Defines canonical Finding, ProvenanceChain, ConfidenceScore, EvidencePackage, RetestRecord, and AuditReport objects.
+TorusGuard Core Data Models (v0.5.4)
+Defines canonical Finding, ProvenanceChain, ConfidenceScore, EvidencePackage, RetestRecord, RemediationPriority, and AuditReport objects.
 """
 
 from dataclasses import dataclass, field, asdict
@@ -9,6 +9,7 @@ from typing import List, Optional, Dict, Any
 import datetime
 import hashlib
 import uuid
+import re
 
 
 class SeverityLevel(str, Enum):
@@ -17,6 +18,12 @@ class SeverityLevel(str, Enum):
     MEDIUM = "Medium"
     LOW = "Low"
     INFORMATIONAL = "Informational"
+
+
+class RemediationPriority(str, Enum):
+    IMMEDIATE = "Immediate (P0)"     # Block deployment / immediate fix
+    NEAR_TERM = "Near-Term (P1)"     # Fix in current sprint / patch cycle
+    BACKLOG = "Backlog (P2)"         # Defense-in-depth hardening backlog
 
 
 class ConfidenceBand(str, Enum):
@@ -77,7 +84,7 @@ class ProvenanceChain:
     evidence_collected: List[str]
     decision_path: List[str]
     verification_step: str
-    agent_environment: str = "TorusGuard Engine v0.5.1"
+    agent_environment: str = "TorusGuard Engine v0.5.4"
     timestamp: str = field(default_factory=lambda: datetime.datetime.utcnow().isoformat() + "Z")
 
     def to_dict(self) -> Dict[str, Any]:
@@ -147,6 +154,26 @@ class ConfidenceScore:
         }
 
 
+def mask_sensitive_data(text: str) -> str:
+    """Masks secrets, tokens, API keys, and passwords from report output."""
+    text = re.sub(r'sk_live_[0-9a-zA-Z_\-]{6,}', 'sk_live_***REDACTED***', text)
+    text = re.sub(r'ghp_[0-9a-zA-Z_\-]{6,}', 'ghp_***REDACTED***', text)
+    text = re.sub(r'(Bearer\s+)[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_=]*', r'\1***REDACTED_JWT***', text)
+
+    def redact_kv(m):
+        val = m.group(3)
+        if "***REDACTED" in val:
+            return m.group(0)
+        return f"{m.group(1)}{m.group(2)}***REDACTED***{m.group(4)}"
+
+    text = re.sub(
+        r'(?i)(secret[_\-\w]*|password|api[_\-\w]*key|token|auth[_\-\w]*key)(\s*[:=]\s*[\'"])([^\'"]{4,})([\'"])',
+        redact_kv,
+        text
+    )
+    return text
+
+
 @dataclass
 class Evidence:
     type: EvidenceType
@@ -164,11 +191,14 @@ class Evidence:
     def __post_init__(self):
         self.sha256_checksum = hashlib.sha256(self.raw_snippet.strip().encode("utf-8")).hexdigest()
 
+    def get_masked_snippet(self) -> str:
+        return mask_sensitive_data(self.raw_snippet)
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "type": self.type.value if isinstance(self.type, EvidenceType) else self.type,
             "location": self.location,
-            "raw_snippet": self.raw_snippet,
+            "raw_snippet": self.get_masked_snippet(),
             "sha256_checksum": self.sha256_checksum,
             "collected_at": self.collected_at,
             "context": self.context,
@@ -264,6 +294,8 @@ class RetestRecord:
 
 @dataclass
 class NotesRecord:
+    business_impact: str
+    technical_description: str
     raw_facts_summary: str
     ai_interpretation: str
 
@@ -296,14 +328,29 @@ class Finding:
     provenance: ProvenanceChain
     reproduction_method: ReproductionMethod
     remediation: Remediation
+    remediation_priority: RemediationPriority = RemediationPriority.IMMEDIATE
     retest_result: RetestRecord = field(default_factory=RetestRecord)
     timestamps: FindingTimestamps = field(default_factory=FindingTimestamps)
-    notes: NotesRecord = field(default_factory=lambda: NotesRecord(raw_facts_summary="Unmitigated pattern identified in source.", ai_interpretation="High priority fix recommended."))
+    notes: NotesRecord = field(default_factory=lambda: NotesRecord(
+        business_impact="Exposure of sensitive application resources or unauthorized data modification.",
+        technical_description="Direct unmitigated pattern detected in application route or data layer.",
+        raw_facts_summary="Unmitigated pattern identified in source.",
+        ai_interpretation="High priority fix recommended.",
+    ))
     finding_id: str = field(default_factory=lambda: f"TG-FIND-{datetime.datetime.utcnow().year}-{uuid.uuid4().hex[:6]}")
     lifecycle_stage: LifecycleStage = LifecycleStage.DETECT
     asvs_control: Optional[str] = None
     cwe: Optional[str] = None
     nist_ssdf: Optional[str] = None
+
+    def __post_init__(self):
+        # Auto-derive remediation priority from severity level if default
+        if self.severity.level == SeverityLevel.CRITICAL:
+            self.remediation_priority = RemediationPriority.IMMEDIATE
+        elif self.severity.level == SeverityLevel.HIGH:
+            self.remediation_priority = RemediationPriority.NEAR_TERM
+        else:
+            self.remediation_priority = RemediationPriority.BACKLOG
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -314,6 +361,7 @@ class Finding:
             "severity": self.severity.to_dict(),
             "confidence": self.confidence.to_dict(),
             "status": self.status.value if isinstance(self.status, FindingStatus) else self.status,
+            "remediation_priority": self.remediation_priority.value if isinstance(self.remediation_priority, RemediationPriority) else self.remediation_priority,
             "lifecycle_stage": self.lifecycle_stage.value if isinstance(self.lifecycle_stage, LifecycleStage) else self.lifecycle_stage,
             "affected_component": self.affected_component.to_dict(),
             "evidence": [e.to_dict() for e in self.evidence],
@@ -339,7 +387,9 @@ class AuditReport:
     findings: List[Finding]
     summary_counts: Dict[str, Any] = field(default_factory=dict)
     generated_at: str = field(default_factory=lambda: datetime.datetime.utcnow().isoformat() + "Z")
-    torusguard_version: str = "v0.5.1"
+    torusguard_version: str = "v0.5.4"
+    report_owner: str = "TorusGuard Security Subsystem"
+    repository_ref: str = "workspace"
 
     def calculate_summary(self) -> None:
         total = len(self.findings)
@@ -356,6 +406,9 @@ class AuditReport:
             "needs_review": sum(1 for f in self.findings if f.confidence.band in (ConfidenceBand.NEEDS_REVIEW, ConfidenceBand.LOW_CONFIDENCE)),
             "verified_fixed": sum(1 for f in self.findings if f.status == FindingStatus.VERIFIED_FIXED),
             "remediated": sum(1 for f in self.findings if f.status in (FindingStatus.REMEDIATED, FindingStatus.VERIFIED_FIXED)),
+            "immediate_priority": sum(1 for f in self.findings if f.remediation_priority == RemediationPriority.IMMEDIATE),
+            "near_term_priority": sum(1 for f in self.findings if f.remediation_priority == RemediationPriority.NEAR_TERM),
+            "backlog_priority": sum(1 for f in self.findings if f.remediation_priority == RemediationPriority.BACKLOG),
         }
 
     def to_dict(self) -> Dict[str, Any]:
@@ -364,6 +417,8 @@ class AuditReport:
             "project_name": self.project_name,
             "torusguard_version": self.torusguard_version,
             "generated_at": self.generated_at,
+            "report_owner": self.report_owner,
+            "repository_ref": self.repository_ref,
             "detected_stack": self.detected_stack,
             "summary": self.summary_counts,
             "findings": [f.to_dict() for f in self.findings],
