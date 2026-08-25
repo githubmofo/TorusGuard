@@ -20,7 +20,7 @@ from .fp_analyzer import FalsePositiveAnalyzer
 from .evidence_collector import ValidationEvidenceCollector
 from .report_emitter import ValidationReportEmitter
 
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 __all__ = [
     "ValidationOutcome",
     "FixtureDefinition",

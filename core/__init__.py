@@ -28,7 +28,7 @@ from .models import (
 from .lifecycle import FindingLifecycleManager, LifecycleTransitionError
 from .formatter import ReportFormatter
 
-__version__ = "0.5.1"
+__version__ = "0.5.3"
 __all__ = [
     "Finding",
     "Evidence",

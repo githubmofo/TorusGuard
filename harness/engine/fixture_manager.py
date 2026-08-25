@@ -1,6 +1,6 @@
 """
-TorusGuard Fixture Manager (v0.5.2)
-Loads, indexes, and validates structured fixture definitions and paired differential targets.
+TorusGuard Fixture Manager (v0.5.3)
+Loads, indexes, and validates structured fixture definitions and paired differential targets for Python web applications.
 """
 
 from pathlib import Path
@@ -19,7 +19,7 @@ class FixtureManager:
         self._load_standard_fixtures()
 
     def _load_standard_fixtures(self):
-        # 1. Django Reference Pair
+        # 1. Django Reference Pair (IDOR & Settings Exposure)
         self.register_fixture(
             FixtureDefinition(
                 fixture_id="TG-FIX-django-idor-scoping",
@@ -43,7 +43,7 @@ class FixtureManager:
             )
         )
 
-        # 2. DRF Reference Pair
+        # 2. DRF Reference Pair (Mass Assignment & Throttling)
         self.register_fixture(
             FixtureDefinition(
                 fixture_id="TG-FIX-drf-mass-assignment-throttle",
@@ -67,7 +67,7 @@ class FixtureManager:
             )
         )
 
-        # 3. FastAPI Reference Pair
+        # 3. FastAPI Reference Pair (SSRF & Pydantic Boundaries)
         self.register_fixture(
             FixtureDefinition(
                 fixture_id="TG-FIX-fastapi-ssrf-pydantic",
@@ -91,7 +91,7 @@ class FixtureManager:
             )
         )
 
-        # 4. Flask Reference Pair
+        # 4. Flask Reference Pair (CSRF, Upload Sanitization, Session Cookies)
         self.register_fixture(
             FixtureDefinition(
                 fixture_id="TG-FIX-flask-csrf-upload",
@@ -115,7 +115,7 @@ class FixtureManager:
             )
         )
 
-        # 5. SQLAlchemy Reference Pair
+        # 5. SQLAlchemy Reference Pair (Parameterized Queries & Bound Parameters)
         self.register_fixture(
             FixtureDefinition(
                 fixture_id="TG-FIX-sqlalchemy-bound-parameters",
@@ -136,6 +136,78 @@ class FixtureManager:
                 ),
                 reproduction_command="pytest",
                 expected_diff_summary="Parameterized text(:param) queries; tenant_id enforced on query filters.",
+            )
+        )
+
+        # 6. FastAPI Header Role Injection Pair (v0.5.3 TG-AUTH-008)
+        self.register_fixture(
+            FixtureDefinition(
+                fixture_id="TG-FIX-fastapi-header-role-injection",
+                framework="fastapi",
+                scenario="FastAPI unverified client header role trust vs cryptographically signed token dependencies",
+                target_rule_id="TG-AUTH-008",
+                expected_outcome=ValidationOutcome.VULNERABLE_CONFIRMED,
+                vulnerable_variant=FixtureVariant(
+                    relative_path="examples/python/fastapi-vuln",
+                    code_pattern="x_user_role: str = Header(None)",
+                    expected_findings_count=1,
+                ),
+                hardened_variant=FixtureVariant(
+                    relative_path="examples/python/fastapi-hardened",
+                    code_pattern="roles: list[str] = Depends(get_current_user_roles)",
+                    expected_findings_count=0,
+                    is_hardened=True,
+                ),
+                reproduction_command="pytest tests/test_auth_headers.py",
+                expected_diff_summary="Extract roles from verified JWT claims rather than raw HTTP headers.",
+            )
+        )
+
+        # 7. Flask Unsafe Template Rendering (v0.5.3 TG-INPUT-005)
+        self.register_fixture(
+            FixtureDefinition(
+                fixture_id="TG-FIX-flask-unsafe-template-rendering",
+                framework="flask",
+                scenario="Flask render_template_string concatenation vs autoescaped render_template context",
+                target_rule_id="TG-INPUT-005",
+                expected_outcome=ValidationOutcome.VULNERABLE_CONFIRMED,
+                vulnerable_variant=FixtureVariant(
+                    relative_path="examples/python/flask-vuln",
+                    code_pattern="render_template_string(f'<h1>Hello {name}</h1>')",
+                    expected_findings_count=1,
+                ),
+                hardened_variant=FixtureVariant(
+                    relative_path="examples/python/flask-hardened",
+                    code_pattern="render_template('greet.html', name=name)",
+                    expected_findings_count=0,
+                    is_hardened=True,
+                ),
+                reproduction_command="pytest tests/test_ssti.py",
+                expected_diff_summary="Pass input as template context variable avoiding SSTI.",
+            )
+        )
+
+        # 8. SQLAlchemy Multi-Tenant Query Isolation (v0.5.3 TG-DB-004)
+        self.register_fixture(
+            FixtureDefinition(
+                fixture_id="TG-FIX-sqlalchemy-multi-tenant-isolation",
+                framework="sqlalchemy",
+                scenario="Multi-tenant item lookups with mandatory tenant_id filter enforcement",
+                target_rule_id="TG-DB-004",
+                expected_outcome=ValidationOutcome.VULNERABLE_CONFIRMED,
+                vulnerable_variant=FixtureVariant(
+                    relative_path="examples/python/sqlalchemy-vuln",
+                    code_pattern="session.query(Item).filter(Item.id == item_id).first()",
+                    expected_findings_count=1,
+                ),
+                hardened_variant=FixtureVariant(
+                    relative_path="examples/python/sqlalchemy-hardened",
+                    code_pattern="session.query(Item).filter(Item.id == item_id, Item.tenant_id == tenant_id).first()",
+                    expected_findings_count=0,
+                    is_hardened=True,
+                ),
+                reproduction_command="pytest tests/test_tenant_isolation.py",
+                expected_diff_summary="Enforce Item.tenant_id == user.tenant_id on every item lookup query.",
             )
         )
 

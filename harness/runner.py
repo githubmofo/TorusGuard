@@ -76,7 +76,7 @@ class ValidationHarnessRunner:
 
     def run_all(self) -> bool:
         print("=" * 80)
-        print("TORUSGUARD v0.5.2 VALIDATION ENGINE & REPEATABLE HARNESS")
+        print("TORUSGUARD v0.5.3 PYTHON SECURITY & VALIDATION HARNESS")
         print("=" * 80)
 
         self.test_schema_integrity()

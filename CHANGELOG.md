@@ -5,6 +5,20 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3] - 2026-08-25
+
+### Added
+- **4 New Canonical Security Rules (64 Total):**
+  - `TG-AUTH-008`: Untrusted Role or Tenant Header Injection (`X-User-Role`, `X-Tenant-ID`).
+  - `TG-INPUT-005`: Unsafe Template Rendering & Disabled Autoescaping (`mark_safe`, `| safe`, `render_template_string`).
+  - `TG-INPUT-006`: Path Traversal & Unsafe Upload Storage (`os.path.join` with client filename).
+  - `TG-DB-004`: Missing Tenant Query Isolation in Multi-Tenant Models.
+- **Framework-Native Remediations:** Added concrete Before/After remediation patterns for FastAPI, Flask, Django, DRF, and SQLAlchemy.
+- **Validation Engine Expansion:** Added 3 new paired differential fixtures in `FixtureManager`, bringing the test suite to 62 automated checks (100% pass rate).
+
+### Changed
+- Updated Python Rule Mapping Matrix (`docs/python-rule-mapping.md`) to reflect expanded rule coverage.
+
 ## [0.5.2] - 2026-08-25
 
 ### Added

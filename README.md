@@ -50,16 +50,14 @@ TorusGuard v0.5.0 introduces a formal state machine governing every candidate se
 
 ---
 
-## Current Release: v0.5.2 (Validation Engine & Deterministic Replay Release)
+## Current Release: v0.5.3 (Python Security Coverage & Framework Guidance)
 
-TorusGuard v0.5.2 implements the official 7-layer **Validation Engine** (`harness/engine/`):
-- **Deterministic Multi-Pass Replay:** Verifies finding consistency across 3x replay passes with SHA-256 output hashes.
-- **Differential Result Comparator:** Analyzes paired vulnerable vs hardened targets to confirm security boundaries.
-- **Historical Regression Tracker:** Asserts that prior fixes (v0.4.1+) remain clean across all releases.
-- **False-Positive & Diagnostic Analyzer:** Surfaces root-cause guidance on rule discrepancies.
-- **Validation Harness Suite:** Standalone test runner (`python harness/runner.py`) with 56/56 passing assertions.
+TorusGuard v0.5.3 deepens practical coverage across real-world Python web application patterns:
+- **Expanded Security Rules (64 Total):** Added `TG-AUTH-008` (Untrusted Header Roles), `TG-INPUT-005` (Template Escaping/SSTI), `TG-INPUT-006` (Path Traversal Uploads), and `TG-DB-004` (Multi-Tenant Query Scoping).
+- **Framework-Native Remediations:** Concrete Before/After patterns for FastAPI, Flask, Django, DRF, and SQLAlchemy.
+- **Validation Engine Expansion:** 62 automated tests passing with 100% test pass rate in `harness/runner.py`.
 
-*Read the complete release notes in [docs/releases/v0.5.2.md](docs/releases/v0.5.2.md).*
+*Read the complete release notes in [docs/releases/v0.5.3.md](docs/releases/v0.5.3.md).*
 
 ---
 
