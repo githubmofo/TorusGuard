@@ -211,6 +211,30 @@ class FixtureManager:
             )
         )
 
+        # 9. Django Tenant Header & Invoice IDOR Pair (TG-AUTH-008 + TG-DB-004)
+        self.register_fixture(
+            FixtureDefinition(
+                fixture_id="TG-FIX-django-tenant-header-invoice-idor",
+                framework="django",
+                scenario="Django client-controlled X-Tenant-ID header trust combined with unscoped Invoice.objects.get()",
+                target_rule_id="TG-AUTH-008",
+                expected_outcome=ValidationOutcome.VULNERABLE_CONFIRMED,
+                vulnerable_variant=FixtureVariant(
+                    relative_path="examples/python/django-vuln",
+                    code_pattern="tenant_id = request.headers.get('X-Tenant-ID')\nrecord = Invoice.objects.get(id=invoice_id)",
+                    expected_findings_count=2,
+                ),
+                hardened_variant=FixtureVariant(
+                    relative_path="examples/python/django-hardened",
+                    code_pattern="tenant_id = request.user.tenant_id\nrecord = Invoice.objects.filter(id=invoice_id, tenant_id=tenant_id).first()",
+                    expected_findings_count=0,
+                    is_hardened=True,
+                ),
+                reproduction_command="pytest tests/test_invoice_tenant.py",
+                expected_diff_summary="Derive tenant from authenticated request.user.tenant_id and scope Invoice lookup by tenant_id.",
+            )
+        )
+
     def register_fixture(self, fixture: FixtureDefinition):
         self.fixtures[fixture.fixture_id] = fixture
 
