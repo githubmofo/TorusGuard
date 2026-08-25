@@ -1,16 +1,17 @@
 """
-TorusGuard Finding Lifecycle State Machine (v0.5.0)
+TorusGuard Finding Lifecycle State Machine (v0.5.1)
 Manages progression across Detect -> Classify -> Verify -> Remediate -> Recheck -> Archive.
 """
 
 from typing import List, Tuple, Optional
 import datetime
+import hashlib
 from .models import (
     Finding,
     LifecycleStage,
     FindingStatus,
-    ConfidenceLevel,
-    EvidenceType,
+    ConfidenceBand,
+    RetestRecord,
 )
 
 
@@ -21,7 +22,7 @@ class LifecycleTransitionError(Exception):
 
 class FindingLifecycleManager:
     """
-    Implements formal lifecycle progression and validation rules for TorusGuard findings.
+    Implements formal lifecycle progression and validation rules for TorusGuard v0.5.1 findings.
     """
 
     ALLOWED_TRANSITIONS = {
@@ -44,54 +45,93 @@ class FindingLifecycleManager:
                 f"Allowed target stages: {[s.value for s in allowed]}"
             )
 
-        # Stage-specific entry constraints
+        now = datetime.datetime.utcnow().isoformat() + "Z"
+
         if target_stage == LifecycleStage.CLASSIFY:
             if not finding.rule_id or not finding.category or not finding.severity:
                 raise LifecycleTransitionError("Classification requires rule_id, category, and severity.")
-            finding.status = FindingStatus.IN_VERIFICATION
+            finding.status = FindingStatus.UNCONFIRMED
 
         elif target_stage == LifecycleStage.VERIFY:
             # Verification assertion: If no source/test evidence or evidence is insufficient, force Needs Review
             has_sufficient_evidence = any(
                 e.is_sufficient_for_confirmed for e in finding.evidence
             )
-            if not has_sufficient_evidence and finding.confidence == ConfidenceLevel.CONFIRMED:
-                finding.confidence = ConfidenceLevel.NEEDS_REVIEW
-            
-            if finding.confidence == ConfidenceLevel.NEEDS_REVIEW:
-                finding.status = FindingStatus.IN_VERIFICATION
-            elif finding.confidence in (ConfidenceLevel.CONFIRMED, ConfidenceLevel.LIKELY):
-                finding.status = FindingStatus.OPEN
+            if not has_sufficient_evidence and finding.confidence.band == ConfidenceBand.CONFIRMED:
+                finding.confidence.band = ConfidenceBand.NEEDS_REVIEW
+                finding.status = FindingStatus.NEEDS_REVIEW
+            elif finding.confidence.band == ConfidenceBand.CONFIRMED:
+                finding.status = FindingStatus.CONFIRMED
+            else:
+                finding.status = FindingStatus.HIGH_CONFIDENCE if finding.confidence.score >= 70 else FindingStatus.NEEDS_REVIEW
+
+            finding.timestamps.verified_at = now
 
         elif target_stage == LifecycleStage.REMEDIATE:
             if not finding.remediation or not finding.remediation.recommended_fix:
                 raise LifecycleTransitionError("Remediation stage requires a complete remediation proposal.")
-            finding.status = FindingStatus.REMEDIATION_PROPOSED
+            finding.status = FindingStatus.REMEDIATED
+            finding.timestamps.remediated_at = now
 
         elif target_stage == LifecycleStage.RECHECK:
-            # Recheck asserts whether remediation was applied
-            # In a differential re-check, if finding is fixed, status -> Remediated / Verified Safe
-            finding.status = FindingStatus.REMEDIATED
+            # Recheck requires retest record verification
+            if not finding.retest_result.retest_performed:
+                raise LifecycleTransitionError("Recheck stage requires an explicit retest to have been executed.")
+            if finding.retest_result.closure_status == FindingStatus.VERIFIED_FIXED:
+                finding.status = FindingStatus.VERIFIED_FIXED
+            finding.timestamps.retested_at = now
 
         elif target_stage == LifecycleStage.ARCHIVE:
-            finding.status = FindingStatus.ARCHIVED
+            if finding.status not in (FindingStatus.VERIFIED_FIXED, FindingStatus.SUPPRESSED):
+                # Allow archive but note state
+                pass
 
         finding.lifecycle_stage = target_stage
-        finding.updated_at = datetime.datetime.utcnow().isoformat() + "Z"
+        finding.timestamps.updated_at = now
         return finding
 
     @staticmethod
-    def verify_remediation(finding: Finding, code_after_fix: str, fix_pattern_present: bool) -> Tuple[bool, str]:
+    def execute_retest(
+        finding: Finding,
+        post_fix_code: str,
+        safe_pattern_verified: bool,
+        retest_method: str = "Differential Static Re-audit",
+        verifier_notes: str = "Verified safe via AST/pattern inspection."
+    ) -> Tuple[bool, str]:
         """
-        Evaluates whether a remediated codebase satisfies the rule requirement.
+        Executes a formal retest on post-fix source code, hashing the evidence and updating closure status.
         """
-        if fix_pattern_present:
-            finding.status = FindingStatus.VERIFIED_SAFE
+        now = datetime.datetime.utcnow().isoformat() + "Z"
+        evidence_hash = hashlib.sha256(post_fix_code.strip().encode("utf-8")).hexdigest()
+
+        if safe_pattern_verified:
+            finding.retest_result = RetestRecord(
+                retest_performed=True,
+                closure_status=FindingStatus.VERIFIED_FIXED,
+                fix_applied=finding.remediation.recommended_fix,
+                retest_method=retest_method,
+                retest_evidence_hash=evidence_hash,
+                residual_risk=finding.remediation.residual_risk_notes,
+                verifier_notes=verifier_notes,
+                retest_timestamp=now,
+            )
+            finding.status = FindingStatus.VERIFIED_FIXED
             finding.lifecycle_stage = LifecycleStage.RECHECK
-            finding.updated_at = datetime.datetime.utcnow().isoformat() + "Z"
-            return True, f"Fix verified safe for {finding.rule_id} at {finding.affected_area.target_path}."
+            finding.timestamps.retested_at = now
+            finding.timestamps.updated_at = now
+            return True, f"Finding {finding.finding_id} ({finding.rule_id}) successfully verified fixed. Evidence SHA256: {evidence_hash[:12]}..."
         else:
+            finding.retest_result = RetestRecord(
+                retest_performed=True,
+                closure_status=FindingStatus.OPEN,
+                fix_applied=finding.remediation.recommended_fix,
+                retest_method=retest_method,
+                retest_evidence_hash=evidence_hash,
+                residual_risk="Remediation pattern missing or incomplete.",
+                verifier_notes="Unsafe pattern still detected in post-fix code.",
+                retest_timestamp=now,
+            )
             finding.status = FindingStatus.OPEN
             finding.lifecycle_stage = LifecycleStage.VERIFY
-            finding.updated_at = datetime.datetime.utcnow().isoformat() + "Z"
-            return False, f"Remediation pattern not detected for {finding.rule_id}."
+            finding.timestamps.updated_at = now
+            return False, f"Retest failed for {finding.finding_id}: unsafe pattern remains."

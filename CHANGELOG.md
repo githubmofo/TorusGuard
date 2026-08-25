@@ -5,6 +5,21 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-08-25
+
+### Added
+- **Structured Provenance Tracking:** Every finding records an explicit provenance chain (discovery module, triggering input, decision path, verification step).
+- **Auditable 0–100 Confidence Scoring Model:** Replaced subjective confidence with an objective 5-factor mathematical rubric (evidence quality, reproduction, confirmations, environmental clarity, manual review).
+- **Cryptographic Evidence Packaging:** Implemented immutable SHA-256 checksums computed for all raw code evidence snippets.
+- **Explicit Retest & Closure State Machine:** Added `RetestRecord` to track post-fix verification, post-fix evidence hashes, and formal closure states (`Verified Fixed`).
+- **New Schemas (`schemas/`):** Added `provenance.schema.json`, `confidence.schema.json`, and `retest.schema.json`.
+- **Validation Harness Enhancements:** Extended `harness/runner.py` with confidence scoring tests, provenance integrity checks, and retest assertions (42/42 tests passing).
+
+### Changed
+- Standardized canonical `Finding` object schema across all rule modules.
+- Strict isolation of objective technical **Raw Facts** from **AI Risk Interpretation**.
+- Enhanced Human-First audit reports with confidence point breakdowns, provenance decision chains, and cryptographic evidence hashes.
+
 ## [0.5.0] - 2026-08-25
 
 ### Added

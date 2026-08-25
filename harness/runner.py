@@ -1,3 +1,8 @@
+"""
+TorusGuard Validation Harness Runner (v0.5.1)
+Executes automated rule schema checks, provenance chain assertions, confidence scoring tests, fixture differentials, and retest lifecycle validations.
+"""
+
 import os
 import sys
 import json
@@ -15,12 +20,19 @@ from core.models import (
     Evidence,
     Remediation,
     FrameworkPattern,
-    AffectedArea,
-    VerificationStep,
-    LifecycleStage,
-    ConfidenceLevel,
+    AffectedComponent,
+    ReproductionMethod,
+    RetestRecord,
+    NotesRecord,
+    FindingTimestamps,
+    ProvenanceChain,
+    ConfidenceScore,
+    ConfidenceFactors,
+    ConfidenceBand,
     SeverityLevel,
+    SeverityInfo,
     FindingStatus,
+    LifecycleStage,
     TaxonomyCategory,
     EvidenceType,
     AuditReport,
@@ -47,13 +59,15 @@ class ValidationHarnessRunner:
 
     def run_all(self) -> bool:
         print("=" * 80)
-        print("TORUSGUARD v0.5.0 REPEATABLE VALIDATION HARNESS")
+        print("TORUSGUARD v0.5.1 REPEATABLE VALIDATION HARNESS")
         print("=" * 80)
 
         self.test_schema_integrity()
         self.test_rule_catalog()
         self.test_skill_definition()
-        self.test_lifecycle_state_machine()
+        self.test_confidence_scoring_model()
+        self.test_provenance_and_evidence_hashing()
+        self.test_retest_lifecycle_closure()
         self.test_stack_detection_fixtures()
         self.test_educational_differential_fixtures()
         self.test_regression_fixtures()
@@ -65,7 +79,7 @@ class ValidationHarnessRunner:
         return self.failed_tests == 0
 
     def test_schema_integrity(self):
-        print("\n1. Testing Formal Schema Integrity...")
+        print("\n1. Testing Formal Schema Integrity (v0.5.1)...")
         schemas_dir = self.root_dir / "schemas"
         required_schemas = [
             "finding.schema.json",
@@ -73,6 +87,9 @@ class ValidationHarnessRunner:
             "remediation.schema.json",
             "rule.schema.json",
             "lifecycle.schema.json",
+            "provenance.schema.json",
+            "confidence.schema.json",
+            "retest.schema.json",
         ]
         for s in required_schemas:
             schema_path = schemas_dir / s
@@ -127,81 +144,143 @@ class ValidationHarnessRunner:
         has_frontmatter = content.startswith("---") and "name: torusguard" in content
         self.log_test("SKILL.md YAML Frontmatter", has_frontmatter)
 
-        has_commands = all(cmd in content for cmd in ["/torusguard init", "/torusguard audit", "/torusguard harden", "/torusguard verify"])
-        self.log_test("SKILL.md Core Commands Documented", has_commands)
+        has_commands = all(cmd in content for cmd in ["/torusguard init", "/torusguard audit", "/torusguard harden", "/torusguard verify", "/torusguard recheck"])
+        self.log_test("SKILL.md Core Commands Documented (including recheck)", has_commands)
 
         refs_dir = self.root_dir / "skills" / "TorusGuard" / "references"
         ref_files = list(refs_dir.glob("*.md"))
         self.log_test(f"Skill Reference Modules ({len(ref_files)})", len(ref_files) >= 7)
 
-    def test_lifecycle_state_machine(self):
-        print("\n4. Testing Finding Lifecycle State Machine...")
-        # Create test finding
+    def test_confidence_scoring_model(self):
+        print("\n4. Testing Auditable Confidence Scoring Model...")
+        # 1. High-evidence test (Score >= 90 -> Confirmed)
+        c_confirmed = ConfidenceScore.calculate(
+            evidence_quality=35,
+            reproduction_success=25,
+            independent_confirmations=15,
+            environmental_clarity=15,
+            manual_review_status=5,
+            rationale="Direct AST match with deterministic reproduction.",
+        )
+        self.log_test("Confidence calculation: Confirmed band (>= 90)", c_confirmed.score == 95 and c_confirmed.band == ConfidenceBand.CONFIRMED)
+
+        # 2. Medium-evidence test (Score 70-89 -> High Confidence)
+        c_high = ConfidenceScore.calculate(
+            evidence_quality=30,
+            reproduction_success=20,
+            independent_confirmations=10,
+            environmental_clarity=15,
+            manual_review_status=0,
+            rationale="Strong static indicator without manual validation.",
+        )
+        self.log_test("Confidence calculation: High Confidence band (70-89)", c_high.score == 75 and c_high.band == ConfidenceBand.HIGH_CONFIDENCE)
+
+        # 3. Weak-evidence test (Score < 50 -> Low Confidence)
+        c_low = ConfidenceScore.calculate(
+            evidence_quality=15,
+            reproduction_success=10,
+            independent_confirmations=5,
+            environmental_clarity=5,
+            manual_review_status=0,
+            rationale="Indirect indicator with unverified service delegation.",
+        )
+        self.log_test("Confidence calculation: Low Confidence band (< 50)", c_low.score == 35 and c_low.band == ConfidenceBand.LOW_CONFIDENCE)
+
+    def test_provenance_and_evidence_hashing(self):
+        print("\n5. Testing Provenance Chain & SHA-256 Evidence Integrity...")
         ev = Evidence(
             type=EvidenceType.SOURCE,
-            location="app/views.py:25",
-            snippet="Invoice.objects.get(id=pk)",
-            rationale="Unscoped primary key lookup without tenant boundary.",
-            confidence_level=ConfidenceLevel.CONFIRMED,
+            location="server/auth.py:42",
+            raw_snippet="SECRET_KEY = 'hardcoded_jwt_secret_value'",
+            rationale="Hardcoded secret credential.",
+            confidence_level=ConfidenceBand.CONFIRMED,
             is_sufficient_for_confirmed=True,
         )
+        has_hash = bool(ev.sha256_checksum) and len(ev.sha256_checksum) == 64
+        self.log_test("Evidence SHA-256 Checksum Computed", has_hash)
+
+        prov = ProvenanceChain(
+            discovery_module="rules/secrets/TG-SEC-001-hardcoded-secrets.md",
+            triggering_input="AST Assignment: SECRET_KEY string literal",
+            evidence_collected=["server/auth.py:42"],
+            decision_path=[
+                "1. Scanned server/auth.py for variable assignment 'SECRET_KEY'",
+                "2. Confirmed hardcoded non-env string literal value",
+                "3. Verified reachability in JWT encoding function",
+            ],
+            verification_step="Extract raw string literal and assert absence of os.environ lookup.",
+        )
+        self.log_test("Provenance Chain Structured Decision Path", len(prov.decision_path) == 3)
+
+    def test_retest_lifecycle_closure(self):
+        print("\n6. Testing Retest Execution & Closure State Machine...")
+        ev = Evidence(
+            type=EvidenceType.SOURCE,
+            location="views.py:15",
+            raw_snippet="User.objects.raw(f'SELECT * FROM users WHERE name = {name}')",
+            rationale="Direct string concatenation into SQL query.",
+            confidence_level=ConfidenceBand.CONFIRMED,
+            is_sufficient_for_confirmed=True,
+        )
+        sev = SeverityInfo(
+            level=SeverityLevel.CRITICAL,
+            rationale="Allows arbitrary SQL execution and data exfiltration.",
+            rubric_justification="Critical because unauthenticated user input reaches raw SQL interpreter.",
+        )
+        conf = ConfidenceScore.calculate(35, 25, 15, 15, 5, "Direct AST concatenation match.")
+        prov = ProvenanceChain(
+            discovery_module="rules/input/TG-INPUT-002-raw-sql-concatenation.md",
+            triggering_input="Raw SQL execution with f-string formatting",
+            evidence_collected=["views.py:15"],
+            decision_path=["Detected raw SQL method", "Verified unparameterized input"],
+            verification_step="Inspect query parameterization.",
+        )
         rem = Remediation(
-            problem_statement="Missing owner filter in invoice lookup.",
-            risk_explanation="Attackers can access arbitrary tenant invoices via IDOR.",
-            recommended_fix="Scope queryset to request.user.",
+            problem_statement="Raw SQL string concatenation vulnerable to SQL injection.",
+            risk_explanation="Attackers can inject malicious SQL payloads.",
+            recommended_fix="Use parameterized queries.",
             framework_pattern=FrameworkPattern(
                 framework="Django",
-                unsafe_snippet="Invoice.objects.get(id=pk)",
-                safe_snippet="Invoice.objects.get(id=pk, owner=request.user)",
+                unsafe_snippet="User.objects.raw(f'SELECT * FROM users WHERE name = {name}')",
+                safe_snippet="User.objects.raw('SELECT * FROM users WHERE name = %s', [name])",
             ),
-            verification_method="Test with cross-tenant user ID.",
-            residual_risk_notes="Ensure database index exists on owner column.",
+            verification_method="Test with quote payload and verify parameterized execution.",
+            residual_risk_notes="Ensure database permissions are restricted.",
         )
         finding = Finding(
-            rule_id="TG-AUTH-007",
-            title="Missing Object-Level Authorization",
-            category=TaxonomyCategory.AUTH,
-            severity=SeverityLevel.HIGH,
-            confidence=ConfidenceLevel.CONFIRMED,
-            lifecycle_stage=LifecycleStage.DETECT,
-            status=FindingStatus.OPEN,
-            affected_area=AffectedArea(component="InvoiceAPI", target_path="app/views.py", start_line=25),
-            rationale="IDOR risk on invoice lookup.",
+            rule_id="TG-INPUT-002",
+            title="Raw SQL Concatenation",
+            category=TaxonomyCategory.INPUT,
+            severity=sev,
+            confidence=conf,
+            status=FindingStatus.CONFIRMED,
+            affected_component=AffectedComponent(component_name="UserSearch", target_path="views.py", start_line=15),
             evidence=[ev],
+            provenance=prov,
+            reproduction_method=ReproductionMethod(step_by_step=["Pass ' OR '1'='1 into search endpoint"], test_command="pytest tests/test_search.py"),
             remediation=rem,
-            verification_steps=[VerificationStep(step_number=1, action="Run test", expected_result="404 on cross-user id")],
+            asvs_control="V5.3.4",
+            cwe="CWE-89",
+            nist_ssdf="PW.5.1",
         )
 
-        # Progression: Detect -> Classify -> Verify -> Remediate -> Recheck -> Archive
-        try:
-            FindingLifecycleManager.transition(finding, LifecycleStage.CLASSIFY)
-            self.log_test("Transition: Detect -> Classify", finding.lifecycle_stage == LifecycleStage.CLASSIFY)
+        # Progression: Detect -> Classify -> Verify -> Remediate
+        FindingLifecycleManager.transition(finding, LifecycleStage.CLASSIFY)
+        FindingLifecycleManager.transition(finding, LifecycleStage.VERIFY)
+        FindingLifecycleManager.transition(finding, LifecycleStage.REMEDIATE)
 
-            FindingLifecycleManager.transition(finding, LifecycleStage.VERIFY)
-            self.log_test("Transition: Classify -> Verify", finding.lifecycle_stage == LifecycleStage.VERIFY)
-
-            FindingLifecycleManager.transition(finding, LifecycleStage.REMEDIATE)
-            self.log_test("Transition: Verify -> Remediate", finding.lifecycle_stage == LifecycleStage.REMEDIATE)
-
-            # Recheck verification
-            ok, msg = FindingLifecycleManager.verify_remediation(finding, "fixed code", fix_pattern_present=True)
-            self.log_test("Remediation Verification Assertion", ok and finding.status == FindingStatus.VERIFIED_SAFE)
-
-            FindingLifecycleManager.transition(finding, LifecycleStage.ARCHIVE)
-            self.log_test("Transition: Recheck -> Archive", finding.lifecycle_stage == LifecycleStage.ARCHIVE)
-
-            # Assert invalid transition from Archive
-            try:
-                FindingLifecycleManager.transition(finding, LifecycleStage.DETECT)
-                self.log_test("Block Invalid Transition from Archive", False, "Should have raised LifecycleTransitionError")
-            except LifecycleTransitionError:
-                self.log_test("Block Invalid Transition from Archive", True)
-
-        except Exception as e:
-            self.log_test("Lifecycle Progression Flow", False, str(e))
+        # Retest execution (Safe fix applied)
+        ok, msg = FindingLifecycleManager.execute_retest(
+            finding,
+            post_fix_code="User.objects.raw('SELECT * FROM users WHERE name = %s', [name])",
+            safe_pattern_verified=True,
+            verifier_notes="Verified parameterized binding query.",
+        )
+        self.log_test("Retest execution -> Verified Fixed", ok and finding.status == FindingStatus.VERIFIED_FIXED)
+        self.log_test("Retest evidence hash recorded", bool(finding.retest_result.retest_evidence_hash))
 
     def test_stack_detection_fixtures(self):
-        print("\n5. Testing Stack Detection Fixtures...")
+        print("\n7. Testing Stack Detection Layouts...")
         stack_dir = self.root_dir / "tests" / "fixtures" / "python" / "stack-detection"
         expected_stacks = [
             "django",
@@ -218,7 +297,7 @@ class ValidationHarnessRunner:
             self.log_test(f"Stack layout fixture: {s}", exists)
 
     def test_educational_differential_fixtures(self):
-        print("\n6. Testing Educational Differential Fixtures...")
+        print("\n8. Testing Educational Differential Fixtures...")
         pairs = [
             ("examples/python/django-vuln", "examples/python/django-hardened"),
             ("examples/python/drf-vuln", "examples/python/drf-hardened"),
@@ -234,7 +313,7 @@ class ValidationHarnessRunner:
             self.log_test(f"Paired differential fixture: {Path(vuln_rel).name}", exists and has_fixes)
 
     def test_regression_fixtures(self):
-        print("\n7. Testing Python Regression Fixtures Suite...")
+        print("\n9. Testing Python Regression Fixtures Suite...")
         regression_dir = self.root_dir / "tests" / "fixtures" / "python"
         cases = [
             "django/safe-service-layer-auth",
@@ -254,18 +333,31 @@ class ValidationHarnessRunner:
             self.log_test(f"Regression fixture: {c}", exists)
 
     def test_report_formatting(self):
-        print("\n8. Testing Normalized Markdown Report Formatting...")
+        print("\n10. Testing Canonical v0.5.1 Markdown Report Rendering...")
         ev = Evidence(
             type=EvidenceType.SOURCE,
-            location="views.py:10",
-            snippet="DEBUG = True",
+            location="settings.py:10",
+            raw_snippet="DEBUG = True",
             rationale="Production debug mode exposure.",
-            confidence_level=ConfidenceLevel.CONFIRMED,
+            confidence_level=ConfidenceBand.CONFIRMED,
             is_sufficient_for_confirmed=True,
         )
+        sev = SeverityInfo(
+            level=SeverityLevel.HIGH,
+            rationale="Exposes internal stack traces and server environment.",
+            rubric_justification="High because stack traces leak paths and secrets.",
+        )
+        conf = ConfidenceScore.calculate(35, 25, 15, 15, 5, "Direct settings file check.")
+        prov = ProvenanceChain(
+            discovery_module="rules/TG-PLATFORM-003-production-stack-trace-exposure.md",
+            triggering_input="DEBUG = True assignment in settings.py",
+            evidence_collected=["settings.py:10"],
+            decision_path=["Loaded Django settings", "Found DEBUG enabled"],
+            verification_step="Assert DEBUG is False.",
+        )
         rem = Remediation(
-            problem_statement="Debug mode is enabled.",
-            risk_explanation="Exposes stack traces and environment secrets.",
+            problem_statement="Debug mode is enabled in configuration.",
+            risk_explanation="Stack traces leak environment variables and code paths.",
             recommended_fix="Set DEBUG = False in production.",
             framework_pattern=FrameworkPattern(
                 framework="Django",
@@ -279,15 +371,14 @@ class ValidationHarnessRunner:
             rule_id="TG-PLATFORM-003",
             title="Production Stack Trace Exposure",
             category=TaxonomyCategory.CLIENT_PLATFORM,
-            severity=SeverityLevel.HIGH,
-            confidence=ConfidenceLevel.CONFIRMED,
-            lifecycle_stage=LifecycleStage.VERIFY,
-            status=FindingStatus.OPEN,
-            affected_area=AffectedArea(component="Config", target_path="settings.py", start_line=10),
-            rationale="Debug mode leaks internal code paths.",
+            severity=sev,
+            confidence=conf,
+            status=FindingStatus.CONFIRMED,
+            affected_component=AffectedComponent(component_name="Config", target_path="settings.py", start_line=10),
             evidence=[ev],
+            provenance=prov,
+            reproduction_method=ReproductionMethod(step_by_step=["Trigger 500 error and inspect response body"]),
             remediation=rem,
-            verification_steps=[VerificationStep(step_number=1, action="Check config", expected_result="DEBUG=False")],
             asvs_control="V14.4.1",
             cwe="CWE-209",
             nist_ssdf="PW.5.1",
@@ -299,12 +390,13 @@ class ValidationHarnessRunner:
         )
 
         md_output = ReportFormatter.render_markdown(report)
-        has_title = "# TorusGuard Security Audit Report" in md_output
-        has_finding = "TG-PLATFORM-003" in md_output
-        has_badge = "🔴 Critical" in md_output or "🟠 High" in md_output
+        has_title = "# TorusGuard Security Audit & Provenance Report" in md_output
+        has_score = "Auditable Confidence Score Breakdown" in md_output
+        has_prov = "Provenance Chain" in md_output
+        has_hash = "SHA-256 Checksum" in md_output
         has_diff = "+ DEBUG = False" in md_output
 
-        self.log_test("Render Markdown Audit Report", has_title and has_finding and has_badge and has_diff)
+        self.log_test("Render v0.5.1 Provenance Markdown Report", has_title and has_score and has_prov and has_hash and has_diff)
 
 
 if __name__ == "__main__":

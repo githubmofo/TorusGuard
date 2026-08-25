@@ -1,21 +1,21 @@
 ---
 name: torusguard
-description: Security guardrails and structured verification workflow for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
+description: Security guardrails, provenance-tracked evidence, and auditable verification workflow for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
 ---
 
-# TorusGuard (v0.5.0)
+# TorusGuard (v0.5.1)
 
-**Tagline:** Security guardrails and structured verification workflow for AI-built web apps.
+**Tagline:** Security guardrails, provenance-tracked evidence, and auditable verification workflow for AI-built web apps.
 
 **Core principle:** If the browser receives it, users can inspect it. Keep secrets, database access, and authorization decisions on trusted server-side code.
 
-TorusGuard is a Markdown-first, portable AI-agent skill and security workflow engine. It is not an npm package, hosted SaaS service, browser extension, or black-box vulnerability scanner. It guides audit, verification, remediation, and re-checking through structured rules, normalized evidence schemas, and human-friendly references.
+TorusGuard is a Markdown-first, portable AI-agent skill and security workflow engine. It is not an npm package, hosted SaaS service, browser extension, or black-box vulnerability scanner. It guides audit, verification, remediation, and re-checking through structured rules, normalized evidence packages with SHA-256 checksums, and auditable confidence scoring.
 
 TorusGuard must never claim it can block DevTools, make an application 100% secure, or replace professional penetration testing, manual code review, compliance audits, or formal threat modeling.
 
 ---
 
-## 🔄 Finding Lifecycle (v0.5.0 Architecture)
+## 🔄 Finding Lifecycle (v0.5.1 Architecture)
 
 TorusGuard operates on a 6-stage lifecycle for every candidate security finding:
 
@@ -24,10 +24,10 @@ TorusGuard operates on a 6-stage lifecycle for every candidate security finding:
 ```
 
 1. **Detect:** Scan repository source code, environment templates, and configuration files.
-2. **Classify:** Assign a canonical Rule ID (`TG-*`), taxonomy category, risk severity, and initial confidence.
-3. **Verify:** Validate evidence sufficiency and reachable data flow. If evidence is ambiguous, force status to `Needs Review`.
-4. **Remediate:** Formulate least-invasive, framework-native code modifications with before/after diffs.
-5. **Re-check:** Re-audit modified code to verify that the vulnerability is resolved (`Verified Safe`).
+2. **Classify:** Assign canonical Rule ID (`TG-*`), taxonomy category, risk severity rubric, and provenance chain.
+3. **Verify:** Calculate auditable 0–100 confidence score and package raw technical evidence with SHA-256 checksums.
+4. **Remediate:** Formulate least-invasive, framework-native code modifications with Before/After diffs.
+5. **Re-check:** Execute differential re-audit on post-fix code to assert resolution (`Verified Fixed`).
 6. **Archive:** Preserve timestamped verification evidence in the project audit record.
 
 ---
@@ -37,10 +37,10 @@ TorusGuard operates on a 6-stage lifecycle for every candidate security finding:
 | Command | Lifecycle Phase | Purpose | Changes Code? |
 |---------|:---:|---------|:---:|
 | `/torusguard init` | Baseline | Create/update project `SECURITY.md`, threat model, and finding registry | Docs only |
-| `/torusguard audit` | Detect & Classify | Scan codebase; produce a Human-First normalized audit report | No |
-| `/torusguard verify` | Verify | Validate evidence sufficiency and check manual review assumptions | No |
+| `/torusguard audit` | Detect & Classify | Scan codebase; produce Human-First normalized audit report with provenance | No |
+| `/torusguard verify` | Verify | Validate evidence sufficiency, compute 0–100 confidence, and check review criteria | No |
 | `/torusguard harden` | Remediate | Propose least-invasive, framework-idiomatic code fixes | Yes (on approval) |
-| `/torusguard recheck` | Re-check | Execute differential re-audit on post-fix code to assert resolution | No |
+| `/torusguard recheck` | Re-check | Execute differential re-audit on post-fix code to assert `Verified Fixed` | No |
 
 **Audit focus areas:** `auth`, `input`, `database`, `files`, `secrets`, `supply-chain`, `network`, `ssrf`, `webhooks`, `websockets`, `graphql`, `business-logic`, `rate-limit`, `client`, `platform`, `cache`, `django`, `drf`, `fastapi`, `flask`, `sqlalchemy`.
 
@@ -75,34 +75,44 @@ When executing `/torusguard audit`, inspect repository files and output the dete
 
 ---
 
+## 📊 Auditable 0–100 Confidence Scoring Rubric
+
+TorusGuard evaluates finding confidence using an objective 5-factor scoring model (Max: 100 pts):
+1. **Evidence Quality (35 pts):** Exact AST source code match vs regex or indirect indicator.
+2. **Reproduction Success (25 pts):** Deterministic reproduction in test fixture.
+3. **Independent Confirmations (15 pts):** Corroborated across multiple files/manifests.
+4. **Environmental Clarity (15 pts):** Absence of ambiguous out-of-band proxy/service layers.
+5. **Manual Review Status (10 pts):** Verified by a human security engineer.
+
+**Classification Bands:**
+- `90–100`: 🔒 **`Confirmed`** (Indisputable proof; immediate fix required)
+- `70–89`: 🟢 **`High Confidence`** (Strong indicators; localized verification recommended)
+- `50–69`: 🟡 **`Medium Confidence`** (Probable flaw; runtime confirmation recommended)
+- `< 50`: 🔍 **`Needs Review` / `Unconfirmed`** (Requires manual verification of architecture)
+
+---
+
 ## 🌟 Human-First Output Standard
 
-**All files and messages generated for developers must be human-first, structured, and easy to read.**
 Every generated report must follow this card-style hierarchy:
 
 1. **Stack Statement at Top:** Standard `## Detected Stack` block with specific file and line citations.
-2. **Executive Summary:** Posture indicator (`🔴 Action Required` / `🟡 Warnings Found` / `🟢 Ready`), metric table, and a 2-3 sentence overview.
+2. **Executive Summary:** Posture indicator (`🔴 Action Required` / `🟡 Warnings Found` / `🟢 Ready`), metric table, and average confidence score.
 3. **Card-Style Finding Layout:**
-   - Title & Badges: Severity (`🔴 Critical`, `🟠 High`, `🟡 Medium`, `🔵 Low`) | Confidence (`🔒 Confirmed`, `⚠️ Likely`, `🔍 Needs Review`)
-   - Exact Location (`file:line` or symbol)
-   - **Risk & Rationale:** Plain-English explanation of adversarial abuse.
-   - **Evidence Snippet:** Exact code excerpt with type (`source`, `runtime`, `test`, `manual_review`).
+   - Title & Badges: Severity (`🔴 Critical`, `🟠 High`, `🟡 Medium`, `🔵 Low`) | Auditable Confidence (`95/100 🔒 Confirmed`)
+   - **Provenance Chain:** Discovery rule, triggering input, decision path, verification method.
+   - **Raw Evidence Package:** Exact code excerpt with SHA-256 integrity checksum.
+   - **Analysis & Risk Rationale:** Strict separation of objective Raw Facts from AI Risk Interpretation.
    - **Remediation & Diff:** Framework-native **Before / After** diff.
-   - **Verification Method:** Step-by-step test instructions.
+   - **Retest Status:** Explicit verification method and post-fix evidence hash.
 4. **Clear Next Steps:** Prioritized 1-2-3 actions.
 
 ---
 
-## ⚖️ Evidence Confidence & Rules of Engagement
+## ⚖️ Rules of Engagement & Safety Constraints
 
-- **Confirmed:** Directly proven in source code or configuration with reachable data flow.
-- **Likely:** Strong indicators present; runtime/deployment verification recommended.
-- **Needs Review:** Requires developer business context (e.g. service-layer authorization, cloud IAM, upstream proxy).
-- **Informational:** Defensive best practice, not an active vulnerability.
-
-### Strict Safety & Evidence Constraints:
 - Never report a finding as `Confirmed` without direct source code snippet evidence.
-- If a controller delegates authorization to a domain service layer, classify as `Needs Review` (`TG-AUTH-007`).
+- If a controller delegates authorization to a domain service layer, score `< 50` and classify as `Needs Review` (`TG-AUTH-007`).
 - Never report an unpinned dependency as exploitable without an advisory or audit result (`TG-SUPPLY-002`).
 - Never report SSRF as `Confirmed` merely because an HTTP client is imported; verify user control over the destination URL (`TG-SSRF-001`).
 - Never include real production credentials or tokens in generated reports.

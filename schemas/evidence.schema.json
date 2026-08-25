@@ -1,42 +1,62 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://torusguard.dev/schemas/evidence.schema.json",
-  "title": "TorusGuardEvidence",
-  "description": "Evidence item schema for TorusGuard v0.5.0 findings.",
+  "title": "TorusGuardEvidencePackage",
+  "description": "Structured evidence package schema with raw technical proof, hashes, and provenance for TorusGuard v0.5.1.",
   "type": "object",
   "required": [
     "type",
     "location",
-    "snippet",
+    "raw_snippet",
+    "sha256_checksum",
     "rationale",
-    "confidence_level"
+    "confidence_level",
+    "collected_at"
   ],
   "properties": {
     "type": {
       "type": "string",
       "enum": ["source", "runtime", "test", "manual_review"],
-      "description": "Origin and modality of the evidence."
+      "description": "Origin and modality of the technical evidence."
     },
     "location": {
       "type": "string",
       "description": "File path, line number range, configuration key, or route endpoint (e.g. app/views.py:45-52)."
     },
-    "snippet": {
+    "raw_snippet": {
       "type": "string",
-      "description": "Sanitized excerpt of the offending source code, configuration, or log."
+      "description": "Exact, unedited excerpt of the offending source code, configuration, or log."
+    },
+    "sha256_checksum": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Cryptographic SHA-256 hash of the raw evidence snippet for audit integrity."
+    },
+    "collected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this evidence was extracted."
     },
     "context": {
       "type": "string",
-      "description": "Surrounding architectural context (e.g. within unauthenticated FastAPI route handler)."
+      "description": "Surrounding architectural context (e.g. within unauthenticated route handler)."
     },
     "rationale": {
       "type": "string",
-      "description": "Why this specific code snippet or configuration proves the presence of the weakness."
+      "description": "Technical justification explaining why this code snippet proves the vulnerability."
     },
     "confidence_level": {
       "type": "string",
-      "enum": ["Confirmed", "Likely", "Needs Review", "Informational"],
+      "enum": ["Confirmed", "High Confidence", "Medium Confidence", "Low Confidence", "Needs Review", "Informational"],
       "description": "Confidence assessment derived solely from this evidence artifact."
+    },
+    "reproduction_notes": {
+      "type": "string",
+      "description": "Specific inputs or conditions required to trigger the issue."
+    },
+    "reviewer_notes": {
+      "type": "string",
+      "description": "Human or AI security reviewer annotations."
     },
     "is_sufficient_for_confirmed": {
       "type": "boolean",
