@@ -27,20 +27,21 @@ permissions:
 
 jobs:
   validation-harness:
-    name: TorusGuard Validation Harness (v0.5.0)
+    name: TorusGuard Validation Harness (v0.5.4)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@0a570d65701e988facfb6e0f63e987be797e6b61 # v5.0.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Run Validation Harness
         run: |
           python harness/runner.py
+          python harness/validate_e2e.py
 
   verify-fixtures:
     name: Verify ${{ matrix.fixture }}
@@ -62,10 +63,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@0a570d65701e988facfb6e0f63e987be797e6b61 # v5.0.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
