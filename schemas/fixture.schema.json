@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/fixture.schema.json",
+  "title": "TorusGuardValidationFixture",
+  "description": "Schema for structured validation fixtures and differential test cases in TorusGuard v0.5.2.",
+  "type": "object",
+  "required": [
+    "fixture_id",
+    "framework",
+    "scenario",
+    "target_rule_id",
+    "expected_outcome",
+    "vulnerable_variant",
+    "hardened_variant",
+    "verification_criteria"
+  ],
+  "properties": {
+    "fixture_id": {
+      "type": "string",
+      "pattern": "^TG-FIX-[a-z0-9-]+$",
+      "description": "Unique fixture identifier (e.g. TG-FIX-django-idor-scoping)."
+    },
+    "framework": {
+      "type": "string",
+      "enum": ["django", "drf", "fastapi", "flask", "sqlalchemy", "express", "nextjs", "generic-python", "generic-js"]
+    },
+    "scenario": {
+      "type": "string",
+      "description": "High-level description of the architectural scenario."
+    },
+    "target_rule_id": {
+      "type": "string",
+      "pattern": "^TG-[A-Z0-9]+-[0-9]{3}$"
+    },
+    "expected_outcome": {
+      "type": "string",
+      "enum": [
+        "Vulnerable Confirmed",
+        "Hardened Safe",
+        "False Positive",
+        "False Negative",
+        "Needs Review",
+        "Regression Detected"
+      ]
+    },
+    "vulnerable_variant": {
+      "type": "object",
+      "required": ["relative_path", "attack_pattern", "expected_finding_count"],
+      "properties": {
+        "relative_path": { "type": "string" },
+        "attack_pattern": { "type": "string" },
+        "expected_finding_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "hardened_variant": {
+      "type": "object",
+      "required": ["relative_path", "safe_pattern", "expected_finding_count"],
+      "properties": {
+        "relative_path": { "type": "string" },
+        "safe_pattern": { "type": "string" },
+        "expected_finding_count": { "type": "integer", "default": 0 }
+      }
+    },
+    "verification_criteria": {
+      "type": "object",
+      "required": ["reproduction_command", "expected_diff"],
+      "properties": {
+        "reproduction_command": { "type": "string" },
+        "expected_diff": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "version_tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

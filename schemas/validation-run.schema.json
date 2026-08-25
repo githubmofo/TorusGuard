@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/validation-run.schema.json",
+  "title": "TorusGuardValidationRunReport",
+  "description": "Schema for validation engine execution records, replay metadata, and differential test outcomes in TorusGuard v0.5.2.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "engine_version",
+    "timestamp",
+    "environment",
+    "summary",
+    "fixture_results"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "pattern": "^TG-VAL-[0-9]{8}-[a-f0-9]{4,12}$"
+    },
+    "engine_version": {
+      "type": "string",
+      "default": "v0.5.2"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "environment": {
+      "type": "object",
+      "required": ["os", "python_version", "git_commit"],
+      "properties": {
+        "os": { "type": "string" },
+        "python_version": { "type": "string" },
+        "git_commit": { "type": "string" },
+        "runner_mode": { "type": "string" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_fixtures", "passed", "failed", "vulnerable_confirmed", "hardened_safe", "false_positives", "false_negatives", "needs_review"],
+      "properties": {
+        "total_fixtures": { "type": "integer" },
+        "passed": { "type": "integer" },
+        "failed": { "type": "integer" },
+        "vulnerable_confirmed": { "type": "integer" },
+        "hardened_safe": { "type": "integer" },
+        "false_positives": { "type": "integer" },
+        "false_negatives": { "type": "integer" },
+        "needs_review": { "type": "integer" },
+        "regressions_detected": { "type": "integer", "default": 0 }
+      }
+    },
+    "fixture_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fixture_id",
+          "rule_id",
+          "framework",
+          "outcome",
+          "vulnerable_finding_count",
+          "hardened_finding_count",
+          "diff_verified",
+          "replay_deterministic"
+        ],
+        "properties": {
+          "fixture_id": { "type": "string" },
+          "rule_id": { "type": "string" },
+          "framework": { "type": "string" },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "Vulnerable Confirmed",
+              "Hardened Safe",
+              "False Positive",
+              "False Negative",
+              "Needs Review",
+              "Regression Detected"
+            ]
+          },
+          "vulnerable_finding_count": { "type": "integer" },
+          "hardened_finding_count": { "type": "integer" },
+          "diff_verified": { "type": "boolean" },
+          "replay_deterministic": { "type": "boolean" },
+          "evidence_hash": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}

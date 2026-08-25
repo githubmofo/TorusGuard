@@ -50,16 +50,16 @@ TorusGuard v0.5.0 introduces a formal state machine governing every candidate se
 
 ---
 
-## Current Release: v0.5.1 (Provenance & Auditable Confidence Release)
+## Current Release: v0.5.2 (Validation Engine & Deterministic Replay Release)
 
-TorusGuard v0.5.1 standardizes finding normalization, provenance tracking, and auditable confidence scoring:
-- **Canonical Finding Model:** Standardized schema across all rule categories with structured provenance chains.
-- **Auditable 0–100 Confidence Scoring:** Transparent 5-factor mathematical rubric replacing subjective estimates.
-- **Cryptographic Evidence Packaging:** Immutable SHA-256 checksums for raw code evidence snippets.
-- **Explicit Retest State Machine:** Formal post-fix retesting via `/torusguard recheck` before findings can transition to `Verified Fixed`.
-- **Automated Validation Harness:** Standalone test runner (`python harness/runner.py`) with 42/42 passing assertions.
+TorusGuard v0.5.2 implements the official 7-layer **Validation Engine** (`harness/engine/`):
+- **Deterministic Multi-Pass Replay:** Verifies finding consistency across 3x replay passes with SHA-256 output hashes.
+- **Differential Result Comparator:** Analyzes paired vulnerable vs hardened targets to confirm security boundaries.
+- **Historical Regression Tracker:** Asserts that prior fixes (v0.4.1+) remain clean across all releases.
+- **False-Positive & Diagnostic Analyzer:** Surfaces root-cause guidance on rule discrepancies.
+- **Validation Harness Suite:** Standalone test runner (`python harness/runner.py`) with 56/56 passing assertions.
 
-*Read the complete release notes in [docs/releases/v0.5.1.md](docs/releases/v0.5.1.md).*
+*Read the complete release notes in [docs/releases/v0.5.2.md](docs/releases/v0.5.2.md).*
 
 ---
 

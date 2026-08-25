@@ -3,19 +3,19 @@ name: torusguard
 description: Security guardrails, provenance-tracked evidence, and auditable verification workflow for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
 ---
 
-# TorusGuard (v0.5.1)
+# TorusGuard (v0.5.2)
 
 **Tagline:** Security guardrails, provenance-tracked evidence, and auditable verification workflow for AI-built web apps.
 
 **Core principle:** If the browser receives it, users can inspect it. Keep secrets, database access, and authorization decisions on trusted server-side code.
 
-TorusGuard is a Markdown-first, portable AI-agent skill and security workflow engine. It is not an npm package, hosted SaaS service, browser extension, or black-box vulnerability scanner. It guides audit, verification, remediation, and re-checking through structured rules, normalized evidence packages with SHA-256 checksums, and auditable confidence scoring.
+TorusGuard is a Markdown-first, portable AI-agent skill and security workflow engine. It is not an npm package, hosted SaaS service, browser extension, or black-box vulnerability scanner. It guides audit, verification, remediation, and re-checking through structured rules, normalized evidence packages with SHA-256 checksums, auditable confidence scoring, and deterministic fixture replays.
 
 TorusGuard must never claim it can block DevTools, make an application 100% secure, or replace professional penetration testing, manual code review, compliance audits, or formal threat modeling.
 
 ---
 
-## 🔄 Finding Lifecycle (v0.5.1 Architecture)
+## 🔄 Finding Lifecycle (v0.5.2 Architecture)
 
 TorusGuard operates on a 6-stage lifecycle for every candidate security finding:
 

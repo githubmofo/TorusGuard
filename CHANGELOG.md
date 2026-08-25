@@ -5,6 +5,17 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2026-08-25
+
+### Added
+- **Validation Engine (`harness/engine/`):** 7-layer validation engine supporting fixture management, deterministic replay, differential comparisons, regression tracking, and false-alarm diagnostics.
+- **Deterministic Multi-Pass Replay (`ReplayRunner`):** Multi-pass (3x) execution verification with SHA-256 serialized output hash assertions.
+- **Differential Result Comparator (`ResultComparator`):** Evaluates vulnerable vs hardened behavior with standardized outcome labels (`Vulnerable Confirmed`, `Hardened Safe`, `False Positive`, `False Negative`, `Needs Review`, `Regression Detected`).
+- **Historical Regression Tracker (`RegressionTracker`):** Automated tracking ensuring baseline fixes from earlier releases (v0.4.1+) remain clean.
+- **False-Positive & Diagnostic Analyzer (`FalsePositiveAnalyzer`):** Root-cause diagnosis and remediation guidance for rule discrepancies.
+- **New Schemas (`schemas/`):** Added `fixture.schema.json` and `validation-run.schema.json`.
+- **Validation Harness Suite:** Expanded `harness/runner.py` with 56 automated validation tests (100% pass rate).
+
 ## [0.5.1] - 2026-08-25
 
 ### Added
