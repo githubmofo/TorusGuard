@@ -2,7 +2,7 @@
 
 ## 🎯 Purpose
 
-This guide explains how engineering teams, security reviewers, and AI coding agents can use TorusGuard v0.5.4 reports to triage vulnerabilities, convert findings into issue tickets, apply code patches, and verify closure.
+This guide explains how engineering teams, security reviewers, and AI coding agents can use TorusGuard v0.5.5 reports to triage vulnerabilities, convert findings into issue tickets, apply code patches, and verify closure.
 
 ---
 

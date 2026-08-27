@@ -50,17 +50,27 @@ TorusGuard v0.5.0 introduces a formal state machine governing every candidate se
 
 ---
 
-## Current Release: v0.5.4 (Usability, Clarity & Actionable Remediation Release)
+## Current Release: v0.5.5 (Folder-per-Run & Ponytail Integration)
 
-TorusGuard v0.5.4 introduces a streamlined, actionable reporting and triage architecture:
-- **9-Section Report Architecture:** Standardized flow from Executive Summary to Detailed Findings and Roadmap.
-- **Remediation Priority Triage:** Findings classified by urgency (`Immediate P0`, `Near-Term P1`, `Backlog P2`).
-- **Context Separation:** Strict separation of executive Business Impact from technical code mechanics.
-- **Sensitive Data Masking:** Automated redaction of API keys (`sk_live_...`), GitHub tokens, and passwords in evidence snippets.
-- **Ticket-Ready Payloads:** Pre-formatted Markdown blocks ready to copy-paste into GitHub Issues, Jira, and Linear.
-- **Validation Harness:** 64 automated tests passing with 100% pass rate (`python harness/runner.py`).
+TorusGuard v0.5.5 introduces a streamlined, actionable execution architecture:
+- **`RunFolder` Output Hygiene:** All generated reports, patches, and logs are automatically segregated into isolated, timestamped folders (e.g., `.torusguard/runs/run-YYYYMMDD-HHMMSS/`) for guaranteed auditability.
+- **Ponytail Agent Integration (`/torusguard apply`):** Direct application of remediation guides via the Ponytail code-writing skill, strictly enforcing minimal, safe patches without rewriting files.
+- **Closed-Loop Workflow:** Formalized the `Harden ──► Apply ──► Recheck` workflow bridging AI security audits with reproducible codebase patches.
 
-*Read the complete release notes in [docs/releases/v0.5.4.md](docs/releases/v0.5.4.md).*
+*Read the complete release notes in [docs/releases/v0.5.5.md](docs/releases/v0.5.5.md).*
+
+---
+
+## 🏗️ Version History (v0.5.x Series)
+
+| Version | Focus / Key Feature | Summary of Deliverables |
+|:---:|---|---|
+| **v0.5.0** | **Workflow Architecture** | 6-stage lifecycle, 10 formal JSON schemas, core engine. |
+| **v0.5.1** | **Provenance & Confidence** | Auditable 5-factor confidence scoring, SHA-256 evidence hashing. |
+| **v0.5.2** | **Validation Engine** | 3-pass deterministic replay, regression tracking, FP analyzer. |
+| **v0.5.3** | **Python Parity** | Native coverage for Django/FastAPI/Flask/SQLAlchemy rules. |
+| **v0.5.4** | **Usability & Reporting** | 9-section reports, remediation triage, sensitive data masking. |
+| **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |
 
 ---
 

@@ -15,20 +15,35 @@ TorusGuard must never claim it can block DevTools, make an application 100% secu
 
 ---
 
-## 🔄 Finding Lifecycle (v0.5.4 Architecture)
+## 🔄 Finding Lifecycle (v0.5.5 Architecture)
 
-TorusGuard operates on a 6-stage lifecycle for every candidate security finding:
+TorusGuard operates on a 7-stage lifecycle for every candidate security finding:
 
 ```text
-[ Detect ] ──► [ Classify ] ──► [ Verify ] ──► [ Remediate ] ──► [ Re-check ] ──► [ Archive ]
+[ Detect ] ──► [ Classify ] ──► [ Verify ] ──► [ Remediate ] ──► [ Apply ] ──► [ Re-check ] ──► [ Archive ]
 ```
 
 1. **Detect:** Scan repository source code, environment templates, and configuration files.
 2. **Classify:** Assign canonical Rule ID (`TG-*`), taxonomy category, risk severity rubric, and provenance chain.
 3. **Verify:** Calculate auditable 0–100 confidence score and package raw technical evidence with SHA-256 checksums.
-4. **Remediate:** Formulate least-invasive, framework-native code modifications with Before/After diffs.
-5. **Re-check:** Execute differential re-audit on post-fix code to assert resolution (`Verified Fixed`).
-6. **Archive:** Preserve timestamped verification evidence in the project audit record.
+4. **Remediate:** Formulate least-invasive, framework-native code modifications with Before/After diffs into a remediation guide.
+5. **Apply:** Use Ponytail to apply the remediation guide via safe, minimal code patches.
+6. **Re-check:** Execute differential re-audit on post-fix code to assert resolution (`Verified Fixed`).
+7. **Archive:** Preserve timestamped verification evidence in the project audit record.
+
+---
+
+## 📂 Output Hygiene: Folder-Per-Run (`RunFolder`)
+All TorusGuard operations must be isolated into a per-run folder context:
+- Base pattern: `.torusguard/runs/run-YYYYMMDD-HHMMSS/`
+- Every invocation (`audit`, `harden`, `apply`, `recheck`) within a session uses this folder.
+- Output routing:
+  - Findings: `run_path/findings.md`
+  - Remediation guides: `run_path/remediation.md`
+  - Diffs/Patches: `run_path/patches/` (directory)
+  - Logs: `run_path/logs/ponytail.log`
+  - Validation: `run_path/recheck.md`
+  - Metadata: `run_path/metadata.json`
 
 ---
 
@@ -37,10 +52,11 @@ TorusGuard operates on a 6-stage lifecycle for every candidate security finding:
 | Command | Lifecycle Phase | Purpose | Changes Code? |
 |---------|:---:|---------|:---:|
 | `/torusguard init` | Baseline | Create/update project `SECURITY.md`, threat model, and finding registry | Docs only |
-| `/torusguard audit` | Detect & Classify | Scan codebase; produce Human-First normalized audit report with provenance | No |
-| `/torusguard verify` | Verify | Validate evidence sufficiency, compute 0–100 confidence, and check review criteria | No |
-| `/torusguard harden` | Remediate | Propose least-invasive, framework-idiomatic code fixes | Yes (on approval) |
-| `/torusguard recheck` | Re-check | Execute differential re-audit on post-fix code to assert `Verified Fixed` | No |
+| `/torusguard audit` | Detect & Classify | Scan codebase; produce Human-First normalized audit report | Writes to `findings/` |
+| `/torusguard verify` | Verify | Validate evidence sufficiency, compute 0–100 confidence | No |
+| `/torusguard harden` | Remediate | Generate structured remediation guide with exact rule/file markers | Writes to `remediation/` |
+| `/torusguard apply` | Apply | Use Ponytail to write minimal patches from the remediation guide | Writes to `patches/` (Applies on approval) |
+| `/torusguard recheck` | Re-check | Execute differential re-audit on post-fix code to assert `Verified Fixed` | Writes to `validation/` |
 
 **Audit focus areas:** `auth`, `input`, `database`, `files`, `secrets`, `supply-chain`, `network`, `ssrf`, `webhooks`, `websockets`, `graphql`, `business-logic`, `rate-limit`, `client`, `platform`, `cache`, `django`, `drf`, `fastapi`, `flask`, `sqlalchemy`.
 
@@ -111,6 +127,13 @@ Every generated report must follow this card-style hierarchy:
 
 ## ⚖️ Rules of Engagement & Safety Constraints
 
+- **Folder-per-run isolation:** Never dump artifacts directly into the project root. Always use `run_path` (e.g., `.torusguard/runs/run-.../`).
+- **Ponytail Integration for `/torusguard apply`:**
+  - Ponytail is strictly an AI-agent code-writer skill for applying remediation, not for discovering findings. It must not change TorusGuard rules or engine logic.
+  - The AI agent reads `remediation.md` and applies the fixes using Ponytail principles.
+  - Ensure the agent preserves all existing authentication, authorization, tenant isolation, validation, error handling, and security logging.
+  - Prefer small edits to existing code over rewrites. Avoid excessive comments, boilerplate, wrappers, and full-file rewrites.
+  - Save the patch or change summary in `patches/` before applying directly, or use a dry-run/review mode for critical authentication, tenant, and database changes.
 - Never report a finding as `Confirmed` without direct source code snippet evidence.
 - If a controller delegates authorization to a domain service layer, score `< 50` and classify as `Needs Review` (`TG-AUTH-007`).
 - Never report an unpinned dependency as exploitable without an advisory or audit result (`TG-SUPPLY-002`).

@@ -59,6 +59,8 @@ from harness.engine.fp_analyzer import FalsePositiveAnalyzer
 from harness.engine.evidence_collector import ValidationEvidenceCollector
 from harness.engine.report_emitter import ValidationReportEmitter
 
+from core.run_folder import RunFolder
+
 
 class ValidationHarnessRunner:
     def __init__(self, root_dir: str = "."):
@@ -93,6 +95,7 @@ class ValidationHarnessRunner:
         self.test_educational_differential_fixtures()
         self.test_regression_fixtures()
         self.test_report_formatting()
+        self.test_run_context_and_ponytail()
 
         print("-" * 80)
         print(f"SUMMARY: {self.passed_tests} Passed | {self.failed_tests} Failed")
@@ -450,6 +453,30 @@ class ValidationHarnessRunner:
             "Render v0.5.4 9-Section Actionable Report",
             has_header and has_exec_summary and has_scope and has_summary_table and has_detailed and has_business_context and has_remediation_roadmap and has_ticket_payload and has_redaction
         )
+
+    def test_run_context_and_ponytail(self):
+        print("\n13. Testing v0.5.5 RunFolder Structure...")
+        import shutil
+        test_root = self.root_dir / ".torusguard" / "runs_test"
+        if test_root.exists():
+            shutil.rmtree(test_root)
+            
+        rf = RunFolder(output_root=str(test_root), run_name="test-run-001")
+        
+        # Test directory initialization
+        has_dirs = rf.run_path.exists() and rf.patches_dir.exists() and rf.logs_dir.exists()
+        
+        # Test metadata file initialization
+        has_metadata = rf.metadata_file.exists()
+        if has_metadata:
+            with open(rf.metadata_file, "r", encoding="utf-8") as f:
+                metadata = json.load(f)
+                has_metadata = metadata.get("run_id") == "test-run-001"
+                
+        self.log_test("RunFolder Initialization", has_dirs and has_metadata)
+        
+        # Cleanup
+        shutil.rmtree(test_root)
 
 
 if __name__ == "__main__":

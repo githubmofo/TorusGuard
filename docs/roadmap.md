@@ -85,6 +85,11 @@ This document outlines the development milestones, past releases, and future pri
 - **Ticket-Ready Payloads:** Pre-formatted Markdown blocks ready to copy-paste into GitHub Issues, Jira, and Linear.
 - **Validation Harness:** 64 automated tests passing with 100% pass rate (`python harness/runner.py`).
 
+### ✅ v0.5.5 — Folder-per-Run & Ponytail Integration (2026-08-27)
+- **Folder-per-Run Architecture (`RunFolder`):** Isolated execution folders (`.torusguard/runs/run-YYYYMMDD-HHMMSS/`) strictly grouping findings, remediation guides, logs, and patches for auditability.
+- **Ponytail Agent Integration (`/torusguard apply`):** Direct application of remediation via the Ponytail skill, producing constrained, safe, and minimal patches without rewriting large code segments.
+- **Closed-Loop Workflow:** Formalized `Harden ──► Apply ──► Recheck` workflow bridging AI remediation suggestions with auditable, reproducible codebase patches.
+
 ---
 
 ## 🎯 Next Incremental Milestones: v0.6.x Series
