@@ -21,6 +21,11 @@ nist_ssdf: PW.5.1
 ## 🚨 Problem Statement
 Applications that extract user roles, permissions, or tenant identifiers directly from client-supplied HTTP request headers (e.g. `X-User-Role`, `X-Tenant-ID`, `X-Is-Admin`, `X-Authenticated-User`) without cryptographic verification or a trusted API gateway boundary allow attackers to elevate privileges or access arbitrary tenant data simply by injecting custom header values.
 
+> **Tuning Guardrails (v0.5.6):**
+> - **DO NOT flag** a header merely because it is read (e.g., for logging or non-authoritative metadata).
+> - **ESCALATE** only if client-controlled role/tenant data influences authorization, identity, tenant selection, or privileged database scope without verified server-side binding.
+> - **DOWNGRADE** to `Needs Review` if authorization context is resolved elsewhere (e.g., API gateway, mTLS, service mesh) and cannot be proven vulnerable from local source alone.
+
 ---
 
 ## 💥 Adversarial Threat & Exploitation

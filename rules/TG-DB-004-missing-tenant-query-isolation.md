@@ -18,7 +18,13 @@ nist_ssdf: PW.5.1
 # TG-DB-004: Missing Tenant Query Isolation in Multi-Tenant Models
 
 ## 🚨 Problem Statement
-In multi-tenant web applications, querying database tables by primary key (`id` or `uuid`) without explicitly binding or filtering by the authenticated user's `tenant_id` (or organization ID) permits horizontal cross-tenant data exfiltration (IDOR across organization boundaries).
+Applications built on a multi-tenant architecture often fail to scope database lookups (`SELECT`, `UPDATE`, `DELETE`) by the current authenticated tenant. Allowing a direct primary key (ID) lookup without a composite tenant filter allows Insecure Direct Object Reference (IDOR) attacks, enabling users to access or modify data belonging to other tenants.
+
+> **Tuning Guardrails (v0.5.6):**
+> - **DO NOT flag** every primary-key lookup.
+> - **ESCALATE** when tenant-owned data can be loaded or modified without a verified tenant scope.
+> - **DETECT** established tenant-scoped managers, repositories, `get_queryset()`, dependency injection, or parent-resource ownership checks.
+> - **MARK** complex multi-layer scope flows as `Needs Review` instead of `Confirmed` when source-only proof is inadequate.
 
 ---
 

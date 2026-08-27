@@ -16,7 +16,12 @@ nist_ssdf: PW.5.1
 # TG-INPUT-006: Path Traversal and Unsafe Upload Storage
 
 ## 🚨 Problem Statement
-Directly joining a client-supplied filename with a local directory path via `os.path.join(UPLOAD_DIR, filename)` or `Path(UPLOAD_DIR) / filename` allows directory traversal sequences (`../../`) to overwrite sensitive server files, configuration files, or write executable payloads into web-accessible directories.
+Concatenating untrusted user input directly into file system paths without canonicalization or validation allows attackers to traverse directory boundaries (e.g., `../../etc/passwd`) and read or overwrite arbitrary files on the host system.
+
+> **Tuning Guardrails (v0.5.6):**
+> - **DO NOT treat** every `os.path.join()` as path traversal.
+> - **ESCALATE** when untrusted filename/path input reaches file path construction or storage without canonicalization, allowlisting, sanitization (e.g., `secure_filename`), or safe generated naming.
+> - **RECOGNIZE** project-approved filename normalization wrappers where evidence exists.
 
 ---
 

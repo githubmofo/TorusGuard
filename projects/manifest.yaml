@@ -1,0 +1,152 @@
+projects:
+  - id: flask-cms
+    path: https://github.com/pallets/flask.git
+    authorized: true
+    frameworks:
+      - Flask
+    expected_source_files_min: 50
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+      - "node_modules/"
+      - "migrations/"
+      - "generated/"
+    seeded_cases:
+      - seed_id: SEED-FLASK-01
+        rule_id: TG-INPUT-005
+        expected_path: src/flask/templating.py
+        expected_detection: true
+
+  - id: django-core
+    path: https://github.com/django/django.git
+    authorized: true
+    frameworks:
+      - Django
+    expected_source_files_min: 50
+    tests:
+      - "python tests/runtests.py"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+      - "node_modules/"
+    seeded_cases:
+      - seed_id: SEED-DJANGO-01
+        rule_id: TG-AUTH-008
+        expected_path: django/contrib/auth/middleware.py
+        expected_detection: true
+
+  - id: fastapi-service
+    path: https://github.com/tiangolo/fastapi.git
+    authorized: true
+    frameworks:
+      - FastAPI
+    expected_source_files_min: 50
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+    seeded_cases:
+      - seed_id: SEED-FASTAPI-01
+        rule_id: TG-INPUT-006
+        expected_path: fastapi/routing.py
+        expected_detection: true
+
+  - id: sqlalchemy-orm
+    path: https://github.com/sqlalchemy/sqlalchemy.git
+    authorized: true
+    frameworks:
+      - SQLAlchemy
+    expected_source_files_min: 50
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+    seeded_cases:
+      - seed_id: SEED-SA-01
+        rule_id: TG-DB-004
+        expected_path: lib/sqlalchemy/orm/query.py
+        expected_detection: true
+
+  - id: drf-api
+    path: https://github.com/encode/django-rest-framework.git
+    authorized: true
+    frameworks:
+      - Django
+      - DRF
+    expected_source_files_min: 50
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+    seeded_cases:
+      - seed_id: SEED-DRF-01
+        rule_id: TG-DB-004
+        expected_path: rest_framework/viewsets.py
+        expected_detection: true
+
+  - id: sentry-multitenant
+    path: https://github.com/getsentry/sentry.git
+    authorized: true
+    frameworks:
+      - Django
+      - React
+    expected_source_files_min: 50
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+      - "node_modules/"
+
+  - id: requests-client
+    path: https://github.com/psf/requests.git
+    authorized: true
+    frameworks:
+      - Core Python
+    expected_source_files_min: 30
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+
+  - id: pydantic-models
+    path: https://github.com/pydantic/pydantic.git
+    authorized: true
+    frameworks:
+      - Pydantic
+    expected_source_files_min: 50
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+
+  - id: celery-workers
+    path: https://github.com/celery/celery.git
+    authorized: true
+    frameworks:
+      - Celery
+    expected_source_files_min: 50
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"
+
+  - id: scrapy-spiders
+    path: https://github.com/scrapy/scrapy.git
+    authorized: true
+    frameworks:
+      - Scrapy
+    expected_source_files_min: 50
+    tests:
+      - "pytest"
+    apply_mode: dry-run-first
+    exclusions:
+      - ".venv/"

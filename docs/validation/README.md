@@ -23,6 +23,7 @@ TorusGuard is a security guidance framework for AI coding agents. To ensure that
 ## 📁 Validation Reports Index
 
 ### 🧪 1. Comprehensive Master & Release Validation Reports
+- [v0.5.6 Large-Project Validation Portfolio Report (10 Repositories)](v0.5.6-large-project-validation-report.md)
 - [Complete Historical & Version Validation Report (v0.1.0 – v0.4.1)](complete-version-validation.md)
 - [v0.4.1 Real-World Validation Report](v0.4.1-real-world-validation.md)
 - [Authorized Repository Validation Template & Protocol](authorized-repo-validation-template.md)

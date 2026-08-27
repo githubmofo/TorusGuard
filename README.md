@@ -50,14 +50,16 @@ TorusGuard v0.5.0 introduces a formal state machine governing every candidate se
 
 ---
 
-## Current Release: v0.5.5 (Folder-per-Run & Ponytail Integration)
+## Current Release: v0.5.6 (Large-Project Validation & Rule-Tuning Suite)
 
-TorusGuard v0.5.5 introduces a streamlined, actionable execution architecture:
-- **`RunFolder` Output Hygiene:** All generated reports, patches, and logs are automatically segregated into isolated, timestamped folders (e.g., `.torusguard/runs/run-YYYYMMDD-HHMMSS/`) for guaranteed auditability.
-- **Ponytail Agent Integration (`/torusguard apply`):** Direct application of remediation guides via the Ponytail code-writing skill, strictly enforcing minimal, safe patches without rewriting files.
-- **Closed-Loop Workflow:** Formalized the `Harden ──► Apply ──► Recheck` workflow bridging AI security audits with reproducible codebase patches.
+TorusGuard v0.5.6 introduces a structured validation architecture for large-scale, real-world repositories alongside context-aware rule tuning and honest readiness evaluation:
+- **10 Large-Project Validation Architecture (`projects/manifest.yaml`):** Standardized multi-repository validation harness supporting real-world Python codebases (Django, Flask, FastAPI, SQLAlchemy, DRF, Sentry, Requests, Pydantic, Celery, Scrapy) totaling 14,000+ source files.
+- **Rule Context Tuning & Guardrails:** Hardened detection rules (`TG-AUTH-008`, `TG-INPUT-005`, `TG-INPUT-006`, `TG-DB-004`) to distinguish safe framework mechanisms (e.g. auto-escaping, ORM tenant managers) and downgrade ambiguous contexts to `Needs Review`.
+- **Seeded-Case Recall Measurement:** Integrated known synthetic vulnerability seeds across target repositories to ensure rule tuning preserves high recall without blind suppression.
+- **Ponytail Patch Quality Tracking:** Structured ledger recording patch efficiency (files changed, line churn, excess comments, new risks, recheck outcomes).
+- **Honest Readiness Classification:** Strict policy against unverified 100% metrics. Distinguishes simulated workflow runs from real repository triage with clear pilot readiness boundaries.
 
-*Read the complete release notes in [docs/releases/v0.5.5.md](docs/releases/v0.5.5.md).*
+*Read the complete release notes in [docs/releases/v0.5.6.md](docs/releases/v0.5.6.md) and the portfolio report in [docs/validation/v0.5.6-large-project-validation-report.md](docs/validation/v0.5.6-large-project-validation-report.md).*
 
 ---
 
@@ -71,6 +73,7 @@ TorusGuard v0.5.5 introduces a streamlined, actionable execution architecture:
 | **v0.5.3** | **Python Parity** | Native coverage for Django/FastAPI/Flask/SQLAlchemy rules. |
 | **v0.5.4** | **Usability & Reporting** | 9-section reports, remediation triage, sensitive data masking. |
 | **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |
+| **v0.5.6** | **Large-Project Validation** | 10-repo validation suite, context rule tuning, seeded recall, honest readiness. |
 
 ---
 
@@ -136,18 +139,23 @@ When an audit report is generated:
 
 ## Validation & Quality Harness
 
-TorusGuard maintains a repeatable automated validation harness:
+TorusGuard maintains repeatable automated validation harnesses:
 
 ```bash
+# Core validation suite (schemas, rules, differential fixtures)
 python harness/runner.py
+
+# Large-project validation harness (multi-repo validation & recall benchmarking)
+python harness/validate_large_projects.py projects/manifest.yaml
 ```
 
-The harness runs across:
+The harness suite verifies:
 - **Schema Validation:** Verifies all schemas in `schemas/`.
-- **Rule Catalog Integrity:** Validates 60 unique `TG-*` rule IDs with 0 duplicates.
+- **Rule Catalog Integrity:** Validates 60+ unique `TG-*` rule IDs with 0 duplicates.
 - **Differential Fixtures:** Tests vulnerable vs hardened pairs in `examples/python/`.
 - **Stack Detection Fixtures:** Tests 7 repository layouts in `tests/fixtures/python/stack-detection/`.
-- **Regression Suite:** Executes 10 paired Python regression fixtures in `tests/fixtures/python/`.
+- **Regression Suite:** Executes paired Python regression fixtures in `tests/fixtures/python/`.
+- **Large-Project Profiles:** Tests 10 major repository profiles in `projects/manifest.yaml`.
 - **Lifecycle Assertions:** Validates state machine transitions.
 
 *Read the complete validation summary in [docs/validation/README.md](docs/validation/README.md).*
@@ -170,18 +178,19 @@ To maintain technical honesty and clear boundaries:
 TorusGuard/
 ├── schemas/                 # Formal JSON schemas (finding, evidence, remediation, rule, lifecycle)
 ├── core/                    # Core workflow models, lifecycle state machine, and formatter
-├── harness/                 # Repeatable automated validation harness runner
+├── harness/                 # Repeatable validation runner & large-project validation harness
+├── projects/                # Multi-repository validation manifest and seeded-case definitions
 ├── skills/TorusGuard/       # Portable skill instructions and reference modules
 ├── rules/                   # 60+ documented security rules across 9 lifecycle categories
 ├── templates/               # Standardized templates (SECURITY, audit, pre-flight)
 ├── guides/                  # Stack-specific implementation guides (Node.js & Python)
 ├── examples/                # Educational vulnerable & hardened reference applications
 ├── docs/                    
-│   ├── architecture/        # Architecture specifications (v0.5.0 workflow architecture)
+│   ├── architecture/        # Architecture specifications (v0.5.0, v0.5.4, v0.5.6)
 │   ├── workflow/            # Finding lifecycle and verification guides
-│   ├── releases/            # Release notes (v0.2.0, v0.3.0, v0.4.0, v0.4.1, v0.5.0)
+│   ├── releases/            # Release notes (v0.2.0 - v0.5.6)
 │   ├── python-rule-mapping.md # Universal rule mapping across Python stacks
-│   ├── validation/          # Official validation reports & real-world records
+│   ├── validation/          # Official validation reports & large-project portfolios
 │   └── roadmap.md           # Project roadmap & milestones
 └── tests/                   # Test fixtures and regression test suites
 ```

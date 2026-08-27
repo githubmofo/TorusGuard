@@ -85,10 +85,19 @@ This document outlines the development milestones, past releases, and future pri
 - **Ticket-Ready Payloads:** Pre-formatted Markdown blocks ready to copy-paste into GitHub Issues, Jira, and Linear.
 - **Validation Harness:** 64 automated tests passing with 100% pass rate (`python harness/runner.py`).
 
-### ✅ v0.5.5 — Folder-per-Run & Ponytail Integration (2026-08-27)
+### ✅ v0.5.5 — Folder-per-Run & Ponytail Integration (2026-08-26)
 - **Folder-per-Run Architecture (`RunFolder`):** Isolated execution folders (`.torusguard/runs/run-YYYYMMDD-HHMMSS/`) strictly grouping findings, remediation guides, logs, and patches for auditability.
 - **Ponytail Agent Integration (`/torusguard apply`):** Direct application of remediation via the Ponytail skill, producing constrained, safe, and minimal patches without rewriting large code segments.
+- **Rule Precision Calibration:** Criteria for routing ambiguous proxy/gateway patterns to `Needs Review` to avoid false positive escalation.
 - **Closed-Loop Workflow:** Formalized `Harden ──► Apply ──► Recheck` workflow bridging AI remediation suggestions with auditable, reproducible codebase patches.
+
+### ✅ v0.5.6 — Large-Project Validation Suite & Rule Tuning Architecture (2026-08-27)
+- **10 Large-Project Validation Harness (`harness/validate_large_projects.py`):** Standardized multi-repository runner supporting 14,000+ files across 10 major Python ecosystem targets.
+- **Multi-Project Manifest & Seed Tracking (`projects/manifest.yaml`):** Standardized repository declarations, exclusions, and synthetic vulnerability seed injection.
+- **Context-Aware Rule Tuning Guardrails:** Hardened rules (`TG-AUTH-008`, `TG-INPUT-005`, `TG-INPUT-006`, `TG-DB-004`) to suppress false positives from framework utilities while preserving true positive detection.
+- **Seeded-Case Recall Measurement:** Formal benchmarking framework for calculating recall on known vulnerabilities.
+- **Ponytail Patch Quality Tracking Ledger:** Auditable diff metrics (line churn, 0 unrelated files changed, test pass confirmation).
+- **Transparent Pilot Readiness Classification:** Honest evaluation framework distinguishing simulated runs from human-triaged scans.
 
 ---
 

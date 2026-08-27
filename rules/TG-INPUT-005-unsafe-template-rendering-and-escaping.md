@@ -16,7 +16,12 @@ nist_ssdf: PW.5.1
 # TG-INPUT-005: Unsafe Template Rendering & Disabled Autoescaping
 
 ## 🚨 Problem Statement
-Web applications that disable template autoescaping by using `mark_safe()` in Django, the `| safe` filter in Jinja2, or executing `render_template_string()` in Flask on user-controlled input expose the application to Cross-Site Scripting (XSS) and Server-Side Template Injection (SSTI).
+Rendering user-controlled input directly into templates without context-aware escaping (e.g., using `render_template_string` or explicitly disabling escaping with `|safe` or `mark_safe`) allows attackers to inject malicious HTML, JavaScript, or server-side template directives.
+
+> **Tuning Guardrails (v0.5.6):**
+> - **DISTINGUISH** direct unsafe rendering from framework-managed autoescaped template rendering (e.g., passing context variables to `render_template("foo.html", var=x)`).
+> - **DO NOT flag** safe templating utilities or correctly escaped output paths.
+> - **FLAG ONLY** when unsafe rendering, disabled escaping, `mark_safe`, `|safe`, or dynamic template execution is materially relevant.
 
 ---
 

@@ -5,6 +5,23 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.6] - 2026-08-27
+
+### Added
+- **Large-Project Validation Suite (`harness/validate_large_projects.py`):** Multi-repository validation harness supporting large-scale codebases with over 14,000+ files across 10 frameworks/libraries.
+- **Multi-Repository Manifest (`projects/manifest.yaml`):** Standardized configuration defining target repository profiles, exclusion patterns, test triggers, and seeded vulnerability benchmarks.
+- **Context-Aware Rule Tuning & Guardrails:** Hardened detection rules (`TG-AUTH-008`, `TG-INPUT-005`, `TG-INPUT-006`, `TG-DB-004`) to eliminate false positives and gracefully downgrade incomplete evidence to `Needs Review`.
+- **Seeded-Case Recall Measurement:** Formal benchmarking framework for measuring detection recall using non-production seeded test vulnerabilities.
+- **Ponytail Patch Quality Tracking Ledger:** Granular recording of remediation diff metrics, line churn, unintended side effects, and recheck verification status.
+- **Transparent Pilot Readiness Classification:** Formal policy distinguishing simulated dry-runs from real-world triage, replacing unmeasured claims with clear pilot validation criteria.
+
+## [0.5.5] - 2026-08-26
+
+### Added
+- **Rule Precision Calibration:** Formal criteria for routing ambiguous or infrastructure-delegated patterns to `Needs Review` rather than false `Confirmed` findings.
+- **Ponytail Remediation Safety Protocol:** Enforced least-invasive patch generation limits, mandatory dry-run syntax assertions, and automated rejection of unrelated file churn.
+- **Differential Retest Hardening:** Enhanced `/torusguard recheck` verification state machine to detect regressions (`New Risk`) in automated remediation patches.
+
 ## [0.5.4] - 2026-08-25
 
 ### Added
