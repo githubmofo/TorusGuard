@@ -96,9 +96,9 @@ The application is built on Express and MongoDB. While basic authentication is i
 
 ---
 
-## 🛠️ Step 3: Hardening the Application (`/torusguard harden`)
+## 🛠️ Step 3: Hardening & Applying Patches (`/torusguard harden` & `/torusguard apply`)
 
 Once you review the report:
-1. Type `/torusguard harden` in your AI chat.
-2. The agent reads `audit-report.md` and applies the least-invasive, clean code fixes.
-3. It verifies that the application builds and all business functionality is preserved.
+1. **Formulate the Plan:** Type `/torusguard harden` in your AI chat to generate framework-native remediation guides and candidate diffs.
+2. **Apply the Patch:** Type `/torusguard apply` to let the **Ponytail engine** surgically apply the minimal, bounded patch without modifying unrelated code.
+3. **Verify the Fix:** Type `/torusguard recheck` to verify that the vulnerability transitions to `Verified Fixed` with zero regression.

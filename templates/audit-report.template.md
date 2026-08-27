@@ -74,7 +74,7 @@ To resolve these findings, follow this recommended order:
 2. **Step 2 (High):** [Action item for next priority]
 3. **Step 3 (Hardening):** [Action item for remaining items]
 
-*Tip: You can ask the AI agent to apply these fixes automatically by running `/torusguard harden`.*
+*Tip: You can ask the AI agent to formulate fixes with `/torusguard harden`, apply them safely via Ponytail with `/torusguard apply`, and re-verify with `/torusguard recheck`.*
 
 ---
 

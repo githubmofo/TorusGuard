@@ -170,8 +170,8 @@ class ValidationHarnessRunner:
         has_frontmatter = content.startswith("---") and "name: torusguard" in content
         self.log_test("SKILL.md YAML Frontmatter", has_frontmatter)
 
-        has_commands = all(cmd in content for cmd in ["/torusguard init", "/torusguard audit", "/torusguard harden", "/torusguard verify", "/torusguard recheck"])
-        self.log_test("SKILL.md Core Commands Documented (including recheck)", has_commands)
+        has_commands = all(cmd in content for cmd in ["/torusguard init", "/torusguard audit", "/torusguard harden", "/torusguard apply", "/torusguard verify", "/torusguard recheck"])
+        self.log_test("SKILL.md Core Commands Documented (including apply & recheck)", has_commands)
 
         refs_dir = self.root_dir / "skills" / "TorusGuard" / "references"
         ref_files = list(refs_dir.glob("*.md"))

@@ -43,13 +43,14 @@ Detect ──► Classify ──► Verify ──► Remediate ──► Re-chec
 
 ---
 
-## 4. 🛠️ Stage 4: Remediate
-- **Action:** When `/torusguard harden` is run, the engine produces framework-native, least-invasive remediation proposals:
+## 4. 🛠️ Stage 4: Remediate & Apply
+- **Formulation (`/torusguard harden`):** Generates framework-native, least-invasive remediation proposals and candidate diffs:
   - **Problem Statement:** Exact flaw in the current implementation.
   - **Risk Explanation:** Realistic attack scenario.
   - **Code Pattern:** Side-by-side **Before (Unsafe)** vs **After (Hardened)** diff.
   - **Verification Method:** Prescriptive command or unit test assertion.
   - **Residual Risk Notes:** Deployment-level considerations.
+- **Application (`/torusguard apply`):** Executes the **Ponytail code-writing protocol** to safely apply the minimal patch diff directly to repository files.
 
 ---
 
@@ -71,9 +72,9 @@ Detect ──► Classify ──► Verify ──► Remediate ──► Re-chec
 
 | Status | Meaning | Permitted Next Actions |
 |---|---|---|
-| **`Open`** | Validated vulnerability awaiting remediation | Apply fix via `/torusguard harden` |
+| **`Open`** | Validated vulnerability awaiting remediation | Generate fix via `/torusguard harden` |
 | **`In Verification`** | Under evidence review or manual inspection | Verify reachability; resolve `Needs Review` questions |
-| **`Remediation Proposed`** | Hardened code snippet generated | Review diff and apply patch |
+| **`Remediation Proposed`** | Hardened code snippet generated | Apply patch via `/torusguard apply` |
 | **`Remediated` / `Verified Safe`** | Post-fix re-check confirmed resolution | Advance to archive |
 | **`Suppressed`** | Accepted risk with documented business justification | Record architectural rationale |
 | **`Archived`** | Preserved in historical compliance record | Stored |

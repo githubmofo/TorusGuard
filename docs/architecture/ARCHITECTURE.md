@@ -35,7 +35,7 @@ TorusGuard is built upon six foundational engineering tenets:
 
 1. **The Browser-Code Truth:** Any code, state, or secret transmitted to a client browser can and will be inspected via DevTools. All authorization, tenant isolation, and credential handling must reside strictly on trusted server runtimes.
 2. **Markdown-First & Agent-Portable:** Architecture and rules are defined as standard Markdown documents with YAML frontmatter, making them immediately consumable by both human engineers and LLM reasoning loops.
-3. **Deterministic Finding Lifecycle:** Security findings transition through a formal 6-stage finite state machine (`Detect` ──► `Classify` ──► `Verify` ──► `Remediate` ──► `Re-check` ──► `Archive`).
+3. **Deterministic Finding Lifecycle:** Security findings transition through a formal 7-stage closed-loop state machine (`Detect` ──► `Classify` ──► `Verify` ──► `Remediate` ──► `Apply` ──► `Re-check` ──► `Archive`).
 4. **Least-Invasive Remediation (Ponytail Protocol):** Automated code fixes must be framework-idiomatic, minimal in file churn, strictly bounded, and verified via pre-flight dry-runs and automated test passes.
 5. **Technical Honesty & Transparent Confidence:** Findings are scored via an auditable 0–100 mathematical rubric. If source code evidence is insufficient to prove exploitability, findings are downgraded to `Needs Review` rather than reported as false alarms.
 6. **Zero-Telemetry Local Privacy:** All code scanning, evidence parsing, and report generation execute locally within the target repository workspace.
@@ -49,7 +49,7 @@ The TorusGuard system architecture decomposes into four primary sub-systems:
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                          AI Agent & User Interface                          │
-│        (CLI Commands: /torusguard init, audit, verify, harden, recheck)     │
+│        (CLI Commands: /torusguard init, audit, verify, harden, apply, recheck)│
 └──────────────────────────────────────┬──────────────────────────────────────┘
                                        │
 ┌──────────────────────────────────────▼──────────────────────────────────────┐

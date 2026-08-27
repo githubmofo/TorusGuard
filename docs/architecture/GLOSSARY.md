@@ -31,12 +31,13 @@
 
 ## 3. Finding Lifecycle States
 
-1. **`Detect`:** Initial pattern match on repository source code.
+1. **`Detect`:** Initial pattern match on repository source code (`/torusguard audit`).
 2. **`Classify`:** Assigns canonical Rule ID, CWE mapping, and initial severity.
-3. **`Verify`:** Confirms AST reachability and evaluates mathematical confidence score.
-4. **`Remediate`:** Generates Ponytail unified Git diffs.
-5. **`Re-check`:** Re-audits post-fix source code.
-6. **`Archive`:** Persists immutable run metadata and evidence hashes.
+3. **`Verify`:** Confirms AST reachability and evaluates mathematical confidence score (`/torusguard verify`).
+4. **`Remediate`:** Generates framework-native remediation guides and candidate diffs (`/torusguard harden`).
+5. **`Apply`:** Uses the **Ponytail engine** to surgically apply minimal, bounded code patches (`/torusguard apply`).
+6. **`Re-check`:** Re-audits post-fix source code to assert resolution (`/torusguard recheck`).
+7. **`Archive`:** Persists immutable run metadata and cryptographic evidence hashes.
 
 ---
 

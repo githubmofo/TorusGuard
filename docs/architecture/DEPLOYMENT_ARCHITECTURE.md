@@ -23,7 +23,7 @@ TorusGuard is engineered with a **zero-daemon, local-first architecture**. It op
 
 ### 2.1. Topology A: AI Agent Skill Integration
 - **Mechanism:** Installed via standard skill package managers (`npx skills add ...`) into AI agent environments.
-- **Triggering:** Invoked conversationally or via slash commands (`/torusguard audit`, `/torusguard harden`).
+- **Triggering:** Invoked conversationally or via slash commands (`/torusguard audit`, `/torusguard harden`, `/torusguard apply`, `/torusguard recheck`).
 - **Context Handling:** Reads active workspace AST directly from the IDE's local file system.
 
 ### 2.2. Topology B: CI/CD Pipeline Enforcement

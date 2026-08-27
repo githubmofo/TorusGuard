@@ -37,15 +37,23 @@ TorusGuard exposes five canonical workflow commands via the open `skills` specif
 - **Behavior:** Validates AST reachability, confirms SHA-256 evidence integrity, and computes 0–100 confidence rubric.
 
 ### 2.4. `/torusguard harden`
-- **Purpose:** Generates least-invasive, framework-native remediation patches (Ponytail Protocol).
+- **Purpose:** Generates least-invasive, framework-native remediation guides and proposed candidate diffs without touching active code.
 - **Input Parameters:**
-  - `--dry-run`: Generates unified diffs without writing to disk.
-  - `--finding-id <id>`: Target specific finding.
-  - `--auto-approve`: Applies changes automatically if project tests pass.
-- **Output:** Unified Git diffs saved to `.torusguard/runs/.../patches/`.
+  - `--finding-id <id>`: Target specific finding (or all active findings).
+- **Artifacts Emitted:**
+  - `.torusguard/runs/.../remediation.md`
+  - `.torusguard/runs/.../patches/candidate-*.diff`
 
-### 2.5. `/torusguard recheck`
-- **Purpose:** Re-evaluates modified code to assert vulnerability resolution.
+### 2.5. `/torusguard apply`
+- **Purpose:** Executes the **Ponytail code-writing protocol** to surgically apply the minimal patch diff directly to repository source files.
+- **Input Parameters:**
+  - `--dry-run`: Performs pre-flight AST validation and syntax verification without saving.
+  - `--finding-id <id>`: Target specific finding patch.
+  - `--auto-approve`: Applies changes automatically if syntax checks pass.
+- **Ponytail Guardrails Enforced:** Minimal line churn, zero unrelated file modifications, preserves comments/formatting.
+
+### 2.6. `/torusguard recheck`
+- **Purpose:** Re-evaluates post-fix code to assert vulnerability resolution and detect secondary regressions.
 - **Output States:**
   - `Verified Fixed`: Vulnerability resolved, 0 new risks.
   - `Still Present`: Unsafe pattern still detectable.

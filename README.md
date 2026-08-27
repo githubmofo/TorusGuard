@@ -20,22 +20,23 @@ AI code generators accelerate product development, but they can easily introduce
 
 ---
 
-## 🔄 The 6-Stage Finding Lifecycle (v0.5.0 Architecture)
+## 🔄 The 7-Stage Finding Lifecycle (Closed-Loop Architecture)
 
-TorusGuard v0.5.0 introduces a formal state machine governing every candidate security finding:
+TorusGuard features a formal closed-loop state machine governing every candidate security finding:
 
 ```text
-┌───────────┐     ┌────────────┐     ┌───────────┐     ┌─────────────┐     ┌───────────┐     ┌───────────┐
-│ 1. Detect │ ──► │ 2.Classify │ ──► │ 3. Verify │ ──► │ 4.Remediate │ ──► │ 5.Recheck │ ──► │ 6.Archive │
-└───────────┘     └────────────┘     └───────────┘     └─────────────┘     └───────────┘     └───────────┘
+┌───────────┐     ┌────────────┐     ┌───────────┐     ┌─────────────┐     ┌──────────┐     ┌───────────┐     ┌───────────┐
+│ 1. Detect │ ──► │ 2.Classify │ ──► │ 3. Verify │ ──► │ 4.Remediate │ ──► │ 5. Apply │ ──► │ 6.Recheck │ ──► │ 7.Archive │
+└───────────┘     └────────────┘     └───────────┘     └─────────────┘     └──────────┘     └───────────┘     └───────────┘
 ```
 
-1. **Detect:** Scan repository source code, environment templates, and manifests.
+1. **Detect (`/torusguard audit`):** Scan repository source code, environment templates, and manifests.
 2. **Classify:** Assign a canonical Rule ID (`TG-*`), taxonomy category, risk severity, and initial confidence.
-3. **Verify:** Validate evidence sufficiency and reachable data flow. If evidence is ambiguous, force status to `Needs Review`.
-4. **Remediate:** Formulate least-invasive, framework-native code modifications with before/after diffs.
-5. **Re-check:** Re-audit modified code to verify that the vulnerability is resolved (`Verified Safe`).
-6. **Archive:** Preserve timestamped verification evidence in the project audit record.
+3. **Verify (`/torusguard verify`):** Validate evidence sufficiency and reachable data flow. If evidence is ambiguous, force status to `Needs Review`.
+4. **Remediate (`/torusguard harden`):** Formulate framework-native, least-invasive remediation plans and candidate diffs.
+5. **Apply (`/torusguard apply`):** Use the **Ponytail engine** to surgically apply minimal, bounded patches to target files.
+6. **Re-check (`/torusguard recheck`):** Re-audit modified code to verify that the vulnerability is resolved (`Verified Fixed`).
+7. **Archive:** Preserve timestamped verification evidence and cryptographic hashes in the project audit record.
 
 ---
 
@@ -113,7 +114,8 @@ npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
 | `/torusguard init` | Baseline | Generates a project `SECURITY.md`, threat model, and baseline. | ❌ Docs only |
 | `/torusguard audit` | Detect & Classify | Scans repository against TorusGuard rules and outputs a structured report. | ❌ No |
 | `/torusguard verify` | Verify | Validates evidence sufficiency and checks manual review criteria. | ❌ No |
-| `/torusguard harden` | Remediate | Applies least-invasive, safe fixes for confirmed findings. | ✅ Yes |
+| `/torusguard harden` | Remediate | Formulates framework-native remediation guides and candidate diffs. | ❌ No (Plan only) |
+| `/torusguard apply` | Apply | Uses the **Ponytail engine** to surgically apply minimal, safe patches. | ✅ Yes |
 | `/torusguard recheck` | Re-check | Re-evaluates post-fix code to assert resolution (`Verified Safe`). | ❌ No |
 
 ---
@@ -129,10 +131,10 @@ When an audit report is generated:
 
 ---
 
-## How to Fix Findings
+## How to Fix Findings (Closed-Loop Workflow)
 
-1. **Review Proposed Diffs:** Run `/torusguard harden` to generate framework-native, least-invasive code modifications.
-2. **Apply Changes:** Update the affected code following the provided safe patterns.
+1. **Formulate the Fix:** Run `/torusguard harden` to generate candidate diffs and remediation guides in `.torusguard/runs/.../remediation.md`.
+2. **Apply via Ponytail:** Run `/torusguard apply` to let the Ponytail engine apply minimal, bounded patches without touching unrelated code.
 3. **Run Differential Re-check:** Execute `/torusguard recheck` to verify that the finding transitions to `Verified Safe`.
 
 ---
