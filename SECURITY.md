@@ -59,6 +59,31 @@ Security updates and patches are prioritized for the current active release line
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v0.5.x` | ✅ Yes | Current active release line (Architecture & Workflow Release) |
-| `v0.4.x` | ⚠️ Best effort | Critical security fixes only |
-| `< v0.4.0` | ❌ No | Deprecated |
+| `v0.6.x` (`v0.6.3`) | ✅ Yes | Current active release line (Governed Remediation, Minimal Patching & Targeted Recheck System) |
+| `v0.5.x` | ⚠️ Best effort | Legacy reporting, validation engine, and rule schemas |
+| `< v0.5.0` | ❌ No | Deprecated |
+
+---
+
+## Governed Remediation & Sensitive-Path Safety Controls
+
+TorusGuard v0.6.x incorporates proactive defense mechanisms to prevent AI coding agents from introducing regressions or applying unsafe automated code modifications:
+
+1. **Patch Policy Governance (`core/governance.py`):**
+   - Strictly enforces limits on additions ($\le 35$ lines) and deletions ($\le 25$ lines) per file.
+   - Prohibits sweeping boilerplate rewrites, unstructured comment replacements, and multi-file cross-service churn.
+
+2. **Sensitive-Path Review Levels:**
+   - **Authentication & JWT:** Files matching `auth`, `login`, `jwt`, `token`, `session`, `password`.
+   - **Multi-Tenancy:** Files matching `tenant`, `tenant_id`, `organization_id`, `org_id`, `workspace_id`.
+   - **Secrets & Cryptography:** Files matching `secret`, `api_key`, `private_key`, `crypto`, `hmac`.
+   - **Storage & Uploads:** Files matching `upload`, `storage`, `filepath`, `save_file`.
+   - **CI/CD Infrastructure:** `.github/workflows/`, `Dockerfile`, `compose.yaml`.
+   - **Enforcement:** Diffs in sensitive contexts with $> 10$ line churn automatically escalate to `Mandatory Security Sign-Off` and block automated patch execution.
+
+3. **Targeted Scoped Recheck Verification (`core/rechecker.py`):**
+   - Automatically re-evaluates AST sinks and trust boundaries after code edits, requiring human intervention if any regression (`Regressed`) or incomplete remediation (`Needs Manual Review`) is detected.
+
+4. **GitHub Code Scanning Interoperability (`core/sarif.py`):**
+   - Emits standard OASIS SARIF v2.1.0 logs with `partialFingerprints` (`primaryLocationLineHash`) to guarantee deterministic alert tracking and eliminate duplicate alert noise across pull requests.
+
