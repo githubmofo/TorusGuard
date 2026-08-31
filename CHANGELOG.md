@@ -5,7 +5,16 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.2.0] - 2026-08-31
+## [0.6.3] - 2026-08-31
+
+### Added
+- **Multi-Commit Drift Invariance:** Line-shift invariant fingerprinting verified across multi-commit refactorings.
+- **GitHub Code Scanning SARIF Deduplication (`core/sarif.py`):** Added `partialFingerprints` with `primaryLocationLineHash` and `torusguard/v6/identity` to eliminate duplicate security alerts in GitHub PRs.
+- **Sensitive-Path Review Levels (`core/governance.py`):** Stricter escalation hierarchy (`Automatic`, `Peer Review Recommended`, `Mandatory Security Sign-Off`) blocking auto-apply on Auth, Tenancy, Secrets, Crypto, Storage, and CI/CD.
+- **Modern-Stack Negative Test Suite (`harness/validate_v0_6_3_hardening.py`):** Verified zero false positives on safe Django 5.x async, FastAPI `Annotated`, SQLAlchemy 2.0 select, and Next.js 14 Server Actions.
+- **Cross-Artifact Consistency Engine:** Verified synchronization across Manifests, Summaries, Findings, Remediation Bundles, and SARIF JSON.
+
+## [0.6.2] - 2026-08-31
 
 ### Added
 - **Modern Stack Profiler (`core/stack_profiler.py`):** Automatic detection of framework version families (Django 5.x, FastAPI 0.100+, SQLAlchemy 2.0, Next.js 14+) and package managers (uv, Poetry, PEP 621).
@@ -14,9 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **SQLAlchemy 2.0 select() Scoping:** Modern 2.0 select statement query scoping for multi-tenant isolation.
 - **Frontend Server Action Security:** Detection and remediation of unauthenticated Next.js 14 Server Actions (`"use server"`).
 - **Container & Supply Chain Security:** Hardening of Dockerfiles (secrets, non-root user) and GitHub Actions (`permissions: read-all`, SHA pinning).
-- **Modern Stack Validation Harness (`harness/validate_v6_2_modern_stacks.py`):** 19 automated modern stack tests.
+- **Modern Stack Validation Harness (`harness/validate_v0_6_2_modern_stacks.py`):** 19 automated modern stack tests.
 
-## [6.1.0] - 2026-08-31
+## [0.6.1] - 2026-08-31
 
 ### Added
 - **Monorepo & Deep-Hierarchy Support:** Unified multi-application discovery (Django + FastAPI + Flask + Shared ORM) and 8-level directory resolution without identity collisions.
@@ -24,9 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **High-Density Root-Cause Collapsing:** Ability to group and collapse 250+ repeated vulnerability alerts into systemic root-cause clusters with module hotspot metrics.
 - **Readable Report Guardrails:** Collapsible `<details>` tables triggered at 25+ findings to prevent unreadable Markdown report bloat.
 - **Sub-Second Scale Performance:** Tested on 2,500+ files and 1,000+ SARIF items ($< 0.10\text{s}$ execution time).
-- **Scale & Complexity Benchmark Harness (`harness/validate_v6_1_scale.py`):** 23 automated stress assertions.
+- **Scale & Complexity Benchmark Harness (`harness/validate_v0_6_1_scale.py`):** 23 automated stress assertions.
 
-## [6.0.0] - 2026-08-31
+## [0.6.0] - 2026-08-31
 
 ### Added
 - **Run Folder & Artifact Registry (`core/run_manager.py`):** Dedicated, isolated run directory (`runs/<run-id>/`) containing `manifest.json`, `summary.md`, `findings.md`, `remediation.md`, `apply-plan.md`, `recheck.md`, `evidence.json`, `diff-summary.md`, `changed-files.txt`, `sarif.json`, and `logs/`.

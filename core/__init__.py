@@ -1,5 +1,5 @@
 """
-TorusGuard Core Architecture & Governed Remediation Engine (v6.0.0)
+TorusGuard Core Architecture & Governed Remediation Engine (v0.6.3)
 Provides stable finding identities, root-cause clustering, remediation bundles,
 minimal patch governance, targeted recheck, run folder management, and SARIF exports.
 """
@@ -41,7 +41,7 @@ from .v6_reporter import V6Reporter
 from .v6_workflow import V6Workflow
 from .stack_profiler import StackProfiler, StackProfile
 
-__version__ = "6.2.0"
+__version__ = "0.6.3"
 __all__ = [
     "Finding",
     "Evidence",

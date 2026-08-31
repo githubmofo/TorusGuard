@@ -1,9 +1,0 @@
-[
-  {
-    "finding_id": "TG-AUTH-aae1d0d00430",
-    "rule_id": "TG-AUTH-008",
-    "file_path": "main.py",
-    "region_hash": "13eccc19c9b4ea89",
-    "code_snippet": "if x_role != 'admin':"
-  }
-]

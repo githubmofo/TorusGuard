@@ -1,9 +1,0 @@
-[
-  {
-    "finding_id": "TG-AUTH-c32c06c4a7b4",
-    "rule_id": "TG-AUTH-007",
-    "file_path": "actions.ts",
-    "region_hash": "2157fa2cc1df3489",
-    "code_snippet": "await db.document.delete({ where: { id: docId } });"
-  }
-]

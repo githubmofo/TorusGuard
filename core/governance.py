@@ -15,11 +15,17 @@ import re
 from pathlib import Path
 
 
-HIGH_RISK_KEYWORDS = [
-    "auth", "login", "password", "token", "jwt", "crypto", "secret",
-    "tenant", "tenant_id", "permission", "upload", "db", "database",
-    "middleware", "workflow", "ci", ".github"
-]
+# Sensitive Path Categories
+SENSITIVE_CATEGORIES = {
+    "auth": ["auth", "login", "password", "token", "jwt", "session", "oauth", "oidc", "credential"],
+    "tenancy": ["tenant", "tenant_id", "organization_id", "org_id", "workspace_id"],
+    "secrets": ["secret", "api_key", "private_key", "ssh_key", "access_key"],
+    "crypto": ["crypto", "cipher", "encrypt", "decrypt", "hashlib", "hmac"],
+    "uploads": ["upload", "storage", "filepath", "save_file", "download"],
+    "workflows": [".github/workflows", "Dockerfile", "Containerfile", "compose.yaml", "docker-compose"]
+}
+
+HIGH_RISK_KEYWORDS = [kw for kws in SENSITIVE_CATEGORIES.values() for kw in kws]
 
 HIGH_RISK_DIRECTORIES = [
     "auth", "authentication", "authorization", "security",
@@ -31,6 +37,7 @@ HIGH_RISK_DIRECTORIES = [
 class PatchPolicyDecision:
     allowed_auto_apply: bool
     escalation_required: bool
+    review_level: str = "Automatic"  # "Automatic" | "Peer Review Recommended" | "Mandatory Security Sign-Off"
     rejection_reasons: List[str] = field(default_factory=list)
     risk_factors: List[str] = field(default_factory=list)
     line_additions: int = 0
@@ -126,17 +133,23 @@ class PatchGovernor:
 
         # If strict escalation is required on high-risk files, block auto-apply unless verified
         allowed = (len(rejection_reasons) == 0)
-        if escalation_required and self.strict_high_risk_escalation:
-            # We flag escalation, but allow auto-apply only if line churn is strictly minimal (<= 10 lines)
-            if additions > 10 or deletions > 10:
-                allowed = False
-                rejection_reasons.append(
-                    "High-risk file modifications with non-trivial churn require explicit human approval."
-                )
+        review_level = "Automatic"
+
+        if escalation_required:
+            if additions > 10 or deletions > 10 or len(files) > 1:
+                review_level = "Mandatory Security Sign-Off"
+                if self.strict_high_risk_escalation:
+                    allowed = False
+                    rejection_reasons.append(
+                        "High-risk file modifications with non-trivial churn require explicit human approval."
+                    )
+            else:
+                review_level = "Peer Review Recommended"
 
         return PatchPolicyDecision(
             allowed_auto_apply=allowed,
             escalation_required=escalation_required,
+            review_level=review_level,
             rejection_reasons=rejection_reasons,
             risk_factors=risk_factors,
             line_additions=additions,

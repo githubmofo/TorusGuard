@@ -1,9 +1,0 @@
-[
-  {
-    "finding_id": "TG-DB-025151f79600",
-    "rule_id": "TG-DB-004",
-    "file_path": "views.py",
-    "region_hash": "c7f8b28be549b5b7",
-    "code_snippet": "invoice = await Invoice.objects.aget(id=invoice_id)"
-  }
-]

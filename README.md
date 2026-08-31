@@ -51,16 +51,16 @@ TorusGuard features a formal closed-loop state machine governing every candidate
 
 ---
 
-## Current Release: v6.2.0 (Modern Stack Compatibility)
+## Current Release: v0.6.3 (Drift, Upload & Sensitive-Path Hardening)
 
-TorusGuard v6.2.0 brings first-class compatibility with modern web application architectures, async paradigms, newer packaging managers, and cloud-native configuration workflows:
-- **StackProfiler Engine (`core/stack_profiler.py`):** Automatically profiles repository frameworks, version families (Django 5.x, FastAPI v2, SQLAlchemy 2.0, Next.js 14+), and package managers (uv, Poetry, PEP 621).
-- **Async-Native Remediation:** Generates idiomatic async diffs (`await aget()`, `AsyncSession`) and type-safe `Annotated[..., Depends()]` authorization injections.
-- **Frontend & Server Actions:** Analyzes Next.js 14+ App Router Server Actions (`"use server"`) and adds auth barriers.
-- **Supply Chain & Container Security:** Audits Dockerfiles (secrets, non-root `USER`) and GitHub Actions workflows (`permissions: read-all`, SHA pinning).
-- **Sub-Second Scale Performance:** Tested on 2,500+ files and 1,000+ SARIF results ($< 0.10\text{s}$ execution time).
+TorusGuard v0.6.3 marks the final hardening milestone of the v0.6.x release series:
+- **Cross-Run Drift Invariance:** Fingerprint hashing (`TG-FND-<hash12>`) remains 100% stable across git commits with surrounding line shifts and whitespace/comment refactoring.
+- **GitHub Code Scanning SARIF Deduplication:** Generated SARIF v2.1.0 logs incorporate `partialFingerprints` (`primaryLocationLineHash`) to prevent duplicate alerts in GitHub Security.
+- **Sensitive-Path Review Levels:** Stricter governance on Auth, Tenancy, Secrets, Crypto, Storage, and CI/CD paths, blocking automated patches for high churn.
+- **Zero False Positives on Modern Stacks:** Comprehensive negative test validation ensuring safe async views, `Annotated` dependencies, and SQLAlchemy 2.0 queries produce zero false alarms.
+- **Cross-Artifact Consistency Audit:** Complete synchronization across manifests, summaries, findings, remediation bundles, and SARIF exports.
 
-*Read the complete release notes in [docs/releases/v6.2.0.md](docs/releases/v6.2.0.md) and the architecture specification in [docs/architecture/v6.2-modern-stack-compatibility.md](docs/architecture/v6.2-modern-stack-compatibility.md).*
+*Read the complete release notes in [docs/releases/v0.6.3.md](docs/releases/v0.6.3.md) and the architecture specification in [docs/architecture/v0.6.3-drift-upload-governance.md](docs/architecture/v0.6.3-drift-upload-governance.md).*
 
 ---
 
@@ -68,9 +68,10 @@ TorusGuard v6.2.0 brings first-class compatibility with modern web application a
 
 | Version | Focus / Key Feature | Summary of Deliverables |
 |:---:|---|---|
-| **v6.2.0** | **Modern Stack Compatibility** | Django 5.x async, FastAPI Pydantic v2, SQLAlchemy 2.0 select(), Next.js 14 Server Actions, uv/Poetry packaging, Dockerfile & GitHub Actions security. |
-| **v6.1.0** | **Scale & Complexity** | Monorepo support, noise filtering, high-density clustering, collapsible reports, and 1,000-item SARIF performance. |
-| **v6.0.0** | **Governed Remediation** | Isolated run folders, stable finding IDs, root-cause clustering, remediation bundles, patch policy governance, targeted rechecks, and SARIF v2.1.0. |
+| **v0.6.3** | **Final Hardening** | Drift invariance across commits, GitHub Code Scanning deduplication, sensitive path escalation, and negative modern stack tests. |
+| **v0.6.2** | **Modern Stack Compatibility** | Django 5.x async, FastAPI Pydantic v2, SQLAlchemy 2.0 select(), Next.js 14 Server Actions, uv/Poetry packaging, Dockerfile & GitHub Actions security. |
+| **v0.6.1** | **Scale & Complexity** | Monorepo support, noise filtering, high-density clustering, collapsible reports, and 1,000-item SARIF performance. |
+| **v0.6.0** | **Governed Remediation** | Isolated run folders, stable finding IDs, root-cause clustering, remediation bundles, patch policy governance, targeted rechecks, and SARIF v2.1.0. |
 | **v0.5.6** | **Large-Project Validation** | 10-repo validation suite, context rule tuning, seeded recall, honest readiness. |
 | **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |
 | **v0.5.4** | **Usability & Reporting** | 9-section reports, remediation triage, sensitive data masking. |

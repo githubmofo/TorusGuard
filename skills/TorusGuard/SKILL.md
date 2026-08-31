@@ -3,17 +3,17 @@ name: torusguard
 description: Security guardrails, provenance-tracked evidence, and auditable verification workflow for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
 ---
 
-# TorusGuard (v6.0.0)
+# TorusGuard (v0.6.3)
 
 **Tagline:** Governed security remediation, root-cause clustering, minimal patching, and targeted verification for AI-built web applications.
 
 **Core principle:** If the browser receives it, users can inspect it. Keep secrets, database access, and authorization decisions on trusted server-side code.
 
-TorusGuard v6 is a Markdown-first, portable AI-agent skill and governed remediation engine. It is not an unmanaged vulnerability scanner or offensive exploit suite. It orchestrates the full remediation lifecycle: scanning codebases, computing stable finding fingerprints that survive line shifts, clustering alerts by root cause, generating structured remediation bundles, applying minimal bounded code patches, executing targeted rechecks on impacted scopes, and exporting SARIF-compatible artifacts for ecosystem integration.
+TorusGuard v0.6.3 is a Markdown-first, portable AI-agent skill and governed remediation engine. It is not an unmanaged vulnerability scanner or offensive exploit suite. It orchestrates the full remediation lifecycle: scanning codebases, computing stable finding fingerprints that survive line shifts, clustering alerts by root cause, generating structured remediation bundles, applying minimal bounded code patches, executing targeted rechecks on impacted scopes, and exporting SARIF-compatible artifacts for ecosystem integration.
 
 ---
 
-## 🔄 Governed Remediation Lifecycle (v6 Architecture)
+## 🔄 Governed Remediation Lifecycle (v0.6.x Architecture)
 
 ```text
 ┌───────────┐     ┌────────────┐     ┌───────────┐     ┌─────────────┐     ┌──────────┐     ┌───────────┐     ┌───────────┐

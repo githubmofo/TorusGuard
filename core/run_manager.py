@@ -99,7 +99,7 @@ class RunManager:
         }
 
         manifest_data = {
-            "version": "v6.0.0",
+            "version": "v0.6.3",
             "run_id": self.run_id,
             "target_name": self.target_name,
             "command": self.command,
