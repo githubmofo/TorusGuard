@@ -14,10 +14,10 @@
 
 | Benchmark Dimension | Workload Volume | Execution Time | Threshold | Status |
 |---|---|---:|---:|:---:|
-| **Fingerprinting & ID Generation** | 500 Findings | 0.0041s | $< 0.50\text{s}$ | **PASS** |
-| **Root-Cause Clustering & Hotspots** | 500 Findings | 0.0033s | $< 0.10\text{s}$ | **PASS** |
+| **Fingerprinting & ID Generation** | 500 Findings | 0.0037s | $< 0.50\text{s}$ | **PASS** |
+| **Root-Cause Clustering & Hotspots** | 500 Findings | 0.0032s | $< 0.10\text{s}$ | **PASS** |
 | **SARIF v2.1.0 JSON Serialization** | 1,000 Findings | 0.0023s | $< 0.30\text{s}$ | **PASS** |
-| **Targeted Scoped Rechecks** | 100 Endpoints | 0.0728s | $< 0.20\text{s}$ | **PASS** |
+| **Targeted Scoped Rechecks** | 100 Endpoints | 0.0673s | $< 0.20\text{s}$ | **PASS** |
 
 ---
 

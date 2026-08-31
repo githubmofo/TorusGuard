@@ -1,0 +1,9 @@
+[
+  {
+    "finding_id": "TG-DB-0ce0fbe73c53",
+    "rule_id": "TG-DB-004",
+    "file_path": "queries.py",
+    "region_hash": "011618ed2dbbc06c",
+    "code_snippet": "stmt = select(Account).where(Account.id == account_id)"
+  }
+]

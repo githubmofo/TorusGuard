@@ -1,0 +1,73 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "TorusGuard",
+          "semanticVersion": "6.0.0",
+          "informationUri": "https://github.com/githubmofo/TorusGuard",
+          "rules": [
+            {
+              "id": "TG-SUPPLY-001",
+              "name": "TG_SUPPLY_001",
+              "shortDescription": {
+                "text": "Unpinned GitHub Action and Unbounded Permissions"
+              },
+              "fullDescription": {
+                "text": "TorusGuard Rule TG-SUPPLY-001: Unpinned GitHub Action and Unbounded Permissions"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "help": {
+                "text": "Read documentation for TG-SUPPLY-001 at https://github.com/githubmofo/TorusGuard"
+              },
+              "properties": {
+                "category": "security"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "TG-SUPPLY-001",
+          "ruleIndex": 0,
+          "level": "warning",
+          "message": {
+            "text": "[TG-SUPPLY-001] Unpinned GitHub Action and Unbounded Permissions (Confidence: 90/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6,
+                  "snippet": {
+                    "text": "uses: actions/checkout@v2"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-SUPPLY-9dcb428a6a5c"
+          },
+          "properties": {
+            "finding_id": "TG-SUPPLY-9dcb428a6a5c",
+            "confidence_score": 90,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-supply-001",
+            "recheck_status": "Unrechecked"
+          }
+        }
+      ]
+    }
+  ]
+}

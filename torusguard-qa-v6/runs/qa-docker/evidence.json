@@ -1,0 +1,9 @@
+[
+  {
+    "finding_id": "TG-SEC-42a69f48e90a",
+    "rule_id": "TG-SEC-001",
+    "file_path": "Dockerfile",
+    "region_hash": "c25e3ee6dc3a67fc",
+    "code_snippet": "ENV DATABASE_PASSWORD=\"secret_in_docker\""
+  }
+]

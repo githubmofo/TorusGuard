@@ -3,8 +3,8 @@
   "run_id": "qa-rep-flask-app",
   "target_name": "flask-app",
   "command": "audit",
-  "timestamp": "2026-08-31T04:45:54.738521Z",
-  "git_commit": "c5aee221e56f84ef977c118ba5808fa5754b94f9",
+  "timestamp": "2026-08-31T04:48:46.049268Z",
+  "git_commit": "d8b4caa43caa2f18c1b1bbda7d02aba28320a5bc",
   "status_counts": {
     "total_findings": 2,
     "confirmed": 2,

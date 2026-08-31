@@ -1,0 +1,73 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "TorusGuard",
+          "semanticVersion": "6.0.0",
+          "informationUri": "https://github.com/githubmofo/TorusGuard",
+          "rules": [
+            {
+              "id": "TG-DB-004",
+              "name": "TG_DB_004",
+              "shortDescription": {
+                "text": "Missing Tenant Predicate in SQLAlchemy 2.0 select()"
+              },
+              "fullDescription": {
+                "text": "TorusGuard Rule TG-DB-004: Missing Tenant Predicate in SQLAlchemy 2.0 select()"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "Read documentation for TG-DB-004 at https://github.com/githubmofo/TorusGuard"
+              },
+              "properties": {
+                "category": "security"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "TG-DB-004",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-DB-004] Missing Tenant Predicate in SQLAlchemy 2.0 select() (Confidence: 96/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "queries.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7,
+                  "endLine": 7,
+                  "snippet": {
+                    "text": "stmt = select(Account).where(Account.id == account_id)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-DB-0ce0fbe73c53"
+          },
+          "properties": {
+            "finding_id": "TG-DB-0ce0fbe73c53",
+            "confidence_score": 96,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-tenant-isolation",
+            "recheck_status": "Unrechecked"
+          }
+        }
+      ]
+    }
+  ]
+}

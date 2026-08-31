@@ -51,17 +51,16 @@ TorusGuard features a formal closed-loop state machine governing every candidate
 
 ---
 
-## Current Release: v6.1.0 (Scale & Complexity Hardening)
+## Current Release: v6.2.0 (Modern Stack Compatibility)
 
-TorusGuard v6.1.0 hardens the governed remediation and targeted recheck system for large-scale, high-density production repositories and monorepos:
-- **Monorepo & Deep-Hierarchy Support:** Unified discovery across multi-app architectures (Django + FastAPI + Flask + Shared ORMs) and deeply nested paths (8+ levels).
-- **Noise Suppression & Vendor Exclusion:** Automatically ignores non-actionable paths (`migrations/`, `node_modules/`, `dist/`, `build/`, `*.min.js`, `*.pb.go`).
-- **High-Density Clustering:** Successfully collapses 250+ repeated alerts into 3 actionable root causes with module hotspot metrics (`apps/billing`, `services/uploads`).
-- **Readable Report Guardrails:** Automatically applies collapsible `<details>` sections when finding count exceeds 25 items, preventing unreadable Markdown bloat.
+TorusGuard v6.2.0 brings first-class compatibility with modern web application architectures, async paradigms, newer packaging managers, and cloud-native configuration workflows:
+- **StackProfiler Engine (`core/stack_profiler.py`):** Automatically profiles repository frameworks, version families (Django 5.x, FastAPI v2, SQLAlchemy 2.0, Next.js 14+), and package managers (uv, Poetry, PEP 621).
+- **Async-Native Remediation:** Generates idiomatic async diffs (`await aget()`, `AsyncSession`) and type-safe `Annotated[..., Depends()]` authorization injections.
+- **Frontend & Server Actions:** Analyzes Next.js 14+ App Router Server Actions (`"use server"`) and adds auth barriers.
+- **Supply Chain & Container Security:** Audits Dockerfiles (secrets, non-root `USER`) and GitHub Actions workflows (`permissions: read-all`, SHA pinning).
 - **Sub-Second Scale Performance:** Tested on 2,500+ files and 1,000+ SARIF results ($< 0.10\text{s}$ execution time).
-- **Monorepo Patch Governance:** Enforces boundary checks preventing cross-service automated modifications.
 
-*Read the complete release notes in [docs/releases/v6.1.0.md](docs/releases/v6.1.0.md) and the scale architecture specification in [docs/architecture/v6.1-scale-and-complexity.md](docs/architecture/v6.1-scale-and-complexity.md).*
+*Read the complete release notes in [docs/releases/v6.2.0.md](docs/releases/v6.2.0.md) and the architecture specification in [docs/architecture/v6.2-modern-stack-compatibility.md](docs/architecture/v6.2-modern-stack-compatibility.md).*
 
 ---
 
@@ -69,6 +68,7 @@ TorusGuard v6.1.0 hardens the governed remediation and targeted recheck system f
 
 | Version | Focus / Key Feature | Summary of Deliverables |
 |:---:|---|---|
+| **v6.2.0** | **Modern Stack Compatibility** | Django 5.x async, FastAPI Pydantic v2, SQLAlchemy 2.0 select(), Next.js 14 Server Actions, uv/Poetry packaging, Dockerfile & GitHub Actions security. |
 | **v6.1.0** | **Scale & Complexity** | Monorepo support, noise filtering, high-density clustering, collapsible reports, and 1,000-item SARIF performance. |
 | **v6.0.0** | **Governed Remediation** | Isolated run folders, stable finding IDs, root-cause clustering, remediation bundles, patch policy governance, targeted rechecks, and SARIF v2.1.0. |
 | **v0.5.6** | **Large-Project Validation** | 10-repo validation suite, context rule tuning, seeded recall, honest readiness. |

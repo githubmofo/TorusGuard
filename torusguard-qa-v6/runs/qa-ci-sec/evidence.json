@@ -1,0 +1,9 @@
+[
+  {
+    "finding_id": "TG-SUPPLY-9dcb428a6a5c",
+    "rule_id": "TG-SUPPLY-001",
+    "file_path": ".github/workflows/ci.yml",
+    "region_hash": "33f89d183db52502",
+    "code_snippet": "uses: actions/checkout@v2"
+  }
+]

@@ -39,8 +39,9 @@ from .run_manager import RunManager
 from .sarif import SarifExporter
 from .v6_reporter import V6Reporter
 from .v6_workflow import V6Workflow
+from .stack_profiler import StackProfiler, StackProfile
 
-__version__ = "6.0.0"
+__version__ = "6.2.0"
 __all__ = [
     "Finding",
     "Evidence",
@@ -82,5 +83,7 @@ __all__ = [
     "SarifExporter",
     "V6Reporter",
     "V6Workflow",
+    "StackProfiler",
+    "StackProfile",
 ]
 
