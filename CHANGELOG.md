@@ -5,6 +5,16 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0] - 2026-08-31
+
+### Added
+- **Monorepo & Deep-Hierarchy Support:** Unified multi-application discovery (Django + FastAPI + Flask + Shared ORM) and 8-level directory resolution without identity collisions.
+- **Automated Generated/Vendor Noise Suppression:** Auto-filtering of non-actionable paths (`migrations/`, `node_modules/`, `dist/`, `build/`, `*.min.js`, `*.pb.go`).
+- **High-Density Root-Cause Collapsing:** Ability to group and collapse 250+ repeated vulnerability alerts into systemic root-cause clusters with module hotspot metrics.
+- **Readable Report Guardrails:** Collapsible `<details>` tables triggered at 25+ findings to prevent unreadable Markdown report bloat.
+- **Sub-Second Scale Performance:** Tested on 2,500+ files and 1,000+ SARIF items ($< 0.10\text{s}$ execution time).
+- **Scale & Complexity Benchmark Harness (`harness/validate_v6_1_scale.py`):** 23 automated stress assertions.
+
 ## [6.0.0] - 2026-08-31
 
 ### Added

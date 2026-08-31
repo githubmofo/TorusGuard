@@ -1,0 +1,1752 @@
+[
+  {
+    "finding_id": "TG-DB-ec40fe4016fe",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_0/views.py",
+    "region_hash": "16e5d6a367d1305f",
+    "code_snippet": "Model_0.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-258d991c3c31",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_1/views.py",
+    "region_hash": "d1c42f3c1c788c14",
+    "code_snippet": "Model_1.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-aa65b4ae68c1",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_2/views.py",
+    "region_hash": "862c13655c68b236",
+    "code_snippet": "Model_2.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-5df9c17c2cc2",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_3/views.py",
+    "region_hash": "b4d43aefa2cf484c",
+    "code_snippet": "Model_3.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-60119192aa86",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_4/views.py",
+    "region_hash": "ae63f72ebafea0f3",
+    "code_snippet": "Model_4.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-e0841cbd2259",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_5/views.py",
+    "region_hash": "078757b72491b893",
+    "code_snippet": "Model_5.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-46a5f1452aa3",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_6/views.py",
+    "region_hash": "96c3b125ae7a7848",
+    "code_snippet": "Model_6.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-59b945e33a99",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_7/views.py",
+    "region_hash": "39d8d154de8b5425",
+    "code_snippet": "Model_7.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-e237526b6eda",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_8/views.py",
+    "region_hash": "07adfb6029f77e62",
+    "code_snippet": "Model_8.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a9ff29a7a75a",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_9/views.py",
+    "region_hash": "6a48ea21db7b8b57",
+    "code_snippet": "Model_9.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-cd7890d93c36",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_10/views.py",
+    "region_hash": "7db550bacf667238",
+    "code_snippet": "Model_10.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-645c70c928ab",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_11/views.py",
+    "region_hash": "3c8df89b5d6e736e",
+    "code_snippet": "Model_11.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-5ddb350fd146",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_12/views.py",
+    "region_hash": "05276316f6166195",
+    "code_snippet": "Model_12.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-aa0bac0443e5",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_13/views.py",
+    "region_hash": "f282d9ec01728767",
+    "code_snippet": "Model_13.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-bc9bb8e22207",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_14/views.py",
+    "region_hash": "a951173ac34cf06d",
+    "code_snippet": "Model_14.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-e6a35168d468",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_0/views.py",
+    "region_hash": "73dd2d35efa9d68e",
+    "code_snippet": "Model_15.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-62b121c02474",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_1/views.py",
+    "region_hash": "548686844c82522e",
+    "code_snippet": "Model_16.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-2619092509ca",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_2/views.py",
+    "region_hash": "060a6bacb22bee20",
+    "code_snippet": "Model_17.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-baad4fa21b1c",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_3/views.py",
+    "region_hash": "fcedade85445f10d",
+    "code_snippet": "Model_18.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a8e9d8faec7c",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_4/views.py",
+    "region_hash": "c60926af37f13cbd",
+    "code_snippet": "Model_19.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-3674865af1f6",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_5/views.py",
+    "region_hash": "881eff022910d61d",
+    "code_snippet": "Model_20.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-d9060e4c8a36",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_6/views.py",
+    "region_hash": "69ec95a6eb76f46d",
+    "code_snippet": "Model_21.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-c8a282ad0ad3",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_7/views.py",
+    "region_hash": "22fdc355ba009d0d",
+    "code_snippet": "Model_22.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a3fa0801f252",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_8/views.py",
+    "region_hash": "9e76002a1c2a00d7",
+    "code_snippet": "Model_23.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-911a01321b16",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_9/views.py",
+    "region_hash": "4d0e55c6bb1fbf44",
+    "code_snippet": "Model_24.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-94034bc187ee",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_10/views.py",
+    "region_hash": "97404d4234b47a73",
+    "code_snippet": "Model_25.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a296f764949f",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_11/views.py",
+    "region_hash": "52fc4d2883307dc6",
+    "code_snippet": "Model_26.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a9a36f37f53b",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_12/views.py",
+    "region_hash": "b4862158d2341e99",
+    "code_snippet": "Model_27.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a2ed5cbfe140",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_13/views.py",
+    "region_hash": "be413c2bf78ca4ea",
+    "code_snippet": "Model_28.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-55ebbfde41c0",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_14/views.py",
+    "region_hash": "d5b7b42c824fab43",
+    "code_snippet": "Model_29.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-c14013c3ee7c",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_0/views.py",
+    "region_hash": "51c6fa436c54f9da",
+    "code_snippet": "Model_30.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a14962c6ff3a",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_1/views.py",
+    "region_hash": "725438522191f9ec",
+    "code_snippet": "Model_31.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-08a0b1885c17",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_2/views.py",
+    "region_hash": "c93021584e28dda4",
+    "code_snippet": "Model_32.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-6328a49c839f",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_3/views.py",
+    "region_hash": "2b8c6be5904c3576",
+    "code_snippet": "Model_33.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-fe76a8b645e7",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_4/views.py",
+    "region_hash": "f8aef22ba2bd86b4",
+    "code_snippet": "Model_34.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a53339e92fe7",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_5/views.py",
+    "region_hash": "f31b9f9de98c94a1",
+    "code_snippet": "Model_35.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-c062b11c69ed",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_6/views.py",
+    "region_hash": "7641e072f087b038",
+    "code_snippet": "Model_36.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-15d90b609d09",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_7/views.py",
+    "region_hash": "f9b25ffa0fc3686a",
+    "code_snippet": "Model_37.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-707e43f8175b",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_8/views.py",
+    "region_hash": "c7640074719d084a",
+    "code_snippet": "Model_38.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-09f84f77f267",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_9/views.py",
+    "region_hash": "8bae5cbd37ee92b1",
+    "code_snippet": "Model_39.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-d6a013d91e9e",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_10/views.py",
+    "region_hash": "fd6db2cd80621123",
+    "code_snippet": "Model_40.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-b25900a5cdd2",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_11/views.py",
+    "region_hash": "4b489ff4e736eb97",
+    "code_snippet": "Model_41.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-205887fddcff",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_12/views.py",
+    "region_hash": "0f00a097de647e28",
+    "code_snippet": "Model_42.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-d4e5e98bf027",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_13/views.py",
+    "region_hash": "7735ae3a01880a3e",
+    "code_snippet": "Model_43.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-d9738aac7077",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_14/views.py",
+    "region_hash": "030e4bb4b1959026",
+    "code_snippet": "Model_44.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-6230f8902e0b",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_0/views.py",
+    "region_hash": "f7abf9cc8084e762",
+    "code_snippet": "Model_45.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-01f29cb2e1ad",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_1/views.py",
+    "region_hash": "5e6b01952507be86",
+    "code_snippet": "Model_46.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-ed8aad0278d6",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_2/views.py",
+    "region_hash": "1dc802250d83eb5b",
+    "code_snippet": "Model_47.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-ffff2a646f38",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_3/views.py",
+    "region_hash": "be27e96e43290d53",
+    "code_snippet": "Model_48.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-394a029b244d",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_4/views.py",
+    "region_hash": "8aaca99420997417",
+    "code_snippet": "Model_49.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-86679e4fa1ac",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_5/views.py",
+    "region_hash": "1076fc65b4c23534",
+    "code_snippet": "Model_50.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-1da8993f9a0e",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_6/views.py",
+    "region_hash": "9e25134ae05366b9",
+    "code_snippet": "Model_51.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-7930030247f4",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_7/views.py",
+    "region_hash": "ff9f3a3d77d16be1",
+    "code_snippet": "Model_52.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-fc1884a6a2e4",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_8/views.py",
+    "region_hash": "60057f151ddf3a0b",
+    "code_snippet": "Model_53.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-519131398836",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_9/views.py",
+    "region_hash": "2415a89343da1060",
+    "code_snippet": "Model_54.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-bb49e0b2f336",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_10/views.py",
+    "region_hash": "c8ebff7bedbc6441",
+    "code_snippet": "Model_55.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-219cf70f9034",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_11/views.py",
+    "region_hash": "7653e85168e1dcc8",
+    "code_snippet": "Model_56.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-f2a866a70a07",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_12/views.py",
+    "region_hash": "76140c979e7acbe0",
+    "code_snippet": "Model_57.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-dda654425a91",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_13/views.py",
+    "region_hash": "5c8c786923e0fe94",
+    "code_snippet": "Model_58.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-08dc24657aa5",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_14/views.py",
+    "region_hash": "f1c1c3d68cccb01b",
+    "code_snippet": "Model_59.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-7ad3fdc12d37",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_0/views.py",
+    "region_hash": "5ca44861a1a55b0e",
+    "code_snippet": "Model_60.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-e7229d20760c",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_1/views.py",
+    "region_hash": "ec4a502dbf47cdfd",
+    "code_snippet": "Model_61.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-3b687689142a",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_2/views.py",
+    "region_hash": "5c7b81c4a971814b",
+    "code_snippet": "Model_62.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-46b2530b6057",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_3/views.py",
+    "region_hash": "c9a68a8f5653609d",
+    "code_snippet": "Model_63.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-32f09b787b25",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_4/views.py",
+    "region_hash": "d302669d13285174",
+    "code_snippet": "Model_64.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-b51d32be6845",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_5/views.py",
+    "region_hash": "16654e1c392baf42",
+    "code_snippet": "Model_65.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a2738b71af24",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_6/views.py",
+    "region_hash": "b6ff4d8d6658183c",
+    "code_snippet": "Model_66.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-013146ee1c0b",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_7/views.py",
+    "region_hash": "39c4a7f11ee3a1b8",
+    "code_snippet": "Model_67.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-fa43a499dad5",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_8/views.py",
+    "region_hash": "9dfee4c9f2d443eb",
+    "code_snippet": "Model_68.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-52db952dd31c",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_9/views.py",
+    "region_hash": "555d5bfcd9c99fb9",
+    "code_snippet": "Model_69.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-205ed7d4ac30",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_10/views.py",
+    "region_hash": "ca98c381e66b0ce2",
+    "code_snippet": "Model_70.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-126230094dd7",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_11/views.py",
+    "region_hash": "8bac7eecfb5bcffa",
+    "code_snippet": "Model_71.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-362dc5e7637b",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_12/views.py",
+    "region_hash": "cf07b698e0d07068",
+    "code_snippet": "Model_72.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-8a3d9641ed50",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_13/views.py",
+    "region_hash": "1eae2cf132b506ed",
+    "code_snippet": "Model_73.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-7f56f8e65c32",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_14/views.py",
+    "region_hash": "163bd0b006f68146",
+    "code_snippet": "Model_74.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-93aa3bb83d71",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_0/views.py",
+    "region_hash": "f0ea6a3cde49847e",
+    "code_snippet": "Model_75.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-4542f902e9ab",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_1/views.py",
+    "region_hash": "790fee4c202c4758",
+    "code_snippet": "Model_76.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-bcf78a37ba81",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_2/views.py",
+    "region_hash": "5fdb06cb8b35fc85",
+    "code_snippet": "Model_77.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-98077f0e3a19",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_3/views.py",
+    "region_hash": "52c4d31f63d8d3ff",
+    "code_snippet": "Model_78.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-438149455811",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_4/views.py",
+    "region_hash": "4a5bc95c6c8de7a5",
+    "code_snippet": "Model_79.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-715e367ec517",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_5/views.py",
+    "region_hash": "cbc24baaa25894f5",
+    "code_snippet": "Model_80.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-6305861778ce",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_6/views.py",
+    "region_hash": "f89451c2b3589967",
+    "code_snippet": "Model_81.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-3a1c1904353d",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_7/views.py",
+    "region_hash": "7e1ba196d96bd9c2",
+    "code_snippet": "Model_82.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-22441b9dff76",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_8/views.py",
+    "region_hash": "bd8ee3d44f844467",
+    "code_snippet": "Model_83.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-71fbd22de02e",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_9/views.py",
+    "region_hash": "3f8c9ca16dc98d9b",
+    "code_snippet": "Model_84.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-e168bc47ff97",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_10/views.py",
+    "region_hash": "e640049ca4834751",
+    "code_snippet": "Model_85.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-14486afb1134",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_11/views.py",
+    "region_hash": "d7291c5c5be38f87",
+    "code_snippet": "Model_86.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-552b9fb7393a",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_12/views.py",
+    "region_hash": "5b839763f982c7d6",
+    "code_snippet": "Model_87.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-7f04fe7feb43",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_13/views.py",
+    "region_hash": "b432de9cd916c092",
+    "code_snippet": "Model_88.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-bd0bd1cd2465",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_14/views.py",
+    "region_hash": "2f7e8a294e31da99",
+    "code_snippet": "Model_89.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-a9744ea26677",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_0/views.py",
+    "region_hash": "e2058fd2e6420169",
+    "code_snippet": "Model_90.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-fa66c56a42cf",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_1/views.py",
+    "region_hash": "cd7afebb63ee7af2",
+    "code_snippet": "Model_91.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-ceb271b42362",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_2/views.py",
+    "region_hash": "9f733c571845bd37",
+    "code_snippet": "Model_92.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-3795cffdd1c8",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_3/views.py",
+    "region_hash": "e80e58d72a421efd",
+    "code_snippet": "Model_93.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-32dd80dedbd8",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_4/views.py",
+    "region_hash": "f591986d24bd9e24",
+    "code_snippet": "Model_94.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-9d360cf4bd8d",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_5/views.py",
+    "region_hash": "98cff59b4464971c",
+    "code_snippet": "Model_95.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-6bf89b8d8214",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_6/views.py",
+    "region_hash": "c127905d94db56cc",
+    "code_snippet": "Model_96.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-103a023083de",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_7/views.py",
+    "region_hash": "6937a14cabb44d6e",
+    "code_snippet": "Model_97.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-692e2ef962c7",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_8/views.py",
+    "region_hash": "e4b4257e5afe4449",
+    "code_snippet": "Model_98.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-e24a35edf68e",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_9/views.py",
+    "region_hash": "e68483e671076dc9",
+    "code_snippet": "Model_99.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-87a9b8104efb",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_10/views.py",
+    "region_hash": "2a3dc4cdf8b677ec",
+    "code_snippet": "Model_100.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-4aa1c26fe7de",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_11/views.py",
+    "region_hash": "5337f3b86c0b988c",
+    "code_snippet": "Model_101.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-5350b40a5489",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_12/views.py",
+    "region_hash": "ff9fbaf53dfaf2a0",
+    "code_snippet": "Model_102.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-7d903c597ea4",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_13/views.py",
+    "region_hash": "28a7e4ed62125bd0",
+    "code_snippet": "Model_103.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-2adf9648dbf2",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_14/views.py",
+    "region_hash": "d6726f6c98e493f7",
+    "code_snippet": "Model_104.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-cd5ce4ea6cee",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_0/views.py",
+    "region_hash": "8c2018028b8c6f38",
+    "code_snippet": "Model_105.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-4145495c0cde",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_1/views.py",
+    "region_hash": "ebb1f2d86c590dc4",
+    "code_snippet": "Model_106.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-eeeaa73abb62",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_2/views.py",
+    "region_hash": "2ed14d75cea832f4",
+    "code_snippet": "Model_107.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-d2e43319a60d",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_3/views.py",
+    "region_hash": "50e0a308f27d5ff7",
+    "code_snippet": "Model_108.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-767e9724e6b9",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_4/views.py",
+    "region_hash": "965beb17d63a2f54",
+    "code_snippet": "Model_109.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-1373f90814dd",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_5/views.py",
+    "region_hash": "3262ada61b9ae6a2",
+    "code_snippet": "Model_110.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-e05b8584e04a",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_6/views.py",
+    "region_hash": "1d268ef53f263e02",
+    "code_snippet": "Model_111.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-50c17ca51d4b",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_7/views.py",
+    "region_hash": "bf4749de3e470c48",
+    "code_snippet": "Model_112.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-980971369c44",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_8/views.py",
+    "region_hash": "69ae911f3e5255f2",
+    "code_snippet": "Model_113.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-47d3b46ef018",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_9/views.py",
+    "region_hash": "ed6f5126dbcae45c",
+    "code_snippet": "Model_114.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-22d67d3f6d4d",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_10/views.py",
+    "region_hash": "ec6126185006a850",
+    "code_snippet": "Model_115.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-d7a80ea200e9",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_11/views.py",
+    "region_hash": "d4e095b08d371131",
+    "code_snippet": "Model_116.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-b17955e53af8",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_12/views.py",
+    "region_hash": "5bf3ae02a2fab76e",
+    "code_snippet": "Model_117.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-99445940fa00",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_13/views.py",
+    "region_hash": "3874875f9c5ac221",
+    "code_snippet": "Model_118.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-DB-636f40d997b8",
+    "rule_id": "TG-DB-004",
+    "file_path": "services/api/module_14/views.py",
+    "region_hash": "66c847ab8cfc490b",
+    "code_snippet": "Model_119.objects.get(id=id)"
+  },
+  {
+    "finding_id": "TG-INPUT-65a129c0d731",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_0.py",
+    "region_hash": "9b05bb2a1a383ded",
+    "code_snippet": "open(os.path.join(DIR, name_0))"
+  },
+  {
+    "finding_id": "TG-INPUT-8d2363005556",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_1.py",
+    "region_hash": "b98cdfddd314d07d",
+    "code_snippet": "open(os.path.join(DIR, name_1))"
+  },
+  {
+    "finding_id": "TG-INPUT-0700b7abf10e",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_2.py",
+    "region_hash": "bd4a697f6bb88652",
+    "code_snippet": "open(os.path.join(DIR, name_2))"
+  },
+  {
+    "finding_id": "TG-INPUT-d42fce1a5b08",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_3.py",
+    "region_hash": "12b4121b556ad046",
+    "code_snippet": "open(os.path.join(DIR, name_3))"
+  },
+  {
+    "finding_id": "TG-INPUT-033294734564",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_4.py",
+    "region_hash": "2a8b055a8873fc48",
+    "code_snippet": "open(os.path.join(DIR, name_4))"
+  },
+  {
+    "finding_id": "TG-INPUT-7fa3e71c6a54",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_5.py",
+    "region_hash": "03ed0199bcf7e798",
+    "code_snippet": "open(os.path.join(DIR, name_5))"
+  },
+  {
+    "finding_id": "TG-INPUT-77dc2940ce87",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_6.py",
+    "region_hash": "a5186165da8059c8",
+    "code_snippet": "open(os.path.join(DIR, name_6))"
+  },
+  {
+    "finding_id": "TG-INPUT-fa8e02a1e578",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_7.py",
+    "region_hash": "455bcc983ca400c8",
+    "code_snippet": "open(os.path.join(DIR, name_7))"
+  },
+  {
+    "finding_id": "TG-INPUT-cb4792c2d631",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_8.py",
+    "region_hash": "0605e2a032978fea",
+    "code_snippet": "open(os.path.join(DIR, name_8))"
+  },
+  {
+    "finding_id": "TG-INPUT-af64ea0187fc",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_9.py",
+    "region_hash": "82a7289127aaa5f2",
+    "code_snippet": "open(os.path.join(DIR, name_9))"
+  },
+  {
+    "finding_id": "TG-INPUT-9f90f79e7f25",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_0.py",
+    "region_hash": "fee3e16778f7b8ed",
+    "code_snippet": "open(os.path.join(DIR, name_10))"
+  },
+  {
+    "finding_id": "TG-INPUT-4c0ba3b359f0",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_1.py",
+    "region_hash": "b85125e75f03bc5d",
+    "code_snippet": "open(os.path.join(DIR, name_11))"
+  },
+  {
+    "finding_id": "TG-INPUT-ed005c59b801",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_2.py",
+    "region_hash": "4717353342452efb",
+    "code_snippet": "open(os.path.join(DIR, name_12))"
+  },
+  {
+    "finding_id": "TG-INPUT-d302bc1af568",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_3.py",
+    "region_hash": "2d20df7b4cee1560",
+    "code_snippet": "open(os.path.join(DIR, name_13))"
+  },
+  {
+    "finding_id": "TG-INPUT-e9bd98e254a6",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_4.py",
+    "region_hash": "d6c5bfce930838d7",
+    "code_snippet": "open(os.path.join(DIR, name_14))"
+  },
+  {
+    "finding_id": "TG-INPUT-e2d93b18e7a5",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_5.py",
+    "region_hash": "d28b7cc8d9c2650a",
+    "code_snippet": "open(os.path.join(DIR, name_15))"
+  },
+  {
+    "finding_id": "TG-INPUT-aff67a953255",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_6.py",
+    "region_hash": "a5af2f43dbe78d98",
+    "code_snippet": "open(os.path.join(DIR, name_16))"
+  },
+  {
+    "finding_id": "TG-INPUT-73e3a3878e92",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_7.py",
+    "region_hash": "93eff178112cef01",
+    "code_snippet": "open(os.path.join(DIR, name_17))"
+  },
+  {
+    "finding_id": "TG-INPUT-08dadf22e2d9",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_8.py",
+    "region_hash": "9d951e926f7e456e",
+    "code_snippet": "open(os.path.join(DIR, name_18))"
+  },
+  {
+    "finding_id": "TG-INPUT-86d2d4f76edc",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_9.py",
+    "region_hash": "d043ba979d3fd8c6",
+    "code_snippet": "open(os.path.join(DIR, name_19))"
+  },
+  {
+    "finding_id": "TG-INPUT-465f6e1b2d60",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_0.py",
+    "region_hash": "b65e8ad2542a345b",
+    "code_snippet": "open(os.path.join(DIR, name_20))"
+  },
+  {
+    "finding_id": "TG-INPUT-bfa1fac2549b",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_1.py",
+    "region_hash": "b7c6545b75cd5a7e",
+    "code_snippet": "open(os.path.join(DIR, name_21))"
+  },
+  {
+    "finding_id": "TG-INPUT-60fdca23a423",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_2.py",
+    "region_hash": "d980d36d46f86664",
+    "code_snippet": "open(os.path.join(DIR, name_22))"
+  },
+  {
+    "finding_id": "TG-INPUT-e22ba4bcc30c",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_3.py",
+    "region_hash": "0db40084951c14e3",
+    "code_snippet": "open(os.path.join(DIR, name_23))"
+  },
+  {
+    "finding_id": "TG-INPUT-9fd20ea73a57",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_4.py",
+    "region_hash": "3a67acc7bcb30f23",
+    "code_snippet": "open(os.path.join(DIR, name_24))"
+  },
+  {
+    "finding_id": "TG-INPUT-ee705e299f19",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_5.py",
+    "region_hash": "d98052902be1acd2",
+    "code_snippet": "open(os.path.join(DIR, name_25))"
+  },
+  {
+    "finding_id": "TG-INPUT-87116a1a8378",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_6.py",
+    "region_hash": "b59c21358432be0a",
+    "code_snippet": "open(os.path.join(DIR, name_26))"
+  },
+  {
+    "finding_id": "TG-INPUT-40964e001a66",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_7.py",
+    "region_hash": "c06dbff95d258cf4",
+    "code_snippet": "open(os.path.join(DIR, name_27))"
+  },
+  {
+    "finding_id": "TG-INPUT-4af67620f198",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_8.py",
+    "region_hash": "26882527dbe5ab9c",
+    "code_snippet": "open(os.path.join(DIR, name_28))"
+  },
+  {
+    "finding_id": "TG-INPUT-52eb87cd6cf6",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_9.py",
+    "region_hash": "e2772343ea0e2573",
+    "code_snippet": "open(os.path.join(DIR, name_29))"
+  },
+  {
+    "finding_id": "TG-INPUT-8a77fad9982e",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_0.py",
+    "region_hash": "bd8dea2fbecb4594",
+    "code_snippet": "open(os.path.join(DIR, name_30))"
+  },
+  {
+    "finding_id": "TG-INPUT-ff3dc46aa79d",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_1.py",
+    "region_hash": "751219565ebc2934",
+    "code_snippet": "open(os.path.join(DIR, name_31))"
+  },
+  {
+    "finding_id": "TG-INPUT-1b7ee07824c9",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_2.py",
+    "region_hash": "a6712268265d8eec",
+    "code_snippet": "open(os.path.join(DIR, name_32))"
+  },
+  {
+    "finding_id": "TG-INPUT-d533f079d5fc",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_3.py",
+    "region_hash": "0908d933aa6070be",
+    "code_snippet": "open(os.path.join(DIR, name_33))"
+  },
+  {
+    "finding_id": "TG-INPUT-c11b74cec3b6",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_4.py",
+    "region_hash": "e97e7137c12a39ed",
+    "code_snippet": "open(os.path.join(DIR, name_34))"
+  },
+  {
+    "finding_id": "TG-INPUT-e0005540d4a5",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_5.py",
+    "region_hash": "c7847d26b9d208f6",
+    "code_snippet": "open(os.path.join(DIR, name_35))"
+  },
+  {
+    "finding_id": "TG-INPUT-d25c3a88e36e",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_6.py",
+    "region_hash": "2733ba7f118d1b07",
+    "code_snippet": "open(os.path.join(DIR, name_36))"
+  },
+  {
+    "finding_id": "TG-INPUT-43d034ec7372",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_7.py",
+    "region_hash": "56c4b789e329ab23",
+    "code_snippet": "open(os.path.join(DIR, name_37))"
+  },
+  {
+    "finding_id": "TG-INPUT-5824fa92c29e",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_8.py",
+    "region_hash": "6b35de009ba2e617",
+    "code_snippet": "open(os.path.join(DIR, name_38))"
+  },
+  {
+    "finding_id": "TG-INPUT-fb9a8e787f57",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_9.py",
+    "region_hash": "4f65805dbdfe74f5",
+    "code_snippet": "open(os.path.join(DIR, name_39))"
+  },
+  {
+    "finding_id": "TG-INPUT-4ad7419120fa",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_0.py",
+    "region_hash": "2391a6a4816cf823",
+    "code_snippet": "open(os.path.join(DIR, name_40))"
+  },
+  {
+    "finding_id": "TG-INPUT-38e2f0e4c00e",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_1.py",
+    "region_hash": "28ebbd79acc1ca80",
+    "code_snippet": "open(os.path.join(DIR, name_41))"
+  },
+  {
+    "finding_id": "TG-INPUT-0a01ce698264",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_2.py",
+    "region_hash": "e5993016f33f686e",
+    "code_snippet": "open(os.path.join(DIR, name_42))"
+  },
+  {
+    "finding_id": "TG-INPUT-8e8abde91599",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_3.py",
+    "region_hash": "5d63228bd77542e0",
+    "code_snippet": "open(os.path.join(DIR, name_43))"
+  },
+  {
+    "finding_id": "TG-INPUT-1b73155befeb",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_4.py",
+    "region_hash": "2ec1ccb3685ed38f",
+    "code_snippet": "open(os.path.join(DIR, name_44))"
+  },
+  {
+    "finding_id": "TG-INPUT-bd84f6332140",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_5.py",
+    "region_hash": "433c323ceddea6cb",
+    "code_snippet": "open(os.path.join(DIR, name_45))"
+  },
+  {
+    "finding_id": "TG-INPUT-9e8326b27d19",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_6.py",
+    "region_hash": "066eba4836892b3f",
+    "code_snippet": "open(os.path.join(DIR, name_46))"
+  },
+  {
+    "finding_id": "TG-INPUT-f61901598e4b",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_7.py",
+    "region_hash": "20986d17123bc1df",
+    "code_snippet": "open(os.path.join(DIR, name_47))"
+  },
+  {
+    "finding_id": "TG-INPUT-36b02ec0fcb6",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_8.py",
+    "region_hash": "6823470f0423df8c",
+    "code_snippet": "open(os.path.join(DIR, name_48))"
+  },
+  {
+    "finding_id": "TG-INPUT-abfb05ab9e9f",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_9.py",
+    "region_hash": "6b1d861a2e28b3f6",
+    "code_snippet": "open(os.path.join(DIR, name_49))"
+  },
+  {
+    "finding_id": "TG-INPUT-75b984c96af0",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_0.py",
+    "region_hash": "19cee636df231602",
+    "code_snippet": "open(os.path.join(DIR, name_50))"
+  },
+  {
+    "finding_id": "TG-INPUT-5709715a46fb",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_1.py",
+    "region_hash": "7b5e2de4272b99df",
+    "code_snippet": "open(os.path.join(DIR, name_51))"
+  },
+  {
+    "finding_id": "TG-INPUT-d3a1398f555a",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_2.py",
+    "region_hash": "f0e712c1fc33e395",
+    "code_snippet": "open(os.path.join(DIR, name_52))"
+  },
+  {
+    "finding_id": "TG-INPUT-831ed0054306",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_3.py",
+    "region_hash": "fc46973c8afa3c57",
+    "code_snippet": "open(os.path.join(DIR, name_53))"
+  },
+  {
+    "finding_id": "TG-INPUT-4c8b062ba0a7",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_4.py",
+    "region_hash": "4dcf17b6ea46cc2c",
+    "code_snippet": "open(os.path.join(DIR, name_54))"
+  },
+  {
+    "finding_id": "TG-INPUT-e404dd4b7a6f",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_5.py",
+    "region_hash": "b7dc10e542d906cd",
+    "code_snippet": "open(os.path.join(DIR, name_55))"
+  },
+  {
+    "finding_id": "TG-INPUT-13c534a620df",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_6.py",
+    "region_hash": "a85d4f0bcaf3a27a",
+    "code_snippet": "open(os.path.join(DIR, name_56))"
+  },
+  {
+    "finding_id": "TG-INPUT-34879f7f912d",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_7.py",
+    "region_hash": "f90efcc492145965",
+    "code_snippet": "open(os.path.join(DIR, name_57))"
+  },
+  {
+    "finding_id": "TG-INPUT-53d6ee2afa28",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_8.py",
+    "region_hash": "707bae889013b7f9",
+    "code_snippet": "open(os.path.join(DIR, name_58))"
+  },
+  {
+    "finding_id": "TG-INPUT-df267c4d5cb3",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_9.py",
+    "region_hash": "2c3d545fc72d08bd",
+    "code_snippet": "open(os.path.join(DIR, name_59))"
+  },
+  {
+    "finding_id": "TG-INPUT-e82c5557a7d3",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_0.py",
+    "region_hash": "e043666508dd7a37",
+    "code_snippet": "open(os.path.join(DIR, name_60))"
+  },
+  {
+    "finding_id": "TG-INPUT-5806ad78dabb",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_1.py",
+    "region_hash": "b381c523d7143d6a",
+    "code_snippet": "open(os.path.join(DIR, name_61))"
+  },
+  {
+    "finding_id": "TG-INPUT-cb1427ca41aa",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_2.py",
+    "region_hash": "ecaea2e9cdf4978b",
+    "code_snippet": "open(os.path.join(DIR, name_62))"
+  },
+  {
+    "finding_id": "TG-INPUT-6ceced5add5e",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_3.py",
+    "region_hash": "08d7a75fc0adc605",
+    "code_snippet": "open(os.path.join(DIR, name_63))"
+  },
+  {
+    "finding_id": "TG-INPUT-5368be362530",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_4.py",
+    "region_hash": "edc5c8b7c1ed6633",
+    "code_snippet": "open(os.path.join(DIR, name_64))"
+  },
+  {
+    "finding_id": "TG-INPUT-37846ee3faf5",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_5.py",
+    "region_hash": "38981766028a73a0",
+    "code_snippet": "open(os.path.join(DIR, name_65))"
+  },
+  {
+    "finding_id": "TG-INPUT-ab067b60a062",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_6.py",
+    "region_hash": "a4b4b87a408eb41c",
+    "code_snippet": "open(os.path.join(DIR, name_66))"
+  },
+  {
+    "finding_id": "TG-INPUT-5b262c6e5c51",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_7.py",
+    "region_hash": "d745eccb79abbca8",
+    "code_snippet": "open(os.path.join(DIR, name_67))"
+  },
+  {
+    "finding_id": "TG-INPUT-60cbc3e7402f",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_8.py",
+    "region_hash": "341d93aaed70ffe4",
+    "code_snippet": "open(os.path.join(DIR, name_68))"
+  },
+  {
+    "finding_id": "TG-INPUT-ae6d92db740c",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_9.py",
+    "region_hash": "3d2063c99b59c55a",
+    "code_snippet": "open(os.path.join(DIR, name_69))"
+  },
+  {
+    "finding_id": "TG-INPUT-28a84c559ab3",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_0.py",
+    "region_hash": "878517627594722b",
+    "code_snippet": "open(os.path.join(DIR, name_70))"
+  },
+  {
+    "finding_id": "TG-INPUT-cc98dd330fbd",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_1.py",
+    "region_hash": "53b3c860e7af11f8",
+    "code_snippet": "open(os.path.join(DIR, name_71))"
+  },
+  {
+    "finding_id": "TG-INPUT-829eff281fee",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_2.py",
+    "region_hash": "1b81a783ac075b65",
+    "code_snippet": "open(os.path.join(DIR, name_72))"
+  },
+  {
+    "finding_id": "TG-INPUT-b1b2b47f1888",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_3.py",
+    "region_hash": "f92bc0e8b98850f4",
+    "code_snippet": "open(os.path.join(DIR, name_73))"
+  },
+  {
+    "finding_id": "TG-INPUT-91e0927ea690",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_4.py",
+    "region_hash": "86b1b975bb0f94d1",
+    "code_snippet": "open(os.path.join(DIR, name_74))"
+  },
+  {
+    "finding_id": "TG-INPUT-e559d8c16ab3",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_5.py",
+    "region_hash": "b82ff6e716ff9ee1",
+    "code_snippet": "open(os.path.join(DIR, name_75))"
+  },
+  {
+    "finding_id": "TG-INPUT-cbacec753fa9",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_6.py",
+    "region_hash": "3ad58db8a2c3ef46",
+    "code_snippet": "open(os.path.join(DIR, name_76))"
+  },
+  {
+    "finding_id": "TG-INPUT-44fce1f97030",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_7.py",
+    "region_hash": "0c586dcae5fb7b94",
+    "code_snippet": "open(os.path.join(DIR, name_77))"
+  },
+  {
+    "finding_id": "TG-INPUT-f209c457efb5",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_8.py",
+    "region_hash": "d4349a9cc3ac9416",
+    "code_snippet": "open(os.path.join(DIR, name_78))"
+  },
+  {
+    "finding_id": "TG-INPUT-d2db4816da4b",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/uploads/uploader_9.py",
+    "region_hash": "95791a04b2c89389",
+    "code_snippet": "open(os.path.join(DIR, name_79))"
+  },
+  {
+    "finding_id": "TG-AUTH-4b39c261fb95",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "2c64461ac8985a88",
+    "code_snippet": "request.headers.get('X-Role-0')"
+  },
+  {
+    "finding_id": "TG-AUTH-916c5787d64f",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "2e6e2d1ca87b4765",
+    "code_snippet": "request.headers.get('X-Role-1')"
+  },
+  {
+    "finding_id": "TG-AUTH-2bf338e729e8",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "5fb3d65d26becc28",
+    "code_snippet": "request.headers.get('X-Role-2')"
+  },
+  {
+    "finding_id": "TG-AUTH-8d45060b77ae",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "306142c5c105f41b",
+    "code_snippet": "request.headers.get('X-Role-3')"
+  },
+  {
+    "finding_id": "TG-AUTH-550765fed38b",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "4665e5b087014a8d",
+    "code_snippet": "request.headers.get('X-Role-4')"
+  },
+  {
+    "finding_id": "TG-AUTH-db002201c467",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "d4fce9c1503921ee",
+    "code_snippet": "request.headers.get('X-Role-5')"
+  },
+  {
+    "finding_id": "TG-AUTH-2127cf19f368",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "d44d5cd9bd705908",
+    "code_snippet": "request.headers.get('X-Role-6')"
+  },
+  {
+    "finding_id": "TG-AUTH-f73e28f2c504",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "a92ac12f5c6121be",
+    "code_snippet": "request.headers.get('X-Role-7')"
+  },
+  {
+    "finding_id": "TG-AUTH-154d3faf76e8",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "d59279e054011c53",
+    "code_snippet": "request.headers.get('X-Role-8')"
+  },
+  {
+    "finding_id": "TG-AUTH-86e6b216a803",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "e6329a4bc8615e82",
+    "code_snippet": "request.headers.get('X-Role-9')"
+  },
+  {
+    "finding_id": "TG-AUTH-be3f8de0176b",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "661d80586502244d",
+    "code_snippet": "request.headers.get('X-Role-10')"
+  },
+  {
+    "finding_id": "TG-AUTH-3193dc6cab36",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "35cd31501d14a507",
+    "code_snippet": "request.headers.get('X-Role-11')"
+  },
+  {
+    "finding_id": "TG-AUTH-3366741e4ff3",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "2befbdbf2db82526",
+    "code_snippet": "request.headers.get('X-Role-12')"
+  },
+  {
+    "finding_id": "TG-AUTH-40c46c398060",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "beff06c1c7107b32",
+    "code_snippet": "request.headers.get('X-Role-13')"
+  },
+  {
+    "finding_id": "TG-AUTH-6013576c2e0c",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "209a2b2c76bfcdf9",
+    "code_snippet": "request.headers.get('X-Role-14')"
+  },
+  {
+    "finding_id": "TG-AUTH-2cd8f56f0aa4",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "47660ba637939790",
+    "code_snippet": "request.headers.get('X-Role-15')"
+  },
+  {
+    "finding_id": "TG-AUTH-ae006d387c27",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "bd8f4f5a17f47dda",
+    "code_snippet": "request.headers.get('X-Role-16')"
+  },
+  {
+    "finding_id": "TG-AUTH-cfe78de829de",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "de4fbec84af3be0e",
+    "code_snippet": "request.headers.get('X-Role-17')"
+  },
+  {
+    "finding_id": "TG-AUTH-383efc6cfe0e",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "e4d3b623cdac3679",
+    "code_snippet": "request.headers.get('X-Role-18')"
+  },
+  {
+    "finding_id": "TG-AUTH-469ad23b191d",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "514100dce08ad229",
+    "code_snippet": "request.headers.get('X-Role-19')"
+  },
+  {
+    "finding_id": "TG-AUTH-0ceb87374828",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "424b8732b5d404a5",
+    "code_snippet": "request.headers.get('X-Role-20')"
+  },
+  {
+    "finding_id": "TG-AUTH-055d30fe4f75",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "1a6a26e4401338a3",
+    "code_snippet": "request.headers.get('X-Role-21')"
+  },
+  {
+    "finding_id": "TG-AUTH-6c7303555a9b",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "3580c24728976ff2",
+    "code_snippet": "request.headers.get('X-Role-22')"
+  },
+  {
+    "finding_id": "TG-AUTH-c26cf691deff",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "0cd94bfcccf5c1c0",
+    "code_snippet": "request.headers.get('X-Role-23')"
+  },
+  {
+    "finding_id": "TG-AUTH-91b705ee2ffb",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "452bcbe5f325406c",
+    "code_snippet": "request.headers.get('X-Role-24')"
+  },
+  {
+    "finding_id": "TG-AUTH-41f692b09539",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "ddf0d8119ff23dde",
+    "code_snippet": "request.headers.get('X-Role-25')"
+  },
+  {
+    "finding_id": "TG-AUTH-4cdfa94ad3fc",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "a48eb69d8506e454",
+    "code_snippet": "request.headers.get('X-Role-26')"
+  },
+  {
+    "finding_id": "TG-AUTH-efea3637ee0a",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "6dccda2f1f83e41e",
+    "code_snippet": "request.headers.get('X-Role-27')"
+  },
+  {
+    "finding_id": "TG-AUTH-7ff862288048",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "c08e760e9a0d1a21",
+    "code_snippet": "request.headers.get('X-Role-28')"
+  },
+  {
+    "finding_id": "TG-AUTH-abbd8dc03d25",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "453b4efb220cd79e",
+    "code_snippet": "request.headers.get('X-Role-29')"
+  },
+  {
+    "finding_id": "TG-AUTH-12ad7437144e",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "7577a269823f7823",
+    "code_snippet": "request.headers.get('X-Role-30')"
+  },
+  {
+    "finding_id": "TG-AUTH-1e71694f2121",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "51107e3cfd34982e",
+    "code_snippet": "request.headers.get('X-Role-31')"
+  },
+  {
+    "finding_id": "TG-AUTH-012b145842fb",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "cfa84d7b725fd7b3",
+    "code_snippet": "request.headers.get('X-Role-32')"
+  },
+  {
+    "finding_id": "TG-AUTH-8f3825e7d582",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "ee843ff9dd942af2",
+    "code_snippet": "request.headers.get('X-Role-33')"
+  },
+  {
+    "finding_id": "TG-AUTH-f793f63df757",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "18d7054e7f5bc412",
+    "code_snippet": "request.headers.get('X-Role-34')"
+  },
+  {
+    "finding_id": "TG-AUTH-4917c5621545",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "9762171c2b159fd4",
+    "code_snippet": "request.headers.get('X-Role-35')"
+  },
+  {
+    "finding_id": "TG-AUTH-c523e51adf10",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "8819319d978eeac2",
+    "code_snippet": "request.headers.get('X-Role-36')"
+  },
+  {
+    "finding_id": "TG-AUTH-e1b98469deba",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "48ca7db0febf1de4",
+    "code_snippet": "request.headers.get('X-Role-37')"
+  },
+  {
+    "finding_id": "TG-AUTH-c55ca71d9cd7",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "d7a43fd594ffb868",
+    "code_snippet": "request.headers.get('X-Role-38')"
+  },
+  {
+    "finding_id": "TG-AUTH-f6e000827957",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "466812f55e04812d",
+    "code_snippet": "request.headers.get('X-Role-39')"
+  },
+  {
+    "finding_id": "TG-AUTH-c111dfd8b723",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "a3a2575a8bdbe070",
+    "code_snippet": "request.headers.get('X-Role-40')"
+  },
+  {
+    "finding_id": "TG-AUTH-ff00854b1f9d",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "51e910938f2a28b1",
+    "code_snippet": "request.headers.get('X-Role-41')"
+  },
+  {
+    "finding_id": "TG-AUTH-d86f6946246a",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "4cf89bc9261fe8d3",
+    "code_snippet": "request.headers.get('X-Role-42')"
+  },
+  {
+    "finding_id": "TG-AUTH-31849c295b87",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "f917496f4a6d167f",
+    "code_snippet": "request.headers.get('X-Role-43')"
+  },
+  {
+    "finding_id": "TG-AUTH-98dcace409bd",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "0841a6a87ce6b16c",
+    "code_snippet": "request.headers.get('X-Role-44')"
+  },
+  {
+    "finding_id": "TG-AUTH-db9927b88d70",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_0.py",
+    "region_hash": "e4c477d76272fdc5",
+    "code_snippet": "request.headers.get('X-Role-45')"
+  },
+  {
+    "finding_id": "TG-AUTH-9b65e334f91e",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_1.py",
+    "region_hash": "4ff9d3d3d8e536d0",
+    "code_snippet": "request.headers.get('X-Role-46')"
+  },
+  {
+    "finding_id": "TG-AUTH-192aa214f7be",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_2.py",
+    "region_hash": "2272928f2fa76b59",
+    "code_snippet": "request.headers.get('X-Role-47')"
+  },
+  {
+    "finding_id": "TG-AUTH-44a34a090d06",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_3.py",
+    "region_hash": "fcc34922818200cd",
+    "code_snippet": "request.headers.get('X-Role-48')"
+  },
+  {
+    "finding_id": "TG-AUTH-7577bc868551",
+    "rule_id": "TG-AUTH-008",
+    "file_path": "services/gateway/auth_4.py",
+    "region_hash": "48da408ce268e5a2",
+    "code_snippet": "request.headers.get('X-Role-49')"
+  }
+]

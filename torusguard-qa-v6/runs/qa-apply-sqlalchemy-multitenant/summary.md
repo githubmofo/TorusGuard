@@ -1,15 +1,15 @@
 # TorusGuard v6 Execution Summary — `sqlalchemy-multitenant`
 
 - **Run ID:** `qa-apply-sqlalchemy-multitenant`
-- **Total Findings:** 1
+- **Total Findings Modeled:** 1
 - **Confirmed:** 1 | **High Confidence:** 0 | **Needs Review:** 0
 - **Root-Cause Clusters:** 1
 
 ## Root-Cause Clustering Breakdown
 
-| Cluster ID | Root-Cause Title | Primary Rule | Findings | Affected Files | Severity |
-|---|---|---|---:|---:|---|
-| `cluster-tenant-isolation` | Missing Multi-Tenant Query Scoping & Model Isolation | `TG-DB-004` | 1 | 1 | High |
+| Cluster ID | Root-Cause Title | Primary Rule | Findings | Files | Hotspot Module | Severity |
+|---|---|---|---:|---:|---|---|
+| `cluster-tenant-isolation` | Missing Multi-Tenant Query Scoping & Model Isolation | `TG-DB-004` | 1 | 1 | `queries.py` | High |
 
 
 ## Next Actions

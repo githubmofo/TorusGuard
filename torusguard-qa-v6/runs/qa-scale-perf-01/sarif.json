@@ -1,0 +1,213 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "TorusGuard",
+          "semanticVersion": "6.0.0",
+          "informationUri": "https://github.com/githubmofo/TorusGuard",
+          "rules": [
+            {
+              "id": "TG-DB-004",
+              "name": "TG_DB_004",
+              "shortDescription": {
+                "text": "Tenant Query Issue 0"
+              },
+              "fullDescription": {
+                "text": "TorusGuard Rule TG-DB-004: Tenant Query Issue 0"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "Read documentation for TG-DB-004 at https://github.com/githubmofo/TorusGuard"
+              },
+              "properties": {
+                "category": "security"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "TG-DB-004",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-DB-004] Tenant Query Issue 0 (Confidence: 90/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/service_0/models/query_0.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 5,
+                  "snippet": {
+                    "text": "Model.objects.filter(id=x)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-DB-ca267e777ee4"
+          },
+          "properties": {
+            "finding_id": "TG-DB-ca267e777ee4",
+            "confidence_score": 90,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-tenant-isolation",
+            "recheck_status": "Unrechecked"
+          }
+        },
+        {
+          "ruleId": "TG-DB-004",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-DB-004] Tenant Query Issue 1 (Confidence: 90/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/service_1/models/query_1.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 5,
+                  "snippet": {
+                    "text": "Model.objects.filter(id=x)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-DB-8728d15d9cc2"
+          },
+          "properties": {
+            "finding_id": "TG-DB-8728d15d9cc2",
+            "confidence_score": 90,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-tenant-isolation",
+            "recheck_status": "Unrechecked"
+          }
+        },
+        {
+          "ruleId": "TG-DB-004",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-DB-004] Tenant Query Issue 2 (Confidence: 90/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/service_2/models/query_2.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 5,
+                  "snippet": {
+                    "text": "Model.objects.filter(id=x)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-DB-66a81d19428b"
+          },
+          "properties": {
+            "finding_id": "TG-DB-66a81d19428b",
+            "confidence_score": 90,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-tenant-isolation",
+            "recheck_status": "Unrechecked"
+          }
+        },
+        {
+          "ruleId": "TG-DB-004",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-DB-004] Tenant Query Issue 3 (Confidence: 90/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/service_3/models/query_3.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 5,
+                  "snippet": {
+                    "text": "Model.objects.filter(id=x)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-DB-ff76b506e040"
+          },
+          "properties": {
+            "finding_id": "TG-DB-ff76b506e040",
+            "confidence_score": 90,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-tenant-isolation",
+            "recheck_status": "Unrechecked"
+          }
+        },
+        {
+          "ruleId": "TG-DB-004",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-DB-004] Tenant Query Issue 4 (Confidence: 90/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/service_4/models/query_4.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 5,
+                  "snippet": {
+                    "text": "Model.objects.filter(id=x)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-DB-47c54b649084"
+          },
+          "properties": {
+            "finding_id": "TG-DB-47c54b649084",
+            "confidence_score": 90,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-tenant-isolation",
+            "recheck_status": "Unrechecked"
+          }
+        }
+      ]
+    }
+  ]
+}

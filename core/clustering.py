@@ -79,6 +79,8 @@ class RootCauseCluster:
     shared_remediation_path: str = ""
     shared_verification_plan: str = ""
     risk_severity: str = "High"
+    hotspot_module: str = ""
+    is_high_density: bool = False
 
     def add_finding(self, finding_id: str, file_path: str, location_str: str, severity: str = "High"):
         if finding_id not in self.finding_ids:
@@ -87,6 +89,18 @@ class RootCauseCluster:
             self.affected_files.append(file_path)
         if location_str not in self.affected_locations:
             self.affected_locations.append(location_str)
+
+        # Update hotspot module (top directory)
+        parts = file_path.replace("\\", "/").split("/")
+        if len(parts) > 1:
+            self.hotspot_module = "/".join(parts[:2])
+        else:
+            self.hotspot_module = parts[0]
+
+        # Density threshold (> 5 findings in one cluster is high density)
+        if len(self.finding_ids) >= 5:
+            self.is_high_density = True
+
         # Escalate cluster severity if higher
         severity_order = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1, "Informational": 0}
         if severity_order.get(severity, 0) > severity_order.get(self.risk_severity, 0):
@@ -96,20 +110,40 @@ class RootCauseCluster:
         return asdict(self)
 
 
+# Generated / Vendor File Exclusion Patterns
+IGNORED_PATTERNS = [
+    "migrations/", "node_modules/", "dist/", "build/", "vendor/",
+    ".venv/", "venv/", ".min.js", ".min.css", ".pb.go", "_pb2.py",
+    "bundle.js", ".map"
+]
+
+
+def is_generated_file(file_path: str) -> bool:
+    norm = file_path.replace("\\", "/").lower()
+    return any(p in norm for p in IGNORED_PATTERNS)
+
+
 class ClusteringEngine:
     """
-    Analyzes findings and groups them into root-cause clusters.
+    Analyzes findings and groups them into root-cause clusters with scale and density metrics.
     """
 
     @staticmethod
-    def cluster_findings(findings: List[Dict[str, Any]]) -> List[RootCauseCluster]:
+    def cluster_findings(
+        findings: List[Dict[str, Any]],
+        filter_generated: bool = False
+    ) -> List[RootCauseCluster]:
         clusters: Dict[str, RootCauseCluster] = {}
 
         for f in findings:
-            rule_id = f.get("rule_id", "TG-GENERIC")
-            finding_id = f.get("finding_id", "unknown")
             target = f.get("target", {})
             file_path = target.get("file_path", "unknown")
+
+            if filter_generated and is_generated_file(file_path):
+                continue
+
+            rule_id = f.get("rule_id", "TG-GENERIC")
+            finding_id = f.get("finding_id", "unknown")
             start_line = target.get("line_start", 0)
             end_line = target.get("line_end", 0)
             loc_str = f"{file_path}:{start_line}-{end_line}"
@@ -123,8 +157,6 @@ class ClusteringEngine:
                 rem_path = meta["shared_remediation_path"]
                 ver_plan = meta["shared_verification_plan"]
             else:
-                # Generic cluster fallback by category/rule prefix
-                category = f.get("category", "general")
                 cid = f"cluster-{rule_id.lower().replace('tg-', '')}"
                 title = f"Systemic {f.get('title', rule_id)} Issues"
                 rem_path = "Apply framework-native security controls as documented in rule reference."
@@ -147,4 +179,12 @@ class ClusteringEngine:
                 severity=severity,
             )
 
-        return list(clusters.values())
+        # Sort clusters by severity and finding count
+        severity_order = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1, "Informational": 0}
+        sorted_clusters = sorted(
+            clusters.values(),
+            key=lambda c: (severity_order.get(c.risk_severity, 0), len(c.finding_ids)),
+            reverse=True
+        )
+
+        return sorted_clusters

@@ -37,16 +37,17 @@ class V6Reporter:
         out = []
         out.append(f"# TorusGuard v6 Execution Summary — `{target_name}`\n")
         out.append(f"- **Run ID:** `{run_id}`")
-        out.append(f"- **Total Findings:** {total}")
+        out.append(f"- **Total Findings Modeled:** {total}")
         out.append(f"- **Confirmed:** {confirmed} | **High Confidence:** {high_conf} | **Needs Review:** {needs_review}")
         out.append(f"- **Root-Cause Clusters:** {len(clusters)}\n")
 
         out.append("## Root-Cause Clustering Breakdown\n")
-        out.append("| Cluster ID | Root-Cause Title | Primary Rule | Findings | Affected Files | Severity |")
-        out.append("|---|---|---|---:|---:|---|")
+        out.append("| Cluster ID | Root-Cause Title | Primary Rule | Findings | Files | Hotspot Module | Severity |")
+        out.append("|---|---|---|---:|---:|---|---|")
         for c in clusters:
+            hotspot = f"`{c.hotspot_module}`" if c.hotspot_module else "root"
             out.append(
-                f"| `{c.cluster_id}` | {c.title} | `{c.primary_rule}` | {len(c.finding_ids)} | {len(c.affected_files)} | {c.risk_severity} |"
+                f"| `{c.cluster_id}` | {c.title} | `{c.primary_rule}` | {len(c.finding_ids)} | {len(c.affected_files)} | {hotspot} | {c.risk_severity} |"
             )
         out.append("\n")
 
@@ -67,7 +68,14 @@ class V6Reporter:
     @staticmethod
     def render_findings(findings: List[Dict[str, Any]]) -> str:
         out = ["# TorusGuard v6 Detailed Findings\n"]
-        for f in findings:
+        total = len(findings)
+        
+        # High scale handling: if more than 25 findings, show top 15 directly and collapse the rest
+        collapse_threshold = 25
+        top_findings = findings[:15] if total > collapse_threshold else findings
+        overflow_findings = findings[15:] if total > collapse_threshold else []
+
+        for f in top_findings:
             f_id = f.get("finding_id", "fnd-01")
             rule_id = f.get("rule_id", "TG-GENERIC")
             title = f.get("title", "Security Flaw")
@@ -101,6 +109,21 @@ class V6Reporter:
             out.append(f"**Finding ID:** `{f_id}`\n")
             out.append("</details>\n")
             out.append("---\n")
+
+        if overflow_findings:
+            out.append(f"\n## 📦 Collapsed High-Density Findings ({len(overflow_findings)} additional items)\n")
+            out.append("<details><summary><b>Click to expand remaining findings table</b></summary>\n\n")
+            out.append("| Finding ID | Rule ID | Title | File Path | Confidence | Cluster |\n")
+            out.append("|---|---|---|---|---|---|\n")
+            for of in overflow_findings:
+                of_id = of.get("finding_id", "")
+                of_rule = of.get("rule_id", "")
+                of_title = of.get("title", "")
+                of_path = of.get("target", {}).get("file_path", "")
+                of_conf = f"{of.get('confidence_score', 80)}/100"
+                of_cluster = of.get("cluster_id", "")
+                out.append(f"| `{of_id}` | `{of_rule}` | {of_title} | `{of_path}` | {of_conf} | `{of_cluster}` |\n")
+            out.append("\n</details>\n\n---\n")
 
         return "\n".join(out)
 

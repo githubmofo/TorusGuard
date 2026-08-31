@@ -1,0 +1,37 @@
+[
+  {
+    "finding_id": "TG-DB-123197ca71b1",
+    "rule_id": "TG-DB-004",
+    "file_path": "apps/django_core/billing/views.py",
+    "region_hash": "770735d13768f690",
+    "code_snippet": "Invoice.objects.get(id=inv_id)"
+  },
+  {
+    "finding_id": "TG-SSRF-f0ee17e7f427",
+    "rule_id": "TG-SSRF-001",
+    "file_path": "apps/fastapi_service/routes/fetcher.py",
+    "region_hash": "9aefbc74647e1fef",
+    "code_snippet": "httpx.get(target_url)"
+  },
+  {
+    "finding_id": "TG-WEBHOOK-c8d8bc1ce13f",
+    "rule_id": "TG-WEBHOOK-001",
+    "file_path": "apps/flask_webhook/handler.py",
+    "region_hash": "779467025f60fcff",
+    "code_snippet": "payload = request.json"
+  },
+  {
+    "finding_id": "TG-INPUT-e72b59b0206e",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "services/core/v1/subsystems/analytics/processors/workers/storage.py",
+    "region_hash": "1e95f24b0c26b66b",
+    "code_snippet": "open(os.path.join(DIR, filename), 'wb')"
+  },
+  {
+    "finding_id": "TG-SUPPLY-2bf5cfd0f6b9",
+    "rule_id": "TG-SUPPLY-001",
+    "file_path": "infra/.github/workflows/deploy.yml",
+    "region_hash": "33f89d183db52502",
+    "code_snippet": "uses: actions/checkout@v2"
+  }
+]

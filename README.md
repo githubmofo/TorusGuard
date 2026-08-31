@@ -51,18 +51,17 @@ TorusGuard features a formal closed-loop state machine governing every candidate
 
 ---
 
-## Current Release: v6.0.0 (Governed Remediation & Targeted Recheck System)
+## Current Release: v6.1.0 (Scale & Complexity Hardening)
 
-TorusGuard v6.0.0 transitions TorusGuard from an audit tool into an autonomous, governed remediation and targeted verification engine:
-- **Run Folder Architecture (`runs/<run-id>/`):** Self-contained execution directories housing manifests, structured reports, evidence maps, diff summaries, and logs.
-- **Stable Finding Identity & Invariance:** Deterministic finding fingerprints computed across Rule ID, normalized file path, code region hash, and sink signatures that survive line shifts.
-- **Root-Cause Clustering:** Automatic grouping of related findings into shared root causes (e.g. *Missing Tenant Query Scoping*, *Unsafe Path Traversal Storage*, *Disabled Template Autoescaping*).
-- **Structured Remediation Bundles:** Self-contained remediation packages (`finding.md`, `remediation.md`, `minimal_patch_plan.md`, `verify-after-change.md`, `metadata.json`).
-- **Minimal Patch Governance:** Strict policy enforcement over automated code modifications (bounding line churn, file counts, and escalating sensitive contexts such as auth, crypto, and database queries).
-- **Targeted Scoped Rechecks:** Scoped differential verification focusing strictly on modified files and adjacent trust boundaries with explicit status transitions (`Confirmed Fixed`, `Partially Fixed`, `Needs Manual Review`, `Regressed`, `Not Reproducible`).
-- **SARIF v2.1.0 JSON Export:** Optional standard SARIF export for seamless integration with GitHub Advanced Security, CI/CD pipelines, and enterprise SIEMs.
+TorusGuard v6.1.0 hardens the governed remediation and targeted recheck system for large-scale, high-density production repositories and monorepos:
+- **Monorepo & Deep-Hierarchy Support:** Unified discovery across multi-app architectures (Django + FastAPI + Flask + Shared ORMs) and deeply nested paths (8+ levels).
+- **Noise Suppression & Vendor Exclusion:** Automatically ignores non-actionable paths (`migrations/`, `node_modules/`, `dist/`, `build/`, `*.min.js`, `*.pb.go`).
+- **High-Density Clustering:** Successfully collapses 250+ repeated alerts into 3 actionable root causes with module hotspot metrics (`apps/billing`, `services/uploads`).
+- **Readable Report Guardrails:** Automatically applies collapsible `<details>` sections when finding count exceeds 25 items, preventing unreadable Markdown bloat.
+- **Sub-Second Scale Performance:** Tested on 2,500+ files and 1,000+ SARIF results ($< 0.10\text{s}$ execution time).
+- **Monorepo Patch Governance:** Enforces boundary checks preventing cross-service automated modifications.
 
-*Read the complete release notes in [docs/releases/v6.0.0.md](docs/releases/v6.0.0.md) and the architecture specification in [docs/architecture/v6-governed-remediation-architecture.md](docs/architecture/v6-governed-remediation-architecture.md).*
+*Read the complete release notes in [docs/releases/v6.1.0.md](docs/releases/v6.1.0.md) and the scale architecture specification in [docs/architecture/v6.1-scale-and-complexity.md](docs/architecture/v6.1-scale-and-complexity.md).*
 
 ---
 
@@ -70,6 +69,7 @@ TorusGuard v6.0.0 transitions TorusGuard from an audit tool into an autonomous, 
 
 | Version | Focus / Key Feature | Summary of Deliverables |
 |:---:|---|---|
+| **v6.1.0** | **Scale & Complexity** | Monorepo support, noise filtering, high-density clustering, collapsible reports, and 1,000-item SARIF performance. |
 | **v6.0.0** | **Governed Remediation** | Isolated run folders, stable finding IDs, root-cause clustering, remediation bundles, patch policy governance, targeted rechecks, and SARIF v2.1.0. |
 | **v0.5.6** | **Large-Project Validation** | 10-repo validation suite, context rule tuning, seeded recall, honest readiness. |
 | **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |

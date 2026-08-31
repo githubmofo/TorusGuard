@@ -1,0 +1,29 @@
+{
+  "version": "v6.0.0",
+  "run_id": "qa-scale-flood-01",
+  "target_name": "high-density-flood",
+  "command": "audit",
+  "timestamp": "2026-08-31T04:45:52.745056Z",
+  "git_commit": "c5aee221e56f84ef977c118ba5808fa5754b94f9",
+  "status_counts": {
+    "total_findings": 250,
+    "confirmed": 200,
+    "high_confidence": 50,
+    "needs_review": 0,
+    "remediated": 0,
+    "verified_fixed": 0,
+    "regressed": 0
+  },
+  "artifacts": {
+    "manifest": "manifest.json",
+    "summary": "summary.md",
+    "findings": "findings.md",
+    "remediation": "remediation.md",
+    "apply_plan": "apply-plan.md",
+    "recheck": "recheck.md",
+    "evidence": "evidence.json",
+    "diff_summary": "diff-summary.md",
+    "changed_files": "changed-files.txt",
+    "sarif": "sarif.json"
+  }
+}

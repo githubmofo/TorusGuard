@@ -1,0 +1,37 @@
+[
+  {
+    "finding_id": "TG-DB-ca267e777ee4",
+    "rule_id": "TG-DB-004",
+    "file_path": "apps/service_0/models/query_0.py",
+    "region_hash": "542ea60dfbd9db07",
+    "code_snippet": "Model.objects.filter(id=x)"
+  },
+  {
+    "finding_id": "TG-DB-8728d15d9cc2",
+    "rule_id": "TG-DB-004",
+    "file_path": "apps/service_1/models/query_1.py",
+    "region_hash": "542ea60dfbd9db07",
+    "code_snippet": "Model.objects.filter(id=x)"
+  },
+  {
+    "finding_id": "TG-DB-66a81d19428b",
+    "rule_id": "TG-DB-004",
+    "file_path": "apps/service_2/models/query_2.py",
+    "region_hash": "542ea60dfbd9db07",
+    "code_snippet": "Model.objects.filter(id=x)"
+  },
+  {
+    "finding_id": "TG-DB-ff76b506e040",
+    "rule_id": "TG-DB-004",
+    "file_path": "apps/service_3/models/query_3.py",
+    "region_hash": "542ea60dfbd9db07",
+    "code_snippet": "Model.objects.filter(id=x)"
+  },
+  {
+    "finding_id": "TG-DB-47c54b649084",
+    "rule_id": "TG-DB-004",
+    "file_path": "apps/service_4/models/query_4.py",
+    "region_hash": "542ea60dfbd9db07",
+    "code_snippet": "Model.objects.filter(id=x)"
+  }
+]

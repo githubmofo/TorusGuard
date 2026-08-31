@@ -3,8 +3,8 @@
   "run_id": "qa-run-2-fastapi-app",
   "target_name": "fastapi-app",
   "command": "audit",
-  "timestamp": "2026-08-31T04:39:18.291439Z",
-  "git_commit": "59cb74e5ee45b4eb97b664b254f0439b5fb5292e",
+  "timestamp": "2026-08-31T04:45:53.327005Z",
+  "git_commit": "c5aee221e56f84ef977c118ba5808fa5754b94f9",
   "status_counts": {
     "total_findings": 2,
     "confirmed": 2,
