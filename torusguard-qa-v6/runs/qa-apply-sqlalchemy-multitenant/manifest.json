@@ -1,0 +1,29 @@
+{
+  "version": "v6.0.0",
+  "run_id": "qa-apply-sqlalchemy-multitenant",
+  "target_name": "sqlalchemy-multitenant",
+  "command": "audit",
+  "timestamp": "2026-08-31T04:39:18.791727Z",
+  "git_commit": "59cb74e5ee45b4eb97b664b254f0439b5fb5292e",
+  "status_counts": {
+    "total_findings": 1,
+    "confirmed": 1,
+    "high_confidence": 0,
+    "needs_review": 0,
+    "remediated": 0,
+    "verified_fixed": 0,
+    "regressed": 0
+  },
+  "artifacts": {
+    "manifest": "manifest.json",
+    "summary": "summary.md",
+    "findings": "findings.md",
+    "remediation": "remediation.md",
+    "apply_plan": "apply-plan.md",
+    "recheck": "recheck.md",
+    "evidence": "evidence.json",
+    "diff_summary": "diff-summary.md",
+    "changed_files": "changed-files.txt",
+    "sarif": "sarif.json"
+  }
+}

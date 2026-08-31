@@ -1,0 +1,9 @@
+[
+  {
+    "finding_id": "TG-INPUT-7c848b1baf09",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "storage.py",
+    "region_hash": "ea7e26eb20f1f806",
+    "code_snippet": "dest = os.path.join(UPLOAD_DIR, raw_filename)"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "bundle_id": "bundle-fnd-01",
+  "finding_id": "fnd-01",
+  "rule_id": "TG-INPUT-006",
+  "title": "Path Traversal in Storage Handler",
+  "cluster_id": null,
+  "target_files": [
+    "storage.py"
+  ],
+  "risk_severity": "High",
+  "created_at": ""
+}

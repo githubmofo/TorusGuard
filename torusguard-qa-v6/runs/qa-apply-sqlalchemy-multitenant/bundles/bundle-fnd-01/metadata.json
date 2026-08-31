@@ -1,0 +1,12 @@
+{
+  "bundle_id": "bundle-fnd-01",
+  "finding_id": "fnd-01",
+  "rule_id": "TG-DB-004",
+  "title": "Missing Tenant Query Isolation in SQLAlchemy",
+  "cluster_id": null,
+  "target_files": [
+    "queries.py"
+  ],
+  "risk_severity": "High",
+  "created_at": ""
+}

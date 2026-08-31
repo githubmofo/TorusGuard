@@ -1,0 +1,73 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "TorusGuard",
+          "semanticVersion": "6.0.0",
+          "informationUri": "https://github.com/githubmofo/TorusGuard",
+          "rules": [
+            {
+              "id": "TG-INPUT-006",
+              "name": "TG_INPUT_006",
+              "shortDescription": {
+                "text": "Path Traversal in Storage Handler"
+              },
+              "fullDescription": {
+                "text": "TorusGuard Rule TG-INPUT-006: Path Traversal in Storage Handler"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "Read documentation for TG-INPUT-006 at https://github.com/githubmofo/TorusGuard"
+              },
+              "properties": {
+                "category": "security"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "TG-INPUT-006",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-INPUT-006] Path Traversal in Storage Handler (Confidence: 96/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "storage.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6,
+                  "snippet": {
+                    "text": "dest = os.path.join(UPLOAD_DIR, raw_filename)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-INPUT-7c848b1baf09"
+          },
+          "properties": {
+            "finding_id": "TG-INPUT-7c848b1baf09",
+            "confidence_score": 96,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-path-traversal",
+            "recheck_status": "Unrechecked"
+          }
+        }
+      ]
+    }
+  ]
+}

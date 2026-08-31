@@ -1,0 +1,12 @@
+{
+  "bundle_id": "bundle-fnd-01",
+  "finding_id": "fnd-01",
+  "rule_id": "TG-AUTH-008",
+  "title": "Untrusted Role Header Injection",
+  "cluster_id": null,
+  "target_files": [
+    "main.py"
+  ],
+  "risk_severity": "High",
+  "created_at": ""
+}

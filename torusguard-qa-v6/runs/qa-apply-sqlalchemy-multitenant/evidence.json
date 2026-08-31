@@ -1,0 +1,9 @@
+[
+  {
+    "finding_id": "TG-DB-bc6be5e7a8d0",
+    "rule_id": "TG-DB-004",
+    "file_path": "queries.py",
+    "region_hash": "0a6ea18047dd9eee",
+    "code_snippet": "return db.query(Account).filter(Account.id == account_id).first()"
+  }
+]

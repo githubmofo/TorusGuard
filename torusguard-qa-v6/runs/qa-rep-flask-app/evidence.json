@@ -1,0 +1,16 @@
+[
+  {
+    "finding_id": "TG-INPUT-67344b2cf839",
+    "rule_id": "TG-INPUT-005",
+    "file_path": "app.py",
+    "region_hash": "a2afddef0cb5f08e",
+    "code_snippet": "return render_template_string(f\"Hello {name}\")"
+  },
+  {
+    "finding_id": "TG-INPUT-a1f3d99b3c7b",
+    "rule_id": "TG-INPUT-006",
+    "file_path": "app.py",
+    "region_hash": "3859de1411421bf1",
+    "code_snippet": "f.save(os.path.join(\"/var/uploads\", f.filename))"
+  }
+]

@@ -1,0 +1,127 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "TorusGuard",
+          "semanticVersion": "6.0.0",
+          "informationUri": "https://github.com/githubmofo/TorusGuard",
+          "rules": [
+            {
+              "id": "TG-SSRF-001",
+              "name": "TG_SSRF_001",
+              "shortDescription": {
+                "text": "Unvalidated Outbound HTTP Request (SSRF)"
+              },
+              "fullDescription": {
+                "text": "TorusGuard Rule TG-SSRF-001: Unvalidated Outbound HTTP Request (SSRF)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "Read documentation for TG-SSRF-001 at https://github.com/githubmofo/TorusGuard"
+              },
+              "properties": {
+                "category": "security"
+              }
+            },
+            {
+              "id": "TG-AUTH-008",
+              "name": "TG_AUTH_008",
+              "shortDescription": {
+                "text": "Untrusted Role Header Injection"
+              },
+              "fullDescription": {
+                "text": "TorusGuard Rule TG-AUTH-008: Untrusted Role Header Injection"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "Read documentation for TG-AUTH-008 at https://github.com/githubmofo/TorusGuard"
+              },
+              "properties": {
+                "category": "security"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "TG-SSRF-001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-SSRF-001] Unvalidated Outbound HTTP Request (SSRF) (Confidence: 94/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 9,
+                  "endLine": 9,
+                  "snippet": {
+                    "text": "res = await client.get(url)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-SSRF-8f0db4e58390"
+          },
+          "properties": {
+            "finding_id": "TG-SSRF-8f0db4e58390",
+            "confidence_score": 94,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-ssrf-network",
+            "recheck_status": "Unrechecked"
+          }
+        },
+        {
+          "ruleId": "TG-AUTH-008",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "[TG-AUTH-008] Untrusted Role Header Injection (Confidence: 90/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 14,
+                  "endLine": 14,
+                  "snippet": {
+                    "text": "if x_user_role != \"admin\":"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-AUTH-25179ed066c6"
+          },
+          "properties": {
+            "finding_id": "TG-AUTH-25179ed066c6",
+            "confidence_score": 90,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-header-trust",
+            "recheck_status": "Unrechecked"
+          }
+        }
+      ]
+    }
+  ]
+}

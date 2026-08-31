@@ -1,0 +1,12 @@
+{
+  "bundle_id": "bundle-fnd-01",
+  "finding_id": "fnd-01",
+  "rule_id": "TG-SEC-001",
+  "title": "Hardcoded Secret Key",
+  "cluster_id": null,
+  "target_files": [
+    "app.py"
+  ],
+  "risk_severity": "Critical",
+  "created_at": ""
+}

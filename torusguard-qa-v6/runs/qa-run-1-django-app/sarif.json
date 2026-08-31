@@ -1,0 +1,127 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "TorusGuard",
+          "semanticVersion": "6.0.0",
+          "informationUri": "https://github.com/githubmofo/TorusGuard",
+          "rules": [
+            {
+              "id": "TG-DB-004",
+              "name": "TG_DB_004",
+              "shortDescription": {
+                "text": "Missing Multi-Tenant Query Scoping"
+              },
+              "fullDescription": {
+                "text": "TorusGuard Rule TG-DB-004: Missing Multi-Tenant Query Scoping"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "Read documentation for TG-DB-004 at https://github.com/githubmofo/TorusGuard"
+              },
+              "properties": {
+                "category": "security"
+              }
+            },
+            {
+              "id": "TG-INPUT-005",
+              "name": "TG_INPUT_005",
+              "shortDescription": {
+                "text": "Disabled Template Autoescaping via mark_safe"
+              },
+              "fullDescription": {
+                "text": "TorusGuard Rule TG-INPUT-005: Disabled Template Autoescaping via mark_safe"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "Read documentation for TG-INPUT-005 at https://github.com/githubmofo/TorusGuard"
+              },
+              "properties": {
+                "category": "security"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "TG-DB-004",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "[TG-DB-004] Missing Multi-Tenant Query Scoping (Confidence: 92/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "views.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6,
+                  "snippet": {
+                    "text": "invoice = Invoice.objects.get(id=invoice_id)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-DB-298a6a4002d2"
+          },
+          "properties": {
+            "finding_id": "TG-DB-298a6a4002d2",
+            "confidence_score": 92,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-tenant-isolation",
+            "recheck_status": "Unrechecked"
+          }
+        },
+        {
+          "ruleId": "TG-INPUT-005",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "[TG-INPUT-005] Disabled Template Autoescaping via mark_safe (Confidence: 90/100 - Confirmed)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "views.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8,
+                  "endLine": 8,
+                  "snippet": {
+                    "text": "rendered = mark_safe(f\"<h1>{invoice.title}</h1>\")"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "torusguard/v6/stable_identity": "TG-INPUT-7dd18dc1ab8a"
+          },
+          "properties": {
+            "finding_id": "TG-INPUT-7dd18dc1ab8a",
+            "confidence_score": 90,
+            "confidence_band": "Confirmed",
+            "cluster_id": "cluster-template-escaping",
+            "recheck_status": "Unrechecked"
+          }
+        }
+      ]
+    }
+  ]
+}
