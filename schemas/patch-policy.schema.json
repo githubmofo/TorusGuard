@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TorusGuardPatchPolicyDecision",
+  "description": "Schema for TorusGuard v6 Minimal Patch Governance Policy Decision",
+  "type": "object",
+  "required": [
+    "allowed_auto_apply",
+    "escalation_required",
+    "line_additions",
+    "line_deletions",
+    "files_touched",
+    "file_list"
+  ],
+  "properties": {
+    "allowed_auto_apply": {
+      "type": "boolean"
+    },
+    "escalation_required": {
+      "type": "boolean"
+    },
+    "rejection_reasons": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "risk_factors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "line_additions": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "line_deletions": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "files_touched": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "file_list": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

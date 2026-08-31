@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TorusGuardRemediationBundle",
+  "description": "Schema for TorusGuard v6 Remediation Bundle metadata",
+  "type": "object",
+  "required": [
+    "bundle_id",
+    "finding_id",
+    "rule_id",
+    "title",
+    "target_files",
+    "risk_severity"
+  ],
+  "properties": {
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^bundle-.+$"
+    },
+    "finding_id": {
+      "type": "string"
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "cluster_id": {
+      "type": ["string", "null"]
+    },
+    "target_files": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "risk_severity": {
+      "type": "string",
+      "enum": ["Critical", "High", "Medium", "Low", "Informational"]
+    },
+    "created_at": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

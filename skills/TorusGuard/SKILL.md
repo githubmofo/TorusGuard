@@ -3,60 +3,60 @@ name: torusguard
 description: Security guardrails, provenance-tracked evidence, and auditable verification workflow for AI-built web apps. Audit and harden secrets, frontend database access, input validation, authentication, authorization, rate limits, source-map exposure, SSRF, webhooks, and production configuration across React, Vite, Next.js, Node.js, Express, Supabase, Firebase, Django, DRF, FastAPI, Flask, SQLAlchemy, and Python APIs.
 ---
 
-# TorusGuard (v0.5.4)
+# TorusGuard (v6.0.0)
 
-**Tagline:** Security guardrails, provenance-tracked evidence, and auditable verification workflow for AI-built web apps.
+**Tagline:** Governed security remediation, root-cause clustering, minimal patching, and targeted verification for AI-built web applications.
 
 **Core principle:** If the browser receives it, users can inspect it. Keep secrets, database access, and authorization decisions on trusted server-side code.
 
-TorusGuard is a Markdown-first, portable AI-agent skill and security workflow engine. It is not an npm package, hosted SaaS service, browser extension, or black-box vulnerability scanner. It guides audit, verification, remediation, and re-checking through structured rules, normalized evidence packages with SHA-256 checksums, auditable confidence scoring, prioritized remediation roadmaps, and deterministic fixture replays.
-
-TorusGuard must never claim it can block DevTools, make an application 100% secure, or replace professional penetration testing, manual code review, compliance audits, or formal threat modeling.
+TorusGuard v6 is a Markdown-first, portable AI-agent skill and governed remediation engine. It is not an unmanaged vulnerability scanner or offensive exploit suite. It orchestrates the full remediation lifecycle: scanning codebases, computing stable finding fingerprints that survive line shifts, clustering alerts by root cause, generating structured remediation bundles, applying minimal bounded code patches, executing targeted rechecks on impacted scopes, and exporting SARIF-compatible artifacts for ecosystem integration.
 
 ---
 
-## 🔄 Finding Lifecycle (v0.5.5 Architecture)
-
-TorusGuard operates on a 7-stage lifecycle for every candidate security finding:
+## 🔄 Governed Remediation Lifecycle (v6 Architecture)
 
 ```text
-[ Detect ] ──► [ Classify ] ──► [ Verify ] ──► [ Remediate ] ──► [ Apply ] ──► [ Re-check ] ──► [ Archive ]
+┌───────────┐     ┌────────────┐     ┌───────────┐     ┌─────────────┐     ┌──────────┐     ┌───────────┐     ┌───────────┐
+│ 1. Detect │ ──► │ 2.Classify │ ──► │ 3. Verify │ ──► │ 4.Remediate │ ──► │ 5. Apply │ ──► │ 6.Recheck │ ──► │ 7.Archive │
+└───────────┘     └────────────┘     └───────────┘     └─────────────┘     └──────────┘     └───────────┘     └───────────┘
 ```
 
-1. **Detect:** Scan repository source code, environment templates, and configuration files.
-2. **Classify:** Assign canonical Rule ID (`TG-*`), taxonomy category, risk severity rubric, and provenance chain.
-3. **Verify:** Calculate auditable 0–100 confidence score and package raw technical evidence with SHA-256 checksums.
-4. **Remediate:** Formulate least-invasive, framework-native code modifications with Before/After diffs into a remediation guide.
-5. **Apply:** Use Ponytail to apply the remediation guide via safe, minimal code patches.
-6. **Re-check:** Execute differential re-audit on post-fix code to assert resolution (`Verified Fixed`).
-7. **Archive:** Preserve timestamped verification evidence in the project audit record.
+1. **Detect (`/torusguard audit`):** Scan repository AST & source files; assign deterministic Stable Finding Fingerprints.
+2. **Classify:** Map findings into systemic **Root-Cause Clusters** with shared remediation plans.
+3. **Verify (`/torusguard verify`):** Calculate auditable 0–100 confidence scores and package raw technical evidence.
+4. **Remediate (`/torusguard harden`):** Formulate self-contained **Remediation Bundles** (`finding.md`, `remediation.md`, `minimal_patch_plan.md`, `verify-after-change.md`, `metadata.json`).
+5. **Apply (`/torusguard apply`):** Execute **Minimal Patch Governance** (Ponytail protocol) to surgically modify only affected files while blocking oversized or risky diffs.
+6. **Re-check (`/torusguard recheck`):** Run **Targeted Scoped Rechecks** on modified code and adjacent trust boundaries to confirm status (`Confirmed Fixed`, `Partially Fixed`, `Needs Manual Review`, `Regressed`).
+7. **Archive:** Save run manifests, diff summaries, and optional SARIF exports to the isolated run folder.
 
 ---
 
-## 📂 Output Hygiene: Folder-Per-Run (`RunFolder`)
-All TorusGuard operations must be isolated into a per-run folder context:
-- Base pattern: `.torusguard/runs/run-YYYYMMDD-HHMMSS/`
-- Every invocation (`audit`, `harden`, `apply`, `recheck`) within a session uses this folder.
-- Output routing:
-  - Findings: `run_path/findings.md`
-  - Remediation guides: `run_path/remediation.md`
-  - Diffs/Patches: `run_path/patches/` (directory)
-  - Logs: `run_path/logs/ponytail.log`
-  - Validation: `run_path/recheck.md`
-  - Metadata: `run_path/metadata.json`
+## 📂 Run Folder System (`RunManager`)
+Every TorusGuard v6 execution is strictly contained within a dedicated run folder (`runs/<run-id>/`):
+- `manifest.json`: Execution metadata, git commit hash, and status counts.
+- `summary.md`: Executive summary and root-cause cluster breakdown.
+- `findings.md`: Detailed finding cards with stable IDs and evidence snippets.
+- `remediation.md`: Structured remediation guidance per cluster.
+- `apply-plan.md`: Patch policy decisions, line additions/deletions, and escalation status.
+- `recheck.md`: Targeted recheck outcome and regression analysis.
+- `evidence.json`: Full evidence ledger with SHA-256 integrity hashes.
+- `diff-summary.md`: Unified git diff ledger of all applied changes.
+- `changed-files.txt`: Line-separated list of modified files.
+- `sarif.json`: Standard SARIF v2.1.0 JSON structured export.
+- `logs/`: Subdirectory for runtime and execution logs.
 
 ---
 
 ## 🛠️ Core Commands
 
-| Command | Lifecycle Phase | Purpose | Changes Code? |
-|---------|:---:|---------|:---:|
-| `/torusguard init` | Baseline | Create/update project `SECURITY.md`, threat model, and finding registry | Docs only |
-| `/torusguard audit` | Detect & Classify | Scan codebase; produce Human-First normalized audit report | Writes to `findings/` |
-| `/torusguard verify` | Verify | Validate evidence sufficiency, compute 0–100 confidence | No |
-| `/torusguard harden` | Remediate | Generate structured remediation guide with exact rule/file markers | Writes to `remediation/` |
-| `/torusguard apply` | Apply | Use Ponytail to write minimal patches from the remediation guide | Writes to `patches/` (Applies on approval) |
-| `/torusguard recheck` | Re-check | Execute differential re-audit on post-fix code to assert `Verified Fixed` | Writes to `validation/` |
+| Command | Lifecycle Phase | Purpose | Modifies Code? |
+|---|:---:|---|:---:|
+| `/torusguard init` | Baseline | Create/update project `SECURITY.md`, threat model, and baseline | ❌ Docs only |
+| `/torusguard audit` | Detect & Classify | Scan codebase; compute stable finding IDs and root-cause clusters | ❌ No |
+| `/torusguard verify` | Verify | Validate evidence sufficiency and evaluate 0–100 confidence score | ❌ No |
+| `/torusguard harden` | Remediate | Generate structured remediation bundles in the run folder | ❌ No (Plan only) |
+| `/torusguard apply` | Apply | Use Ponytail to write minimal governed patches to active code | ✅ Yes (Bounded) |
+| `/torusguard recheck` | Re-check | Execute targeted re-audit on post-fix scope and trust boundaries | ❌ No |
 
 **Audit focus areas:** `auth`, `input`, `database`, `files`, `secrets`, `supply-chain`, `network`, `ssrf`, `webhooks`, `websockets`, `graphql`, `business-logic`, `rate-limit`, `client`, `platform`, `cache`, `django`, `drf`, `fastapi`, `flask`, `sqlalchemy`.
 

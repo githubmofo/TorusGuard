@@ -8,6 +8,7 @@ import sys
 import json
 import re
 import glob
+import shutil
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 
@@ -96,6 +97,7 @@ class ValidationHarnessRunner:
         self.test_regression_fixtures()
         self.test_report_formatting()
         self.test_run_context_and_ponytail()
+        self.test_v6_governed_remediation_suite()
 
         print("-" * 80)
         print(f"SUMMARY: {self.passed_tests} Passed | {self.failed_tests} Failed")
@@ -477,6 +479,70 @@ class ValidationHarnessRunner:
         
         # Cleanup
         shutil.rmtree(test_root)
+
+    def test_v6_governed_remediation_suite(self):
+        print("\n14. Testing TorusGuard v6 Governed Remediation & Targeted Recheck Engine...")
+        import tempfile
+        from core.identity import IdentityEngine
+        from core.clustering import ClusteringEngine
+        from core.bundle import BundleManager
+        from core.governance import PatchGovernor
+        from core.rechecker import TargetedRechecker, RecheckOutcome
+        from core.run_manager import RunManager
+        from core.sarif import SarifExporter
+        from core.v6_workflow import V6Workflow
+
+        temp_dir = Path(tempfile.mkdtemp(prefix="tg-v6-harness-"))
+        try:
+            # 1. Run Folder
+            rm = RunManager(base_dir=temp_dir, target_name="test-target", command="audit", run_id="run-harness-01")
+            rm.write_manifest(status_counts={"total_findings": 1, "confirmed": 1, "high_confidence": 0, "needs_review": 0, "remediated": 0, "verified_fixed": 0, "regressed": 0})
+            self.log_test("v6 RunFolder & Manifest.json Generation", rm.manifest_file.exists() and rm.patches_dir.exists())
+
+            # 2. Stable Finding Identity
+            code_a = "def view():\n    return Item.objects.get(id=id)"
+            code_b = "# Shifted comment\ndef view():\n    return Item.objects.get(id=id)"
+            fp1 = IdentityEngine.generate_identity("TG-DB-004", "views.py", code_a, sink_signature="Item.objects.get")
+            fp2 = IdentityEngine.generate_identity("TG-DB-004", "views.py", code_b, sink_signature="Item.objects.get")
+            self.log_test("v6 Stable Finding Identity (Line Shift Invariance)", fp1.fingerprint_id == fp2.fingerprint_id and fp1.fingerprint_id.startswith("TG-DB-"))
+
+            # 3. Root-Cause Clustering
+            raw_f = [
+                {"finding_id": "f1", "rule_id": "TG-DB-004", "title": "Missing Tenant Isolation", "severity": "High", "target": {"file_path": "a.py"}},
+                {"finding_id": "f2", "rule_id": "TG-DB-004", "title": "Missing Tenant Isolation", "severity": "High", "target": {"file_path": "b.py"}},
+            ]
+            clusters = ClusteringEngine.cluster_findings(raw_f)
+            self.log_test("v6 Root-Cause Clustering (Multi-Tenant Pattern)", len(clusters) == 1 and clusters[0].cluster_id == "cluster-tenant-isolation")
+
+            # 4. Remediation Bundle
+            bundle = BundleManager.create_bundle(raw_f[0], cluster_id="cluster-tenant-isolation")
+            b_dir = bundle.write_to_directory(temp_dir)
+            self.log_test("v6 Remediation Bundle Packaging (5 Artifacts)", (b_dir / "finding.md").exists() and (b_dir / "minimal_patch_plan.md").exists())
+
+            # 5. Patch Governance
+            gov = PatchGovernor(max_additions_per_file=10)
+            clean_diff = "--- a/x.py\n+++ b/x.py\n@@ -1 +1 @@\n-old()\n+new()\n"
+            oversized_diff = "--- a/x.py\n+++ b/x.py\n" + "\n".join(f"+line_{i}()" for i in range(20))
+            d_clean = gov.evaluate_diff(clean_diff, "x.py")
+            d_over = gov.evaluate_diff(oversized_diff, "x.py")
+            self.log_test("v6 Minimal Patch Governance (Line Churn Policy)", d_clean.allowed_auto_apply and not d_over.allowed_auto_apply)
+
+            # 6. Targeted Recheck
+            r_fix = TargetedRechecker.verify_finding("f1", "TG-DB-004", "a.py", "old", "new", is_safe_pattern_present=True, is_unsafe_pattern_present=False)
+            r_reg = TargetedRechecker.verify_finding("f2", "TG-DB-004", "b.py", "old", "bad", is_safe_pattern_present=False, is_unsafe_pattern_present=True, introduced_new_flaws=["TG-SEC-001"])
+            self.log_test("v6 Targeted Recheck Transitions (Confirmed Fixed & Regressed)", r_fix.outcome == RecheckOutcome.CONFIRMED_FIXED and r_reg.outcome == RecheckOutcome.REGRESSED)
+
+            # 7. SARIF Export
+            sarif = SarifExporter.generate_sarif([{"finding_id": "f1", "rule_id": "TG-DB-004", "title": "Missing Tenant Isolation", "target": {"file_path": "a.py"}}])
+            self.log_test("v6 SARIF v2.1.0 Structured Export", sarif["version"] == "2.1.0" and len(sarif["runs"]) == 1)
+
+            # 8. End-to-End Workflow
+            wf = V6Workflow(target_root=temp_dir, output_base=temp_dir / "runs")
+            run_wf = wf.execute_audit(raw_f, target_name="e2e-demo", export_sarif=True)
+            self.log_test("v6 End-to-End Workflow Execution", run_wf.manifest_file.exists() and run_wf.sarif_file.exists())
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":

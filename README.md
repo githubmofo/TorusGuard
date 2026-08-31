@@ -51,30 +51,33 @@ TorusGuard features a formal closed-loop state machine governing every candidate
 
 ---
 
-## Current Release: v0.5.6 (Large-Project Validation & Rule-Tuning Suite)
+## Current Release: v6.0.0 (Governed Remediation & Targeted Recheck System)
 
-TorusGuard v0.5.6 introduces a structured validation architecture for large-scale, real-world repositories alongside context-aware rule tuning and honest readiness evaluation:
-- **10 Large-Project Validation Architecture (`projects/manifest.yaml`):** Standardized multi-repository validation harness supporting real-world Python codebases (Django, Flask, FastAPI, SQLAlchemy, DRF, Sentry, Requests, Pydantic, Celery, Scrapy) totaling 14,000+ source files.
-- **Rule Context Tuning & Guardrails:** Hardened detection rules (`TG-AUTH-008`, `TG-INPUT-005`, `TG-INPUT-006`, `TG-DB-004`) to distinguish safe framework mechanisms (e.g. auto-escaping, ORM tenant managers) and downgrade ambiguous contexts to `Needs Review`.
-- **Seeded-Case Recall Measurement:** Integrated known synthetic vulnerability seeds across target repositories to ensure rule tuning preserves high recall without blind suppression.
-- **Ponytail Patch Quality Tracking:** Structured ledger recording patch efficiency (files changed, line churn, excess comments, new risks, recheck outcomes).
-- **Honest Readiness Classification:** Strict policy against unverified 100% metrics. Distinguishes simulated workflow runs from real repository triage with clear pilot readiness boundaries.
+TorusGuard v6.0.0 transitions TorusGuard from an audit tool into an autonomous, governed remediation and targeted verification engine:
+- **Run Folder Architecture (`runs/<run-id>/`):** Self-contained execution directories housing manifests, structured reports, evidence maps, diff summaries, and logs.
+- **Stable Finding Identity & Invariance:** Deterministic finding fingerprints computed across Rule ID, normalized file path, code region hash, and sink signatures that survive line shifts.
+- **Root-Cause Clustering:** Automatic grouping of related findings into shared root causes (e.g. *Missing Tenant Query Scoping*, *Unsafe Path Traversal Storage*, *Disabled Template Autoescaping*).
+- **Structured Remediation Bundles:** Self-contained remediation packages (`finding.md`, `remediation.md`, `minimal_patch_plan.md`, `verify-after-change.md`, `metadata.json`).
+- **Minimal Patch Governance:** Strict policy enforcement over automated code modifications (bounding line churn, file counts, and escalating sensitive contexts such as auth, crypto, and database queries).
+- **Targeted Scoped Rechecks:** Scoped differential verification focusing strictly on modified files and adjacent trust boundaries with explicit status transitions (`Confirmed Fixed`, `Partially Fixed`, `Needs Manual Review`, `Regressed`, `Not Reproducible`).
+- **SARIF v2.1.0 JSON Export:** Optional standard SARIF export for seamless integration with GitHub Advanced Security, CI/CD pipelines, and enterprise SIEMs.
 
-*Read the complete release notes in [docs/releases/v0.5.6.md](docs/releases/v0.5.6.md) and the portfolio report in [docs/validation/v0.5.6-large-project-validation-report.md](docs/validation/v0.5.6-large-project-validation-report.md).*
+*Read the complete release notes in [docs/releases/v6.0.0.md](docs/releases/v6.0.0.md) and the architecture specification in [docs/architecture/v6-governed-remediation-architecture.md](docs/architecture/v6-governed-remediation-architecture.md).*
 
 ---
 
-## 🏗️ Version History (v0.5.x Series)
+## 🏗️ Version History
 
 | Version | Focus / Key Feature | Summary of Deliverables |
 |:---:|---|---|
-| **v0.5.0** | **Workflow Architecture** | 6-stage lifecycle, 10 formal JSON schemas, core engine. |
-| **v0.5.1** | **Provenance & Confidence** | Auditable 5-factor confidence scoring, SHA-256 evidence hashing. |
-| **v0.5.2** | **Validation Engine** | 3-pass deterministic replay, regression tracking, FP analyzer. |
-| **v0.5.3** | **Python Parity** | Native coverage for Django/FastAPI/Flask/SQLAlchemy rules. |
-| **v0.5.4** | **Usability & Reporting** | 9-section reports, remediation triage, sensitive data masking. |
-| **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |
+| **v6.0.0** | **Governed Remediation** | Isolated run folders, stable finding IDs, root-cause clustering, remediation bundles, patch policy governance, targeted rechecks, and SARIF v2.1.0. |
 | **v0.5.6** | **Large-Project Validation** | 10-repo validation suite, context rule tuning, seeded recall, honest readiness. |
+| **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |
+| **v0.5.4** | **Usability & Reporting** | 9-section reports, remediation triage, sensitive data masking. |
+| **v0.5.3** | **Python Parity** | Native coverage for Django/FastAPI/Flask/SQLAlchemy rules. |
+| **v0.5.2** | **Validation Engine** | 3-pass deterministic replay, regression tracking, FP analyzer. |
+| **v0.5.1** | **Provenance & Confidence** | Auditable 5-factor confidence scoring, SHA-256 evidence hashing. |
+| **v0.5.0** | **Workflow Architecture** | 6-stage lifecycle, 10 formal JSON schemas, core engine. |
 
 ---
 

@@ -5,6 +5,18 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2026-08-31
+
+### Added
+- **Run Folder & Artifact Registry (`core/run_manager.py`):** Dedicated, isolated run directory (`runs/<run-id>/`) containing `manifest.json`, `summary.md`, `findings.md`, `remediation.md`, `apply-plan.md`, `recheck.md`, `evidence.json`, `diff-summary.md`, `changed-files.txt`, `sarif.json`, and `logs/`.
+- **Line-Shift Invariant Finding Fingerprints (`core/identity.py`):** Deterministic fingerprint hashing based on Rule ID, normalized file path, code region hash, and sink signatures that survive minor code refactorings and line shifts.
+- **Root-Cause Clustering Engine (`core/clustering.py`):** Automatic grouping of related findings into systemic root-cause clusters (`cluster-tenant-isolation`, `cluster-path-traversal`, `cluster-template-escaping`, `cluster-header-trust`, `cluster-idor-scoping`, `cluster-rate-limiting`, `cluster-ssrf-network`, `cluster-webhook-auth`, `cluster-secrets`).
+- **Structured Remediation Bundles (`core/bundle.py`):** Standardized remediation packages per finding (`finding.md`, `remediation.md`, `minimal_patch_plan.md`, `verify-after-change.md`, `metadata.json`).
+- **Minimal Patch Governance & Policy Enforcement (`core/governance.py`):** Enforces strict limits on line churn and file modifications, rejects boilerplate/comments, and escalates sensitive contexts (auth, crypto, tenant isolation, DB, uploads).
+- **Targeted Recheck Engine (`core/rechecker.py`):** Differential re-audits scoped strictly to modified files and adjacent trust boundaries with explicit status transitions (`Confirmed Fixed`, `Partially Fixed`, `Needs Manual Review`, `Regressed`, `Not Reproducible`).
+- **SARIF v2.1.0 JSON Export (`core/sarif.py`):** Standard SARIF export for CI/CD, GitHub Advanced Security, and SIEM interoperability.
+- **Unified v6 Workflow Controller (`core/v6_workflow.py`):** End-to-end orchestration of scan, cluster, harden, apply, recheck, and report cycles.
+
 ## [0.5.6] - 2026-08-27
 
 ### Added

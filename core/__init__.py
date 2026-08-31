@@ -1,6 +1,7 @@
 """
-TorusGuard Core Architecture & Workflow Engine (v0.5.4)
-Provides normalized finding models, provenance chains, auditable confidence scoring, prioritized remediations, and ticket-ready reports.
+TorusGuard Core Architecture & Governed Remediation Engine (v6.0.0)
+Provides stable finding identities, root-cause clustering, remediation bundles,
+minimal patch governance, targeted recheck, run folder management, and SARIF exports.
 """
 
 from .models import (
@@ -29,8 +30,17 @@ from .models import (
 )
 from .lifecycle import FindingLifecycleManager, LifecycleTransitionError
 from .formatter import ReportFormatter
+from .identity import IdentityEngine, FindingFingerprint
+from .clustering import ClusteringEngine, RootCauseCluster
+from .bundle import BundleManager, RemediationBundle
+from .governance import PatchGovernor, PatchPolicyDecision
+from .rechecker import TargetedRechecker, TargetedRecheckResult, RecheckOutcome
+from .run_manager import RunManager
+from .sarif import SarifExporter
+from .v6_reporter import V6Reporter
+from .v6_workflow import V6Workflow
 
-__version__ = "0.5.4"
+__version__ = "6.0.0"
 __all__ = [
     "Finding",
     "Evidence",
@@ -57,4 +67,20 @@ __all__ = [
     "FindingLifecycleManager",
     "LifecycleTransitionError",
     "ReportFormatter",
+    "IdentityEngine",
+    "FindingFingerprint",
+    "ClusteringEngine",
+    "RootCauseCluster",
+    "BundleManager",
+    "RemediationBundle",
+    "PatchGovernor",
+    "PatchPolicyDecision",
+    "TargetedRechecker",
+    "TargetedRecheckResult",
+    "RecheckOutcome",
+    "RunManager",
+    "SarifExporter",
+    "V6Reporter",
+    "V6Workflow",
 ]
+
