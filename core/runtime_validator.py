@@ -101,46 +101,15 @@ class WebValidator:
             return 0, {}, "BLOCKED_BY_SAFETY_GATE", decision
 
         # 4. Prepare Headers (inject session cookies and custom headers)
-        merged_headers = dict(self.session.custom_headers)
-        if headers:
-            merged_headers.update(headers)
-
-        cookie_str = self.session.get_cookie_header()
-        if cookie_str and "Cookie" not in merged_headers:
-            merged_headers["Cookie"] = cookie_str
-
-        # Add TorusGuard identification header for transparent auditing
-        merged_headers["User-Agent"] = "TorusGuard-RuntimeValidator/0.7.0 (Authorized Audit)"
-        merged_headers["X-TorusGuard-AuthID"] = self.auth.authorization_id
+        merged_headers = self._prepare_request_headers(headers)
 
         # 5. Dispatch HTTP Request
-        status_code = 0
-        resp_headers = {}
-        resp_body = ""
-
-        req_data = body.encode("utf-8") if body else None
-        req = urllib.request.Request(target_url, data=req_data, headers=merged_headers, method=method.upper())
-
-        try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                status_code = resp.getcode()
-                resp_headers = dict(resp.headers)
-                resp_body = resp.read().decode("utf-8", errors="replace")
-
-                # Track Set-Cookie if returned
-                if "Set-Cookie" in resp_headers:
-                    self._parse_and_store_cookies(resp_headers["Set-Cookie"])
-
-        except urllib.error.HTTPError as e:
-            status_code = e.code
-            resp_headers = dict(e.headers)
-            resp_body = e.read().decode("utf-8", errors="replace")
-        except urllib.error.URLError as e:
-            status_code = 599
-            resp_body = f"Network connection error: {e.reason}"
-        except Exception as e:
-            status_code = 599
-            resp_body = f"Unexpected runtime error: {str(e)}"
+        status_code, resp_headers, resp_body = self._dispatch_http(
+            method=method,
+            target_url=target_url,
+            headers=merged_headers,
+            body=body
+        )
 
         # 6. Record interaction in Evidence Collector
         exploit_status = "Runtime Confirmed" if (expected_status and status_code == expected_status) else "Runtime Likely"
@@ -170,6 +139,53 @@ class WebValidator:
         })
 
         return status_code, resp_headers, resp_body, decision
+
+    def _prepare_request_headers(self, headers: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+        """Merges session headers, cookies, and transparent TorusGuard audit headers."""
+        merged_headers = dict(self.session.custom_headers)
+        if headers:
+            merged_headers.update(headers)
+
+        cookie_str = self.session.get_cookie_header()
+        if cookie_str and "Cookie" not in merged_headers:
+            merged_headers["Cookie"] = cookie_str
+
+        merged_headers["User-Agent"] = "TorusGuard-RuntimeValidator/0.7.0 (Authorized Audit)"
+        merged_headers["X-TorusGuard-AuthID"] = self.auth.authorization_id
+        return merged_headers
+
+    def _dispatch_http(
+        self, method: str, target_url: str, headers: Dict[str, str], body: Optional[str] = None
+    ) -> Tuple[int, Dict[str, str], str]:
+        """Executes low-level HTTP interaction and parses response cookies/errors."""
+        status_code = 0
+        resp_headers: Dict[str, str] = {}
+        resp_body = ""
+
+        req_data = body.encode("utf-8") if body else None
+        req = urllib.request.Request(target_url, data=req_data, headers=headers, method=method.upper())
+
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                status_code = resp.getcode()
+                resp_headers = dict(resp.headers)
+                resp_body = resp.read().decode("utf-8", errors="replace")
+
+                if "Set-Cookie" in resp_headers:
+                    self._parse_and_store_cookies(resp_headers["Set-Cookie"])
+
+        except urllib.error.HTTPError as e:
+            status_code = e.code
+            resp_headers = dict(e.headers)
+            resp_body = e.read().decode("utf-8", errors="replace")
+        except urllib.error.URLError as e:
+            status_code = 599
+            resp_body = f"Network connection error: {e.reason}"
+        except Exception as e:
+            status_code = 599
+            resp_body = f"Unexpected runtime error: {str(e)}"
+
+        return status_code, resp_headers, resp_body
 
     def _parse_and_store_cookies(self, cookie_header: str):
         for part in cookie_header.split(","):
