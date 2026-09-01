@@ -40,8 +40,18 @@ from .sarif import SarifExporter
 from .v6_reporter import V6Reporter
 from .v6_workflow import V6Workflow
 from .stack_profiler import StackProfiler, StackProfile
+from .authorization import AuthorizationManager, AuthorizationRecord, TargetScope, AuthorizationError
+from .safety_gate import SafetyGate, SafetyDecision, SafetyReviewLevel
+from .runtime_evidence import EvidenceCollector, RuntimeEvidenceItem, RedactionEngine
+from .runtime_validator import WebValidator, SessionState
+from .exploit_checker import ExploitChecker, ExploitCheckResult, ExploitabilityStatus
+from .browser_verifier import BrowserVerifier, BrowserAction
+from .agent_roles import RoleOrchestrator, RoleHandoff, AgentRole
+from .replay_trace import ReplayManager, ReplayTrace, ReplayStep
+from .v070_reporter import V070Reporter
+from .v070_workflow import V070Workflow
 
-__version__ = "0.6.3"
+__version__ = "0.7.0"
 __all__ = [
     "Finding",
     "Evidence",

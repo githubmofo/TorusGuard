@@ -59,15 +59,25 @@ Security updates and patches are prioritized for the current active release line
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v0.6.x` (`v0.6.3`) | ✅ Yes | Current active release line (Governed Remediation, Minimal Patching & Targeted Recheck System) |
+| `v0.7.x` (`v0.7.0`) | ✅ Yes | Current active release line (Authorized Runtime Validation & Bounded Exploitability Confirmation) |
+| `v0.6.x` | ✅ Yes | Governed Remediation, Minimal Patching & Targeted Recheck System |
 | `v0.5.x` | ⚠️ Best effort | Legacy reporting, validation engine, and rule schemas |
 | `< v0.5.0` | ❌ No | Deprecated |
 
 ---
 
+## Authorized Runtime Validation & Safety Controls (v0.7.0)
+
+TorusGuard v0.7.0 adds runtime validation controls ensuring no automated agent probes live systems without verified authorization:
+1. **Target Authorization Gate (`core/authorization.py`):** Requires written permission or target ownership verification with whitelisted hosts, allowed path prefixes, and request limits. Rejects unauthorized requests with `AuthorizationError`.
+2. **Safety Review Gates (`core/safety_gate.py`):** Categorizes requests into `Auto-Allowed`, `Approval Required`, and `Manual Only`, automatically blocking destructive or privileged actions (`/admin/delete`, `/system/shutdown`).
+3. **Automated Secret Redaction (`core/runtime_evidence.py`):** Strips Bearer tokens, credentials, and API keys prior to persisting request/response evidence.
+
+---
+
 ## Governed Remediation & Sensitive-Path Safety Controls
 
-TorusGuard v0.6.x incorporates proactive defense mechanisms to prevent AI coding agents from introducing regressions or applying unsafe automated code modifications:
+TorusGuard incorporates proactive defense mechanisms to prevent AI coding agents from introducing regressions or applying unsafe automated code modifications:
 
 1. **Patch Policy Governance (`core/governance.py`):**
    - Strictly enforces limits on additions ($\le 35$ lines) and deletions ($\le 25$ lines) per file.

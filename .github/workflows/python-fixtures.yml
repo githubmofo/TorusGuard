@@ -41,6 +41,7 @@ jobs:
       - name: Run Core Harness & Governed Remediation Test Suites
         run: |
           python harness/runner.py
+          python harness/validate_v0_7_0_runtime.py
           python harness/validate_v0_6_3_hardening.py
           python harness/validate_v0_6_2_modern_stacks.py
           python harness/validate_v0_6_1_scale.py

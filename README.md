@@ -51,16 +51,17 @@ TorusGuard features a formal closed-loop state machine governing every candidate
 
 ---
 
-## Current Release: v0.6.3 (Drift, Upload & Sensitive-Path Hardening)
+## Current Release: v0.7.0 (Authorized Runtime Validation & Bounded Exploitability)
 
-TorusGuard v0.6.3 marks the final hardening milestone of the v0.6.x release series:
-- **Cross-Run Drift Invariance:** Fingerprint hashing (`TG-FND-<hash12>`) remains 100% stable across git commits with surrounding line shifts and whitespace/comment refactoring.
-- **GitHub Code Scanning SARIF Deduplication:** Generated SARIF v2.1.0 logs incorporate `partialFingerprints` (`primaryLocationLineHash`) to prevent duplicate alerts in GitHub Security.
-- **Sensitive-Path Review Levels:** Stricter governance on Auth, Tenancy, Secrets, Crypto, Storage, and CI/CD paths, blocking automated patches for high churn.
-- **Zero False Positives on Modern Stacks:** Comprehensive negative test validation ensuring safe async views, `Annotated` dependencies, and SQLAlchemy 2.0 queries produce zero false alarms.
-- **Cross-Artifact Consistency Audit:** Complete synchronization across manifests, summaries, findings, remediation bundles, and SARIF exports.
+TorusGuard v0.7.0 extends TorusGuard into an **authorized runtime validation and bounded exploitability confirmation system**:
+- **Target Authorization Gate:** Enforces target ownership proof and strict scope limits (`scope.json`, `authorization.md`) before any probe is dispatched.
+- **Safety Review Gates:** Enforces explicit review levels (`Auto-Allowed`, `Approval Required`, `Manual Only`) on sensitive or state-changing operations.
+- **Bounded Exploitability Confirmation:** Safe, non-destructive runtime validation for Auth Bypass, IDOR, Header Trust, Path Traversal, and Debug Exposure across 5 formal statuses (`Runtime Confirmed`, `Runtime Likely`, `Needs Manual Review`, `Not Reproducible in Scope`, `Blocked by Environment / Controls`).
+- **4-Role Multi-Agent Workflow:** Explicit authority separation and handoff contracts between Profiler, Validator, Remediator, and Reviewer roles (`role-audit.json`, `agent-handoffs.md`).
+- **Replayable Validation Traces:** Deterministic verification sequences serialized to `replay.json` and `replay.md`.
+- **Multi-Analysis SARIF v2.1.0:** Partitioned category exports via `automationDetails.id: torusguard/runtime/`.
 
-*Read the complete release notes in [docs/releases/v0.6.3.md](docs/releases/v0.6.3.md) and the architecture specification in [docs/architecture/v0.6.3-drift-upload-governance.md](docs/architecture/v0.6.3-drift-upload-governance.md).*
+*Read the complete release notes in [docs/releases/v0.7.0.md](docs/releases/v0.7.0.md) and the architecture specification in [docs/architecture/v0.7.0-runtime-validation-architecture.md](docs/architecture/v0.7.0-runtime-validation-architecture.md).*
 
 ---
 
@@ -68,6 +69,7 @@ TorusGuard v0.6.3 marks the final hardening milestone of the v0.6.x release seri
 
 | Version | Focus / Key Feature | Summary of Deliverables |
 |:---:|---|---|
+| **v0.7.0** | **Authorized Runtime Validation** | Scope enforcement, bounded exploitability confirmation, browser verification, 4-role multi-agent workflow, replay traces, and multi-analysis SARIF. |
 | **v0.6.3** | **Final Hardening** | Drift invariance across commits, GitHub Code Scanning deduplication, sensitive path escalation, and negative modern stack tests. |
 | **v0.6.2** | **Modern Stack Compatibility** | Django 5.x async, FastAPI Pydantic v2, SQLAlchemy 2.0 select(), Next.js 14 Server Actions, uv/Poetry packaging, Dockerfile & GitHub Actions security. |
 | **v0.6.1** | **Scale & Complexity** | Monorepo support, noise filtering, high-density clustering, collapsible reports, and 1,000-item SARIF performance. |

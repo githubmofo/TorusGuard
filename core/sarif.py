@@ -21,10 +21,11 @@ class SarifExporter:
         cls,
         findings: List[Dict[str, Any]],
         clusters: Optional[List[Dict[str, Any]]] = None,
-        tool_version: str = "0.6.3",
+        tool_version: str = "0.7.0",
+        analysis_category: str = "torusguard/static",
     ) -> Dict[str, Any]:
         """
-        Builds a complete SARIF log dict.
+        Builds a complete SARIF log dict supporting multi-analysis category partitioning.
         """
         rules_map: Dict[str, Dict[str, Any]] = {}
         results: List[Dict[str, Any]] = []
@@ -109,7 +110,8 @@ class SarifExporter:
                     "confidence_band": confidence_band,
                     "cluster_id": cluster_id,
                     "recheck_status": f.get("recheck_status", "Unrechecked"),
-                    "tags": ["security", "governed-remediation", cluster_id]
+                    "runtime_exploitability": f.get("runtime_exploitability", "Not Tested"),
+                    "tags": ["security", "governed-remediation", cluster_id, analysis_category]
                 }
             }
             results.append(result_obj)
@@ -126,6 +128,9 @@ class SarifExporter:
                             "informationUri": "https://github.com/githubmofo/TorusGuard",
                             "rules": list(rules_map.values()),
                         }
+                    },
+                    "automationDetails": {
+                        "id": f"{analysis_category}/"
                     },
                     "results": results
                 }

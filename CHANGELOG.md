@@ -5,6 +5,19 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-09-01
+
+### Added
+- **Scope & Legal Authorization Gate (`core/authorization.py`):** Requires signed target ownership confirmation or written consent, whitelisted hosts, allowed path prefixes, forbidden sensitive paths, and request budgets before any probe is executed. Emits `scope.json` and `authorization.md`.
+- **Safety Review Gates (`core/safety_gate.py`):** Tiered risk evaluation (`Auto-Allowed`, `Approval Required`, `Manual Only`) blocking destructive actions (`/admin/delete`, `/system/shutdown`) and recording safety evaluations in `safety-decisions.json`.
+- **Web Validation & Secret Redaction (`core/runtime_validator.py`, `core/runtime_evidence.py`):** Bounded HTTP probing engine with session cookie tracking, request/response logging, and automatic Bearer JWT/token redaction.
+- **Bounded Exploitability Confirmation (`core/exploit_checker.py`):** Safe, single-step verification probes for Auth Bypass, Cross-Tenant IDOR, Header Trust Injection, Path Traversal, and Debug/Config Exposure across 5 formal statuses (`Runtime Confirmed`, `Runtime Likely`, `Needs Manual Review`, `Not Reproducible in Scope`, `Blocked by Environment / Controls`).
+- **Browser-Assisted Verification (`core/browser_verifier.py`):** Verification of client-side route guards and unauthenticated DOM exposure with navigation depth limits.
+- **4-Role Multi-Agent Workflow (`core/agent_roles.py`):** Explicit authority separation and handoff contracts between Profiler, Validator, Remediator, and Reviewer roles with audit trails in `agent-handoffs.md` and `role-audit.json`.
+- **Replayable Validation Traces (`core/replay_trace.py`):** Deterministic verification sequences serialized to `replay.json` and `replay.md` with rerun execution support.
+- **Unified Reporting & Multi-Analysis SARIF (`core/v070_reporter.py`, `core/sarif.py`):** Merged Markdown reporting and partitioned SARIF v2.1.0 exports via `automationDetails.id: torusguard/runtime/`.
+- **Comprehensive Runtime Validation Harness (`harness/validate_v0_7_0_runtime.py`):** 28 automated tests covering all runtime verification subsystems.
+
 ## [0.6.3] - 2026-08-31
 
 ### Added
