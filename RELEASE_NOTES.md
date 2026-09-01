@@ -86,3 +86,26 @@ gpg --verify SHA256SUMS.sig SHA256SUMS
 ```
 
 All official release git tags are signed by the project maintainer GPG key (`@githubmofo`).
+
+---
+
+## 📜 Historical Release Documentation
+
+| Version | Release Title | Release Document |
+|---|---|---|
+| **v0.7.0** | Authorized Runtime Validation & Bounded Exploitability Confirmation | [docs/releases/v0.7.0.md](docs/releases/v0.7.0.md) |
+| **v0.6.3** | Final Drift, Upload & Sensitive-Path Hardening | [docs/releases/v0.6.3.md](docs/releases/v0.6.3.md) |
+| **v0.6.2** | Modern Stack Compatibility (Django 5, FastAPI v2, Next.js 14) | [docs/releases/v0.6.2.md](docs/releases/v0.6.2.md) |
+| **v0.6.1** | Scale and Complexity Hardening (Monorepos & Hotspots) | [docs/releases/v0.6.1.md](docs/releases/v0.6.1.md) |
+| **v0.6.0** | Governed Remediation, Minimal Patching & Targeted Recheck | [docs/releases/v0.6.0.md](docs/releases/v0.6.0.md) |
+| **v0.5.6** | Large-Project Validation Suite & Rule Tuning Architecture | [docs/releases/v0.5.6.md](docs/releases/v0.5.6.md) |
+| **v0.5.5** | Folder-per-Run Architecture & Ponytail Integration | [docs/releases/v0.5.5.md](docs/releases/v0.5.5.md) |
+| **v0.5.4** | Usability, Clarity & Actionable Remediation Release | [docs/releases/v0.5.4.md](docs/releases/v0.5.4.md) |
+| **v0.5.3** | Python Security Coverage & Framework Guidance | [docs/releases/v0.5.3.md](docs/releases/v0.5.3.md) |
+| **v0.5.2** | Validation Engine & Deterministic Replay Release | [docs/releases/v0.5.2.md](docs/releases/v0.5.2.md) |
+| **v0.5.1** | Finding Quality & Provenance Release | [docs/releases/v0.5.1.md](docs/releases/v0.5.1.md) |
+| **v0.5.0** | Core Architecture & Workflow Release | [docs/releases/v0.5.0.md](docs/releases/v0.5.0.md) |
+| **v0.4.1** | Python Validation & Quality Patch | [docs/releases/v0.4.1.md](docs/releases/v0.4.1.md) |
+| **v0.4.0** | Python Platform Security | [docs/releases/v0.4.0.md](docs/releases/v0.4.0.md) |
+| **v0.3.0** | Advanced Web & API Security | [docs/releases/v0.3.0.md](docs/releases/v0.3.0.md) |
+| **v0.2.0** | Structured Audit Framework | [docs/releases/v0.2.0.md](docs/releases/v0.2.0.md) |

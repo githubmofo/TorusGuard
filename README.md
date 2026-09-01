@@ -206,28 +206,60 @@ To maintain technical honesty and clear boundaries:
 - **Not an "unhackable" guarantee:** No tool can guarantee 100% security.
 - **Not a client-side DRM:** Browser-delivered JavaScript cannot be hidden from DevTools; security must reside on the backend.
 
+## 📖 About TorusGuard
+
+TorusGuard is an open-source, Markdown-first security guidance system and authorized runtime verification engine created by **Jenish Lad** ([@githubmofo](https://github.com/githubmofo)).
+
+- **Mission:** Empower developers and AI coding agents to detect, verify, govern, and remediate web vulnerabilities with zero unverified claims and minimal code churn.
+- **The Browser-Truth Principle:** "If the browser receives it, users can inspect it." Security logic, database credentials, and tenant checks must remain on trusted server-side code.
+- **Tiered Architecture:** Cleanly separates Tier 1 (Canonical Models/Lifecycle), Tier 2 (Governed Remediation/SARIF), and Tier 3 (Authorized Runtime Validation).
+- **Read More:** See [docs/about.md](docs/about.md) for full architectural philosophy, origin, and design principles.
+
+---
+
+## 📋 Project Documentation & Governance
+
+| Document | Purpose |
+|---|---|
+| 📖 **[About TorusGuard](docs/about.md)** | Project mission, origin story, and architectural foundations |
+| 🛡️ **[Security Philosophy](docs/overview/security-philosophy.md)** | Strict legal authorization, non-destructive probing, and safety review gates |
+| 🧪 **[Testing Playbook](docs/usage/testing-playbook.md)** | Step-by-step verification guide using internal fixtures and OWASP Juice Shop |
+| 🚀 **[Release Notes](RELEASE_NOTES.md)** | Official release notes for v0.7.0 and historical milestones |
+| 🗺️ **[Development Roadmap](ROADMAP_v0_7_1.md)** | Prioritized v0.7.1+ backlog (`TG-AGENT-*`, diff line scanning, GraphQL/WebSockets) |
+| ⚠️ **[Issue Registry](KNOWN_ISSUES.md)** | Current known limitations, workarounds, and historical resolved issues |
+| 👥 **[Maintainer Guide](MAINTAINERS.md)** | Maintainer security hygiene, mandatory MFA, branch protection, and release signing |
+| 🔄 **[Refactoring Notes](REFACTORING_NOTES_v0_7.md)** | Structural refactoring log, module decomposition, and merge verification |
+
 ---
 
 ## Project Structure Overview
 
 ```text
 TorusGuard/
-├── schemas/                 # Formal JSON schemas (finding, evidence, remediation, rule, lifecycle)
-├── core/                    # Core workflow models, lifecycle state machine, and formatter
-├── harness/                 # Repeatable validation runner & large-project validation harness
+├── schemas/                 # 16 formal JSON schemas (finding, evidence, remediation, auth, replay)
+├── core/                    # 3-tier workflow engine:
+│   ├── (Tier 1) models.py, lifecycle.py, formatter.py (Canonical data models & state machine)
+│   ├── (Tier 2) governance.py, clustering.py, bundle.py, rechecker.py, sarif.py (Governed remediation)
+│   └── (Tier 3) authorization.py, safety_gate.py, runtime_validator.py, exploit_checker.py, replay_trace.py
+├── harness/                 # Repeatable validation test runners (v0.7.0, v0.6.3, v0.6.0, v0.5.4)
 ├── projects/                # Multi-repository validation manifest and seeded-case definitions
 ├── skills/TorusGuard/       # Portable skill instructions and reference modules
-├── rules/                   # 60+ documented security rules across 9 lifecycle categories
+├── rules/                   # 64 documented security rules across 9 lifecycle categories
 ├── templates/               # Standardized templates (SECURITY, audit, pre-flight)
 ├── guides/                  # Stack-specific implementation guides (Node.js & Python)
 ├── examples/                # Educational vulnerable & hardened reference applications
 ├── docs/                    
-│   ├── architecture/        # Architecture specifications (v0.5.0, v0.5.4, v0.5.6)
-│   ├── workflow/            # Finding lifecycle and verification guides
-│   ├── releases/            # Release notes (v0.2.0 - v0.5.6)
-│   ├── python-rule-mapping.md # Universal rule mapping across Python stacks
+│   ├── about.md             # Project mission, origin, and architectural foundations
+│   ├── overview/            # Security philosophy and governance principles
+│   ├── usage/               # Testing playbook and verification guide
+│   ├── architecture/        # Architecture specifications (v0.5.0 through v0.7.0)
+│   ├── releases/            # Detailed release notes (v0.2.0 through v0.7.0)
 │   ├── validation/          # Official validation reports & large-project portfolios
 │   └── roadmap.md           # Project roadmap & milestones
+├── KNOWN_ISSUES.md          # Transparent issue registry and resolved defect ledger
+├── RELEASE_NOTES.md         # Current release notes and artifact verification
+├── ROADMAP_v0_7_1.md        # v0.7.1+ development backlog and priorities
+├── MAINTAINERS.md           # Maintainer security hygiene and release criteria
 └── tests/                   # Test fixtures and regression test suites
 ```
 

@@ -16,9 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **4-Role Multi-Agent Workflow (`core/agent_roles.py`):** Explicit authority separation and handoff contracts between Profiler, Validator, Remediator, and Reviewer roles with audit trails in `agent-handoffs.md` and `role-audit.json`.
 - **Replayable Validation Traces (`core/replay_trace.py`):** Deterministic verification sequences serialized to `replay.json` and `replay.md` with rerun execution support.
 - **Unified Reporting & Multi-Analysis SARIF (`core/v070_reporter.py`, `core/sarif.py`):** Merged Markdown reporting and partitioned SARIF v2.1.0 exports via `automationDetails.id: torusguard/runtime/`.
-- **Comprehensive Runtime Validation Harness (`harness/validate_v0_7_0_runtime.py`):** 28 automated tests covering all runtime verification subsystems.
+- **Comprehensive Runtime Validation Harness (`harness/validate_v0_7_0_runtime.py`):** 67 automated assertions covering an exhaustive 10-phase senior QA and release audit (100% pass rate).
 
-## [0.6.3] - 2026-08-31
+### Changed
+- **Structural Architecture Refactor (`core/`):** Decomposed high-complexity controllers into single-responsibility helpers across `authorization.py`, `governance.py`, `sarif.py`, `runtime_validator.py`, and `v070_workflow.py`.
+- **Architectural Tiering & Public API:** Formally structured `core/__init__.py` into Tier 1 (Models/Lifecycle), Tier 2 (Governed Remediation), and Tier 3 (Runtime Validation), declaring all 58 public symbols in `__all__`.
+- **Continuous Validation & Governance (`SECURITY.md` & `MAINTAINERS.md`):** Established pre-release validation gates and maintainer security checklist.
 
 ### Added
 - **Multi-Commit Drift Invariance:** Line-shift invariant fingerprinting verified across multi-commit refactorings.
