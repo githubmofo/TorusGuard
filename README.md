@@ -51,30 +51,36 @@ TorusGuard features a formal closed-loop state machine governing every candidate
 
 ---
 
-## Current Release: v0.5.6 (Large-Project Validation & Rule-Tuning Suite)
+## Current Release: v0.7.0 (Authorized Runtime Validation & Bounded Exploitability)
 
-TorusGuard v0.5.6 introduces a structured validation architecture for large-scale, real-world repositories alongside context-aware rule tuning and honest readiness evaluation:
-- **10 Large-Project Validation Architecture (`projects/manifest.yaml`):** Standardized multi-repository validation harness supporting real-world Python codebases (Django, Flask, FastAPI, SQLAlchemy, DRF, Sentry, Requests, Pydantic, Celery, Scrapy) totaling 14,000+ source files.
-- **Rule Context Tuning & Guardrails:** Hardened detection rules (`TG-AUTH-008`, `TG-INPUT-005`, `TG-INPUT-006`, `TG-DB-004`) to distinguish safe framework mechanisms (e.g. auto-escaping, ORM tenant managers) and downgrade ambiguous contexts to `Needs Review`.
-- **Seeded-Case Recall Measurement:** Integrated known synthetic vulnerability seeds across target repositories to ensure rule tuning preserves high recall without blind suppression.
-- **Ponytail Patch Quality Tracking:** Structured ledger recording patch efficiency (files changed, line churn, excess comments, new risks, recheck outcomes).
-- **Honest Readiness Classification:** Strict policy against unverified 100% metrics. Distinguishes simulated workflow runs from real repository triage with clear pilot readiness boundaries.
+TorusGuard v0.7.0 extends TorusGuard into an **authorized runtime validation and bounded exploitability confirmation system**:
+- **Target Authorization Gate:** Enforces target ownership proof and strict scope limits (`scope.json`, `authorization.md`) before any probe is dispatched.
+- **Safety Review Gates:** Enforces explicit review levels (`Auto-Allowed`, `Approval Required`, `Manual Only`) on sensitive or state-changing operations.
+- **Bounded Exploitability Confirmation:** Safe, non-destructive runtime validation for Auth Bypass, IDOR, Header Trust, Path Traversal, and Debug Exposure across 5 formal statuses (`Runtime Confirmed`, `Runtime Likely`, `Needs Manual Review`, `Not Reproducible in Scope`, `Blocked by Environment / Controls`).
+- **4-Role Multi-Agent Workflow:** Explicit authority separation and handoff contracts between Profiler, Validator, Remediator, and Reviewer roles (`role-audit.json`, `agent-handoffs.md`).
+- **Replayable Validation Traces:** Deterministic verification sequences serialized to `replay.json` and `replay.md`.
+- **Multi-Analysis SARIF v2.1.0:** Partitioned category exports via `automationDetails.id: torusguard/runtime/`.
 
-*Read the complete release notes in [docs/releases/v0.5.6.md](docs/releases/v0.5.6.md) and the portfolio report in [docs/validation/v0.5.6-large-project-validation-report.md](docs/validation/v0.5.6-large-project-validation-report.md).*
+*Read the complete release notes in [docs/releases/v0.7.0.md](docs/releases/v0.7.0.md) and the architecture specification in [docs/architecture/v0.7.0-runtime-validation-architecture.md](docs/architecture/v0.7.0-runtime-validation-architecture.md).*
 
 ---
 
-## 🏗️ Version History (v0.5.x Series)
+## 🏗️ Version History
 
 | Version | Focus / Key Feature | Summary of Deliverables |
 |:---:|---|---|
-| **v0.5.0** | **Workflow Architecture** | 6-stage lifecycle, 10 formal JSON schemas, core engine. |
-| **v0.5.1** | **Provenance & Confidence** | Auditable 5-factor confidence scoring, SHA-256 evidence hashing. |
-| **v0.5.2** | **Validation Engine** | 3-pass deterministic replay, regression tracking, FP analyzer. |
-| **v0.5.3** | **Python Parity** | Native coverage for Django/FastAPI/Flask/SQLAlchemy rules. |
-| **v0.5.4** | **Usability & Reporting** | 9-section reports, remediation triage, sensitive data masking. |
-| **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |
+| **v0.7.0** | **Authorized Runtime Validation** | Scope enforcement, bounded exploitability confirmation, browser verification, 4-role multi-agent workflow, replay traces, and multi-analysis SARIF. |
+| **v0.6.3** | **Final Hardening** | Drift invariance across commits, GitHub Code Scanning deduplication, sensitive path escalation, and negative modern stack tests. |
+| **v0.6.2** | **Modern Stack Compatibility** | Django 5.x async, FastAPI Pydantic v2, SQLAlchemy 2.0 select(), Next.js 14 Server Actions, uv/Poetry packaging, Dockerfile & GitHub Actions security. |
+| **v0.6.1** | **Scale & Complexity** | Monorepo support, noise filtering, high-density clustering, collapsible reports, and 1,000-item SARIF performance. |
+| **v0.6.0** | **Governed Remediation** | Isolated run folders, stable finding IDs, root-cause clustering, remediation bundles, patch policy governance, targeted rechecks, and SARIF v2.1.0. |
 | **v0.5.6** | **Large-Project Validation** | 10-repo validation suite, context rule tuning, seeded recall, honest readiness. |
+| **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |
+| **v0.5.4** | **Usability & Reporting** | 9-section reports, remediation triage, sensitive data masking. |
+| **v0.5.3** | **Python Parity** | Native coverage for Django/FastAPI/Flask/SQLAlchemy rules. |
+| **v0.5.2** | **Validation Engine** | 3-pass deterministic replay, regression tracking, FP analyzer. |
+| **v0.5.1** | **Provenance & Confidence** | Auditable 5-factor confidence scoring, SHA-256 evidence hashing. |
+| **v0.5.0** | **Workflow Architecture** | 6-stage lifecycle, 10 formal JSON schemas, core engine. |
 
 ---
 
@@ -139,28 +145,56 @@ When an audit report is generated:
 
 ---
 
-## Validation & Quality Harness
+---
 
-TorusGuard maintains repeatable automated validation harnesses:
+## 🧪 How TorusGuard Is Tested
+
+TorusGuard maintains a multi-tier automated validation harness ensuring every release is safe, honest, and backwards-compatible:
 
 ```bash
-# Core validation suite (schemas, rules, differential fixtures)
-python harness/runner.py
+# 1. Full v0.7.0 Runtime & Safety Gate Validation Suite (67 checks)
+python harness/validate_v0_7_0_runtime.py
 
-# Large-project validation harness (multi-repo validation & recall benchmarking)
-python harness/validate_large_projects.py projects/manifest.yaml
+# 2. Final Hardening, Drift Invariance & SARIF Upload Suite (24 checks)
+python harness/validate_v0_6_3_hardening.py
+
+# 3. Modern Stack Compatibility Suite (Django 5, FastAPI v2, Next.js 14) (19 checks)
+python harness/validate_v0_6_2_modern_stacks.py
+
+# 4. Scale & Monorepo Benchmark Suite (23 checks)
+python harness/validate_v0_6_1_scale.py
+
+# 5. Governed Remediation & Targeted Recheck QA Suite (93 checks)
+python harness/validate_qa_v0_6_0.py
+
+# 6. Core Schemas, Catalog & Replay Harness (75 checks)
+python harness/runner.py
 ```
 
-The harness suite verifies:
-- **Schema Validation:** Verifies all schemas in `schemas/`.
-- **Rule Catalog Integrity:** Validates 60+ unique `TG-*` rule IDs with 0 duplicates.
-- **Differential Fixtures:** Tests vulnerable vs hardened pairs in `examples/python/`.
-- **Stack Detection Fixtures:** Tests 7 repository layouts in `tests/fixtures/python/stack-detection/`.
-- **Regression Suite:** Executes paired Python regression fixtures in `tests/fixtures/python/`.
-- **Large-Project Profiles:** Tests 10 major repository profiles in `projects/manifest.yaml`.
-- **Lifecycle Assertions:** Validates state machine transitions.
+### Testing Scope & Safety Commitments
+- **Zero Destructive Exploits:** TorusGuard strictly avoids destructive offensive testing, memory exploitation, denial of service, and parameter fuzzing. Probes are bounded single-step verifications stopping on first proof.
+- **Educational Fixtures & Safe Labs:** Tested against internal paired vulnerable/hardened fixtures (`examples/python/`, `tests/fixtures/`) and external lab targets (such as local **OWASP Juice Shop** instances).
+- **Read the Complete Audit Report:** See [docs/validation/v0.7.0-qa-sign-off.md](docs/validation/v0.7.0-qa-sign-off.md) for the complete 10-phase release audit and [docs/usage/testing-playbook.md](docs/usage/testing-playbook.md) for reproducing the testing lab.
 
-*Read the complete validation summary in [docs/validation/README.md](docs/validation/README.md).*
+---
+
+## 🎯 Usage & Positioning
+
+### How I Use TorusGuard Myself
+- **Default Assistant for New Python Web Projects:** Run `/torusguard init` and `/torusguard audit` at project kick-off to establish baseline security headers, secret management, and ORM query scoping.
+- **CI Pipelines for Web Services:** Export standard OASIS SARIF v2.1.0 via `/torusguard audit` to GitHub Code Scanning to catch authorization regressions and insecure defaults before merge.
+- **Periodic Re-audits of Critical Apps:** Run `/torusguard audit` followed by `/torusguard harden` on established repositories to cluster systemic vulnerabilities and generate minimal-churn remediation bundles.
+
+### How Other Developers Should Use TorusGuard
+- **10-Minute Quickstart Flow:**
+  1. Clone or open your target repository.
+  2. Run `/torusguard audit` to discover your stack profile and cluster vulnerabilities.
+  3. Review candidate patches in `.torusguard/runs/.../remediation.md`.
+  4. Apply minimal patches using `/torusguard apply` and confirm fixes with `/torusguard recheck`.
+- **Optional Runtime Validation:** On authorized local dev servers or staging instances, use `/torusguard authorize` followed by `/torusguard web-validate` and `/torusguard exploit-check` to confirm exploitability.
+- **Clear Positioning:** TorusGuard is **not** an autonomous offensive penetration testing agent. It is a governed security analysis, verification, and remediation tool built to keep developers and AI coding agents safe.
+
+---
 
 ---
 
@@ -172,28 +206,60 @@ To maintain technical honesty and clear boundaries:
 - **Not an "unhackable" guarantee:** No tool can guarantee 100% security.
 - **Not a client-side DRM:** Browser-delivered JavaScript cannot be hidden from DevTools; security must reside on the backend.
 
+## 📖 About TorusGuard
+
+TorusGuard is an open-source, Markdown-first security guidance system and authorized runtime verification engine created by **Jenish Lad** ([@githubmofo](https://github.com/githubmofo)).
+
+- **Mission:** Empower developers and AI coding agents to detect, verify, govern, and remediate web vulnerabilities with zero unverified claims and minimal code churn.
+- **The Browser-Truth Principle:** "If the browser receives it, users can inspect it." Security logic, database credentials, and tenant checks must remain on trusted server-side code.
+- **Tiered Architecture:** Cleanly separates Tier 1 (Canonical Models/Lifecycle), Tier 2 (Governed Remediation/SARIF), and Tier 3 (Authorized Runtime Validation).
+- **Read More:** See [docs/about.md](docs/about.md) for full architectural philosophy, origin, and design principles.
+
+---
+
+## 📋 Project Documentation & Governance
+
+| Document | Purpose |
+|---|---|
+| 📖 **[About TorusGuard](docs/about.md)** | Project mission, origin story, and architectural foundations |
+| 🛡️ **[Security Philosophy](docs/overview/security-philosophy.md)** | Strict legal authorization, non-destructive probing, and safety review gates |
+| 🧪 **[Testing Playbook](docs/usage/testing-playbook.md)** | Step-by-step verification guide using internal fixtures and OWASP Juice Shop |
+| 🚀 **[Release Notes](RELEASE_NOTES.md)** | Official release notes for v0.7.0 and historical milestones |
+| 🗺️ **[Development Roadmap](ROADMAP_v0_7_1.md)** | Prioritized v0.7.1+ backlog (`TG-AGENT-*`, diff line scanning, GraphQL/WebSockets) |
+| ⚠️ **[Issue Registry](KNOWN_ISSUES.md)** | Current known limitations, workarounds, and historical resolved issues |
+| 👥 **[Maintainer Guide](MAINTAINERS.md)** | Maintainer security hygiene, mandatory MFA, branch protection, and release signing |
+| 🔄 **[Refactoring Notes](REFACTORING_NOTES_v0_7.md)** | Structural refactoring log, module decomposition, and merge verification |
+
 ---
 
 ## Project Structure Overview
 
 ```text
 TorusGuard/
-├── schemas/                 # Formal JSON schemas (finding, evidence, remediation, rule, lifecycle)
-├── core/                    # Core workflow models, lifecycle state machine, and formatter
-├── harness/                 # Repeatable validation runner & large-project validation harness
+├── schemas/                 # 16 formal JSON schemas (finding, evidence, remediation, auth, replay)
+├── core/                    # 3-tier workflow engine:
+│   ├── (Tier 1) models.py, lifecycle.py, formatter.py (Canonical data models & state machine)
+│   ├── (Tier 2) governance.py, clustering.py, bundle.py, rechecker.py, sarif.py (Governed remediation)
+│   └── (Tier 3) authorization.py, safety_gate.py, runtime_validator.py, exploit_checker.py, replay_trace.py
+├── harness/                 # Repeatable validation test runners (v0.7.0, v0.6.3, v0.6.0, v0.5.4)
 ├── projects/                # Multi-repository validation manifest and seeded-case definitions
 ├── skills/TorusGuard/       # Portable skill instructions and reference modules
-├── rules/                   # 60+ documented security rules across 9 lifecycle categories
+├── rules/                   # 64 documented security rules across 9 lifecycle categories
 ├── templates/               # Standardized templates (SECURITY, audit, pre-flight)
 ├── guides/                  # Stack-specific implementation guides (Node.js & Python)
 ├── examples/                # Educational vulnerable & hardened reference applications
 ├── docs/                    
-│   ├── architecture/        # Architecture specifications (v0.5.0, v0.5.4, v0.5.6)
-│   ├── workflow/            # Finding lifecycle and verification guides
-│   ├── releases/            # Release notes (v0.2.0 - v0.5.6)
-│   ├── python-rule-mapping.md # Universal rule mapping across Python stacks
+│   ├── about.md             # Project mission, origin, and architectural foundations
+│   ├── overview/            # Security philosophy and governance principles
+│   ├── usage/               # Testing playbook and verification guide
+│   ├── architecture/        # Architecture specifications (v0.5.0 through v0.7.0)
+│   ├── releases/            # Detailed release notes (v0.2.0 through v0.7.0)
 │   ├── validation/          # Official validation reports & large-project portfolios
 │   └── roadmap.md           # Project roadmap & milestones
+├── KNOWN_ISSUES.md          # Transparent issue registry and resolved defect ledger
+├── RELEASE_NOTES.md         # Current release notes and artifact verification
+├── ROADMAP_v0_7_1.md        # v0.7.1+ development backlog and priorities
+├── MAINTAINERS.md           # Maintainer security hygiene and release criteria
 └── tests/                   # Test fixtures and regression test suites
 ```
 

@@ -99,25 +99,68 @@ This document outlines the development milestones, past releases, and future pri
 - **Ponytail Patch Quality Tracking Ledger:** Auditable diff metrics (line churn, 0 unrelated files changed, test pass confirmation).
 - **Transparent Pilot Readiness Classification:** Honest evaluation framework distinguishing simulated runs from human-triaged scans.
 
+### ✅ v0.6.0 — Governed Remediation & Targeted Recheck System (2026-08-31)
+- **Isolated Run Folder System (`RunManager`):** Dedicated execution folders (`runs/<run-id>/`) containing all 10 standard audit artifacts.
+- **Line-Shift Invariant Finding Fingerprints (`IdentityEngine`):** Deterministic fingerprint hashing based on AST sink signatures that survive line shifts.
+- **Root-Cause Clustering Engine (`ClusteringEngine`):** Automatic grouping of related findings into systemic root-cause clusters.
+- **Structured Remediation Bundles (`BundleManager`):** Standardized 5-file packages per cluster.
+- **Minimal Patch Governance (`PatchGovernor`):** Strict line churn bounds ($\le 35$ additions, $\le 25$ deletions).
+- **Targeted Recheck Engine (`TargetedRechecker`):** Differential re-audits scoped strictly to modified files.
+- **SARIF v2.1.0 JSON Export (`SarifExporter`):** Standard OASIS SARIF v2.1.0 output for CI/CD and SIEM.
+
+### ✅ v0.6.1 — Scale & Complexity Hardening (2026-08-31)
+- **Monorepo & Deep-Hierarchy Support:** Multi-framework applications (Django + FastAPI + Flask + Shared ORM) and 8-level directory resolution without truncation.
+- **Automated Generated/Vendor Noise Suppression:** Auto-filtering of `migrations/`, `dist/`, `build/`, `node_modules/`.
+- **High-Density Root-Cause Collapsing:** Collapses 250+ repeated alerts into 3 actionable clusters with hotspot metrics.
+- **Readable Report Guardrails:** Collapsible `<details>` tables triggered at 25+ findings.
+- **Scale Benchmarking:** Tested on 2,500+ files and 1,000+ SARIF items ($< 0.10\text{s}$ execution time).
+
+### ✅ v0.6.2 — Modern Stack Compatibility (2026-08-31)
+- **Modern Stack Profiler (`StackProfiler`):** Detection of framework version families (Django 5.x, FastAPI 0.100+, SQLAlchemy 2.0, Next.js 14+) and package managers (uv, Poetry, PEP 621).
+- **Async-Native Remediation:** Idiomatic patches for async view coroutines (`await aget()`) and async database queries (`AsyncSession`).
+- **FastAPI & Pydantic v2 Compatibility:** `Annotated[User, Depends()]` dependency injections.
+- **SQLAlchemy 2.0 select() Scoping:** Modern 2.0 select statement query scoping for multi-tenant isolation.
+- **Frontend Server Action Security:** Detection and remediation of Next.js 14 Server Actions (`"use server"`).
+- **Container & Supply Chain Security:** Hardening of Dockerfiles (non-root user, secret protection) and GitHub Actions.
+
+### ✅ v0.6.3 — Final Drift, Upload & Sensitive-Path Hardening (2026-08-31)
+- **Multi-Commit Drift Invariance:** Invariant fingerprints verified across multi-commit refactorings.
+- **GitHub Code Scanning SARIF Deduplication:** Added `partialFingerprints` (`primaryLocationLineHash`) to eliminate duplicate security alerts in GitHub PRs.
+- **Sensitive-Path Review Levels:** Stricter escalation hierarchy (`Automatic`, `Peer Review Recommended`, `Mandatory Security Sign-Off`) blocking auto-apply on Auth, Tenancy, Secrets, Crypto, Storage, and CI/CD.
+- **Modern-Stack Negative Test Suite:** Verified zero false positives on safe Django 5.x async, FastAPI `Annotated`, SQLAlchemy 2.0 select, and Next.js 14 Server Actions.
+
+### ✅ v0.7.0 — Authorized Runtime Validation & Bounded Exploitability (2026-09-01)
+- **Target Authorization Gate:** Enforces target ownership proof and strict scope limits (`scope.json`, `authorization.md`).
+- **Safety Review Gates:** Tiered risk evaluation (`Auto-Allowed`, `Approval Required`, `Manual Only`) blocking destructive actions.
+- **Bounded Exploitability Confirmation:** Safe, single-step verification probes across 5 formal statuses (`Runtime Confirmed`, `Runtime Likely`, `Needs Manual Review`, `Not Reproducible in Scope`, `Blocked by Controls`).
+- **4-Role Multi-Agent Workflow:** Explicit authority separation and handoff contracts between Profiler, Validator, Remediator, and Reviewer roles (`role-audit.json`, `agent-handoffs.md`).
+- **Replayable Validation Traces:** Deterministic verification sequences serialized to `replay.json` and `replay.md`.
+- **Multi-Analysis SARIF v2.1.0:** Partitioned category exports via `automationDetails.id: torusguard/runtime/`.
+- **Structural Architecture Refactoring:** Modular clean-tier refactor across core engine with 100% test pass rate.
+
 ---
 
-## 🎯 Next Incremental Milestones: v0.6.x Series
+## 🎯 Upcoming Milestones: v0.7.1+ Series
 
-The v0.5.x architecture provides the mature workflow foundation for upcoming platform and cloud-native expansions:
+Detailed specifications and priorities are tracked in [`ROADMAP_v0_7_1.md`](../ROADMAP_v0_7_1.md):
 
-### 🚀 v0.6.0 — Cloudflare Workers & Edge Isolation
-- [ ] Cloudflare Workers Security Guide: Request context isolation, KV/D1/R2 binding authorization, subrequest bounding.
-- [ ] Rule `TG-EDGE-001`: Cloudflare Worker global memory state leak prevention.
-- [ ] Paired vulnerable and hardened edge worker fixtures.
+### 🚀 v0.7.1 — PatchGovernor Diff Line Scanning & Agent Security (Q4 2026)
+- [ ] **Content-Aware Diff Line Scanning:** Extend `PatchGovernor` to scan added/modified unified diff lines for sensitive domain keywords (`auth`, `tenant`).
+- [ ] **`TG-AGENT-*` Rule Family:** First-class rules for agentic AI architectures:
+  - `TG-AGENT-001`: Direct/Indirect Prompt Injection in System Context Files.
+  - `TG-AGENT-002`: Unsafe Tool Dispatch & Shell Execution without Sandboxing.
+  - `TG-AGENT-003`: Overly Broad MCP Tool Scoping & Credential Access.
+  - `TG-AGENT-004`: Persistent Memory & Cross-Session Information Leakage.
 
-### 🚀 v0.6.1 — Next.js App Router Server Actions Security
-- [ ] Next.js Server Actions Authorization: Direct action endpoint session/role checks.
-- [ ] Rule `TG-EDGE-002`: Ephemeral memory state leak prevention during edge SSR.
-- [ ] Revalidation rate limits and cache tag poisoning prevention.
+### 🚀 v0.7.2 — GraphQL, WebSockets & Container Build Chains (Q1 2027)
+- [ ] **GraphQL & WebSocket Runtime Probes:** Bounded complexity introspection and WebSocket channel authorization assertions.
+- [ ] **Multi-Stage Container Build Inspection:** Detecting build-time secret persistence and layer caching leaks.
+- [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.
 
-### 🚀 v0.6.2 — AWS Lambda & Ephemeral Runtimes
-- [ ] Cold-start credential reuse, IAM execution boundaries, environment secret loading.
-- [ ] Rule `TG-EDGE-003`: Ephemeral execution timeout & subrequest bounding.
+### 🚀 v0.8.0 — Sandboxed Replay & Full Agentic MCP Suite (Q2 2027)
+- [ ] Headless Chromium sandbox integration inside bounded Docker environments.
+- [ ] Bidirectional WebSocket state-machine recording and deterministic replay.
+- [ ] Full MCP server security evaluation testbed.
 
 ---
 

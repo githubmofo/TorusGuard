@@ -59,6 +59,88 @@ Security updates and patches are prioritized for the current active release line
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v0.5.x` | ✅ Yes | Current active release line (Architecture & Workflow Release) |
-| `v0.4.x` | ⚠️ Best effort | Critical security fixes only |
-| `< v0.4.0` | ❌ No | Deprecated |
+| `v0.7.x` (`v0.7.0`) | ✅ Yes | Current active release line (Authorized Runtime Validation & Bounded Exploitability Confirmation) |
+| `v0.6.x` | ✅ Yes | Governed Remediation, Minimal Patching & Targeted Recheck System |
+| `v0.5.x` | ⚠️ Best effort | Legacy reporting, validation engine, and rule schemas |
+| `< v0.5.0` | ❌ No | Deprecated |
+
+---
+
+## Authorized Runtime Validation & Safety Controls (v0.7.0)
+
+TorusGuard v0.7.0 adds runtime validation controls ensuring no automated agent probes live systems without verified authorization:
+1. **Target Authorization Gate (`core/authorization.py`):** Requires written permission or target ownership verification with whitelisted hosts, allowed path prefixes, and request limits. Rejects unauthorized requests with `AuthorizationError`.
+2. **Safety Review Gates (`core/safety_gate.py`):** Categorizes requests into `Auto-Allowed`, `Approval Required`, and `Manual Only`, automatically blocking destructive or privileged actions (`/admin/delete`, `/system/shutdown`).
+3. **Automated Secret Redaction (`core/runtime_evidence.py`):** Strips Bearer tokens, credentials, and API keys prior to persisting request/response evidence.
+
+---
+
+## Governed Remediation & Sensitive-Path Safety Controls
+
+TorusGuard incorporates proactive defense mechanisms to prevent AI coding agents from introducing regressions or applying unsafe automated code modifications:
+
+1. **Patch Policy Governance (`core/governance.py`):**
+   - Strictly enforces limits on additions ($\le 35$ lines) and deletions ($\le 25$ lines) per file.
+   - Prohibits sweeping boilerplate rewrites, unstructured comment replacements, and multi-file cross-service churn.
+
+2. **Sensitive-Path Review Levels:**
+   - **Authentication & JWT:** Files matching `auth`, `login`, `jwt`, `token`, `session`, `password`.
+   - **Multi-Tenancy:** Files matching `tenant`, `tenant_id`, `organization_id`, `org_id`, `workspace_id`.
+   - **Secrets & Cryptography:** Files matching `secret`, `api_key`, `private_key`, `crypto`, `hmac`.
+   - **Storage & Uploads:** Files matching `upload`, `storage`, `filepath`, `save_file`.
+   - **CI/CD Infrastructure:** `.github/workflows/`, `Dockerfile`, `compose.yaml`.
+   - **Enforcement:** Diffs in sensitive contexts with $> 10$ line churn automatically escalate to `Mandatory Security Sign-Off` and block automated patch execution.
+
+3. **Targeted Scoped Recheck Verification (`core/rechecker.py`):**
+   - Automatically re-evaluates AST sinks and trust boundaries after code edits, requiring human intervention if any regression (`Regressed`) or incomplete remediation (`Needs Manual Review`) is detected.
+
+4. **GitHub Code Scanning Interoperability (`core/sarif.py`):**
+   - Emits standard OASIS SARIF v2.1.0 logs with `partialFingerprints` (`primaryLocationLineHash`) to guarantee deterministic alert tracking and eliminate duplicate alert noise across pull requests.
+
+---
+
+## Continuous Validation & Release Gate Policy
+
+To guarantee that future code changes never compromise security, safety, or backward compatibility, TorusGuard mandates the following release gate policies:
+
+### Mandatory Pre-Release Test Harnesses
+Before any release tag (`vX.Y.Z`) is published, the following automated test suites must be executed and achieve a **100% pass rate**:
+1. **Runtime Validation Suite (`harness/validate_v0_7_0_runtime.py`):**
+   - Asserts legal authorization gating, TTL expiration, host/path whitelist enforcement.
+   - Validates bounded exploitability classification, session cookie handling, and secret redaction.
+   - Verifies safety gate review levels (`Auto-Allowed`, `Approval Required`, `Manual Only`) and deterministic replay traces.
+2. **Hardening & Drift Suite (`harness/validate_v0_6_3_hardening.py`):**
+   - Verifies line-shift invariant fingerprint stability across multi-commit refactorings.
+   - Asserts SARIF v2.1.0 schema compliance, `primaryLocationLineHash` deduplication, and zero false positives on modern frameworks.
+3. **Governed Remediation QA Suite (`harness/validate_qa_v0_6_0.py`):**
+   - Validates run folder generation, 5-file remediation bundles, line churn limits ($\le 35$ additions), and targeted recheck transitions.
+4. **Core Schemas & Replay Suite (`harness/runner.py` & `harness/validate_e2e.py`):**
+   - Verifies JSON schema validity across all 16 schemas, 5-factor confidence scoring, SHA-256 evidence integrity, and 3-pass deterministic replay.
+
+### Blocking Release Criteria
+A proposed release is **strictly blocked** if any of the following occur:
+- ❌ Any failure in legal scope enforcement or out-of-scope host blocking.
+- ❌ Any regression in patch governance bounds or bypass of sensitive-path review escalation.
+- ❌ Any failure in secret redaction leading to unmasked Bearer tokens or credentials in logs.
+- ❌ Any non-deterministic variation in replay trace reproduction.
+
+### High-Risk Change Audit Trigger
+Whenever a pull request modifies:
+- Legal authorization or target scoping logic (`core/authorization.py`, `schemas/authorization.schema.json`),
+- The runtime validation or exploitability confirmation engine (`core/runtime_validator.py`, `core/exploit_checker.py`),
+- Patch governance or line churn rules (`core/governance.py`), or
+- High-risk canonical security rules (`TG-AUTH-*`, `TG-DB-004`, `TG-INPUT-006`),
+the author must execute a focused mini-audit against both safe and vulnerable fixtures, update the validation matrix, and secure sign-off from a second maintainer before merging.
+
+---
+
+## Maintainer Security Checklist
+
+All repository maintainers must comply with the operational security standards detailed in [`MAINTAINERS.md`](MAINTAINERS.md):
+- **Accounts:** Hardware 2FA/MFA enforced; zero shared maintainer credentials.
+- **Branches:** Strict branch protection on `main` and `v6`; PR review required on core engine, rule catalogs, and safety gates.
+- **Dependencies:** Reproducible lockfiles required; continuous scanning for dependency CVEs.
+- **Secrets:** CI secret scanning enabled; zero credentials permitted in commit history.
+- **Signing:** All release git tags and release assets must be cryptographically signed with maintainer GPG keys.
+
+

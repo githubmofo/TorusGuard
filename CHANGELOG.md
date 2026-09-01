@@ -5,6 +5,64 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-09-01
+
+### Added
+- **Scope & Legal Authorization Gate (`core/authorization.py`):** Requires signed target ownership confirmation or written consent, whitelisted hosts, allowed path prefixes, forbidden sensitive paths, and request budgets before any probe is executed. Emits `scope.json` and `authorization.md`.
+- **Safety Review Gates (`core/safety_gate.py`):** Tiered risk evaluation (`Auto-Allowed`, `Approval Required`, `Manual Only`) blocking destructive actions (`/admin/delete`, `/system/shutdown`) and recording safety evaluations in `safety-decisions.json`.
+- **Web Validation & Secret Redaction (`core/runtime_validator.py`, `core/runtime_evidence.py`):** Bounded HTTP probing engine with session cookie tracking, request/response logging, and automatic Bearer JWT/token redaction.
+- **Bounded Exploitability Confirmation (`core/exploit_checker.py`):** Safe, single-step verification probes for Auth Bypass, Cross-Tenant IDOR, Header Trust Injection, Path Traversal, and Debug/Config Exposure across 5 formal statuses (`Runtime Confirmed`, `Runtime Likely`, `Needs Manual Review`, `Not Reproducible in Scope`, `Blocked by Environment / Controls`).
+- **Browser-Assisted Verification (`core/browser_verifier.py`):** Verification of client-side route guards and unauthenticated DOM exposure with navigation depth limits.
+- **4-Role Multi-Agent Workflow (`core/agent_roles.py`):** Explicit authority separation and handoff contracts between Profiler, Validator, Remediator, and Reviewer roles with audit trails in `agent-handoffs.md` and `role-audit.json`.
+- **Replayable Validation Traces (`core/replay_trace.py`):** Deterministic verification sequences serialized to `replay.json` and `replay.md` with rerun execution support.
+- **Unified Reporting & Multi-Analysis SARIF (`core/v070_reporter.py`, `core/sarif.py`):** Merged Markdown reporting and partitioned SARIF v2.1.0 exports via `automationDetails.id: torusguard/runtime/`.
+- **Comprehensive Runtime Validation Harness (`harness/validate_v0_7_0_runtime.py`):** 67 automated assertions covering an exhaustive 10-phase senior QA and release audit (100% pass rate).
+
+### Changed
+- **Structural Architecture Refactor (`core/`):** Decomposed high-complexity controllers into single-responsibility helpers across `authorization.py`, `governance.py`, `sarif.py`, `runtime_validator.py`, and `v070_workflow.py`.
+- **Architectural Tiering & Public API:** Formally structured `core/__init__.py` into Tier 1 (Models/Lifecycle), Tier 2 (Governed Remediation), and Tier 3 (Runtime Validation), declaring all 58 public symbols in `__all__`.
+- **Continuous Validation & Governance (`SECURITY.md` & `MAINTAINERS.md`):** Established pre-release validation gates and maintainer security checklist.
+
+### Added
+- **Multi-Commit Drift Invariance:** Line-shift invariant fingerprinting verified across multi-commit refactorings.
+- **GitHub Code Scanning SARIF Deduplication (`core/sarif.py`):** Added `partialFingerprints` with `primaryLocationLineHash` and `torusguard/v6/identity` to eliminate duplicate security alerts in GitHub PRs.
+- **Sensitive-Path Review Levels (`core/governance.py`):** Stricter escalation hierarchy (`Automatic`, `Peer Review Recommended`, `Mandatory Security Sign-Off`) blocking auto-apply on Auth, Tenancy, Secrets, Crypto, Storage, and CI/CD.
+- **Modern-Stack Negative Test Suite (`harness/validate_v0_6_3_hardening.py`):** Verified zero false positives on safe Django 5.x async, FastAPI `Annotated`, SQLAlchemy 2.0 select, and Next.js 14 Server Actions.
+- **Cross-Artifact Consistency Engine:** Verified synchronization across Manifests, Summaries, Findings, Remediation Bundles, and SARIF JSON.
+
+## [0.6.2] - 2026-08-31
+
+### Added
+- **Modern Stack Profiler (`core/stack_profiler.py`):** Automatic detection of framework version families (Django 5.x, FastAPI 0.100+, SQLAlchemy 2.0, Next.js 14+) and package managers (uv, Poetry, PEP 621).
+- **Async-Native Remediation:** Idiomatic before/after patches for async view coroutines (`await aget()`) and async database queries (`AsyncSession`).
+- **FastAPI & Pydantic v2 Compatibility:** `Annotated[User, Depends()]` dependency injections and `pydantic-settings` environment configuration.
+- **SQLAlchemy 2.0 select() Scoping:** Modern 2.0 select statement query scoping for multi-tenant isolation.
+- **Frontend Server Action Security:** Detection and remediation of unauthenticated Next.js 14 Server Actions (`"use server"`).
+- **Container & Supply Chain Security:** Hardening of Dockerfiles (secrets, non-root user) and GitHub Actions (`permissions: read-all`, SHA pinning).
+- **Modern Stack Validation Harness (`harness/validate_v0_6_2_modern_stacks.py`):** 19 automated modern stack tests.
+
+## [0.6.1] - 2026-08-31
+
+### Added
+- **Monorepo & Deep-Hierarchy Support:** Unified multi-application discovery (Django + FastAPI + Flask + Shared ORM) and 8-level directory resolution without identity collisions.
+- **Automated Generated/Vendor Noise Suppression:** Auto-filtering of non-actionable paths (`migrations/`, `node_modules/`, `dist/`, `build/`, `*.min.js`, `*.pb.go`).
+- **High-Density Root-Cause Collapsing:** Ability to group and collapse 250+ repeated vulnerability alerts into systemic root-cause clusters with module hotspot metrics.
+- **Readable Report Guardrails:** Collapsible `<details>` tables triggered at 25+ findings to prevent unreadable Markdown report bloat.
+- **Sub-Second Scale Performance:** Tested on 2,500+ files and 1,000+ SARIF items ($< 0.10\text{s}$ execution time).
+- **Scale & Complexity Benchmark Harness (`harness/validate_v0_6_1_scale.py`):** 23 automated stress assertions.
+
+## [0.6.0] - 2026-08-31
+
+### Added
+- **Run Folder & Artifact Registry (`core/run_manager.py`):** Dedicated, isolated run directory (`runs/<run-id>/`) containing `manifest.json`, `summary.md`, `findings.md`, `remediation.md`, `apply-plan.md`, `recheck.md`, `evidence.json`, `diff-summary.md`, `changed-files.txt`, `sarif.json`, and `logs/`.
+- **Line-Shift Invariant Finding Fingerprints (`core/identity.py`):** Deterministic fingerprint hashing based on Rule ID, normalized file path, code region hash, and sink signatures that survive minor code refactorings and line shifts.
+- **Root-Cause Clustering Engine (`core/clustering.py`):** Automatic grouping of related findings into systemic root-cause clusters (`cluster-tenant-isolation`, `cluster-path-traversal`, `cluster-template-escaping`, `cluster-header-trust`, `cluster-idor-scoping`, `cluster-rate-limiting`, `cluster-ssrf-network`, `cluster-webhook-auth`, `cluster-secrets`).
+- **Structured Remediation Bundles (`core/bundle.py`):** Standardized remediation packages per finding (`finding.md`, `remediation.md`, `minimal_patch_plan.md`, `verify-after-change.md`, `metadata.json`).
+- **Minimal Patch Governance & Policy Enforcement (`core/governance.py`):** Enforces strict limits on line churn and file modifications, rejects boilerplate/comments, and escalates sensitive contexts (auth, crypto, tenant isolation, DB, uploads).
+- **Targeted Recheck Engine (`core/rechecker.py`):** Differential re-audits scoped strictly to modified files and adjacent trust boundaries with explicit status transitions (`Confirmed Fixed`, `Partially Fixed`, `Needs Manual Review`, `Regressed`, `Not Reproducible`).
+- **SARIF v2.1.0 JSON Export (`core/sarif.py`):** Standard SARIF export for CI/CD, GitHub Advanced Security, and SIEM interoperability.
+- **Unified v6 Workflow Controller (`core/v6_workflow.py`):** End-to-end orchestration of scan, cluster, harden, apply, recheck, and report cycles.
+
 ## [0.5.6] - 2026-08-27
 
 ### Added

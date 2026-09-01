@@ -102,3 +102,9 @@ Before submitting:
 - [ ] Technical claims are accurate and avoid exaggerated claims ("unhackable", "100% secure").
 - [ ] Markdown formatting is clean, valid, and all internal links resolve.
 - [ ] Relevant catalog files (`rules/README.md`) and `CHANGELOG.md` are updated if applicable.
+- [ ] All verification test suites pass cleanly:
+  ```bash
+  python harness/runner.py
+  python harness/validate_v0_6_3_hardening.py
+  python tests/test_v0_6_0_governed_remediation.py
+  ```

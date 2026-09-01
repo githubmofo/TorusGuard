@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TorusGuardRootCauseCluster",
+  "description": "Schema for TorusGuard v6 Root-Cause Clusters",
+  "type": "object",
+  "required": [
+    "cluster_id",
+    "title",
+    "primary_rule",
+    "affected_files",
+    "finding_ids",
+    "shared_remediation_path",
+    "shared_verification_plan",
+    "risk_severity"
+  ],
+  "properties": {
+    "cluster_id": {
+      "type": "string",
+      "pattern": "^cluster-[a-z0-9-]+$"
+    },
+    "title": {
+      "type": "string"
+    },
+    "primary_rule": {
+      "type": "string",
+      "pattern": "^TG-[A-Z]+-[0-9]{3}$"
+    },
+    "affected_files": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "affected_locations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "finding_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "shared_remediation_path": {
+      "type": "string"
+    },
+    "shared_verification_plan": {
+      "type": "string"
+    },
+    "risk_severity": {
+      "type": "string",
+      "enum": ["Critical", "High", "Medium", "Low", "Informational"]
+    }
+  },
+  "additionalProperties": true
+}

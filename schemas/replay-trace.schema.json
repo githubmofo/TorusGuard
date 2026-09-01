@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TorusGuardReplayTrace",
+  "description": "Schema for TorusGuard v0.7.0 replayable validation traces.",
+  "type": "object",
+  "required": [
+    "trace_id",
+    "finding_id",
+    "created_at",
+    "target_base_url",
+    "steps"
+  ],
+  "properties": {
+    "trace_id": {
+      "type": "string"
+    },
+    "finding_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "target_base_url": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step_number", "action_type", "target"],
+        "properties": {
+          "step_number": {
+            "type": "integer"
+          },
+          "action_type": {
+            "type": "string",
+            "enum": ["http_request", "browser_navigate", "dom_assert", "header_assert", "status_assert"]
+          },
+          "target": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "headers": {
+            "type": "object"
+          },
+          "expected_status": {
+            "type": "integer"
+          },
+          "expected_pattern": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

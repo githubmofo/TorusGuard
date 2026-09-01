@@ -27,7 +27,7 @@ permissions:
 
 jobs:
   validation-harness:
-    name: TorusGuard Validation Harness (v0.5.4)
+    name: TorusGuard Validation Harness (v0.6.x)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -38,10 +38,15 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Run Validation Harness
+      - name: Run Core Harness & Governed Remediation Test Suites
         run: |
           python harness/runner.py
-          python harness/validate_e2e.py
+          python harness/validate_v0_7_0_runtime.py
+          python harness/validate_v0_6_3_hardening.py
+          python harness/validate_v0_6_2_modern_stacks.py
+          python harness/validate_v0_6_1_scale.py
+          python harness/validate_qa_v0_6_0.py
+          python tests/test_v0_6_0_governed_remediation.py
 
   verify-fixtures:
     name: Verify ${{ matrix.fixture }}
