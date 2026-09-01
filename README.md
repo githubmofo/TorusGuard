@@ -145,28 +145,56 @@ When an audit report is generated:
 
 ---
 
-## Validation & Quality Harness
+---
 
-TorusGuard maintains repeatable automated validation harnesses:
+## 🧪 How TorusGuard Is Tested
+
+TorusGuard maintains a multi-tier automated validation harness ensuring every release is safe, honest, and backwards-compatible:
 
 ```bash
-# Core validation suite (schemas, rules, differential fixtures)
-python harness/runner.py
+# 1. Full v0.7.0 Runtime & Safety Gate Validation Suite (67 checks)
+python harness/validate_v0_7_0_runtime.py
 
-# Large-project validation harness (multi-repo validation & recall benchmarking)
-python harness/validate_large_projects.py projects/manifest.yaml
+# 2. Final Hardening, Drift Invariance & SARIF Upload Suite (24 checks)
+python harness/validate_v0_6_3_hardening.py
+
+# 3. Modern Stack Compatibility Suite (Django 5, FastAPI v2, Next.js 14) (19 checks)
+python harness/validate_v0_6_2_modern_stacks.py
+
+# 4. Scale & Monorepo Benchmark Suite (23 checks)
+python harness/validate_v0_6_1_scale.py
+
+# 5. Governed Remediation & Targeted Recheck QA Suite (93 checks)
+python harness/validate_qa_v0_6_0.py
+
+# 6. Core Schemas, Catalog & Replay Harness (75 checks)
+python harness/runner.py
 ```
 
-The harness suite verifies:
-- **Schema Validation:** Verifies all schemas in `schemas/`.
-- **Rule Catalog Integrity:** Validates 60+ unique `TG-*` rule IDs with 0 duplicates.
-- **Differential Fixtures:** Tests vulnerable vs hardened pairs in `examples/python/`.
-- **Stack Detection Fixtures:** Tests 7 repository layouts in `tests/fixtures/python/stack-detection/`.
-- **Regression Suite:** Executes paired Python regression fixtures in `tests/fixtures/python/`.
-- **Large-Project Profiles:** Tests 10 major repository profiles in `projects/manifest.yaml`.
-- **Lifecycle Assertions:** Validates state machine transitions.
+### Testing Scope & Safety Commitments
+- **Zero Destructive Exploits:** TorusGuard strictly avoids destructive offensive testing, memory exploitation, denial of service, and parameter fuzzing. Probes are bounded single-step verifications stopping on first proof.
+- **Educational Fixtures & Safe Labs:** Tested against internal paired vulnerable/hardened fixtures (`examples/python/`, `tests/fixtures/`) and external lab targets (such as local **OWASP Juice Shop** instances).
+- **Read the Complete Audit Report:** See [docs/validation/v0.7.0-qa-sign-off.md](docs/validation/v0.7.0-qa-sign-off.md) for the complete 10-phase release audit and [docs/usage/testing-playbook.md](docs/usage/testing-playbook.md) for reproducing the testing lab.
 
-*Read the complete validation summary in [docs/validation/README.md](docs/validation/README.md).*
+---
+
+## 🎯 Usage & Positioning
+
+### How I Use TorusGuard Myself
+- **Default Assistant for New Python Web Projects:** Run `/torusguard init` and `/torusguard audit` at project kick-off to establish baseline security headers, secret management, and ORM query scoping.
+- **CI Pipelines for Web Services:** Export standard OASIS SARIF v2.1.0 via `/torusguard audit` to GitHub Code Scanning to catch authorization regressions and insecure defaults before merge.
+- **Periodic Re-audits of Critical Apps:** Run `/torusguard audit` followed by `/torusguard harden` on established repositories to cluster systemic vulnerabilities and generate minimal-churn remediation bundles.
+
+### How Other Developers Should Use TorusGuard
+- **10-Minute Quickstart Flow:**
+  1. Clone or open your target repository.
+  2. Run `/torusguard audit` to discover your stack profile and cluster vulnerabilities.
+  3. Review candidate patches in `.torusguard/runs/.../remediation.md`.
+  4. Apply minimal patches using `/torusguard apply` and confirm fixes with `/torusguard recheck`.
+- **Optional Runtime Validation:** On authorized local dev servers or staging instances, use `/torusguard authorize` followed by `/torusguard web-validate` and `/torusguard exploit-check` to confirm exploitability.
+- **Clear Positioning:** TorusGuard is **not** an autonomous offensive penetration testing agent. It is a governed security analysis, verification, and remediation tool built to keep developers and AI coding agents safe.
+
+---
 
 ---
 

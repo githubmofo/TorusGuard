@@ -97,3 +97,50 @@ TorusGuard incorporates proactive defense mechanisms to prevent AI coding agents
 4. **GitHub Code Scanning Interoperability (`core/sarif.py`):**
    - Emits standard OASIS SARIF v2.1.0 logs with `partialFingerprints` (`primaryLocationLineHash`) to guarantee deterministic alert tracking and eliminate duplicate alert noise across pull requests.
 
+---
+
+## Continuous Validation & Release Gate Policy
+
+To guarantee that future code changes never compromise security, safety, or backward compatibility, TorusGuard mandates the following release gate policies:
+
+### Mandatory Pre-Release Test Harnesses
+Before any release tag (`vX.Y.Z`) is published, the following automated test suites must be executed and achieve a **100% pass rate**:
+1. **Runtime Validation Suite (`harness/validate_v0_7_0_runtime.py`):**
+   - Asserts legal authorization gating, TTL expiration, host/path whitelist enforcement.
+   - Validates bounded exploitability classification, session cookie handling, and secret redaction.
+   - Verifies safety gate review levels (`Auto-Allowed`, `Approval Required`, `Manual Only`) and deterministic replay traces.
+2. **Hardening & Drift Suite (`harness/validate_v0_6_3_hardening.py`):**
+   - Verifies line-shift invariant fingerprint stability across multi-commit refactorings.
+   - Asserts SARIF v2.1.0 schema compliance, `primaryLocationLineHash` deduplication, and zero false positives on modern frameworks.
+3. **Governed Remediation QA Suite (`harness/validate_qa_v0_6_0.py`):**
+   - Validates run folder generation, 5-file remediation bundles, line churn limits ($\le 35$ additions), and targeted recheck transitions.
+4. **Core Schemas & Replay Suite (`harness/runner.py` & `harness/validate_e2e.py`):**
+   - Verifies JSON schema validity across all 16 schemas, 5-factor confidence scoring, SHA-256 evidence integrity, and 3-pass deterministic replay.
+
+### Blocking Release Criteria
+A proposed release is **strictly blocked** if any of the following occur:
+- ❌ Any failure in legal scope enforcement or out-of-scope host blocking.
+- ❌ Any regression in patch governance bounds or bypass of sensitive-path review escalation.
+- ❌ Any failure in secret redaction leading to unmasked Bearer tokens or credentials in logs.
+- ❌ Any non-deterministic variation in replay trace reproduction.
+
+### High-Risk Change Audit Trigger
+Whenever a pull request modifies:
+- Legal authorization or target scoping logic (`core/authorization.py`, `schemas/authorization.schema.json`),
+- The runtime validation or exploitability confirmation engine (`core/runtime_validator.py`, `core/exploit_checker.py`),
+- Patch governance or line churn rules (`core/governance.py`), or
+- High-risk canonical security rules (`TG-AUTH-*`, `TG-DB-004`, `TG-INPUT-006`),
+the author must execute a focused mini-audit against both safe and vulnerable fixtures, update the validation matrix, and secure sign-off from a second maintainer before merging.
+
+---
+
+## Maintainer Security Checklist
+
+All repository maintainers must comply with the operational security standards detailed in [`MAINTAINERS.md`](MAINTAINERS.md):
+- **Accounts:** Hardware 2FA/MFA enforced; zero shared maintainer credentials.
+- **Branches:** Strict branch protection on `main` and `v6`; PR review required on core engine, rule catalogs, and safety gates.
+- **Dependencies:** Reproducible lockfiles required; continuous scanning for dependency CVEs.
+- **Secrets:** CI secret scanning enabled; zero credentials permitted in commit history.
+- **Signing:** All release git tags and release assets must be cryptographically signed with maintainer GPG keys.
+
+
