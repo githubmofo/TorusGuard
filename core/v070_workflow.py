@@ -97,101 +97,7 @@ class V070Workflow:
         replay_managers: List[ReplayManager] = []
 
         for probe in runtime_probes:
-            finding_id = probe.get("finding_id", "fnd-unknown")
-            cluster_id = probe.get("cluster_id", "cluster-general")
-            check_type = probe.get("check_type")
-            target_url = probe.get("target_url")
-
-            # Setup replay trace manager for each probed finding
-            base_url = f"{auth_record.scope.target_hosts[0]}"
-            if not base_url.startswith("http"):
-                base_url = f"http://{base_url}"
-            replay_mgr = ReplayManager(finding_id=finding_id, target_base_url=base_url, description=f"Verification trace for {check_type}")
-
-            if check_type == "auth_bypass":
-                res = ExploitChecker.check_auth_bypass(
-                    validator=web_validator,
-                    finding_id=finding_id,
-                    cluster_id=cluster_id,
-                    endpoint_url=target_url,
-                    expected_sensitive_marker=probe.get("expected_sensitive_marker")
-                )
-                replay_mgr.add_step(
-                    action_type="http_request",
-                    target=target_url,
-                    method="GET",
-                    expected_status=200,
-                    expected_pattern=probe.get("expected_sensitive_marker")
-                )
-            elif check_type == "tenant_isolation":
-                res = ExploitChecker.check_tenant_isolation(
-                    validator=web_validator,
-                    finding_id=finding_id,
-                    cluster_id=cluster_id,
-                    tenant_a_resource_url=target_url,
-                    tenant_b_auth_headers=probe.get("tenant_b_auth_headers", {}),
-                    tenant_a_data_marker=probe.get("tenant_a_data_marker", "")
-                )
-                replay_mgr.add_step(
-                    action_type="http_request",
-                    target=target_url,
-                    method="GET",
-                    headers=probe.get("tenant_b_auth_headers", {}),
-                    expected_status=200,
-                    expected_pattern=probe.get("tenant_a_data_marker")
-                )
-            elif check_type == "header_trust":
-                res = ExploitChecker.check_header_trust(
-                    validator=web_validator,
-                    finding_id=finding_id,
-                    cluster_id=cluster_id,
-                    endpoint_url=target_url,
-                    spoofed_headers=probe.get("spoofed_headers", {}),
-                    expected_reflection_marker=probe.get("expected_reflection_marker", "")
-                )
-                replay_mgr.add_step(
-                    action_type="http_request",
-                    target=target_url,
-                    method="GET",
-                    headers=probe.get("spoofed_headers", {}),
-                    expected_status=200,
-                    expected_pattern=probe.get("expected_reflection_marker")
-                )
-            elif check_type == "debug_exposure":
-                res = ExploitChecker.check_debug_exposure(
-                    validator=web_validator,
-                    finding_id=finding_id,
-                    cluster_id=cluster_id,
-                    debug_url=target_url,
-                    debug_marker=probe.get("debug_marker", "")
-                )
-                replay_mgr.add_step(
-                    action_type="http_request",
-                    target=target_url,
-                    method="GET",
-                    expected_status=200,
-                    expected_pattern=probe.get("debug_marker")
-                )
-            else:
-                # Standard read-only probe
-                status, headers, body, decision = web_validator.execute_probe(
-                    finding_id=finding_id,
-                    cluster_id=cluster_id,
-                    method=probe.get("method", "GET"),
-                    target_url=target_url
-                )
-                res = ExploitCheckResult(
-                    finding_id=finding_id,
-                    issue_class=check_type or "general",
-                    status=ExploitabilityStatus.RUNTIME_LIKELY.value if status == 200 else ExploitabilityStatus.NOT_REPRODUCIBLE_IN_SCOPE.value,
-                    confidence_score=70 if status == 200 else 20,
-                    probe_url=target_url,
-                    http_status_observed=status,
-                    proof_summary=f"HTTP {status} observed.",
-                    reproducible=True,
-                    remediation_advice="Review endpoint configuration."
-                )
-
+            res, replay_mgr = self._dispatch_single_probe(probe, web_validator, auth_record)
             exploit_results.append(res)
             replay_managers.append(replay_mgr)
 
@@ -215,10 +121,11 @@ class V070Workflow:
         bundles = self.v6_engine.execute_harden(run_mgr, static_findings)
 
         # 10. Agent Role: Remediator -> Reviewer Handoff
-        manual_review_items = []
-        for r in exploit_results:
-            if r.status in [ExploitabilityStatus.NEEDS_MANUAL_REVIEW.value, ExploitabilityStatus.BLOCKED_BY_CONTROLS.value]:
-                manual_review_items.append({"finding_id": r.finding_id, "reason": r.proof_summary})
+        manual_review_items = [
+            {"finding_id": r.finding_id, "reason": r.proof_summary}
+            for r in exploit_results
+            if r.status in [ExploitabilityStatus.NEEDS_MANUAL_REVIEW.value, ExploitabilityStatus.BLOCKED_BY_CONTROLS.value]
+        ]
 
         orchestrator.record_handoff(
             from_role=AgentRole.REMEDIATOR,
@@ -228,7 +135,155 @@ class V070Workflow:
             outputs={"verdict": "Signed Off", "status": "Ready for emission"}
         )
 
-        # 11. Write Replay Traces and Safety Decisions
+        # 11-16. Write All Workflow Artifacts
+        web_artifacts = self._write_runtime_artifacts(
+            run_mgr=run_mgr,
+            target_name=target_name,
+            auth_record=auth_record,
+            static_findings=static_findings,
+            exploit_results=exploit_results,
+            replay_managers=replay_managers,
+            web_validator=web_validator,
+            orchestrator=orchestrator,
+            clusters=clusters,
+            manual_review_items=manual_review_items,
+            bundles=bundles,
+            export_sarif=export_sarif
+        )
+
+        return {
+            "run_manager": run_mgr,
+            "authorization_artifacts": (auth_scope_file, auth_doc_file),
+            "exploit_results": exploit_results,
+            "web_artifacts": web_artifacts,
+            "summary_file": run_mgr.summary_file,
+            "sarif_file": run_mgr.sarif_file,
+            "manifest_file": run_mgr.manifest_file
+        }
+
+    @classmethod
+    def _dispatch_single_probe(
+        cls,
+        probe: Dict[str, Any],
+        web_validator: WebValidator,
+        auth_record: AuthorizationRecord
+    ) -> Tuple[ExploitCheckResult, ReplayManager]:
+        """Dispatches a single bounded probe and configures its replay manager."""
+        finding_id = probe.get("finding_id", "fnd-unknown")
+        cluster_id = probe.get("cluster_id", "cluster-general")
+        check_type = probe.get("check_type")
+        target_url = probe.get("target_url")
+
+        base_url = f"{auth_record.scope.target_hosts[0]}"
+        if not base_url.startswith("http"):
+            base_url = f"http://{base_url}"
+        replay_mgr = ReplayManager(
+            finding_id=finding_id, target_base_url=base_url, description=f"Verification trace for {check_type}"
+        )
+
+        if check_type == "auth_bypass":
+            res = ExploitChecker.check_auth_bypass(
+                validator=web_validator,
+                finding_id=finding_id,
+                cluster_id=cluster_id,
+                endpoint_url=target_url,
+                expected_sensitive_marker=probe.get("expected_sensitive_marker")
+            )
+            replay_mgr.add_step(
+                action_type="http_request",
+                target=target_url,
+                method="GET",
+                expected_status=200,
+                expected_pattern=probe.get("expected_sensitive_marker")
+            )
+        elif check_type == "tenant_isolation":
+            res = ExploitChecker.check_tenant_isolation(
+                validator=web_validator,
+                finding_id=finding_id,
+                cluster_id=cluster_id,
+                tenant_a_resource_url=target_url,
+                tenant_b_auth_headers=probe.get("tenant_b_auth_headers", {}),
+                tenant_a_data_marker=probe.get("tenant_a_data_marker", "")
+            )
+            replay_mgr.add_step(
+                action_type="http_request",
+                target=target_url,
+                method="GET",
+                headers=probe.get("tenant_b_auth_headers", {}),
+                expected_status=200,
+                expected_pattern=probe.get("tenant_a_data_marker")
+            )
+        elif check_type == "header_trust":
+            res = ExploitChecker.check_header_trust(
+                validator=web_validator,
+                finding_id=finding_id,
+                cluster_id=cluster_id,
+                endpoint_url=target_url,
+                spoofed_headers=probe.get("spoofed_headers", {}),
+                expected_reflection_marker=probe.get("expected_reflection_marker", "")
+            )
+            replay_mgr.add_step(
+                action_type="http_request",
+                target=target_url,
+                method="GET",
+                headers=probe.get("spoofed_headers", {}),
+                expected_status=200,
+                expected_pattern=probe.get("expected_reflection_marker")
+            )
+        elif check_type == "debug_exposure":
+            res = ExploitChecker.check_debug_exposure(
+                validator=web_validator,
+                finding_id=finding_id,
+                cluster_id=cluster_id,
+                debug_url=target_url,
+                debug_marker=probe.get("debug_marker", "")
+            )
+            replay_mgr.add_step(
+                action_type="http_request",
+                target=target_url,
+                method="GET",
+                expected_status=200,
+                expected_pattern=probe.get("debug_marker")
+            )
+        else:
+            status, headers, body, decision = web_validator.execute_probe(
+                finding_id=finding_id,
+                cluster_id=cluster_id,
+                method=probe.get("method", "GET"),
+                target_url=target_url
+            )
+            res = ExploitCheckResult(
+                finding_id=finding_id,
+                issue_class=check_type or "general",
+                status=ExploitabilityStatus.RUNTIME_LIKELY.value if status == 200 else ExploitabilityStatus.NOT_REPRODUCIBLE_IN_SCOPE.value,
+                confidence_score=70 if status == 200 else 20,
+                probe_url=target_url,
+                http_status_observed=status,
+                proof_summary=f"HTTP {status} observed.",
+                reproducible=True,
+                remediation_advice="Review endpoint configuration."
+            )
+
+        return res, replay_mgr
+
+    @classmethod
+    def _write_runtime_artifacts(
+        cls,
+        run_mgr: RunManager,
+        target_name: str,
+        auth_record: AuthorizationRecord,
+        static_findings: List[Dict[str, Any]],
+        exploit_results: List[ExploitCheckResult],
+        replay_managers: List[ReplayManager],
+        web_validator: WebValidator,
+        orchestrator: RoleOrchestrator,
+        clusters: List[Any],
+        manual_review_items: List[Dict[str, Any]],
+        bundles: List[Any],
+        export_sarif: bool
+    ) -> Dict[str, Any]:
+        """Emits replay traces, web validation reports, role audits, summary markdown, SARIF, and manifest."""
+        # 11. Write Replay Traces
         for rm in replay_managers:
             rm.write_artifacts(run_mgr.run_path)
 
@@ -281,12 +336,4 @@ class V070Workflow:
             }
         )
 
-        return {
-            "run_manager": run_mgr,
-            "authorization_artifacts": (auth_scope_file, auth_doc_file),
-            "exploit_results": exploit_results,
-            "web_artifacts": web_artifacts,
-            "summary_file": run_mgr.summary_file,
-            "sarif_file": run_mgr.sarif_file,
-            "manifest_file": run_mgr.manifest_file
-        }
+        return web_artifacts

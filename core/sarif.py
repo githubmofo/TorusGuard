@@ -16,6 +16,87 @@ class SarifExporter:
     SARIF_VERSION = "2.1.0"
     SARIF_SCHEMA = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
 
+    @staticmethod
+    def map_severity_to_level(severity: str) -> str:
+        """Maps TorusGuard SeverityLevel to standard SARIF result level."""
+        if severity in ["Critical", "High"]:
+            return "error"
+        elif severity in ["Low", "Informational"]:
+            return "note"
+        return "warning"
+
+    @staticmethod
+    def _build_rule_entry(rule_id: str, title: str, sarif_level: str, category: str = "security") -> Dict[str, Any]:
+        """Constructs a SARIF reportingDescriptor object for a rule."""
+        return {
+            "id": rule_id,
+            "name": rule_id.replace("-", "_"),
+            "shortDescription": {"text": title},
+            "fullDescription": {"text": f"TorusGuard Rule {rule_id}: {title}"},
+            "defaultConfiguration": {"level": sarif_level},
+            "help": {"text": f"Read documentation for {rule_id} at https://github.com/githubmofo/TorusGuard"},
+            "properties": {"category": category}
+        }
+
+    @classmethod
+    def _build_result_entry(
+        cls, f: Dict[str, Any], rule_index: int, sarif_level: str, analysis_category: str
+    ) -> Dict[str, Any]:
+        """Constructs a single SARIF result item with fingerprints and location."""
+        rule_id = f.get("rule_id", "TG-GENERIC")
+        finding_id = f.get("finding_id", "")
+        title = f.get("title", rule_id)
+        confidence_score = f.get("confidence_score", 80)
+        confidence_band = f.get("confidence_band", "High Confidence")
+        cluster_id = f.get("cluster_id", "")
+
+        target = f.get("target", {})
+        file_path = target.get("file_path", "unknown").replace("\\", "/")
+        start_line = max(1, target.get("line_start", 1))
+        end_line = max(start_line, target.get("line_end", start_line))
+        evidence_snippet = f.get("evidence", {}).get("code_snippet", "")
+        fingerprint = f.get("fingerprint_id", finding_id)
+
+        return {
+            "ruleId": rule_id,
+            "ruleIndex": rule_index,
+            "level": sarif_level,
+            "message": {
+                "text": f"[{rule_id}] {title} (Confidence: {confidence_score}/100 - {confidence_band})"
+            },
+            "locations": [
+                {
+                    "physicalLocation": {
+                        "artifactLocation": {
+                            "uri": file_path,
+                            "uriBaseId": "%SRCROOT%"
+                        },
+                        "region": {
+                            "startLine": start_line,
+                            "endLine": end_line,
+                            "snippet": {"text": evidence_snippet}
+                        }
+                    }
+                }
+            ],
+            "partialFingerprints": {
+                "primaryLocationLineHash": fingerprint[:16] if fingerprint else "0" * 16,
+                "torusguard/v6/identity": fingerprint
+            },
+            "fingerprints": {
+                "torusguard/v6/stable_identity": fingerprint
+            },
+            "properties": {
+                "finding_id": finding_id,
+                "confidence_score": confidence_score,
+                "confidence_band": confidence_band,
+                "cluster_id": cluster_id,
+                "recheck_status": f.get("recheck_status", "Unrechecked"),
+                "runtime_exploitability": f.get("runtime_exploitability", "Not Tested"),
+                "tags": ["security", "governed-remediation", cluster_id, analysis_category]
+            }
+        }
+
     @classmethod
     def generate_sarif(
         cls,
@@ -32,88 +113,17 @@ class SarifExporter:
 
         for f in findings:
             rule_id = f.get("rule_id", "TG-GENERIC")
-            finding_id = f.get("finding_id", "")
             title = f.get("title", rule_id)
             severity = f.get("severity", "High")
-            confidence_score = f.get("confidence_score", 80)
-            confidence_band = f.get("confidence_band", "High Confidence")
-            cluster_id = f.get("cluster_id", "")
+            sarif_level = cls.map_severity_to_level(severity)
 
-            target = f.get("target", {})
-            file_path = target.get("file_path", "unknown").replace("\\", "/")
-            start_line = max(1, target.get("line_start", 1))
-            end_line = max(start_line, target.get("line_end", start_line))
-
-            evidence_snippet = f.get("evidence", {}).get("code_snippet", "")
-            fingerprint = f.get("fingerprint_id", finding_id)
-
-            # Map Severity to SARIF level
-            sarif_level = "warning"
-            if severity in ["Critical", "High"]:
-                sarif_level = "error"
-            elif severity in ["Low", "Informational"]:
-                sarif_level = "note"
-
-            # Register rule if not already present
             if rule_id not in rules_map:
-                rules_map[rule_id] = {
-                    "id": rule_id,
-                    "name": rule_id.replace("-", "_"),
-                    "shortDescription": {"text": title},
-                    "fullDescription": {
-                        "text": f"TorusGuard Rule {rule_id}: {title}"
-                    },
-                    "defaultConfiguration": {"level": sarif_level},
-                    "help": {
-                        "text": f"Read documentation for {rule_id} at https://github.com/githubmofo/TorusGuard"
-                    },
-                    "properties": {
-                        "category": f.get("category", "security"),
-                    }
-                }
+                rules_map[rule_id] = cls._build_rule_entry(
+                    rule_id, title, sarif_level, category=f.get("category", "security")
+                )
 
-            # Construct Result Object
-            result_obj: Dict[str, Any] = {
-                "ruleId": rule_id,
-                "ruleIndex": list(rules_map.keys()).index(rule_id),
-                "level": sarif_level,
-                "message": {
-                    "text": f"[{rule_id}] {title} (Confidence: {confidence_score}/100 - {confidence_band})"
-                },
-                "locations": [
-                    {
-                        "physicalLocation": {
-                            "artifactLocation": {
-                                "uri": file_path,
-                                "uriBaseId": "%SRCROOT%"
-                            },
-                            "region": {
-                                "startLine": start_line,
-                                "endLine": end_line,
-                                "snippet": {
-                                    "text": evidence_snippet
-                                }
-                            }
-                        }
-                    }
-                ],
-                "partialFingerprints": {
-                    "primaryLocationLineHash": fingerprint[:16] if fingerprint else "0"*16,
-                    "torusguard/v6/identity": fingerprint
-                },
-                "fingerprints": {
-                    "torusguard/v6/stable_identity": fingerprint
-                },
-                "properties": {
-                    "finding_id": finding_id,
-                    "confidence_score": confidence_score,
-                    "confidence_band": confidence_band,
-                    "cluster_id": cluster_id,
-                    "recheck_status": f.get("recheck_status", "Unrechecked"),
-                    "runtime_exploitability": f.get("runtime_exploitability", "Not Tested"),
-                    "tags": ["security", "governed-remediation", cluster_id, analysis_category]
-                }
-            }
+            rule_index = list(rules_map.keys()).index(rule_id)
+            result_obj = cls._build_result_entry(f, rule_index, sarif_level, analysis_category)
             results.append(result_obj)
 
         sarif_payload = {

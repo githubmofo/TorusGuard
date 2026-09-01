@@ -1,9 +1,15 @@
 """
-TorusGuard Core Architecture & Governed Remediation Engine (v0.6.3)
-Provides stable finding identities, root-cause clustering, remediation bundles,
-minimal patch governance, targeted recheck, run folder management, and SARIF exports.
+TorusGuard Core Architecture & Security Workflow Engine (v0.7.0)
+
+Tiered architectural layers:
+- Tier 1: Canonical Data Models, Lifecycle State Machine & Reporting (v0.5 base)
+- Tier 2: Governed Remediation, Clustering, Patch Policy & SARIF Export (v0.6 engine)
+- Tier 3: Authorized Runtime Validation, Exploitability Confirmation & Multi-Agent Roles (v0.7 engine)
 """
 
+# ==============================================================================
+# Tier 1: Canonical Data Models, Lifecycle & Provenance (v0.5 base)
+# ==============================================================================
 from .models import (
     Finding,
     Evidence,
@@ -30,16 +36,25 @@ from .models import (
 )
 from .lifecycle import FindingLifecycleManager, LifecycleTransitionError
 from .formatter import ReportFormatter
+from .run_folder import RunFolder
+
+# ==============================================================================
+# Tier 2: Governed Remediation, Clustering, Patch Policy & SARIF (v0.6 engine)
+# ==============================================================================
 from .identity import IdentityEngine, FindingFingerprint
 from .clustering import ClusteringEngine, RootCauseCluster
 from .bundle import BundleManager, RemediationBundle
-from .governance import PatchGovernor, PatchPolicyDecision
+from .governance import PatchGovernor, PatchPolicyDecision, HIGH_RISK_KEYWORDS, SENSITIVE_CATEGORIES
 from .rechecker import TargetedRechecker, TargetedRecheckResult, RecheckOutcome
 from .run_manager import RunManager
 from .sarif import SarifExporter
 from .v6_reporter import V6Reporter
 from .v6_workflow import V6Workflow
 from .stack_profiler import StackProfiler, StackProfile
+
+# ==============================================================================
+# Tier 3: Authorized Runtime Validation & Exploitability Confirmation (v0.7 engine)
+# ==============================================================================
 from .authorization import AuthorizationManager, AuthorizationRecord, TargetScope, AuthorizationError
 from .safety_gate import SafetyGate, SafetyDecision, SafetyReviewLevel
 from .runtime_evidence import EvidenceCollector, RuntimeEvidenceItem, RedactionEngine
@@ -52,7 +67,9 @@ from .v070_reporter import V070Reporter
 from .v070_workflow import V070Workflow
 
 __version__ = "0.7.0"
+
 __all__ = [
+    # Tier 1: Canonical Models & Lifecycle
     "Finding",
     "Evidence",
     "Remediation",
@@ -78,6 +95,8 @@ __all__ = [
     "FindingLifecycleManager",
     "LifecycleTransitionError",
     "ReportFormatter",
+    "RunFolder",
+    # Tier 2: Governed Remediation & v0.6 Engine
     "IdentityEngine",
     "FindingFingerprint",
     "ClusteringEngine",
@@ -86,6 +105,8 @@ __all__ = [
     "RemediationBundle",
     "PatchGovernor",
     "PatchPolicyDecision",
+    "HIGH_RISK_KEYWORDS",
+    "SENSITIVE_CATEGORIES",
     "TargetedRechecker",
     "TargetedRecheckResult",
     "RecheckOutcome",
@@ -95,5 +116,31 @@ __all__ = [
     "V6Workflow",
     "StackProfiler",
     "StackProfile",
+    # Tier 3: Authorized Runtime Validation & v0.7 Engine
+    "AuthorizationManager",
+    "AuthorizationRecord",
+    "TargetScope",
+    "AuthorizationError",
+    "SafetyGate",
+    "SafetyDecision",
+    "SafetyReviewLevel",
+    "EvidenceCollector",
+    "RuntimeEvidenceItem",
+    "RedactionEngine",
+    "WebValidator",
+    "SessionState",
+    "ExploitChecker",
+    "ExploitCheckResult",
+    "ExploitabilityStatus",
+    "BrowserVerifier",
+    "BrowserAction",
+    "RoleOrchestrator",
+    "RoleHandoff",
+    "AgentRole",
+    "ReplayManager",
+    "ReplayTrace",
+    "ReplayStep",
+    "V070Reporter",
+    "V070Workflow",
 ]
 
