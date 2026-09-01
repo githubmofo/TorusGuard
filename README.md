@@ -1,28 +1,34 @@
 <div align="center">
-  <img src="TorusGuard.png" alt="TorusGuard Banner" width="400">
+  <img src="TorusGuard.png" alt="TorusGuard Banner" width="420">
+
+  # TorusGuard
+
+  **Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.**
+
+  [![Release](https://img.shields.io/badge/Release-v0.7.0-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+  [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square)](https://python.org)
+  [![Validation: 100%](https://img.shields.io/badge/Validation-351%2F351%20Pass%20(100%25)-brightgreen.svg?style=flat-square)](harness/)
+  [![SARIF: v2.1.0](https://img.shields.io/badge/SARIF-v2.1.0%20OASIS-purple.svg?style=flat-square)](schemas/)
 </div>
 
-# TorusGuard
+---
 
-**Security guardrails and structured verification workflow for AI-built web applications.**
+## 💡 Executive Summary
 
-TorusGuard is a Markdown-first, portable AI-agent skill and security workflow engine. It helps developers and AI coding agents audit, verify, harden, and re-check modern web applications through structured rules, normalized evidence schemas, and human-friendly remediation workflows across frontend database isolation, secrets management, input validation, authentication, rate limits, SSRF, webhooks, and production deployment safety.
+AI coding assistants accelerate software engineering, but they frequently introduce high-risk security anti-patterns: querying databases directly from client-side bundles, exposing service-role keys, omitting tenant isolation scopes, or trusting unsanitized proxy headers.
+
+**TorusGuard** is an open-source, Markdown-first security guidance system and verification engine. It bridges static security audits with **governed, minimal-churn remediation** and **safe, authorized runtime validation**—guaranteeing that vulnerabilities are identified, confirmed, patched, and verified without breaking codebases or deploying weaponized exploits.
+
+### 🌐 The Core Principle: The Browser-Code Truth
+> **"If the browser receives it, users can inspect it."**  
+> DevTools, Inspect Element, and network breakpoints cannot be disabled. TorusGuard enforces that database credentials, sensitive business logic, and authorization boundaries must always reside on trusted server-side code.
 
 ---
 
-## Why This Exists
+## 🔄 The 7-Stage Closed-Loop Finding Lifecycle
 
-AI code generators accelerate product development, but they can easily introduce critical security oversights—such as client-side database queries, exposed API secrets, missing authorization checks, or unvalidated outbound requests. Security decisions still require structure, boundaries, and systematic verification. TorusGuard gives AI coding agents the context, guardrails, and deterministic workflow needed to build and deploy securely.
-
-### Core Principle: The Browser-Code Truth
-> **If the browser receives it, users can inspect it.**  
-> DevTools, Inspect Element, and the Sources tab cannot be blocked. TorusGuard enforces that database credentials, sensitive business logic, and authorization decisions must always remain on trusted server-side code.
-
----
-
-## 🔄 The 7-Stage Finding Lifecycle (Closed-Loop Architecture)
-
-TorusGuard features a formal closed-loop state machine governing every candidate security finding:
+Every candidate vulnerability transitions through an auditable, deterministic state machine:
 
 ```text
 ┌───────────┐     ┌────────────┐     ┌───────────┐     ┌─────────────┐     ┌──────────┐     ┌───────────┐     ┌───────────┐
@@ -30,189 +36,113 @@ TorusGuard features a formal closed-loop state machine governing every candidate
 └───────────┘     └────────────┘     └───────────┘     └─────────────┘     └──────────┘     └───────────┘     └───────────┘
 ```
 
-1. **Detect (`/torusguard audit`):** Scan repository source code, environment templates, and manifests.
-2. **Classify:** Assign a canonical Rule ID (`TG-*`), taxonomy category, risk severity, and initial confidence.
-3. **Verify (`/torusguard verify`):** Validate evidence sufficiency and reachable data flow. If evidence is ambiguous, force status to `Needs Review`.
-4. **Remediate (`/torusguard harden`):** Formulate framework-native, least-invasive remediation plans and candidate diffs.
-5. **Apply (`/torusguard apply`):** Use the **Ponytail engine** to surgically apply minimal, bounded patches to target files.
-6. **Re-check (`/torusguard recheck`):** Re-audit modified code to verify that the vulnerability is resolved (`Verified Fixed`).
-7. **Archive:** Preserve timestamped verification evidence and cryptographic hashes in the project audit record.
+1. **Detect (`/torusguard audit`):** Scans source code, manifests, and configurations against 64 canonical security rules.
+2. **Classify:** Derives AST-invariant `FindingFingerprint` hashes and collapses repeated alerts into systemic root-cause clusters.
+3. **Verify (`/torusguard web-validate` / `exploit-check`):** Executes bounded, passive HTTP/browser probes against authorized endpoints to confirm reachability.
+4. **Remediate (`/torusguard harden`):** Generates self-contained 5-file Remediation Bundles with framework-idiomatic Before/After fixes.
+5. **Apply (`/torusguard apply`):** Employs the **Ponytail engine** to apply surgical, minimal patches governed by strict line churn limits ($\le 35$ additions, $\le 25$ deletions).
+6. **Recheck (`/torusguard recheck`):** Scopes differential re-audits strictly to modified files, asserting `Confirmed Fixed` or detecting regressions.
+7. **Archive:** Preserves cryptographic SHA-256 evidence digests and exports OASIS-compliant SARIF v2.1.0 reports for GitHub Code Scanning.
 
 ---
 
-## Key Features
+## 🏗️ Architectural Foundations
 
-- **Markdown-First & Agent-Portable:** Works out-of-the-box in Cursor, Antigravity, Claude Code, Cline, Codex, Gemini CLI, and other agent environments without requiring external compilation or runtime daemons.
-- **Formal Data & Evidence Schemas (`schemas/`):** Strict JSON schemas for findings, evidence typing (`source`, `runtime`, `test`, `manual_review`), and remediation objects.
-- **Repeatable Validation Harness (`harness/`):** Standalone automated test harness validating schemas, 60-rule catalog integrity, and differential fixture behavior.
-- **Framework-Aware Security Catalog:** 60+ structured security rules across secrets, database access, input validation, authentication, rate limits, SSRF, CSRF, webhooks, GraphQL, WebSockets, and supply chain.
-- **Multi-Ecosystem Support:** Deep, framework-idiomatic guidance for JavaScript/TypeScript (Node.js, Express, React, Vite, Next.js) and Python (Django, DRF, FastAPI, Flask, SQLAlchemy).
-- **Human-First Findings:** Generates clear, readable audit reports featuring severity levels, plain-English risk explanations, and concrete Before/After code snippets.
+TorusGuard is organized into three decoupled architectural tiers in `core/`:
 
----
-
-## Current Release: v0.7.0 (Authorized Runtime Validation & Bounded Exploitability)
-
-TorusGuard v0.7.0 extends TorusGuard into an **authorized runtime validation and bounded exploitability confirmation system**:
-- **Target Authorization Gate:** Enforces target ownership proof and strict scope limits (`scope.json`, `authorization.md`) before any probe is dispatched.
-- **Safety Review Gates:** Enforces explicit review levels (`Auto-Allowed`, `Approval Required`, `Manual Only`) on sensitive or state-changing operations.
-- **Bounded Exploitability Confirmation:** Safe, non-destructive runtime validation for Auth Bypass, IDOR, Header Trust, Path Traversal, and Debug Exposure across 5 formal statuses (`Runtime Confirmed`, `Runtime Likely`, `Needs Manual Review`, `Not Reproducible in Scope`, `Blocked by Environment / Controls`).
-- **4-Role Multi-Agent Workflow:** Explicit authority separation and handoff contracts between Profiler, Validator, Remediator, and Reviewer roles (`role-audit.json`, `agent-handoffs.md`).
-- **Replayable Validation Traces:** Deterministic verification sequences serialized to `replay.json` and `replay.md`.
-- **Multi-Analysis SARIF v2.1.0:** Partitioned category exports via `automationDetails.id: torusguard/runtime/`.
-
-*Read the complete release notes in [docs/releases/v0.7.0.md](docs/releases/v0.7.0.md) and the architecture specification in [docs/architecture/v0.7.0-runtime-validation-architecture.md](docs/architecture/v0.7.0-runtime-validation-architecture.md).*
-
----
-
-## 🏗️ Version History
-
-| Version | Focus / Key Feature | Summary of Deliverables |
-|:---:|---|---|
-| **v0.7.0** | **Authorized Runtime Validation** | Scope enforcement, bounded exploitability confirmation, browser verification, 4-role multi-agent workflow, replay traces, and multi-analysis SARIF. |
-| **v0.6.3** | **Final Hardening** | Drift invariance across commits, GitHub Code Scanning deduplication, sensitive path escalation, and negative modern stack tests. |
-| **v0.6.2** | **Modern Stack Compatibility** | Django 5.x async, FastAPI Pydantic v2, SQLAlchemy 2.0 select(), Next.js 14 Server Actions, uv/Poetry packaging, Dockerfile & GitHub Actions security. |
-| **v0.6.1** | **Scale & Complexity** | Monorepo support, noise filtering, high-density clustering, collapsible reports, and 1,000-item SARIF performance. |
-| **v0.6.0** | **Governed Remediation** | Isolated run folders, stable finding IDs, root-cause clustering, remediation bundles, patch policy governance, targeted rechecks, and SARIF v2.1.0. |
-| **v0.5.6** | **Large-Project Validation** | 10-repo validation suite, context rule tuning, seeded recall, honest readiness. |
-| **v0.5.5** | **Execution & Safety** | `RunFolder` isolation, Ponytail agent integration, `/torusguard apply`. |
-| **v0.5.4** | **Usability & Reporting** | 9-section reports, remediation triage, sensitive data masking. |
-| **v0.5.3** | **Python Parity** | Native coverage for Django/FastAPI/Flask/SQLAlchemy rules. |
-| **v0.5.2** | **Validation Engine** | 3-pass deterministic replay, regression tracking, FP analyzer. |
-| **v0.5.1** | **Provenance & Confidence** | Auditable 5-factor confidence scoring, SHA-256 evidence hashing. |
-| **v0.5.0** | **Workflow Architecture** | 6-stage lifecycle, 10 formal JSON schemas, core engine. |
+```text
+                               TORUSGUARD ENGINE (v0.7.0)
++---------------------------------------------------------------------------------------+
+| TIER 3: AUTHORIZED RUNTIME VALIDATION & MULTI-AGENT GOVERNANCE                        |
+|  - TargetScope & AuthorizationManager (Explicit legal consent & host/path whitelist)  |
+|  - SafetyGate (Auto-Allowed GETs vs Approval Required state changes vs Manual Only)   |
+|  - WebValidator & RedactionEngine (Bounded HTTP probing with Bearer/token redaction)  |
+|  - ExploitChecker (Safe verification for Auth, IDOR, Header Trust, Path Traversal)    |
+|  - BrowserVerifier (Client route guards & unauthenticated DOM inspection)            |
+|  - RoleOrchestrator (Profiler, Validator, Remediator, Reviewer handoffs)              |
+|  - ReplayManager (Deterministic JSON replay traces)                                   |
++-------------------------------------------+-------------------------------------------+
+                                            | Extends & Enriches
++-------------------------------------------v-------------------------------------------+
+| TIER 2: GOVERNED REMEDIATION & RESILIENT DETECTION                                    |
+|  - IdentityEngine (Line-shift invariant finding fingerprints)                         |
+|  - ClusteringEngine (Systemic root-cause grouping & hotspot analysis)                 |
+|  - BundleManager (5-file structured remediation packaging)                            |
+|  - PatchGovernor (Minimal churn limits & sensitive-path escalation)                   |
+|  - TargetedRechecker (Scoped differential verification & regression alerts)           |
+|  - SarifExporter (GitHub Code Scanning deduplication via primaryLocationLineHash)    |
+|  - StackProfiler (Framework version families & package manager detection)             |
++-------------------------------------------+-------------------------------------------+
+                                            | Builds Upon
++-------------------------------------------v-------------------------------------------+
+| TIER 1: CANONICAL MODELS, LIFECYCLE & PROVENANCE                                      |
+|  - Finding, Evidence, Remediation data models (16 JSON schemas)                       |
+|  - FindingLifecycleManager (Deterministic 7-stage state machine)                      |
+|  - ReportFormatter (Human-First card layout & sensitive secret masking)              |
++---------------------------------------------------------------------------------------+
+```
 
 ---
 
-## Supported Platforms & Frameworks
+## 🚀 Quick Start
 
-### 🐍 Python
-* **[Django Guide](guides/python/django.md)** — Settings, CSRF, ORM queries, ModelForms, object ownership.
-* **[Django REST Framework Guide](guides/python/django-rest-framework.md)** — Default permissions, ViewSets, serializers, throttles, pagination.
-* **[FastAPI Guide](guides/python/fastapi.md)** — Pydantic v2 schemas, dependencies, outbound SSRF checks, HMAC webhooks.
-* **[Flask Guide](guides/python/flask.md)** — Factory setup, session cookies, CSRFProtect, Werkzeug upload boundaries.
-* **[SQLAlchemy Guide](guides/python/sqlalchemy.md)** — Parameterized `text()` bindings, query scoping, update allowlists.
-* **[Python Dependencies & CI/CD](guides/python/python-dependencies.md)** — Reproducible lockfiles, `pip-audit`, GitHub Actions pinning.
-* **[Python Rule Mapping Matrix](docs/python-rule-mapping.md)** — Framework implementation matrix for universal rule IDs.
-
-### 🌐 JavaScript & TypeScript
-* **[React + Vite Guide](guides/react-vite-security.md)** — Frontend environment variables, build artifact leakage, source maps.
-* **[Next.js Guide](guides/nextjs-security.md)** — App Router / Pages Router security, Server Components, API routes.
-* **[Node.js + Express Guide](guides/express-security.md)** — Middleware hardening, CORS, Helmet, session cookies, rate limiting.
-* **[Supabase Guide](guides/supabase-security.md)** — Row-Level Security (RLS), service role key isolation, database policies.
-* **[Firebase Guide](guides/firebase-security.md)** — Firestore Security Rules, client SDK boundaries, privileged admin tasks.
-
----
-
-## Quick Start
-
-### 1. Installation
-Install TorusGuard into your AI coding tool using the open `skills` CLI:
+### 1. Installation into AI Agents
+Install TorusGuard into Cursor, Antigravity, Claude Code, Cline, Codex, or Gemini CLI using the open `skills` CLI:
 
 ```bash
 npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
 ```
 
-### 2. Workflow Commands
+### 2. Core Workflow Commands
 
-| Command | Lifecycle Phase | Purpose | Modifies Code? |
+| Command | Role / Phase | Purpose | Modifies Code? |
 |---|:---:|---|:---:|
-| `/torusguard init` | Baseline | Generates a project `SECURITY.md`, threat model, and baseline. | ❌ Docs only |
-| `/torusguard audit` | Detect & Classify | Scans repository against TorusGuard rules and outputs a structured report. | ❌ No |
-| `/torusguard verify` | Verify | Validates evidence sufficiency and checks manual review criteria. | ❌ No |
-| `/torusguard harden` | Remediate | Formulates framework-native remediation guides and candidate diffs. | ❌ No (Plan only) |
-| `/torusguard apply` | Apply | Uses the **Ponytail engine** to surgically apply minimal, safe patches. | ✅ Yes |
-| `/torusguard recheck` | Re-check | Re-evaluates post-fix code to assert resolution (`Verified Safe`). | ❌ No |
+| `/torusguard init` | Setup | Generates a project `SECURITY.md`, threat model, and baseline. | ❌ Docs only |
+| `/torusguard audit` | Profiler / Detect | Scans codebase, generates stable IDs, and clusters findings. | ❌ No |
+| `/torusguard authorize` | Safety Gate | Enforces target ownership proof and strict scope allowlists. | ❌ No |
+| `/torusguard web-validate` | Validator | Bounded HTTP probing and session tracking with secret redaction. | ❌ No |
+| `/torusguard exploit-check`| Validator | Safe, single-step exploitability confirmation across 5 statuses. | ❌ No |
+| `/torusguard harden` | Remediator | Emits 5-file remediation bundles and surgical patch plans. | ❌ No |
+| `/torusguard apply` | Remediator | Applies bounded, governed patches ($\le 35$ additions, $\le 25$ deletions). | ⚠️ Yes (Governed) |
+| `/torusguard recheck` | Reviewer | Differentially audits modified files to verify fixes and catch regressions. | ❌ No |
 
 ---
 
-## How to Verify Findings
+## 📂 Run Folder System (`RunManager`)
 
-When an audit report is generated:
-1. **Inspect Evidence Snippet:** Confirm the cited file path and line numbers exist in your active codebase.
-2. **Review Confidence Classification:**
-   - **`Confirmed`:** Proved with direct source code or configuration evidence.
-   - **`Needs Review`:** Requires verifying out-of-band context (e.g. domain service layer, upstream API gateway, cloud IAM).
-3. **Execute Verification Command:** Run the documented test command in the finding's `Verification` section.
+Every execution is completely self-contained within an isolated directory (`runs/<run-id>/`):
 
----
-
-## How to Fix Findings (Closed-Loop Workflow)
-
-1. **Formulate the Fix:** Run `/torusguard harden` to generate candidate diffs and remediation guides in `.torusguard/runs/.../remediation.md`.
-2. **Apply via Ponytail:** Run `/torusguard apply` to let the Ponytail engine apply minimal, bounded patches without touching unrelated code.
-3. **Run Differential Re-check:** Execute `/torusguard recheck` to verify that the finding transitions to `Verified Safe`.
-
----
-
----
-
-## 🧪 How TorusGuard Is Tested
-
-TorusGuard maintains a multi-tier automated validation harness ensuring every release is safe, honest, and backwards-compatible:
-
-```bash
-# 1. Full v0.7.0 Runtime & Safety Gate Validation Suite (67 checks)
-python harness/validate_v0_7_0_runtime.py
-
-# 2. Final Hardening, Drift Invariance & SARIF Upload Suite (24 checks)
-python harness/validate_v0_6_3_hardening.py
-
-# 3. Modern Stack Compatibility Suite (Django 5, FastAPI v2, Next.js 14) (19 checks)
-python harness/validate_v0_6_2_modern_stacks.py
-
-# 4. Scale & Monorepo Benchmark Suite (23 checks)
-python harness/validate_v0_6_1_scale.py
-
-# 5. Governed Remediation & Targeted Recheck QA Suite (93 checks)
-python harness/validate_qa_v0_6_0.py
-
-# 6. Core Schemas, Catalog & Replay Harness (75 checks)
-python harness/runner.py
+```text
+runs/run-20260901-113000/
+├── manifest.json            # Execution metadata, git commit hash, and summary counts
+├── summary.md               # Executive summary and root-cause cluster matrix
+├── findings.md              # Detailed finding cards with code excerpts and remediation
+├── web-validation.md        # HTTP interaction log and endpoint status codes
+├── requests.json            # Redacted request payloads (tokens/passwords masked)
+├── responses.json           # Redacted response payloads
+├── session-notes.md         # Active session cookies and tenant context
+├── replay.json              # Deterministic replay trace for regression verification
+├── sarif.json               # OASIS SARIF v2.1.0 export for CI/CD & GitHub Code Scanning
+└── logs/                    # Execution telemetry and safety gate audit log
 ```
 
-### Testing Scope & Safety Commitments
-- **Zero Destructive Exploits:** TorusGuard strictly avoids destructive offensive testing, memory exploitation, denial of service, and parameter fuzzing. Probes are bounded single-step verifications stopping on first proof.
-- **Educational Fixtures & Safe Labs:** Tested against internal paired vulnerable/hardened fixtures (`examples/python/`, `tests/fixtures/`) and external lab targets (such as local **OWASP Juice Shop** instances).
-- **Read the Complete Audit Report:** See [docs/validation/v0.7.0-qa-sign-off.md](docs/validation/v0.7.0-qa-sign-off.md) for the complete 10-phase release audit and [docs/usage/testing-playbook.md](docs/usage/testing-playbook.md) for reproducing the testing lab.
-
 ---
 
-## 🎯 Usage & Positioning
+## 🛡️ Supported Stacks & Frameworks
 
-### How I Use TorusGuard Myself
-- **Default Assistant for New Python Web Projects:** Run `/torusguard init` and `/torusguard audit` at project kick-off to establish baseline security headers, secret management, and ORM query scoping.
-- **CI Pipelines for Web Services:** Export standard OASIS SARIF v2.1.0 via `/torusguard audit` to GitHub Code Scanning to catch authorization regressions and insecure defaults before merge.
-- **Periodic Re-audits of Critical Apps:** Run `/torusguard audit` followed by `/torusguard harden` on established repositories to cluster systemic vulnerabilities and generate minimal-churn remediation bundles.
+### 🐍 Python Ecosystem
+- **[Django Guide](guides/python/django.md):** Settings, CSRF, ORM queries, ModelForms, object ownership, and async coroutines (`aget()`).
+- **[Django REST Framework Guide](guides/python/django-rest-framework.md):** Default permissions, ViewSets, serializers, throttles, and pagination.
+- **[FastAPI Guide](guides/python/fastapi.md):** Pydantic v2 schemas, `Annotated` dependency injection, SSRF boundaries, and HMAC webhooks.
+- **[Flask Guide](guides/python/flask.md):** Factory patterns, secure session cookies, `CSRFProtect`, and path traversal storage limits.
+- **[SQLAlchemy Guide](guides/python/sqlalchemy.md):** Bound query parameters, 2.0 `select()` statements, and multi-tenant isolation.
+- **[Python Dependencies & CI/CD](guides/python/python-dependencies.md):** Deterministic lockfiles (`uv`, Poetry, pip-tools), `pip-audit`, and GitHub Actions SHA pinning.
 
-### How Other Developers Should Use TorusGuard
-- **10-Minute Quickstart Flow:**
-  1. Clone or open your target repository.
-  2. Run `/torusguard audit` to discover your stack profile and cluster vulnerabilities.
-  3. Review candidate patches in `.torusguard/runs/.../remediation.md`.
-  4. Apply minimal patches using `/torusguard apply` and confirm fixes with `/torusguard recheck`.
-- **Optional Runtime Validation:** On authorized local dev servers or staging instances, use `/torusguard authorize` followed by `/torusguard web-validate` and `/torusguard exploit-check` to confirm exploitability.
-- **Clear Positioning:** TorusGuard is **not** an autonomous offensive penetration testing agent. It is a governed security analysis, verification, and remediation tool built to keep developers and AI coding agents safe.
-
----
-
----
-
-## What TorusGuard Is Not
-
-To maintain technical honesty and clear boundaries:
-- **Not an automated vulnerability scanner:** TorusGuard is a contextual guidance framework for developers and AI agents. It does not replace dynamic application security testing (DAST) or static binary analyzers.
-- **Not a penetration-testing replacement:** It elevates baseline security hygiene but cannot replace authorized professional penetration testing.
-- **Not an "unhackable" guarantee:** No tool can guarantee 100% security.
-- **Not a client-side DRM:** Browser-delivered JavaScript cannot be hidden from DevTools; security must reside on the backend.
-
-## 📖 About TorusGuard
-
-TorusGuard is an open-source, Markdown-first security guidance system and authorized runtime verification engine created by **Jenish Lad** ([@githubmofo](https://github.com/githubmofo)).
-
-- **Mission:** Empower developers and AI coding agents to detect, verify, govern, and remediate web vulnerabilities with zero unverified claims and minimal code churn.
-- **The Browser-Truth Principle:** "If the browser receives it, users can inspect it." Security logic, database credentials, and tenant checks must remain on trusted server-side code.
-- **Tiered Architecture:** Cleanly separates Tier 1 (Canonical Models/Lifecycle), Tier 2 (Governed Remediation/SARIF), and Tier 3 (Authorized Runtime Validation).
+### 🌐 JavaScript & TypeScript Ecosystem
+- **[React + Vite Guide](guides/react-vite-security.md):** Frontend env variable boundaries, build artifact leakage, and source maps.
+- **[Next.js Guide](guides/nextjs-security.md):** App Router / Pages Router security, Server Components, and Next.js 14 Server Action authorization (`"use server"`).
+- **[Supabase Guide](guides/supabase-security.md):** Row-Level Security (RLS), service-role key isolation, and secure client queries.
+- **[Firebase Guide](guides/firebase-security.md):** Firestore Security Rules, client SDK boundaries, and privileged admin tasks.
 
 ---
 
@@ -225,55 +155,22 @@ TorusGuard is an open-source, Markdown-first security guidance system and author
 | 🗺️ **[Development Roadmap](ROADMAP_v0_7_1.md)** | Prioritized v0.7.1+ backlog (`TG-AGENT-*`, diff line scanning, GraphQL/WebSockets) |
 | 👥 **[Maintainer Guide](MAINTAINERS.md)** | Maintainer security hygiene, mandatory MFA, branch protection, and release signing |
 | 🔄 **[Refactoring Notes](REFACTORING_NOTES_v0_7.md)** | Structural refactoring log, module decomposition, and merge verification |
-| 🚀 **[GitHub Releases](https://github.com/githubmofo/TorusGuard/releases)** | Official tagged releases, release assets, and changelogs |
-| ⚠️ **[GitHub Issues](https://github.com/githubmofo/TorusGuard/issues)** | Bug reports, false positive reports, and rule proposals |
 
 ---
 
-## Project Structure Overview
+## 🚫 What TorusGuard Deliberately Is Not
 
-```text
-TorusGuard/
-├── schemas/                 # 16 formal JSON schemas (finding, evidence, remediation, auth, replay)
-├── core/                    # 3-tier workflow engine:
-│   ├── (Tier 1) models.py, lifecycle.py, formatter.py (Canonical data models & state machine)
-│   ├── (Tier 2) governance.py, clustering.py, bundle.py, rechecker.py, sarif.py (Governed remediation)
-│   └── (Tier 3) authorization.py, safety_gate.py, runtime_validator.py, exploit_checker.py, replay_trace.py
-├── harness/                 # Repeatable validation test runners (v0.7.0, v0.6.3, v0.6.0, v0.5.4)
-├── projects/                # Multi-repository validation manifest and seeded-case definitions
-├── skills/TorusGuard/       # Portable skill instructions and reference modules
-├── rules/                   # 64 documented security rules across 9 lifecycle categories
-├── templates/               # Standardized templates (SECURITY, audit, pre-flight)
-├── guides/                  # Stack-specific implementation guides (Node.js & Python)
-├── examples/                # Educational vulnerable & hardened reference applications
-├── docs/                    
-│   ├── overview/            # Security philosophy and governance principles
-│   ├── usage/               # Testing playbook and verification guide
-│   ├── architecture/        # Architecture specifications (v0.5.0 through v0.7.0)
-│   ├── releases/            # Detailed release notes (v0.2.0 through v0.7.0)
-│   ├── validation/          # Official validation reports & large-project portfolios
-│   └── roadmap.md           # Project roadmap & milestones
-├── ROADMAP_v0_7_1.md        # v0.7.1+ development backlog and priorities
-├── MAINTAINERS.md           # Maintainer security hygiene and release criteria
-├── REFACTORING_NOTES_v0_7.md# Structural refactoring report
-└── tests/                   # Test fixtures and regression test suites
-```
+To maintain technical honesty and safety:
+- **Not a weaponized offensive pentest tool:** TorusGuard strictly avoids brute-forcing, denial-of-service, memory corruption, and autonomous lateral movement.
+- **Not an unbounded vulnerability scanner:** Probes are bounded, single-step assertions against authorized endpoints with strict request budgets.
+- **Not client-side DRM:** Browser-delivered JavaScript cannot be hidden from DevTools; security must reside on the backend.
+- **Not an "unhackable" guarantee:** Security is continuous; TorusGuard provides structured guardrails, not absolute immunity.
 
 ---
 
-## Contributing
+## 👥 Author & Community
 
-Contributions are welcome! Please review [CONTRIBUTING.md](CONTRIBUTING.md) and our [Code of Conduct](CODE_OF_CONDUCT.md) before submitting an issue or pull request.
-
----
-
-## Security
-
-Please review our [Security Policy](SECURITY.md) for private responsible disclosure instructions. Do not file public GitHub issues for security vulnerabilities.
-
----
-
-## License
-
-TorusGuard is licensed under the [MIT License](LICENSE).  
-Copyright (c) 2026 Jenish Lad.
+- **Creator & Lead Maintainer:** **Jenish Lad** ([@githubmofo](https://github.com/githubmofo))
+- **Contributing:** Please review [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before opening a pull request.
+- **Security Inquiries:** Please follow our [Security Policy](SECURITY.md) for private vulnerability reporting.
+- **License:** Open source under the [MIT License](LICENSE).

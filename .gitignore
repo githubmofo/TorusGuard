@@ -38,8 +38,34 @@ examples/*/data/
 examples/*/*.db
 examples/*/*/*.db
 
-# Local agent copies
+# Local agent copies & system generation
 .cursor/
+.agents/
+.system_generated/
 
-# TorusGuard local tests and scripts
+# TorusGuard local tests, run folders, and audit artifacts
+.torusguard/
+runs/
+qa-runs/
 test_repos/
+test_output/
+*.sqlite
+*.sqlite3
+
+# Non-essential media & images (preserving official repository banner)
+*.png
+!TorusGuard.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.mp4
+*.mov
+*.pdf
+
+# Temporary files
+*.bak
+*.tmp
+*.temp
+*.swp
