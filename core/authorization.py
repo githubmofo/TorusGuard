@@ -97,6 +97,31 @@ class AuthorizationManager:
         return True, "Authorization active"
 
     @classmethod
+    def _match_host(cls, host: str, target_hosts: List[str]) -> bool:
+        """Checks if host matches approved host or host:port patterns."""
+        for approved in target_hosts:
+            approved_lower = approved.lower()
+            if host == approved_lower or host.startswith(approved_lower + ":") or approved_lower.startswith(host + ":"):
+                return True
+        return False
+
+    @classmethod
+    def _match_forbidden_path(cls, path: str, forbidden_paths: List[str]) -> Optional[str]:
+        """Returns matching forbidden path prefix if any, else None."""
+        for forbidden in forbidden_paths:
+            if path.startswith(forbidden):
+                return forbidden
+        return None
+
+    @classmethod
+    def _match_allowed_prefix(cls, path: str, allowed_prefixes: List[str]) -> bool:
+        """Checks if path matches at least one allowed prefix."""
+        for prefix in allowed_prefixes:
+            if path.startswith(prefix):
+                return True
+        return False
+
+    @classmethod
     def validate_url(cls, url: str, scope: TargetScope) -> Tuple[bool, str]:
         """
         Ensures target URL is strictly inside approved hosts, allowed path prefixes,
@@ -107,34 +132,21 @@ class AuthorizationManager:
         if not host:
             return False, f"Invalid URL (missing host): {url}"
 
-        # Match approved host (supports exact host:port or hostname)
-        host_matched = False
-        for approved in scope.target_hosts:
-            approved_lower = approved.lower()
-            if host == approved_lower or host.startswith(approved_lower + ":") or approved_lower.startswith(host + ":"):
-                host_matched = True
-                break
-
-        if not host_matched:
+        # 1. Match approved host
+        if not cls._match_host(host, scope.target_hosts):
             return False, f"Host '{host}' is NOT in approved target_hosts: {scope.target_hosts}"
 
-        # Check forbidden paths
+        # 2. Check forbidden paths
         path = parsed.path or "/"
-        for forbidden in scope.forbidden_paths:
-            if path.startswith(forbidden):
-                return False, f"Path '{path}' matches forbidden path '{forbidden}'"
+        matched_forbidden = cls._match_forbidden_path(path, scope.forbidden_paths)
+        if matched_forbidden:
+            return False, f"Path '{path}' matches forbidden path '{matched_forbidden}'"
 
-        # Check allowed path prefixes
-        prefix_matched = False
-        for prefix in scope.allowed_path_prefixes:
-            if path.startswith(prefix):
-                prefix_matched = True
-                break
-
-        if not prefix_matched:
+        # 3. Check allowed path prefixes
+        if not cls._match_allowed_prefix(path, scope.allowed_path_prefixes):
             return False, f"Path '{path}' does NOT match any allowed_path_prefixes: {scope.allowed_path_prefixes}"
 
-        # Check TTL
+        # 4. Check TTL
         active, reason = cls.is_scope_active(scope)
         if not active:
             return False, reason
