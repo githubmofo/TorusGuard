@@ -213,7 +213,6 @@ TorusGuard is an open-source, Markdown-first security guidance system and author
 - **Mission:** Empower developers and AI coding agents to detect, verify, govern, and remediate web vulnerabilities with zero unverified claims and minimal code churn.
 - **The Browser-Truth Principle:** "If the browser receives it, users can inspect it." Security logic, database credentials, and tenant checks must remain on trusted server-side code.
 - **Tiered Architecture:** Cleanly separates Tier 1 (Canonical Models/Lifecycle), Tier 2 (Governed Remediation/SARIF), and Tier 3 (Authorized Runtime Validation).
-- **Read More:** See [docs/about.md](docs/about.md) for full architectural philosophy, origin, and design principles.
 
 ---
 
@@ -221,14 +220,13 @@ TorusGuard is an open-source, Markdown-first security guidance system and author
 
 | Document | Purpose |
 |---|---|
-| 📖 **[About TorusGuard](docs/about.md)** | Project mission, origin story, and architectural foundations |
 | 🛡️ **[Security Philosophy](docs/overview/security-philosophy.md)** | Strict legal authorization, non-destructive probing, and safety review gates |
 | 🧪 **[Testing Playbook](docs/usage/testing-playbook.md)** | Step-by-step verification guide using internal fixtures and OWASP Juice Shop |
-| 🚀 **[Release Notes](RELEASE_NOTES.md)** | Official release notes for v0.7.0 and historical milestones |
 | 🗺️ **[Development Roadmap](ROADMAP_v0_7_1.md)** | Prioritized v0.7.1+ backlog (`TG-AGENT-*`, diff line scanning, GraphQL/WebSockets) |
-| ⚠️ **[Issue Registry](KNOWN_ISSUES.md)** | Current known limitations, workarounds, and historical resolved issues |
 | 👥 **[Maintainer Guide](MAINTAINERS.md)** | Maintainer security hygiene, mandatory MFA, branch protection, and release signing |
 | 🔄 **[Refactoring Notes](REFACTORING_NOTES_v0_7.md)** | Structural refactoring log, module decomposition, and merge verification |
+| 🚀 **[GitHub Releases](https://github.com/githubmofo/TorusGuard/releases)** | Official tagged releases, release assets, and changelogs |
+| ⚠️ **[GitHub Issues](https://github.com/githubmofo/TorusGuard/issues)** | Bug reports, false positive reports, and rule proposals |
 
 ---
 
@@ -249,17 +247,15 @@ TorusGuard/
 ├── guides/                  # Stack-specific implementation guides (Node.js & Python)
 ├── examples/                # Educational vulnerable & hardened reference applications
 ├── docs/                    
-│   ├── about.md             # Project mission, origin, and architectural foundations
 │   ├── overview/            # Security philosophy and governance principles
 │   ├── usage/               # Testing playbook and verification guide
 │   ├── architecture/        # Architecture specifications (v0.5.0 through v0.7.0)
 │   ├── releases/            # Detailed release notes (v0.2.0 through v0.7.0)
 │   ├── validation/          # Official validation reports & large-project portfolios
 │   └── roadmap.md           # Project roadmap & milestones
-├── KNOWN_ISSUES.md          # Transparent issue registry and resolved defect ledger
-├── RELEASE_NOTES.md         # Current release notes and artifact verification
 ├── ROADMAP_v0_7_1.md        # v0.7.1+ development backlog and priorities
 ├── MAINTAINERS.md           # Maintainer security hygiene and release criteria
+├── REFACTORING_NOTES_v0_7.md# Structural refactoring report
 └── tests/                   # Test fixtures and regression test suites
 ```
 

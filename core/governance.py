@@ -116,8 +116,8 @@ class PatchGovernor:
             return "Patch contains excessive boilerplate or commentary."
         return None
 
-    def escalate_sensitive_paths(self, files: set[str]) -> Tuple[bool, List[str]]:
-        """Identifies if any touched file matches high-risk sensitive domain keywords."""
+    def escalate_sensitive_paths(self, files: set[str], diff_content: str = "") -> Tuple[bool, List[str]]:
+        """Identifies if any touched file or diff content matches high-risk sensitive domain keywords."""
         risk_factors = []
         escalation_required = False
         for f in files:
@@ -127,6 +127,19 @@ class PatchGovernor:
                     risk_factors.append(f"File `{f}` touches high-risk domain keyword `{kw}`.")
                     escalation_required = True
                     break
+
+        if diff_content:
+            for line in diff_content.splitlines():
+                if (line.startswith("+") and not line.startswith("+++")) or (line.startswith("-") and not line.startswith("---")):
+                    line_lower = line.lower()
+                    for kw in HIGH_RISK_KEYWORDS:
+                        if kw in line_lower:
+                            risk_factors.append(f"Diff line touches high-risk domain keyword `{kw}`.")
+                            escalation_required = True
+                            break
+                    if escalation_required:
+                        break
+
         return escalation_required, risk_factors
 
     def determine_review_level(
@@ -170,7 +183,7 @@ class PatchGovernor:
             rejection_reasons.append(comment_err)
 
         # 4. Sensitive Path Escalation
-        escalation_required, risk_factors = self.escalate_sensitive_paths(files)
+        escalation_required, risk_factors = self.escalate_sensitive_paths(files, diff_content)
 
         # 5. Review Level Determination
         review_level, allowed_by_escalation, escalation_reasons = self.determine_review_level(
