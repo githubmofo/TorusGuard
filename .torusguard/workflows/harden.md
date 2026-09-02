@@ -8,6 +8,7 @@ required-skills:
   - torusguard-harden
 scripts-binding:
   - .torusguard/scripts/run_manager.py
+  - .torusguard/scripts/diff_guard.py
 ---
 
 # /torusguard harden — Governed Remediation & Bundle Packaging
@@ -50,12 +51,8 @@ Inspect finding targets and patch constraints before generating diffs:
 1. **Select Target Finding:** Choose verified flaw from active run directory.
 2. **Examine Live Code Context:** Read surrounding lines (±15) of vulnerable sink.
 3. **Draft Unified Diff:** Formulate minimal fix adhering to Ponytail Protocol limits.
-4. **Package 4-Artifact Bundle:**
-   - `patch.diff`: Unified diff with line numbers.
-   - `plan.md`: Step-by-step remediation rationale.
-   - `verification.md`: Instructions to verify fix.
-   - `rollback.md`: Revert commands on regression.
-5. **Write Bundle:** Save to `.torusguard/runs/<run_id>/remediation/<finding_id>/`.
+4. **Audit Patch Safety:** Run `python .torusguard/scripts/diff_guard.py <patch.diff>`.
+5. **Package 4-Artifact Bundle:** Write `patch.diff`, `plan.md`, `verification.md`, `rollback.md` to `.torusguard/runs/<run_id>/remediation/<finding_id>/`.
 
 ---
 

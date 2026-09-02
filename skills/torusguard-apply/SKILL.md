@@ -6,6 +6,7 @@ workflow: .torusguard/workflows/apply.md
 tools: Read, Grep, Glob, Bash, Edit, Write
 scripts-binding:
   - .torusguard/scripts/run_manager.py
+  - .torusguard/scripts/diff_guard.py
 ---
 
 # TorusGuard Apply — Governed Patch Application & Rollback Snapshot

@@ -8,6 +8,7 @@ required-skills:
   - torusguard-apply
 scripts-binding:
   - .torusguard/scripts/run_manager.py
+  - .torusguard/scripts/diff_guard.py
 ---
 
 # /torusguard apply — Governed Patch Application & Rollback Snapshot
@@ -49,12 +50,11 @@ Inspect bundle validity and file safety before modifying disk code:
 ## Execution Steps
 
 1. **Load Remediation Bundle:** Read `patch.diff` and metadata from active run directory.
-2. **Create Rollback Backup:**
-   Copy target file to `.torusguard/runs/<run_id>/pre_apply/<filename>.bak`.
-3. **Apply Minimal Diff:** Execute precise surgical edit using `replace_file_content` or `patch`.
-4. **Assert Syntax & Integrity:** Check that modified file compiles cleanly without syntax errors.
-5. **Log Application Ledger:**
-   Record application timestamp, original SHA-256, and patched SHA-256 into `apply-log.json`.
+2. **Audit Patch Invariants:** Run `python .torusguard/scripts/diff_guard.py <patch.diff>`.
+3. **Create Rollback Backup:** Copy target file to `.torusguard/runs/<run_id>/pre_apply/<filename>.bak`.
+4. **Apply Minimal Diff:** Execute precise surgical edit using `replace_file_content` or `patch`.
+5. **Assert Syntax & Integrity:** Check that modified file compiles cleanly without syntax errors.
+6. **Log Application Ledger:** Record timestamp, original SHA-256, and patched SHA-256 in `apply-log.json`.
 
 ---
 

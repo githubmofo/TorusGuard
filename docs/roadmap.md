@@ -180,11 +180,15 @@ This document outlines the development milestones, past releases, and future pri
 
 ---
 
-## 🎯 Upcoming Milestones: v0.9.3+ Series
+### ✅ v0.9.3 — Content-Aware Diff Safety & Monorepo Scoping (2026-09-02)
+- **Content-Aware Diff Line Scanner (`diff_guard.py`):** Evaluates added and deleted lines in unified patches against security invariants (`TG-DIFF-001` auth bypass comments, `TG-DIFF-002` secret ingestion, `TG-DIFF-003` tenant filter removal).
+- **Monorepo Sub-Scope Orchestration (`monorepo_detector.py`):** Automated detection and per-package profiling for Turborepo, pnpm workspaces, npm/yarn, and multi-service repositories.
+- **Interactive Multi-Stack Playground Suite (`demo/playground/`):** Self-contained runnable test fixtures for FastAPI and Next.js demonstrating SQLi, IDOR, Prompt Injection, and Client Secret leakage out of the box.
+- **Automated v0.9.3 Feature Test Suite:** `harness/validate_v0_9_3_features.py` (100% pass across all features).
 
-### 🚀 v0.9.3 — Content-Aware Diff Line Scanning & Monorepo Sub-Scopes (Q4 2026)
-- [ ] **Content-Aware Diff Line Scanning:** Extend `PatchGovernor` to scan added/modified unified diff lines for sensitive domain keywords (`auth`, `tenant`).
-- [ ] **Monorepo Sub-Scope Orchestration:** Automated detection and per-package scoping for Turborepo, Nx, and Cargo workspaces.
+---
+
+## 🎯 Upcoming Milestones: v0.9.4+ Series
 
 ### 🚀 v0.9.4 — CI/CD Permission Modeling & Container Scanners (Q1 2027)
 - [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.

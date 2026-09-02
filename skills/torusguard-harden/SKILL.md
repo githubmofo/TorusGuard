@@ -6,6 +6,7 @@ workflow: .torusguard/workflows/harden.md
 tools: Read, Grep, Glob, Write
 scripts-binding:
   - .torusguard/scripts/run_manager.py
+  - .torusguard/scripts/diff_guard.py
 ---
 
 # TorusGuard Harden — Governed Remediation & Bundle Packaging
