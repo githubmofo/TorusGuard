@@ -5,21 +5,19 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.3] - 2026-09-02
+## [0.9.2] - 2026-09-02
 
 ### Added
+- **Autonomous IDE Slash Command Registration (`skills/torusguard/bootstrap.py`):** Scaffolding engine automatically registers `/torusguard` workflows in Antigravity (`.agent/workflows/torusguard.md`), Claude Code (`.claude/commands/torusguard.md`), and Cursor (`.cursor/rules/torusguard.mdc`).
+- **Zero-Dependency NPM Runner (`bin/torusguard.js` & `package.json`):** Direct support for `npx torusguard` CLI bridging into the autonomous Python engine.
 - **Content-Aware Diff Line Scanner (`.torusguard/scripts/diff_guard.py`):** Unified patch inspector evaluating proposed diff additions and deletions against security invariants:
   - `TG-DIFF-001`: Detects suspicious bypass comments (`# bypass auth`, `// nosec`), disabled TLS verification (`verify=False`), and explicit security skip flags.
   - `TG-DIFF-002`: Detects hardcoded credentials, live API keys, and JWT strings in patch additions.
   - `TG-DIFF-003`: Detects unmitigated deletion of tenant isolation filters (`.filter(tenant=...)`) in patch deletions.
 - **Monorepo Sub-Scope Orchestration (`.torusguard/scripts/monorepo_detector.py`):** Multi-package workspace detector profiling Turborepo, pnpm, npm/yarn, and multi-service subdirectories, emitting structured package metadata.
 - **Interactive Multi-Stack Playground (`demo/playground/`):** Hands-on test fixtures for FastAPI (`vulnerable_fastapi/main.py`) and Next.js (`vulnerable_nextjs/actions.ts`) demonstrating SQL injection, tenant data leaks, prompt injection, and exposed client secrets.
-- **Workflow & Skill Bindings:** Integrated `diff_guard.py` into `/torusguard harden` and `/torusguard apply` workflows while preserving strict 1,000–1,500 token budgets.
-- **v0.9.3 Feature Test Suite (`harness/validate_v0_9_3_features.py`):** Automated harness verifying diff security rules, monorepo detection, playground sinks, and token budgets.
-
-## [0.9.2] - 2026-09-02
-
-### Added
+- **Workflow & Skill Bindings:** Integrated `diff_guard.py` into `/torusguard harden` and `/torusguard apply` workflows while preserving strict 1,000–1,500 token budgets across all 11 commands.
+- **Diff & Monorepo Test Suite (`harness/validate_v0_9_2_diff_and_monorepo.py`):** Automated harness verifying diff security rules, monorepo detection, playground sinks, and token budgets.
 - **Command-Engine Standard Workflows (`.torusguard/workflows/`):** Upgraded all 11 slash command execution playbooks to the production standard:
   - Formal YAML frontmatter (`description`, `tools`, `version: 0.9.2`, `agent`, `lifecycle-phase`, `required-skills`, `scripts-binding`).
   - Mandatory Pre-Flight Context Inspection preventing unauthorized mutations or runs.

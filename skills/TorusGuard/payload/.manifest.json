@@ -8,7 +8,7 @@
   "agents/validator.md": "79fc4431de5c5507f8730aee6c5c3e61fd238cbf8cf8c7c6aac462eee9761ed6",
   "config/scope.json": "b198a86186b4c6d5e1af516bf4e3a6afa8878e622ca1d57a5bf72d294f8c6f25",
   "config/slash-commands.json": "5390f0d26f8117a62e56c58147d3a0d2deab1a20956302b212703281d13fa84e",
-  "config/torusguard.json": "24738fbf46d427565d2bc92aa3be6095be0e7cc3ddebd99a9a949183152c5cca",
+  "config/torusguard.json": "5f775da1f77aaffcd8173fac6a8f422ecc4d754627cb1f3c71d014dad299101d",
   "references/django-security.md": "a15b7eb11b51dd1970d3d65544cf79ebea91fb99dc0e085e58a56532a718dce7",
   "references/drf-security.md": "c7a7af3acaef895bf4798590acc88b3a2e9831a49eb2d23b4d8f31540ab264cc",
   "references/express-security.md": "dff1db15e614d29d8c272f9da345b418077e62dc883fe210c7a50c552c76493f",

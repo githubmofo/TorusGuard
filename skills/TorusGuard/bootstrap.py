@@ -137,6 +137,55 @@ def scaffold_workspace(target_root=None, force=False):
         except Exception as e:
             print(f"  [WARN] Failed to write stack details to config: {e}")
 
+    # 5. Register Slash Commands for AI IDEs (.agent, .claude, .cursor)
+    print("\n3. Registering slash commands with AI IDE environments...")
+    registered_ides = []
+    tg_workflow_content = """---
+description: TorusGuard Autonomous Security Command Engine — run static security audits, authorized runtime web validation, governed remediation, and SARIF exports.
+version: 0.9.2
+tools: Read, Grep, Glob, Bash, Edit, Write
+agent: auditor
+---
+
+# /torusguard — Autonomous Application Security Guardrails
+
+$ARGUMENTS
+
+## Objective
+Execute TorusGuard security workflows across Python and TypeScript codebases.
+
+## Execution
+Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-validate`, `exploit-check`, `harden`, `apply`, `recheck`, `report`, `status`, `init`):
+1. **If action is omitted or 'status':** View `.torusguard/workflows/status.md` and report posture.
+2. **If action is specified:** Load the dedicated workflow from `.torusguard/workflows/<action>.md` and matching skill from `.torusguard/skills/torusguard-<action>/SKILL.md`.
+3. Follow the phase execution steps defined in the workflow.
+"""
+
+    # Always ensure .agent/workflows/torusguard.md is created
+    agent_wf = target_root / ".agent" / "workflows"
+    agent_wf.mkdir(parents=True, exist_ok=True)
+    (agent_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
+    registered_ides.append("Antigravity (.agent/workflows/torusguard.md)")
+
+    # Claude Code (.claude/commands)
+    claude_dir = target_root / ".claude"
+    if claude_dir.exists():
+        claude_commands = claude_dir / "commands"
+        claude_commands.mkdir(parents=True, exist_ok=True)
+        (claude_commands / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
+        registered_ides.append("Claude Code (.claude/commands/torusguard.md)")
+
+    # Cursor (.cursor/rules)
+    cursor_dir = target_root / ".cursor"
+    if cursor_dir.exists():
+        cursor_rules = cursor_dir / "rules"
+        cursor_rules.mkdir(parents=True, exist_ok=True)
+        (cursor_rules / "torusguard.mdc").write_text(tg_workflow_content, encoding="utf-8")
+        registered_ides.append("Cursor (.cursor/rules/torusguard.mdc)")
+
+    for r in registered_ides:
+        print(f"  [REGISTERED] Slash command registered in {r}")
+
     print("\n================================================================================")
     print("[SUCCESS] TORUSGUARD WORKSPACE SCAFFOLDED SUCCESSFULLY!")
     print("================================================================================")

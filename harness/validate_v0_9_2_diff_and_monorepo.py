@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard v0.9.3 Feature Validation Suite
+TorusGuard v0.9.2 Feature Validation Suite (Diff Guard & Monorepo Detector)
 Validates Content-Aware Diff Safety (diff_guard.py), Monorepo Detector,
 Playground Fixtures, and Command Token Budgets (1,000–1,500 tokens).
 Pure Python 3.10+ (zero external dependencies).
@@ -11,18 +11,26 @@ import os
 import json
 from pathlib import Path
 
-# Add scripts directory to path
+import importlib.util
+
 ROOT_DIR = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = ROOT_DIR / ".torusguard" / "scripts"
-sys.path.insert(0, str(SCRIPTS_DIR))
-
-from diff_guard import audit_diff
-from monorepo_detector import scan_workspace
 
 
-def test_v0_9_3_features():
+def _load_script(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, str(path))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+audit_diff = _load_script("diff_guard", SCRIPTS_DIR / "diff_guard.py").audit_diff
+scan_workspace = _load_script("monorepo_detector", SCRIPTS_DIR / "monorepo_detector.py").scan_workspace
+
+
+def test_v0_9_2_features():
     print("=" * 80)
-    print("TORUSGUARD v0.9.3 FEATURE & SAFETY ENGINE TEST SUITE")
+    print("TORUSGUARD v0.9.2 DIFF GUARD & MONOREPO ENGINE TEST SUITE")
     print("=" * 80)
 
     # -------------------------------------------------------------------------
@@ -166,13 +174,13 @@ def test_v0_9_3_features():
         print(f"  [PASS] Command /{cmd:<13}: {total} tokens (Workflow: {w_tok} | Skill: {s_tok})")
 
     print("\n" + "=" * 80)
-    print("ALL v0.9.3 FEATURE & SAFETY VALIDATION CHECKS PASSED (100%)")
+    print("ALL v0.9.2 FEATURE & SAFETY VALIDATION CHECKS PASSED (100%)")
     print("=" * 80 + "\n")
 
 
 if __name__ == "__main__":
     try:
-        test_v0_9_3_features()
+        test_v0_9_2_features()
         sys.exit(0)
     except AssertionError as e:
         print(f"\n[FAIL] {e}")

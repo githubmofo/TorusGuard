@@ -12,7 +12,7 @@ version: 0.9.2
 
 ## ⚡ Workspace Bootstrap Check
 1. **If `.torusguard/` exists:** Load matching specialist skill on demand per command.
-2. **If `.torusguard/` is missing:** Run `python skills/torusguard/bootstrap.py --target .` or `/torusguard init`.
+2. **If `.torusguard/` is missing:** The AI agent MUST immediately run `python skills/torusguard/bootstrap.py --target .` (or from `.agent/skills/torusguard/bootstrap.py`) to scaffold `.torusguard/` and register slash commands.
 
 ---
 

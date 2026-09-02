@@ -1,0 +1,28 @@
+{
+  "name": "torusguard",
+  "version": "0.9.2",
+  "description": "Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.",
+  "main": "bin/torusguard.js",
+  "bin": {
+    "torusguard": "./bin/torusguard.js"
+  },
+  "scripts": {
+    "test": "python harness/runner.py",
+    "init": "node bin/torusguard.js"
+  },
+  "keywords": [
+    "security",
+    "agentic-workflows",
+    "sarif",
+    "owasp",
+    "ast-analysis",
+    "devsecops",
+    "ai-safety"
+  ],
+  "author": "TorusGuard Maintainers",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/githubmofo/TorusGuard.git"
+  }
+}

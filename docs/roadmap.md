@@ -175,22 +175,17 @@ This document outlines the development milestones, past releases, and future pri
   - `TG-SUPPLY-002`: Explicit warnings against destructive `npm audit fix --force`.
   - `TG-SUPPLY-006`: Container Build Secret Persistence & BuildKit secret mounts.
   - `TG-GQL-001` & `TG-WS-001`: Bounded 3-level canary introspection and unauthenticated handshake probes.
-- **Responsive High-DPI Visual Assets:** README banner optimized for retina displays.
-- **Comprehensive Validation Harness:** Built `harness/validate_v0_9_2_workflows_and_skills.py`, achieving 100% pass rate across **381 automated test assertions**.
-
----
-
-### ✅ v0.9.3 — Content-Aware Diff Safety & Monorepo Scoping (2026-09-02)
 - **Content-Aware Diff Line Scanner (`diff_guard.py`):** Evaluates added and deleted lines in unified patches against security invariants (`TG-DIFF-001` auth bypass comments, `TG-DIFF-002` secret ingestion, `TG-DIFF-003` tenant filter removal).
 - **Monorepo Sub-Scope Orchestration (`monorepo_detector.py`):** Automated detection and per-package profiling for Turborepo, pnpm workspaces, npm/yarn, and multi-service repositories.
 - **Interactive Multi-Stack Playground Suite (`demo/playground/`):** Self-contained runnable test fixtures for FastAPI and Next.js demonstrating SQLi, IDOR, Prompt Injection, and Client Secret leakage out of the box.
-- **Automated v0.9.3 Feature Test Suite:** `harness/validate_v0_9_3_features.py` (100% pass across all features).
+- **Autonomous Slash Command Registration:** Auto-registers `/torusguard` workflows in `.agent/workflows/`, `.claude/commands/`, and `.cursor/rules/`.
+- **Comprehensive Validation Harness:** Built `harness/validate_v0_9_2_workflows_and_skills.py` and `harness/validate_v0_9_2_diff_and_monorepo.py`, achieving 100% pass rate.
 
 ---
 
-## 🎯 Upcoming Milestones: v0.9.4+ Series
+## 🎯 Upcoming Milestones: v0.9.3+ Series
 
-### 🚀 v0.9.4 — CI/CD Permission Modeling & Container Scanners (Q1 2027)
+### 🚀 v0.9.3 — CI/CD Permission Modeling & Container Scanners (Q4 2026)
 - [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.
 - [ ] **Base Image Trivy / Grype Integration:** Local wrapper for scanning base container images (`FROM alpine:3.18`).
 
