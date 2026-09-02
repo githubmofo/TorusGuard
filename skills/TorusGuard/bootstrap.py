@@ -166,12 +166,12 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
         agents_wf = target_root / ".agents" / "workflows"
         agents_wf.mkdir(parents=True, exist_ok=True)
         (agents_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
-        registered_ides.append("Antigravity (.agents/workflows/torusguard.md)")
+        registered_ides.append("Antigravity / Gemini (.agents/workflows/torusguard.md)")
 
     agent_wf = target_root / ".agent" / "workflows"
     agent_wf.mkdir(parents=True, exist_ok=True)
     (agent_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
-    registered_ides.append("Antigravity (.agent/workflows/torusguard.md)")
+    registered_ides.append("Antigravity / Tribunal (.agent/workflows/torusguard.md)")
 
     # Claude Code (.claude/commands)
     claude_dir = target_root / ".claude"
@@ -189,8 +189,32 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
         (cursor_rules / "torusguard.mdc").write_text(tg_workflow_content, encoding="utf-8")
         registered_ides.append("Cursor (.cursor/rules/torusguard.mdc)")
 
+    # Windsurf (.windsurfrules)
+    if (target_root / ".windsurfrules").exists() or (target_root / ".windsurf").exists():
+        windsurf_rules = target_root / ".windsurfrules"
+        current_content = windsurf_rules.read_text(encoding="utf-8") if windsurf_rules.exists() else ""
+        if "TorusGuard" not in current_content:
+            windsurf_rules.write_text(current_content + "\n\n" + tg_workflow_content, encoding="utf-8")
+        registered_ides.append("Windsurf (.windsurfrules)")
+
+    # VS Code / GitHub Copilot (.github/copilot-instructions.md)
+    github_dir = target_root / ".github"
+    if github_dir.exists():
+        copilot_file = github_dir / "copilot-instructions.md"
+        current_content = copilot_file.read_text(encoding="utf-8") if copilot_file.exists() else ""
+        if "TorusGuard" not in current_content:
+            copilot_file.write_text(current_content + "\n\n# TorusGuard Security Instructions\n" + tg_workflow_content, encoding="utf-8")
+        registered_ides.append("VS Code / Copilot (.github/copilot-instructions.md)")
+
+    # Universal AGENTS.md (Kimi, Codex, Open Agent Standard)
+    agents_md = target_root / "AGENTS.md"
+    current_agents = agents_md.read_text(encoding="utf-8") if agents_md.exists() else ""
+    if "TorusGuard" not in current_agents:
+        agents_md.write_text(current_agents + ("\n\n" if current_agents else "") + "# TorusGuard Security Guardrails\n\nRun `/torusguard audit` to scan the codebase or refer to `.torusguard/` for security guidelines.\n", encoding="utf-8")
+        registered_ides.append("Universal Agent Standard (AGENTS.md for Kimi / Open Agents)")
+
     for r in registered_ides:
-        print(f"  [REGISTERED] Slash command registered in {r}")
+        print(f"  [REGISTERED] {r}")
 
     print("\n================================================================================")
     print("[SUCCESS] TORUSGUARD WORKSPACE SCAFFOLDED SUCCESSFULLY!")
