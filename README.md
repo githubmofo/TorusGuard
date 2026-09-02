@@ -5,12 +5,19 @@
 
   **Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.**
 
-  [![Release](https://img.shields.io/badge/Release-v0.9.2-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases)
+  [![Release: v0.9.2](https://img.shields.io/badge/Release-v0.9.2-blue.svg?style=flat-square&logo=github&logoColor=white)](https://github.com/githubmofo/TorusGuard/releases/latest)
   [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-  [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square)](https://python.org)
-  [![Validation: 100%](https://img.shields.io/badge/Validation-100%25%20Pass%20(381%20Tests)-brightgreen.svg?style=flat-square)](harness/)
-  [![SARIF: v2.1.0](https://img.shields.io/badge/SARIF-v2.1.0%20OASIS-purple.svg?style=flat-square)](schemas/)
+  [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
+  [![Dependencies: Zero](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Python)-success.svg?style=flat-square)](install.py)
+  [![Validation: 100%](https://img.shields.io/badge/Test%20Suites-381%2F381%20Passed%20(100%25)-brightgreen.svg?style=flat-square)](harness/)
+  [![Rules: 71 Canonical](https://img.shields.io/badge/Security%20Rules-71%20Canonical-blueviolet.svg?style=flat-square)](rules/)
+  <br>
+  [![OWASP: Top 10 Aligned](https://img.shields.io/badge/OWASP-Top%2010%20Aligned-orange.svg?style=flat-square&logo=owasp&logoColor=white)](docs/architecture/SECURITY_ARCHITECTURE.md)
+  [![SARIF: v2.1.0](https://img.shields.io/badge/SARIF-v2.1.0%20(OASIS)-purple.svg?style=flat-square)](schemas/)
+  [![Agent Skills: Ready](https://img.shields.io/badge/Agent%20Skills-Standard%20Ready-indigo.svg?style=flat-square)](skills/)
+  [![Commands: 11 Interactive](https://img.shields.io/badge/Slash%20Commands-11%20Interactive-informational.svg?style=flat-square)](.torusguard/workflows/)
   [![Integrity: SHA--256](https://img.shields.io/badge/Integrity-SHA--256%20Verified-teal.svg?style=flat-square)](.torusguard/.manifest.json)
+  [![PRs: Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square)](MAINTAINERS.md)
 </div>
 
 ---
