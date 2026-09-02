@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="TorusGuard.png" alt="TorusGuard Banner" width="420">
+  <img src="TorusGuard.png" alt="TorusGuard Security Banner" width="480" style="max-width: 100%; height: auto; border-radius: 8px;">
 
   # TorusGuard
 
