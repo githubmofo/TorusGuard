@@ -1,0 +1,94 @@
+{
+  "commands": [
+    {
+      "name": "/torusguard init",
+      "description": "Initialize TorusGuard in the workspace: detect project stack, activate tailored TG-* rules, and verify SECURITY.md.",
+      "usage": "/torusguard init",
+      "workflow": ".torusguard/workflows/init.md",
+      "agent": "profiler",
+      "modifies_code": false
+    },
+    {
+      "name": "/torusguard authorize",
+      "description": "Capture target ownership, allowed hosts, permitted endpoints, and write scope.json for runtime validation.",
+      "usage": "/torusguard authorize [target_url]",
+      "workflow": ".torusguard/workflows/authorize.md",
+      "agent": "reviewer",
+      "modifies_code": false
+    },
+    {
+      "name": "/torusguard audit",
+      "description": "Execute static AST code audit against active rules, assign Stable Fingerprints, cluster findings, and score confidence.",
+      "usage": "/torusguard audit [target_dir]",
+      "workflow": ".torusguard/workflows/audit.md",
+      "agent": "auditor",
+      "modifies_code": false
+    },
+    {
+      "name": "/torusguard verify",
+      "description": "Validate evidence sufficiency, audit AST source matches, and compute 0–100 confidence score.",
+      "usage": "/torusguard verify [finding_id]",
+      "workflow": ".torusguard/workflows/verify.md",
+      "agent": "validator",
+      "modifies_code": false
+    },
+    {
+      "name": "/torusguard web-validate",
+      "description": "Dispatch authorized HTTP and API runtime probes with token redaction to test practical reachability.",
+      "usage": "/torusguard web-validate [target_url]",
+      "workflow": ".torusguard/workflows/web-validate.md",
+      "agent": "validator",
+      "modifies_code": false,
+      "requires_authorization": true
+    },
+    {
+      "name": "/torusguard exploit-check",
+      "description": "Execute bounded, safe exploitability confirmation for approved vulnerability classes (SQLi, SSRF, XSS, auth bypass).",
+      "usage": "/torusguard exploit-check [target_url]",
+      "workflow": ".torusguard/workflows/exploit-check.md",
+      "agent": "validator",
+      "modifies_code": false,
+      "requires_authorization": true
+    },
+    {
+      "name": "/torusguard harden",
+      "description": "Generate structured remediation bundles with framework-native before/after diffs enriched by runtime findings.",
+      "usage": "/torusguard harden [run_id]",
+      "workflow": ".torusguard/workflows/harden.md",
+      "agent": "remediator",
+      "modifies_code": false
+    },
+    {
+      "name": "/torusguard apply",
+      "description": "Apply surgical, governed patches with strict line addition (<=35) and deletion (<=25) boundaries.",
+      "usage": "/torusguard apply [bundle_id]",
+      "workflow": ".torusguard/workflows/apply.md",
+      "agent": "remediator",
+      "modifies_code": true
+    },
+    {
+      "name": "/torusguard recheck",
+      "description": "Re-scan modified files to verify fix integrity and detect potential regressions.",
+      "usage": "/torusguard recheck [run_id]",
+      "workflow": ".torusguard/workflows/recheck.md",
+      "agent": "reviewer",
+      "modifies_code": false
+    },
+    {
+      "name": "/torusguard report",
+      "description": "Generate unified Markdown executive report, finding cards, and multi-analysis OASIS SARIF v2.1.0 output.",
+      "usage": "/torusguard report [run_id]",
+      "workflow": ".torusguard/workflows/report.md",
+      "agent": "reviewer",
+      "modifies_code": false
+    },
+    {
+      "name": "/torusguard status",
+      "description": "Display current security posture, active run history, configuration, and activated rule count.",
+      "usage": "/torusguard status",
+      "workflow": ".torusguard/workflows/status.md",
+      "agent": null,
+      "modifies_code": false
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/confidence.schema.json",
+  "title": "TorusGuardConfidenceScore",
+  "description": "Auditable 0-100 confidence scoring rubric and breakdown for TorusGuard v0.5.1 findings.",
+  "type": "object",
+  "required": [
+    "score",
+    "band",
+    "factors",
+    "rationale"
+  ],
+  "properties": {
+    "score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Composite confidence score from 0 to 100."
+    },
+    "band": {
+      "type": "string",
+      "enum": ["Confirmed", "High Confidence", "Medium Confidence", "Low Confidence / Unconfirmed"],
+      "description": "Classification band derived from score threshold."
+    },
+    "factors": {
+      "type": "object",
+      "required": [
+        "evidence_quality",
+        "reproduction_success",
+        "independent_confirmations",
+        "environmental_clarity",
+        "manual_review_status"
+      ],
+      "properties": {
+        "evidence_quality": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 35,
+          "description": "Direct source AST / exact snippet vs indirect indication (Max: 35)."
+        },
+        "reproduction_success": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 25,
+          "description": "Deterministic reproduction in fixture or local test (Max: 25)."
+        },
+        "independent_confirmations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15,
+          "description": "Corroboration across multiple manifests/routes (Max: 15)."
+        },
+        "environmental_clarity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15,
+          "description": "Absence of unverified external service layers or proxies (Max: 15)."
+        },
+        "manual_review_status": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Validation confirmed by human engineer (Max: 10)."
+        }
+      }
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Justification explaining why this confidence score and band were assigned."
+    }
+  }
+}

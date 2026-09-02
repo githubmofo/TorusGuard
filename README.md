@@ -5,7 +5,7 @@
 
   **Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.**
 
-  [![Release](https://img.shields.io/badge/Release-v0.7.0-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases)
+  [![Release](https://img.shields.io/badge/Release-v0.8.0-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases)
   [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
   [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square)](https://python.org)
   [![Validation: 100%](https://img.shields.io/badge/Validation-351%2F351%20Pass%20(100%25)-brightgreen.svg?style=flat-square)](harness/)
@@ -38,11 +38,11 @@ Every candidate vulnerability transitions through an auditable, deterministic st
 
 1. **Detect (`/torusguard audit`):** Scans source code, manifests, and configurations against 64 canonical security rules.
 2. **Classify:** Derives AST-invariant `FindingFingerprint` hashes and collapses repeated alerts into systemic root-cause clusters.
-3. **Verify (`/torusguard web-validate` / `exploit-check`):** Executes bounded, passive HTTP/browser probes against authorized endpoints to confirm reachability.
+3. **Verify (`/torusguard verify` / `web-validate` / `exploit-check`):** Validates evidence quality and executes bounded HTTP/browser probes.
 4. **Remediate (`/torusguard harden`):** Generates self-contained 5-file Remediation Bundles with framework-idiomatic Before/After fixes.
 5. **Apply (`/torusguard apply`):** Employs the **Ponytail engine** to apply surgical, minimal patches governed by strict line churn limits ($\le 35$ additions, $\le 25$ deletions).
 6. **Recheck (`/torusguard recheck`):** Scopes differential re-audits strictly to modified files, asserting `Confirmed Fixed` or detecting regressions.
-7. **Archive:** Preserves cryptographic SHA-256 evidence digests and exports OASIS-compliant SARIF v2.1.0 reports for GitHub Code Scanning.
+7. **Archive (`/torusguard report`):** Preserves cryptographic SHA-256 evidence digests and exports OASIS-compliant SARIF v2.1.0 reports.
 
 ---
 
@@ -51,17 +51,17 @@ Every candidate vulnerability transitions through an auditable, deterministic st
 TorusGuard is organized into three decoupled architectural tiers in `core/`:
 
 ```text
-                               TORUSGUARD ENGINE (v0.7.0)
+                               TORUSGUARD ENGINE (v0.8.0)
 +---------------------------------------------------------------------------------------+
 | TIER 3: AUTHORIZED RUNTIME VALIDATION & MULTI-AGENT GOVERNANCE                        |
 |  - TargetScope & AuthorizationManager (Explicit legal consent & host/path whitelist)  |
 |  - SafetyGate (Auto-Allowed GETs vs Approval Required state changes vs Manual Only)   |
 |  - WebValidator & RedactionEngine (Bounded HTTP probing with Bearer/token redaction)  |
 |  - ExploitChecker (Safe verification for Auth, IDOR, Header Trust, Path Traversal)    |
-|  - BrowserVerifier (Client route guards & unauthenticated DOM inspection)            |
-|  - RoleOrchestrator (Profiler, Validator, Remediator, Reviewer handoffs)              |
-|  - ReplayManager (Deterministic JSON replay traces)                                   |
-+-------------------------------------------+-------------------------------------------+
+|  - BrowserVerifier (Headless client-side DOM & route guard validation)                |
+|  - ReplayManager (Deterministic validation trace capture & reproduction)              |
+|  - RoleOrchestrator (Profiler -> Validator -> Remediator -> Reviewer handoff audit)   |
++---------------------------------------------------------------------------------------+
                                             | Extends & Enriches
 +-------------------------------------------v-------------------------------------------+
 | TIER 2: GOVERNED REMEDIATION & RESILIENT DETECTION                                    |
@@ -93,18 +93,26 @@ Install TorusGuard into Cursor, Antigravity, Claude Code, Cline, Codex, or Gemin
 npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
 ```
 
+Initialize your workspace security environment:
+```bash
+/torusguard init
+```
+
 ### 2. Core Workflow Commands
 
 | Command | Role / Phase | Purpose | Modifies Code? |
 |---|:---:|---|:---:|
-| `/torusguard init` | Setup | Generates a project `SECURITY.md`, threat model, and baseline. | ❌ Docs only |
-| `/torusguard audit` | Profiler / Detect | Scans codebase, generates stable IDs, and clusters findings. | ❌ No |
+| `/torusguard init` | Setup | Scaffolds `.torusguard/`, detects stack, and activates tailored rules. | ❌ Docs/Config |
 | `/torusguard authorize` | Safety Gate | Enforces target ownership proof and strict scope allowlists. | ❌ No |
+| `/torusguard audit` | Profiler / Detect | Scans codebase, generates stable IDs, and clusters findings. | ❌ No |
+| `/torusguard verify` | Validator | Evaluates evidence sufficiency and computes 0–100 confidence score. | ❌ No |
 | `/torusguard web-validate` | Validator | Bounded HTTP probing and session tracking with secret redaction. | ❌ No |
 | `/torusguard exploit-check`| Validator | Safe, single-step exploitability confirmation across 5 statuses. | ❌ No |
 | `/torusguard harden` | Remediator | Emits 5-file remediation bundles and surgical patch plans. | ❌ No |
 | `/torusguard apply` | Remediator | Applies bounded, governed patches ($\le 35$ additions, $\le 25$ deletions). | ⚠️ Yes (Governed) |
 | `/torusguard recheck` | Reviewer | Differentially audits modified files to verify fixes and catch regressions. | ❌ No |
+| `/torusguard report` | Reviewer | Exports signed executive report and multi-analysis OASIS SARIF v2.1.0 log. | ❌ No |
+| `/torusguard status` | System | Displays workspace security posture, active rules, and run history. | ❌ No |
 
 ---
 

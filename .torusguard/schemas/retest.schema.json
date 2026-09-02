@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/retest.schema.json",
+  "title": "TorusGuardRetestRecord",
+  "description": "Schema for explicit retest execution, fix verification, and closure status in TorusGuard v0.5.1.",
+  "type": "object",
+  "required": [
+    "retest_performed",
+    "closure_status"
+  ],
+  "properties": {
+    "retest_performed": {
+      "type": "boolean",
+      "description": "True if an automated or manual retest has been executed on the post-fix codebase."
+    },
+    "retest_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "fix_applied": {
+      "type": "string",
+      "description": "Summary of the code patch or configuration change applied."
+    },
+    "retest_method": {
+      "type": "string",
+      "description": "Method used to verify resolution (e.g. differential static recheck, automated unit test)."
+    },
+    "retest_evidence_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the modified source file confirming post-fix state."
+    },
+    "closure_status": {
+      "type": "string",
+      "enum": [
+        "Unconfirmed",
+        "Open",
+        "Remediated",
+        "Verified Fixed",
+        "Fix Incomplete",
+        "Suppressed - Accepted Risk"
+      ],
+      "description": "Final verified operational status of the finding."
+    },
+    "residual_risk": {
+      "type": "string",
+      "description": "Any residual operational or architectural risk remaining after the fix."
+    },
+    "verifier_notes": {
+      "type": "string",
+      "description": "Human or AI verifier notes detailing retest observations."
+    }
+  }
+}

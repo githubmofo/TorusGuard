@@ -5,6 +5,22 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-09-02
+
+### Added
+- **Installable Skill Kit Architecture (`.torusguard/`):** Transformed TorusGuard into an installable AI agent skill kit deployable via `npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"`.
+- **Master Always-On Rules (`.torusguard/TORUSGUARD.md`):** Comprehensive rules engine (`trigger: always_on`) covering the 7-stage lifecycle, 11-command routing table, 5 agent roles, Ponytail patch governance ($\le 35$ additions, $\le 25$ deletions), 5-factor 0–100 confidence scoring, and card-style reporting standards.
+- **5 Specialist Agent Definitions (`.torusguard/agents/`):** Dedicated agent profiles with formal responsibilities and safety contracts: `profiler.md`, `auditor.md`, `validator.md`, `remediator.md`, and `reviewer.md`.
+- **11 Lifecycle Workflows (`.torusguard/workflows/`):** Complete execution guides for `/torusguard init`, `authorize`, `audit`, `verify`, `web-validate`, `exploit-check`, `harden`, `apply`, `recheck`, `report`, and `status`.
+- **5 Python Utility Scripts (`.torusguard/scripts/`):** Standalone pure Python CLI utilities for agent and CI automation: `stack_detect.py`, `finding_scorer.py`, `sarif_exporter.py`, `run_manager.py`, and `safety_gate.py`.
+- **Self-Contained Framework References (`.torusguard/references/`):** Embedded security guides for Django, DRF, FastAPI, Flask, SQLAlchemy, Next.js, Express, React/Vite, Supabase, and Firebase.
+- **Active Rules Activation System (`.torusguard/rules/active/`):** Dynamic stack-tailored rule activation mechanism with rule taxonomy guide in `.torusguard/rules/README.md`.
+- **4 Canonical Output Templates (`.torusguard/templates/`):** Standard templates for `authorization.template.md`, `audit-report.template.md`, `remediation-bundle.template.md`, and `finding-card.template.md`.
+
+### Changed
+- **Lean Workspace Bootstrapper (`skills/torusguard/SKILL.md`):** Refactored from a monolithic 153-line guide into a lean 53-line workspace bootstrapper that checks for `.torusguard/TORUSGUARD.md` and delegates execution.
+- **Git Tracking Optimization (`.gitignore`):** Hardened `.gitignore` to track the `.torusguard/` skill kit while cleanly ignoring runtime output under `.torusguard/runs/`.
+
 ## [0.7.0] - 2026-09-01
 
 ### Added

@@ -44,7 +44,8 @@ examples/*/*/*.db
 .system_generated/
 
 # TorusGuard local tests, run folders, and audit artifacts
-.torusguard/
+.torusguard/runs/
+!.torusguard/runs/.gitkeep
 runs/
 qa-runs/
 test_repos/
@@ -69,3 +70,5 @@ test_output/
 *.tmp
 *.temp
 *.swp
+
+.agent
