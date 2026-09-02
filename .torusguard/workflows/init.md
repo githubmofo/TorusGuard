@@ -17,145 +17,79 @@ $ARGUMENTS
 ---
 
 ## Objective
-Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
+Baseline project discovery, workspace scaffolding, stack detection, and security rule activation.
 
 ---
 
 ## Mandatory Pre-Flight Context Inspection
 
-Before initializing or re-configuring the workspace security environment, you MUST inspect:
-
-1. **Existing Workspace State (`.torusguard/config/torusguard.json`)** → Check if `.torusguard/` is already initialized. If present, prompt the operator before overwriting active configuration.
-2. **Project Manifests & Markers** → Inspect project root for `package.json`, `manage.py`, `requirements.txt`, `pyproject.toml`, `go.mod`, or `Cargo.toml`.
-3. **Security Policy Anchor (`SECURITY.md`)** → Verify if the repository already defines a responsible disclosure policy.
-4. **Offline Template Payload (`skills/torusguard/payload/`)** → If `.torusguard/` is missing in an external project, invoke `python skills/torusguard/bootstrap.py` to unpack all assets locally.
-
----
-
-## Objective
-Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
+Inspect workspace state before running initialization:
+1. **Config State (`.torusguard/config/torusguard.json`):** Check if workspace is already initialized. If active, prompt before re-writing.
+2. **Project Manifests:** Check root for `package.json`, `manage.py`, `requirements.txt`, `pyproject.toml`, `go.mod`, or `Cargo.toml`.
+3. **Disclosure Policy (`SECURITY.md`):** Check for existing responsible disclosure policy.
+4. **Bootstrapper:** If `.torusguard/` is absent, invoke `python skills/torusguard/bootstrap.py` to unpack offline assets.
+5. **Runtime Preconditions:** Ensure Python 3.10+ is available in the current execution shell.
 
 ---
 
 ## When to Use /torusguard init
 
-| Use `/torusguard init` when... | Use something else when... |
+| Trigger Scenario | Recommended Command |
 | :--- | :--- |
-| First time running TorusGuard in a project | Already initialized → `/torusguard audit` |
-| Upgraded framework or added new tech stack | Checking current configuration → `/torusguard status` |
-| Rebuilding tailored rules after dependency change | Reviewing legal scope permissions → `/torusguard authorize` |
-| Resetting `.torusguard/config/torusguard.json` | Running full end-to-end audit → `/torusguard full` |
+| First-time onboarding in any repository | Run `/torusguard init` |
+| Framework upgrade or major dependency changes | Run `/torusguard init` to refresh tailored rules |
+| Repository already configured | Run `/torusguard audit` |
+| Inspecting existing configuration | Run `/torusguard status` |
+| Testing legal boundaries | Run `/torusguard authorize` |
 
 ---
 
-## Objective
-Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
+## Execution Steps
 
----
-
-## Execution Steps (Fixed Order)
-
-### Phase 1 — Workspace Scaffolding & Bootstrap Verification
-1. Verify presence of `.torusguard/` subdirectories (`config/`, `agents/`, `workflows/`, `scripts/`, `templates/`, `schemas/`, `references/`, `rules/active/`, `runs/`).
-2. If missing or incomplete, execute the offline bootstrapper:
+1. **Scaffold Directory Topology:** Verify `.torusguard/` structure (`config/`, `rules/active/`, `runs/`, `scripts/`, `workflows/`, `templates/`, `schemas/`).
+2. **Execute Stack Detection:**
    ```bash
-   python skills/torusguard/bootstrap.py --target .
+   python .torusguard/scripts/stack_detect.py .
    ```
-
-### Phase 2 — Automated Stack Discovery
-Execute the stack detection engine across repository files:
-```bash
-python .torusguard/scripts/stack_detect.py . --json
-```
-Detect languages, web frameworks, ORMs, and cloud SDKs:
-- **Python**: Django (`manage.py`, `settings.py`), DRF (`rest_framework`), FastAPI (`FastAPI()`), Flask (`Flask(__name__)`), SQLAlchemy (`declarative_base()`).
-- **TypeScript/Node**: Next.js (`next`), Express (`express`), React/Vite (`@vitejs/plugin-react`).
-- **Cloud/BaaS**: Supabase (`@supabase/supabase-js`), Firebase (`firebase-admin`).
-
-### Phase 3 — Tailored Rule Family Activation
-Activate relevant rule families under `.torusguard/rules/active/`:
-- **Universal Baseline**: `TG-SEC-*` (secrets & tokens), `TG-INPUT-*` (input sanitization), `TG-AUTH-*` (session & auth barriers).
-- **Stack-Specific Activation**:
-  - Django / DRF: `TG-DB-004` (tenant isolation), `TG-RATE-001` (throttling), `TG-PLATFORM-*`.
-  - FastAPI / Flask: `TG-INPUT-001` (Pydantic boundary), `TG-INPUT-002` (SQL injection).
-  - Next.js / Express: `TG-CLIENT-*` (client credential leak), `TG-PLATFORM-001` (CORS).
-
-### Phase 4 — Security Policy Verification
-Check for `SECURITY.md` in repository root. If missing, copy canonical template:
-```bash
-python -c "import shutil, os; shutil.copyfile('.torusguard/templates/SECURITY.template.md', 'SECURITY.md') if not os.path.exists('SECURITY.md') else None"
-```
-
-### Phase 5 — Save State & Manifest Update
-Record detected configuration into `.torusguard/config/torusguard.json`.
+3. **Activate Tailored Rules:** Symlink or copy matching security rules from `.torusguard/rules/` into `.torusguard/rules/active/`.
+4. **Write Configuration (`.torusguard/config/torusguard.json`):**
+   Record detected stack, enabled rules count, timestamp, and runtime constraints.
+5. **Verify Initialization:** Assert `.torusguard/config/torusguard.json` and `.torusguard/config/scope.json` exist.
 
 ---
 
-## Objective
-Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
+## Failure Recovery
 
----
-
-## Failure Recovery & Cascade Rules
-
-```
-Script exits 0:     Success — continue pipeline
-Script exits 1:     Failure — fallback to heuristic file scan (grep manage.py / package.json)
-Script not found:   Run bootstrap.py to restore .torusguard/scripts/
-Script times out:   Kill after 30s — fallback to generic stack profile
-```
-
-**Hard limit: 3 retries.** If stack detection fails after 3 attempts, ask operator for manual framework confirmation.
-
----
-
-## Objective
-Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
+- **Script Exit 1 (Detection Failed):** Check Python version (`python --version` >= 3.10) and verify read access to root manifests.
+- **Permission Error:** Verify write permissions for `.torusguard/config/` and `.torusguard/rules/active/`.
+- **Missing Directories:** Re-run directory scaffolding if any subfolder creation fails.
+- **Halt Condition:** If root directory is empty, halt and prompt user to open the project root.
 
 ---
 
 ## Hallucination Guard
 
-```
-❌ Never guess framework versions without reading manifest files
-❌ Never overwrite existing customized torusguard.json without prompting
-❌ Never create unapproved directories outside .torusguard/ and project root
-❌ Never activate rules for frameworks not detected in the workspace
-```
-
----
-
-## Objective
-Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
+- ❌ Never invent framework dependencies not present in `package.json` or `requirements.txt`.
+- ❌ Never overwrite an existing `.torusguard/config/scope.json` containing authorized domains.
+- ✅ Always execute `.torusguard/scripts/stack_detect.py` to ground detected technologies.
 
 ---
 
 ## Output Card Format
 
 ```markdown
-🛡️ [TorusGuard] Workspace Initialized Successfully
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Language:         [Detected Language, e.g., Python 3.12 / TypeScript 5.4]
-Framework:        [Detected Framework, e.g., FastAPI / Django / Next.js]
-Data Layer:       [Detected ORM, e.g., SQLAlchemy / Prisma / Django ORM]
-Active Rules:     [Count] rules activated in .torusguard/rules/active/
-Security Policy:  SECURITY.md verified in repository root
-Config Path:      .torusguard/config/torusguard.json
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Next Step: Run `/torusguard audit` to perform your first static security scan.
+### 🛡️ TorusGuard Workspace Initialization
+- **Primary Framework:** [Detected Stack or None]
+- **Components:** [Backend / Frontend / Database]
+- **Active Rules:** [Count] rules enabled in `.torusguard/rules/active/`
+- **Config:** `.torusguard/config/torusguard.json` generated
+- **Scope Template:** `.torusguard/config/scope.json` ready
+- **Status:** READY — run `/torusguard audit` to scan codebase
 ```
-
----
-
-## Objective
-Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
 
 ---
 
 ## Next Steps
 
-| Outcome | Next Command |
-| :--- | :--- |
-| Workspace initialized and rules active | → `/torusguard audit` to scan codebase |
-| Project has runtime APIs or web endpoints | → `/torusguard authorize` to set scope |
-| Want end-to-end scan + remediation | → `/torusguard full` |
+1. Run `/torusguard authorize` to define allowed target URLs and legal scan boundaries.
+2. Run `/torusguard audit` to execute the baseline static security audit.

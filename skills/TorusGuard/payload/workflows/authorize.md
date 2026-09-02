@@ -17,136 +17,79 @@ $ARGUMENTS
 ---
 
 ## Objective
-Legal scope definition, target ownership proof verification, and safety boundary enforcement for runtime validation.
+Legal scope definition, target ownership proof verification, and safety boundary enforcement.
 
 ---
 
 ## Mandatory Pre-Flight Context Inspection
 
-Before registering runtime authorization boundaries, you MUST inspect:
-
-1. **Active Project Config (`.torusguard/config/torusguard.json`)** → Confirm the project was initialized.
-2. **Current Scope Record (`.torusguard/config/scope.json`)** → Inspect existing targets, allowed paths, and TTL expiration timestamps.
-3. **Target Environment Sanity** → Verify that target URLs are non-production staging, localhost, or ephemeral containers (`localhost`, `127.0.0.1`, `*.staging.*`, `*.test`).
-4. **Destructive Method Guard** → Ensure state-changing operations (`DELETE`, `PUT`, bulk mutations) require explicit `allow_destructive: true` flags.
-
----
-
-## Objective
-Legal scope definition, target ownership proof verification, and safety boundary enforcement for runtime validation.
+Inspect authorization parameters and environment safety before executing:
+1. **Config Record (`.torusguard/config/torusguard.json`):** Assert repository is initialized.
+2. **Current Scope (`.torusguard/config/scope.json`):** Inspect active allowed targets, paths, and TTL expiry.
+3. **Environment Classification:** Assert target is local or staging (`localhost`, `127.0.0.1`, `*.local`, `*.staging.*`). Production targets require explicit approval.
+4. **Destructive Guard:** Ensure state-changing operations (`DELETE`, bulk drops) remain blocked by default.
+5. **Ownership Proof:** Verify target ownership token or local process binding.
+6. **TTL Window:** Ensure authorization window does not exceed 24 hours.
 
 ---
 
 ## When to Use /torusguard authorize
 
-| Use `/torusguard authorize` when... | Use something else when... |
+| Trigger Scenario | Recommended Action |
 | :--- | :--- |
-| Preparing to run live API / HTTP checks | Performing static-only analysis → `/torusguard audit` |
-| Authorizing new staging host or port | Viewing current authorization → `/torusguard status` |
-| Updating allowed path prefixes or rate limits | Generating remediation patch → `/torusguard harden` |
-| Setting an expiration TTL on live testing | Running full pipeline → `/torusguard full` |
+| Preparing for live HTTP probes or API validation | Run `/torusguard authorize` |
+| Updating allowed hosts, path prefixes, or rate limits | Run `/torusguard authorize` |
+| Static-only security audit | Skip authorize; run `/torusguard audit` |
+| Checking active legal scope status | Run `/torusguard status` |
+| Expired authorization window | Re-run `/torusguard authorize` |
 
 ---
 
-## Objective
-Legal scope definition, target ownership proof verification, and safety boundary enforcement for runtime validation.
+## Execution Steps
 
----
-
-## Execution Steps (Fixed Order)
-
-### Phase 1 — Prompt & Capture Authorization Parameters
-Capture the mandatory legal scope parameters:
-- **Target URL / Host**: e.g., `http://127.0.0.1:8000` or `https://staging.internal.net`
-- **Allowed Path Prefixes**: e.g., `["/api/v1/", "/auth/", "/users/"]`
-- **Forbidden Paths**: e.g., `["/admin/delete", "/system/reboot", "/payments/capture"]`
-- **Allowed HTTP Methods**: Default to `["GET", "HEAD", "OPTIONS"]`. Require explicit approval for `["POST", "PUT"]`.
-- **Max Requests Per Second**: Default to `5 req/sec` to prevent DoS.
-- **Authorization Expiration (TTL)**: Default to `4 hours`.
-
-### Phase 2 — Target Ownership & Environment Validation
-1. Verify target host does not belong to third-party providers (AWS, Stripe, Google, Twilio APIs).
-2. Validate against `.torusguard/schemas/authorization.schema.json`.
-3. Check for staging/development markers (`localhost`, `.local`, `staging`, test headers).
-
-### Phase 3 — Safety Gate Configuration & Scope Persistence
-1. Run the safety gate script to validate parameters:
+1. **Capture Scope Parameters:** Collect target URL, allowed paths, forbidden prefixes, and max request budget.
+2. **Validate Host Ownership:** Verify target is local or matches authorized test domains.
+3. **Invoke Safety Gate:**
    ```bash
-   python .torusguard/scripts/safety_gate.py --validate-scope .torusguard/config/scope.json
+   python .torusguard/scripts/safety_gate.py check --url <target_url>
    ```
-2. Write authorized parameters to `.torusguard/config/scope.json`.
-3. Archive signed authorization record into current run folder:
-   - Path: `.torusguard/runs/<active-run>/authorization.md`
+4. **Write Scope File (`.torusguard/config/scope.json`):** Save authorized targets, valid TTL timestamp, and request rate caps.
+5. **Confirm Scope Binding:** Verify `.torusguard/config/scope.json` parses as valid JSON against schema.
 
 ---
 
-## Objective
-Legal scope definition, target ownership proof verification, and safety boundary enforcement for runtime validation.
+## Failure Recovery
 
----
-
-## Failure Recovery & Cascade Rules
-
-```
-Target URL invalid:       HALT — Prompt user for RFC-compliant URL (scheme + host + port)
-Third-party domain:       HALT — Refuse unauthorized target with legal boundary warning
-TTL expired:              HALT — Require operator re-authorization via /torusguard authorize
-Schema validation error:  HALT — Print exact JSON schema discrepancy and reject
-```
-
-**Hard limit: Zero bypasses.** Runtime tools (`web-validate`, `exploit-check`) will strictly refuse to execute if `scope.json` is invalid, expired, or absent.
-
----
-
-## Objective
-Legal scope definition, target ownership proof verification, and safety boundary enforcement for runtime validation.
+- **Unreachable Host:** Verify local server is running on the specified port.
+- **Production Target Warning:** If target resolves to an external production host, halt and request operator override.
+- **Malformed JSON:** Re-initialize `scope.json` from `.torusguard/schemas/auth-boundary.schema.json`.
+- **Halt Trigger:** Abort immediately if user provides wildcard target (`*`) or third-party domain.
 
 ---
 
 ## Hallucination Guard
 
-```
-❌ Never fabricate an authorization record without explicit operator input
-❌ Never permit wildcard (*) allowed_hosts on public domain names
-❌ Never authorize DELETE or DROP commands under automated execution
-❌ Never set TTL greater than 24 hours without human confirmation
-```
-
----
-
-## Objective
-Legal scope definition, target ownership proof verification, and safety boundary enforcement for runtime validation.
+- ❌ Never proceed with runtime probing without an explicit, valid `.torusguard/config/scope.json`.
+- ❌ Never authorize destructive HTTP methods (`DELETE`, `DROP`) under default non-destructive policy.
+- ✅ Always validate targets through `.torusguard/scripts/safety_gate.py`.
 
 ---
 
 ## Output Card Format
 
 ```markdown
-🛡️ [TorusGuard] Runtime Scope Authorized & Locked
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Target Host:        [e.g., http://localhost:8000]
-Allowed Prefixes:   [/api/v1/, /auth/]
-Forbidden Paths:    [/admin/delete, /billing/charge]
-Allowed Methods:    [GET, HEAD, POST]
-Rate Cap:           [5 req/sec (burst: 10)]
-TTL Expiration:     [Timestamp, 4 hours from now]
-Scope File:         .torusguard/config/scope.json
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Status: 🟢 AUTHORIZED FOR BOUNDED RUNTIME VERIFICATION
-Next Step: Run `/torusguard web-validate` or `/torusguard exploit-check`.
+### 🔒 TorusGuard Authorization Gate
+- **Target URL:** [Target Host or URL]
+- **Environment:** [Localhost / Staging / Container]
+- **Allowed Paths:** [Path prefixes or all authorized]
+- **Rate Limit:** [Max requests / concurrency limit]
+- **Scope File:** `.torusguard/config/scope.json`
+- **Status:** AUTHORIZED — ready for `/torusguard web-validate`
 ```
-
----
-
-## Objective
-Legal scope definition, target ownership proof verification, and safety boundary enforcement for runtime validation.
 
 ---
 
 ## Next Steps
 
-| Outcome | Next Command |
-| :--- | :--- |
-| Scope locked and verified | → `/torusguard web-validate` to probe endpoints |
-| Specific vulnerability found | → `/torusguard exploit-check` to confirm exploitability |
-| Static analysis needed first | → `/torusguard audit` |
+1. Run `/torusguard audit` to scan codebase for AST security vulnerabilities.
+2. Run `/torusguard web-validate` to begin safe, authorized endpoint validation.

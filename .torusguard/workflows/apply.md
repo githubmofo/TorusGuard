@@ -23,134 +23,73 @@ Governed patch application with pre-apply rollback snapshots and Human Gate auth
 
 ## Mandatory Pre-Flight Context Inspection
 
-Before applying any code patch to disk, you MUST inspect:
-
-1. **Remediation Bundle Integrity** → Confirm that `patch.diff` and `metadata.json` exist under `.torusguard/runs/<run-id>/patches/<bundle-id>/`.
-2. **Current Disk State Check** → Check if the target source file has uncommitted changes or was modified since the bundle was packaged.
-3. **Pre-Apply Snapshot Capture** → Ensure a byte-for-byte backup of the target file is saved to `pre_apply/` BEFORE touching the file.
-4. **Human Gate Authorization** → Present the exact diff to the operator. Obtain explicit approval before modifying source code.
-
----
-
-## Objective
-Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
+Inspect bundle validity and file safety before modifying disk code:
+1. **Bundle Verification:** Assert `patch.diff` exists in active run's remediation folder.
+2. **Pre-Apply Snapshot:** Save a byte-for-byte backup copy (`.bak` or `pre_apply/`) prior to editing.
+3. **Uncommitted Changes:** Check git status; ensure target file has clean baseline.
+4. **Ponytail Check:** Re-verify that patch additions $\le 35$ and deletions $\le 25$.
+5. **Human Gate:** Confirm operator approval before committing edits to disk.
+6. **Workspace Cleanliness:** Verify git working tree has no uncommitted merge conflicts.
+7. **Execution Privilege:** Verify write access to targeted file locations.
 
 ---
 
 ## When to Use /torusguard apply
 
-| Use `/torusguard apply` when... | Use something else when... |
+| Trigger Scenario | Recommended Action |
 | :--- | :--- |
-| Writing an approved remediation bundle to disk | Generating the patch diff → `/torusguard harden` |
-| Applying surgical security fixes safely | Re-scanning after applying → `/torusguard recheck` |
-| Requiring rollback snapshot preservation | Auditing vulnerabilities → `/torusguard audit` |
-| Staging governed code changes | Full pipeline → `/torusguard full` |
+| Applying an approved remediation patch to disk | Run `/torusguard apply` |
+| Generating patch diff without modifying disk | Run `/torusguard harden` |
+| Verifying that patch eliminated flaw without regression | Run `/torusguard recheck` |
+| Reverting an applied patch | Restore from `.bak` snapshot |
+| Checking workspace status | Run `/torusguard status` |
 
 ---
 
-## Objective
-Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
+## Execution Steps
+
+1. **Load Remediation Bundle:** Read `patch.diff` and metadata from active run directory.
+2. **Create Rollback Backup:**
+   Copy target file to `.torusguard/runs/<run_id>/pre_apply/<filename>.bak`.
+3. **Apply Minimal Diff:** Execute precise surgical edit using `replace_file_content` or `patch`.
+4. **Assert Syntax & Integrity:** Check that modified file compiles cleanly without syntax errors.
+5. **Log Application Ledger:**
+   Record application timestamp, original SHA-256, and patched SHA-256 into `apply-log.json`.
 
 ---
 
-## Execution Steps (Fixed Order)
+## Failure Recovery
 
-### Phase 1 — Load & Validate Remediation Bundle
-1. Read `.torusguard/runs/<run-id>/patches/<bundle-id>/metadata.json`.
-2. Verify target file path and line churn metrics ($\le 35$ additions, $\le 25$ deletions).
-3. Read `patch.diff`.
-
-### Phase 2 — Human Gate Authorization
-Display the diff preview to the operator:
-```markdown
-⚠️ HUMAN GATE APPROVAL REQUIRED
-Target File: [path/to/file.py]
-Bundle:      [bundle-TG-DB-004]
-Lines:       +4 / -2
-
-Apply this patch to disk? (Y = Approve | N = Cancel | R = Revise)
-```
-Wait for operator input. If rejected (`N`), abort cleanly without disk modification.
-
-### Phase 3 — Pre-Apply Rollback Snapshot Capture
-Before writing any change, save an exact copy of the active disk file:
-```bash
-python -c "import shutil, os; os.makedirs('.torusguard/runs/<run-id>/patches/<bundle-id>/pre_apply', exist_ok=True); shutil.copyfile('<target_file>', '.torusguard/runs/<run-id>/patches/<bundle-id>/pre_apply/<filename>.bak')"
-```
-
-### Phase 4 — Surgical Code Modification
-Apply the patch using surgical code replacement tools (`replace_file_content` or `git apply`):
-- Do not reformat surrounding code.
-- Maintain existing indentation and style conventions.
-- Immediately re-read the file to confirm clean application.
-
-### Phase 5 — Record Audit State
-Update `metadata.json` in the bundle directory with `applied: true`, timestamp, and git commit SHA.
-
----
-
-## Objective
-Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
-
----
-
-## Failure Recovery & Cascade Rules
-
-```
-Operator rejects (N):   ABORT — Record 'Rejected by Human Gate' and leave disk untouched
-Patch conflict:         HALT — Target file has drifted. Restore from pre_apply/ snapshot
-Syntax / Import error:  ROLLBACK — Restore original file from pre_apply/ snapshot immediately
-Rollback procedure:     Copy pre_apply/<file>.bak over target file; confirm clean git diff
-```
-
----
-
-## Objective
-Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
+- **Syntax Error After Patch:** Instantly revert target file from `.bak` backup snapshot.
+- **Merge / Context Conflict:** Re-run `/torusguard harden` to regenerate diff against latest disk lines.
+- **Missing Backup File:** Do not apply patch if backup copy cannot be written.
+- **Halt Trigger:** Abort if git working tree is dirty on conflicting lines.
 
 ---
 
 ## Hallucination Guard
 
-```
-❌ Never apply a patch without explicit Human Gate approval
-❌ Never apply a patch without first archiving a pre_apply/ snapshot
-❌ Never modify any file other than the exact target specified in metadata.json
-❌ Never leave a project in a broken or uncompilable syntax state
-```
-
----
-
-## Objective
-Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
+- ❌ Never apply code changes without creating an exact pre-apply rollback backup first.
+- ❌ Never touch files not explicitly listed in the approved `patch.diff`.
+- ✅ Always verify syntax compilation immediately after modifying source files.
 
 ---
 
 ## Output Card Format
 
 ```markdown
-🛡️ [TorusGuard] Patch Applied Successfully
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Bundle ID:          [bundle-TG-DB-004-django-tenant-idor]
-Target File:        [apps/invoices/views.py]
-Status:             ✅ APPLIED TO DISK
-Pre-Apply Snapshot: .torusguard/runs/<run-id>/patches/bundle-TG-DB-004/pre_apply/views.py.bak
-Line Churn:         +4 additions / -2 deletions
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Next Step: Run `/torusguard recheck` to verify fix integrity and detect regressions.
+### 🚀 TorusGuard Patch Application
+- **Finding Addressed:** `TG-XXX-HASH`
+- **File Patched:** `src/path/to/file.py`
+- **Rollback Backup:** `.torusguard/runs/<run_id>/pre_apply/<file>.bak`
+- **Churn Applied:** +[Additions] / -[Deletions] lines
+- **Syntax Check:** PASSED (clean compile)
+- **Status:** APPLIED — run `/torusguard recheck` to verify fix
 ```
-
----
-
-## Objective
-Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
 
 ---
 
 ## Next Steps
 
-| Outcome | Next Command |
-| :--- | :--- |
-| Patch applied successfully | → `/torusguard recheck` to verify closure |
-| Patch caused unexpected failure | → Roll back using snapshot, then `/torusguard harden` |
-| Apply next queued bundle | → `/torusguard apply <next-bundle-id>` |
+1. Run `/torusguard recheck` to perform differential audit on the modified file.
+2. Run test suites to verify that business logic and regressions remain intact.

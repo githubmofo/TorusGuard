@@ -17,148 +17,80 @@ $ARGUMENTS
 ---
 
 ## Objective
-Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
+Governed remediation formulation under strict Ponytail Protocol bounds (<=35 add, <=25 del).
 
 ---
 
 ## Mandatory Pre-Flight Context Inspection
 
-Before formulating remediation patches, you MUST inspect:
-
-1. **Active Finding Manifest (`.torusguard/runs/<latest-run>/findings.md`)** → Identify the prioritized findings targeted for remediation.
-2. **The Ponytail Protocol Bounds** → Enforce hard line churn constraints: $\le 35$ additions and $\le 25$ deletions per bundle. No full-file rewrites.
-3. **Sensitive Path Sign-Off** → Check if targeted files touch authentication, billing, or core database schema (`auth.py`, `models.py`, `settings.py`). If so, flag as `Requires Sensitive-Path Sign-Off`.
-4. **Behavior Preservation** → Ensure the patch strictly fixes the security flaw without modifying unrelated business logic, API schemas, or test contracts.
-
----
-
-## Objective
-Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
+Inspect finding targets and patch constraints before generating diffs:
+1. **Target Finding (`findings.md`):** Identify prioritized verified findings.
+2. **Ponytail Protocol:** Enforce hard limit ($\le 35$ additions, $\le 25$ deletions). Ban rewrites.
+3. **Sensitive Path Review:** Flag changes touching `auth/` or `settings.py` for human sign-off.
+4. **Behavior Preservation:** Ensure patch addresses flaw without breaking public APIs.
+5. **Dry-Run Rule:** Do NOT apply changes to disk during harden; emit bundle for review.
+6. **Backup Readiness:** Ensure rollback procedures are prepared before staging patch.
 
 ---
 
 ## When to Use /torusguard harden
 
-| Use `/torusguard harden` when... | Use something else when... |
+| Trigger Scenario | Recommended Action |
 | :--- | :--- |
-| Generating surgical patches for findings | Actually writing changes to disk → `/torusguard apply` |
-| Formulating minimal unified diffs | Discovering vulnerabilities → `/torusguard audit` |
-| Packaging 4-artifact remediation bundles | Checking if patches broke anything → `/torusguard recheck` |
-| Reviewing security fixes before applying | Full automated pipeline → `/torusguard full` |
+| Formulating minimal patches for verified findings | Run `/torusguard harden` |
+| Packaging a 4-artifact remediation bundle for review | Run `/torusguard harden` |
+| Writing and applying changes to code files | Run `/torusguard apply` |
+| Differentially re-scanning code after patch application | Run `/torusguard recheck` |
+| Discovering new vulnerabilities | Run `/torusguard audit` |
 
 ---
 
-## Objective
-Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
+## Execution Steps
+
+1. **Select Target Finding:** Choose verified flaw from active run directory.
+2. **Examine Live Code Context:** Read surrounding lines (±15) of vulnerable sink.
+3. **Draft Unified Diff:** Formulate minimal fix adhering to Ponytail Protocol limits.
+4. **Package 4-Artifact Bundle:**
+   - `patch.diff`: Unified diff with line numbers.
+   - `plan.md`: Step-by-step remediation rationale.
+   - `verification.md`: Instructions to verify fix.
+   - `rollback.md`: Revert commands on regression.
+5. **Write Bundle:** Save to `.torusguard/runs/<run_id>/remediation/<finding_id>/`.
 
 ---
 
-## Execution Steps (Fixed Order)
+## Failure Recovery
 
-### Phase 1 — Target Selection & Finding Analysis
-Select prioritized findings from the active run:
-- Focus first on `Confirmed` and `High Confidence` clusters.
-- Locate exact AST node responsible for the vulnerability.
-
-### Phase 2 — Surgical Unified Diff Generation
-Formulate minimal unified diff conforming to the **Ponytail Protocol**:
-- **Max Additions**: $\le 35$ lines.
-- **Max Deletions**: $\le 25$ lines.
-- **Surgical edits only**: Parameterize queries, add tenant filters, insert Pydantic models, or add cookie security flags.
-- **Zero Full-File Rewrites**: Only modify the exact vulnerable function.
-
-### Phase 3 — Line Churn Verification
-Count added and deleted lines in the generated unified diff.
-If churn exceeds bounds:
-- Partition into sequential sub-bundles (Bundle A, Bundle B), OR
-- Escalate to `Requires Manual Architectural Refactor` if the change requires structural redesign.
-
-### Phase 4 — Package the 4-Artifact Remediation Bundle
-Create bundle directory under active run: `.torusguard/runs/<run-id>/patches/<bundle-id>/` containing:
-1. `patch.diff`: Clean unified diff compatible with `git apply`.
-2. `metadata.json`: Bundle ID, targeted finding IDs, line churn metrics, and author agent.
-3. `explanation.md`: Clear technical explanation of the flaw, the fix rationale, and side-effect analysis.
-4. `pre_apply/`: Empty staging folder reserved for pre-apply rollback snapshots.
-
-### Phase 5 — Human Gate Readiness
-Prepare diff preview for operator review. No files are modified on disk during `/torusguard harden`.
-
----
-
-## Objective
-Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
-
----
-
-## Failure Recovery & Cascade Rules
-
-```
-Finding not found:    HALT — Verify finding ID against active run findings.md
-Ponytail exceeded:    Partition into smaller sub-bundles or flag for manual refactor
-Conflicting diff:     Re-read active disk file to resolve line drift; regenerate patch
-Sensitive path:       Highlight with ⚠️ SENSITIVE PATH REQUIRES EXPLICIT APPROVAL
-```
-
----
-
-## Objective
-Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
+- **Line Churn Exceeded (>35 add or >25 del):** Decompose patch into smaller sequential sub-fixes.
+- **Sensitive Path Conflict:** Mark bundle with `Requires Sensitive-Path Sign-Off` in `plan.md`.
+- **Finding Not Found:** Ensure finding ID exists in active `findings.md`.
+- **Halt Trigger:** Abort if target source file cannot be read from disk.
 
 ---
 
 ## Hallucination Guard
 
-```
-❌ Never touch or reformat unrelated lines of code
-❌ Never delete existing tests, comments, or error handlers
-❌ Never generate a patch that exceeds 35 additions or 25 deletions in a single bundle
-❌ Never write changes to source files on disk during the harden phase (reserved for apply)
-```
-
----
-
-## Objective
-Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
+- ❌ Never generate full-file replacements or unconstrained cosmetic code refactoring.
+- ❌ Never modify imports, variables, or functions unrelated to the vulnerability.
+- ✅ Always calculate addition and deletion line counts before emitting `patch.diff`.
 
 ---
 
 ## Output Card Format
 
 ```markdown
-🛡️ [TorusGuard] Remediation Bundle Packaged
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Bundle ID:          [bundle-TG-DB-004-django-tenant-idor]
-Target File:        [apps/invoices/views.py]
-Target Finding:     [TG-DB-004-django-tenant-idor]
-Ponytail Bounds:    Additions: +4 lines (limit: 35) ✅ | Deletions: -2 lines (limit: 25) ✅
-Risk Level:         Low (Surgical query scoping)
-Sensitive Path:     No (Standard view layer)
-Bundle Path:        .torusguard/runs/<run-id>/patches/bundle-TG-DB-004/
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Diff Preview:
-```diff
-@@ -42,3 +42,5 @@ def get_invoice(request, invoice_id):
--    invoice = Invoice.objects.get(id=invoice_id)
-+    tenant = get_current_tenant(request)
-+    invoice = Invoice.objects.filter(tenant=tenant, id=invoice_id).first()
-+    if not invoice:
-+        raise Http404("Invoice not found")
+### 🛠️ TorusGuard Remediation Bundle
+- **Finding Target:** `TG-XXX-HASH` ([Vulnerability Name])
+- **File Affected:** `src/path/to/file.py`
+- **Line Churn:** +[Additions] / -[Deletions] (Ponytail: PASS)
+- **Sensitive Path:** [Yes (Sign-Off Needed) / No (Standard)]
+- **Bundle Path:** `.torusguard/runs/<run_id>/remediation/<finding_id>/`
+- **Status:** READY FOR REVIEW — run `/torusguard apply` to execute
 ```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Next Step: Run `/torusguard apply bundle-TG-DB-004` to review and write to disk.
-```
-
----
-
-## Objective
-Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
 
 ---
 
 ## Next Steps
 
-| Outcome | Next Command |
-| :--- | :--- |
-| Bundle generated and reviewed | → `/torusguard apply <bundle-id>` |
-| Additional findings need hardening | → Continue `/torusguard harden` |
-| Want end-to-end audit + patch | → `/torusguard full` |
+1. Review proposed diff in `.torusguard/runs/<run_id>/remediation/<finding_id>/patch.diff`.
+2. Run `/torusguard apply` to execute the governed patch with automatic rollback backup.

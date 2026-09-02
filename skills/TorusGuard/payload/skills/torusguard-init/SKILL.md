@@ -11,98 +11,42 @@ scripts-binding:
 # TorusGuard Init — Project Stack Discovery & Rule Activation
 
 ## Objective
-Initialize TorusGuard within the current workspace by inspecting repository files to auto-detect the tech stack, activating framework-tailored `TG-*` security rules, loading reference guides, and provisioning a baseline `SECURITY.md`.
+Auto-detect repository technology stack via indicators or `stack_detect.py`, activate framework-tailored `TG-*` security rules into `.torusguard/rules/active/`, and provision `torusguard.json` and `SECURITY.md`.
 
 ---
 
 ## Pre-Flight Check
-Before executing initialization:
-1. Check if `.torusguard/` directory structure exists.
-2. If missing, run `python skills/torusguard/bootstrap.py --target .` to unpack the bundled template payload:
-   ```
-   .torusguard/
-   ├── config/
-   ├── agents/
-   ├── workflows/
-   ├── rules/active/
-   ├── scripts/
-   ├── templates/
-   ├── schemas/
-   ├── references/
-   └── runs/
-   ```
-3. If `.torusguard/config/torusguard.json` already exists, read existing configuration and report whether the project was previously initialized.
+1. Verify `.torusguard/` layout (`config/`, `rules/active/`, `runs/`, `scripts/`, `workflows/`, `templates/`, `schemas/`).
+2. If missing, unpack via `python skills/torusguard/bootstrap.py --target .`.
+3. Check existing `.torusguard/config/torusguard.json` before overwriting.
 
 ---
 
 ## Execution Steps
 
-### Step 1: Stack Detection
-Inspect indicator files or execute `.torusguard/scripts/stack_detect.py` to identify:
-- **Python Frameworks**:
-  - Django: Presence of `manage.py`, `django.conf.settings`, or `INSTALLED_APPS` in `settings.py`.
-  - DRF: `rest_framework` in `requirements.txt` or `from rest_framework import ...`.
-  - FastAPI: `FastAPI()` instantiation or `from fastapi import FastAPI, Depends`.
-  - Flask: `Flask(__name__)` instantiation or `from flask import Flask`.
-  - Data Layer: `declarative_base()` (SQLAlchemy) or `django.db.models.Model` (Django ORM).
-- **TypeScript / Node Frameworks**:
-  - Next.js: `package.json` with `"next"` dependency or `app/` / `pages/` directory layout.
-  - Express: `package.json` with `"express"` or `express()` server instantiation.
-  - React/Vite: `"@vitejs/plugin-react"` or `"react"` + `vite.config.ts`.
-- **Cloud / BaaS Providers**:
-  - Supabase: `@supabase/supabase-js` or `createClient(...)`.
-  - Firebase: `firebase-admin` or `initializeApp(...)`.
-
-### Step 2: Emit Detected Stack Block
-Produce the standard detection block:
-```markdown
-## Detected Stack
-- Language: <Python | TypeScript | JavaScript>
-- Framework: <Django | FastAPI | Flask | Next.js | Express | React>
-- Data Layer: <SQLAlchemy | Django ORM | Prisma | Supabase | Firebase | None>
-- Dependency Files: <path/to/dependencies>
-- Detection Confidence: Confirmed (<file>:<line>)
-```
-
-### Step 3: Activate Tailored Rule Families
-Link relevant rule summaries from `.torusguard/rules/` into `.torusguard/rules/active/`:
-- **Universal Baseline**: `TG-SEC-*` (secrets), `TG-INPUT-*` (validation), `TG-AUTH-*` (auth barriers).
-- **Python / Django**: `TG-DB-004` (tenant scoping), `TG-RATE-001` (throttling), `TG-PLATFORM-*`.
-- **Python / FastAPI & Flask**: `TG-INPUT-001` (Pydantic boundaries), `TG-INPUT-002` (SQL injection).
-- **Next.js / Node**: `TG-CLIENT-*` (client credential leaks), `TG-PLATFORM-001` (CORS).
-
-### Step 4: Bind Framework Reference Guide
-Identify and load the corresponding framework security reference from `.torusguard/references/`:
-- Django / DRF → `django-security.md`, `drf-security.md`
-- FastAPI → `fastapi-security.md`, `sqlalchemy-security.md`
-- Flask → `flask-security.md`, `sqlalchemy-security.md`
-- Next.js → `nextjs-security.md`
-- Express → `express-security.md`
-- React / Vite → `react-vite-security.md`
-- Supabase / Firebase → `supabase-security.md`, `firebase-security.md`
-
-### Step 5: Provision SECURITY.md
-Check if `SECURITY.md` exists in the repository root. If missing, generate one from `.torusguard/templates/SECURITY.template.md`.
-
-### Step 6: Write Configuration
-Write `.torusguard/config/torusguard.json` with detected stack, active rules list, and initialization timestamp.
+1. **Stack Detection:** Run `python .torusguard/scripts/stack_detect.py .` to detect:
+   - Python: Django (`manage.py`), FastAPI (`fastapi`), Flask (`flask`), SQLAlchemy.
+   - Node: Next.js (`"next"`), Express (`"express"`), React/Vite (`"vite"`).
+   - BaaS: Supabase (`@supabase/supabase-js`), Firebase (`firebase-admin`).
+2. **Emit Stack Record:** Log detected language, framework, ORM, and client SDKs.
+3. **Activate Tailored Rules:** Copy matching `TG-*` rules from `.torusguard/rules/` into `.torusguard/rules/active/`.
+4. **Provision Policy:** Create `SECURITY.md` if absent, configuring responsible disclosure contacts.
+5. **Write Configuration:** Persist detected stack and active rules count to `.torusguard/config/torusguard.json`.
 
 ---
 
 ## Safety Constraints
-- Read-only inspection of source code; never alter application logic during initialization.
-- Never overwrite existing customized `torusguard.json` without explicit user confirmation.
-- Only activate rules that correspond to frameworks actually present in the codebase.
+- Never overwrite custom rules in `.torusguard/rules/active/` without prompt.
+- Retain existing `SECURITY.md` if already established by repository owners.
+- Strictly read-only detection against source files.
 
 ---
 
 ## Output Format
 ```markdown
-🛡️ [TorusGuard] Project Initialized Successfully!
-- Detected Stack: <Framework> (<Language>) · <ORM/Data Layer>
-- Active Rules: <Count> tailored rules activated in .torusguard/rules/active/
-- Security Policy: SECURITY.md verified
-- References Loaded: <reference-guide.md>
-
-Next Step: Run `/torusguard audit` to scan your codebase against active security rules.
+🛡️ [TorusGuard] Workspace Initialized
+- Primary Stack: <Detected Stack> | Components: <Backend/Frontend/DB>
+- Active Rules: <Count> rules enabled in `.torusguard/rules/active/`
+- Configuration: `.torusguard/config/torusguard.json` written
+Next: Run `/torusguard audit` to execute static security scan.
 ```

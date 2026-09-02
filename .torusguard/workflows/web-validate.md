@@ -17,150 +17,79 @@ $ARGUMENTS
 ---
 
 ## Objective
-Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
+Authorized HTTP probing, token redaction, transparent audit header injection, and replay capture.
 
 ---
 
 ## Mandatory Pre-Flight Context Inspection
 
-Before dispatching any live network requests, you MUST inspect:
-
-1. **Authorization Scope Record (`.torusguard/config/scope.json`)** → Confirm that target URL and paths are explicitly authorized and TTL has not expired.
-2. **Safety Gate Classification** → Check proposed HTTP methods and paths against `safety_gate.py` policies (`Auto-Allowed`, `Approval Required`, or `Manual Only`).
-3. **Sensitive Path Restrictions** → Verify that administrative actions, password resets, or account deletions are NOT executed automatically.
-4. **Token Redaction Pipeline** → Ensure all cookies, Bearer tokens, and auth headers will be redacted before saving to disk.
-
----
-
-## Objective
-Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
+Inspect authorization parameters and safety limits before sending HTTP requests:
+1. **Active Scope (`.torusguard/config/scope.json`):** Assert target host and path are authorized with valid TTL.
+2. **Safety Gate Classification:** Test proposed endpoint against `.torusguard/scripts/safety_gate.py`.
+3. **Sensitive Route Guard:** Ensure destructive endpoints (`DELETE`, account drops) are never called automatically.
+4. **Token Redaction Pipeline:** Ensure bearer tokens and session cookies are masked (`Bearer [REDACTED]`).
+5. **Request Budget:** Enforce maximum cap of 50 requests per validation session.
 
 ---
 
 ## When to Use /torusguard web-validate
 
-| Use `/torusguard web-validate` when... | Use something else when... |
+| Trigger Scenario | Recommended Action |
 | :--- | :--- |
-| Checking live route accessibility and headers | Pure source code scan → `/torusguard audit` |
-| Verifying cookie flags (HttpOnly, Secure, SameSite) | Checking exploit payloads → `/torusguard exploit-check` |
-| Validating CORS headers and authentication barriers | Authorizing new scope → `/torusguard authorize` |
-| Capturing deterministic HTTP replay traces | Patching code → `/torusguard harden` |
+| Testing live route accessibility and security headers | Run `/torusguard web-validate` |
+| Verifying cookie security flags (`HttpOnly`, `Secure`, `SameSite`) | Run `/torusguard web-validate` |
+| Checking CORS headers and authentication barriers | Run `/torusguard web-validate` |
+| Pure static source code analysis | Run `/torusguard audit` |
+| Confirming exploitable attack vectors | Run `/torusguard exploit-check` |
 
 ---
 
-## Objective
-Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
+## Execution Steps
+
+1. **Verify Legal Scope:** Check target URL against `.torusguard/config/scope.json`.
+2. **Invoke Safety Gate:**
+   ```bash
+   python .torusguard/scripts/safety_gate.py check --url <target_url> --method GET
+   ```
+3. **Dispatch Non-Destructive Probe:** Send bounded HTTP request with audit header `X-TorusGuard-AuthID`.
+4. **Redact Sensitive Headers:** Sanitize auth tokens and credentials in request and response objects.
+5. **Write Replay Artifacts:**
+   Record sanitized trace in `.torusguard/runs/<run_id>/requests.json` and emit `web-validation.md`.
 
 ---
 
-## Execution Steps (Fixed Order)
+## Failure Recovery
 
-### Phase 1 — Verify Legal Authorization
-Read `.torusguard/config/scope.json` and confirm:
-- `target_host` matches the requested endpoint.
-- `ttl_expiration` is in the future.
-- Path matches an authorized prefix in `allowed_prefixes`.
-If invalid or expired, HALT and instruct operator to run `/torusguard authorize`.
-
-### Phase 2 — Safety Gate Pre-Flight Filter
-Run `safety_gate.py` on the proposed action:
-```bash
-python .torusguard/scripts/safety_gate.py --method GET --path /api/v1/users --action check
-```
-- **Auto-Allowed**: Non-sensitive `GET`, `HEAD`, `OPTIONS` within authorized prefix. Proceed.
-- **Approval Required**: Sensitive endpoints (`/auth/login`, `/settings`). Ask operator for confirmation before sending.
-- **Manual Only / Blocked**: Destructive verbs (`DELETE`, `DROP`) or forbidden paths (`/admin/delete`). Block immediately.
-
-### Phase 3 — Dispatched Bounded Request Execution
-1. Inject mandatory TorusGuard audit headers:
-   - `X-TorusGuard-Scan: v0.9.2`
-   - `X-TorusGuard-RunId: <active-run-id>`
-2. Execute bounded HTTP probe with safety constraints:
-   - Timeout: `5000ms` max per request.
-   - Max redirects: `3`.
-   - Max payload response size: `256KB`.
-
-### Phase 4 — Secret & Credential Redaction
-Sanitize raw request and response data:
-- Bearer tokens replaced with `Bearer [REDACTED_JWT_sha256:abcd...]`
-- Cookies scrubbed or hashed.
-- Passwords and secret keys masked with `[REDACTED_SECRET]`.
-
-### Phase 5 — Record Artifacts & Replay Trace
-Save outputs into current run folder:
-- `requests.json` and `responses.json` (redacted request/response pairs).
-- `replay.json` (deterministic curl command for reproduction).
-- `web-validation.md` (summary of response codes, header security posture, and findings).
-
----
-
-## Objective
-Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
-
----
-
-## Failure Recovery & Cascade Rules
-
-```
-Target unreachable (599): Record 'Unreachable Target' in web-validation.md; do not crash
-Safety gate rejection:    Log 'Blocked by Safety Policy'; continue with remaining routes
-Rate limit triggered:    Pause 5 seconds, back off request rate by 50%, and retry once
-Secret redaction failure: HALT IMMEDIATELY — Never write unredacted credentials to disk
-```
-
----
-
-## Objective
-Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
+- **Target Offline:** Verify local dev server is active and accessible on designated host port.
+- **Safety Gate Rejection (Manual Only):** Halt probe immediately; report endpoint requires human manual test.
+- **Rate Limit / 429:** Back off exponentially (1s, 2s, 4s); stop session if 429 persists.
+- **Halt Trigger:** Abort if target domain deviates from authorized allowlist in `scope.json`.
 
 ---
 
 ## Hallucination Guard
 
-```
-❌ Never issue HTTP requests outside the exact hosts defined in scope.json
-❌ Never bypass the safety_gate.py check under any circumstance
-❌ Never log raw authorization headers or passwords to disk or terminal
-❌ Never flood endpoints beyond the rate limit defined in scope.json
-```
-
----
-
-## Objective
-Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
+- ❌ Never dispatch HTTP requests outside domains explicitly listed in `.torusguard/config/scope.json`.
+- ❌ Never write raw Authorization headers or plaintext secrets to disk.
+- ✅ Always include transparent audit headers (`X-TorusGuard-AuthID`).
 
 ---
 
 ## Output Card Format
 
 ```markdown
-🛡️ [TorusGuard] Web Validation Probe Completed
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Target Endpoint:    [http://localhost:8000/api/v1/users]
-Response Code:      [200 OK / 401 Unauthorized / 403 Forbidden]
-Security Headers:   Strict-Transport-Security: ✅ | Content-Type-Options: ✅
-Cookie Attributes:  HttpOnly: ⚠️ Missing | SameSite: Strict ✅
-Redaction Status:   100% Auth Headers & Cookies Redacted
-Replay Artifact:    .torusguard/runs/<run-id>/replay.json
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Security Findings:
-- Cookie 'session_id' lacks HttpOnly flag (Exposes cookie to XSS read)
-- Missing X-Frame-Options on /login (Clickjacking risk)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Next Step: Run `/torusguard harden` to remediate identified cookie configurations.
+### 🌐 TorusGuard Web Validation
+- **Target Host:** [Host URL]
+- **Endpoints Probed:** [Count] routes tested
+- **Security Headers:** [CSP / HSTS / CORS status]
+- **Cookie Security:** [HttpOnly / Secure / SameSite status]
+- **Replay Trace:** `.torusguard/runs/<run_id>/replay.json`
+- **Status:** COMPLETED — non-destructive probe finished
 ```
-
----
-
-## Objective
-Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
 
 ---
 
 ## Next Steps
 
-| Outcome | Next Command |
-| :--- | :--- |
-| Security header or cookie flaw found | → `/torusguard harden` |
-| Deep exploit confirmation needed | → `/torusguard exploit-check` |
-| Scope expired | → `/torusguard authorize` |
+1. Run `/torusguard exploit-check` to confirm if reachable flaws constitute verified exploits.
+2. Run `/torusguard harden` to build surgical remediation diffs.

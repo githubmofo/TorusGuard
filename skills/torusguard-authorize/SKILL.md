@@ -1,6 +1,6 @@
 ---
 name: torusguard-authorize
-description: Authorize target host and path boundaries for safe runtime probing and exploitability verification.
+description: Register and validate runtime target authorization boundaries — scope boundaries, ownership proofs, TTL expiration, and Safety Gate enforcement.
 version: 0.9.2
 workflow: .torusguard/workflows/authorize.md
 tools: Read, Grep, Glob, Write
@@ -8,75 +8,40 @@ scripts-binding:
   - .torusguard/scripts/safety_gate.py
 ---
 
-# TorusGuard Authorize — Scope Governance & Safety Gate
+# TorusGuard Authorize — Legal Scope & Safety Gate Registration
 
 ## Objective
-Establish an auditable, legally bounded authorization scope before executing any runtime HTTP probing or exploitability verification. Ensures testing is restricted to staging/local environments with verified ownership and strict path allowlists.
+Define and validate legal runtime authorization boundaries, verify target ownership, enforce maximum rate limits, and persist a cryptographically auditable `.torusguard/config/scope.json`.
 
 ---
 
 ## Execution Steps
 
-### Step 1: Collect Scope Parameters
-Capture the mandatory authorization parameters:
-- `target_host`: Target URL (e.g., `http://127.0.0.1:8000`, `http://localhost:3000`). Must include scheme and port.
-- `allowed_prefixes`: Array of path prefixes permitted for probing (e.g., `["/api/v1/", "/auth/"]`).
-- `forbidden_paths`: Explicitly blocked paths (e.g., `["/admin/delete", "/payments/charge"]`).
-- `allowed_methods`: HTTP verbs permitted (Default: `["GET", "HEAD", "OPTIONS"]`; write verbs require explicit approval).
-- `rate_limit_per_second`: Maximum request throughput (Default: `5 req/s`).
-- `ttl_hours`: Authorization validity duration (Default: `4 hours`, maximum `24 hours`).
-
-### Step 2: Safety Boundary Validation
-Verify parameters against strict safety constraints:
-1. Target must NOT match public third-party services (AWS, Stripe, Twilio, Google APIs).
-2. Target must resolve to localhost, private IP (`10.*`, `172.16-31.*`, `192.168.*`), or a designated staging domain.
-3. Validate parameters conform to `.torusguard/schemas/authorization.schema.json`.
-
-### Step 3: Run Safety Gate Validator
-Execute the safety gate validator:
-```bash
-python .torusguard/scripts/safety_gate.py --validate-scope .torusguard/config/scope.json
-```
-
-### Step 4: Write Scope File
-Write `.torusguard/config/scope.json`:
-```json
-{
-  "target_host": "http://127.0.0.1:8000",
-  "allowed_prefixes": ["/api/v1/", "/auth/"],
-  "forbidden_paths": ["/admin/delete", "/system/reboot"],
-  "allowed_methods": ["GET", "HEAD", "POST"],
-  "rate_limit_per_second": 5,
-  "ttl_expiration": "2026-09-02T18:00:00Z",
-  "allow_destructive": false,
-  "authorized_by": "developer"
-}
-```
-
-### Step 5: Archive Authorization Record
-Write `.torusguard/runs/<active-run>/authorization.md` capturing the signed scope record for auditability.
+1. **Capture Scope Parameters:** Collect target host URL, allowed path prefixes, forbidden prefixes, and session TTL.
+2. **Validate Environment:** Assert target is local (`localhost`, `127.0.0.1`) or staging (`*.staging.*`). Block production targets without explicit override.
+3. **Verify Host Ownership:** Confirm ownership token or local process socket binding.
+4. **Invoke Safety Gate:**
+   ```bash
+   python .torusguard/scripts/safety_gate.py check --url <target_url>
+   ```
+5. **Write Scope Record:** Persist authorized targets, rate limits, and expiration timestamp into `.torusguard/config/scope.json`.
+6. **Validate Schema:** Confirm `scope.json` adheres to `auth-boundary.schema.json`.
 
 ---
 
 ## Safety Constraints
-- **Zero Wildcard Hosts**: Never permit `*` as the target host.
-- **Production Protection**: Strictly reject production domains without multi-party confirmation.
-- **TTL Enforcement**: Authorization expires automatically; runtime tools must refuse expired scopes.
-- **Destructive Method Guard**: `DELETE`, `DROP`, and bulk-update actions are strictly prohibited under automated testing.
+- Never authorize wildcard hosts (`*`) or third-party domains.
+- State-changing destructive actions (`DELETE`, bulk drops) are disabled by default.
+- Set strict TTL (default 4 hours, maximum 24 hours).
 
 ---
 
 ## Output Format
 ```markdown
-🛡️ [TorusGuard] Runtime Scope Authorized & Locked
-- Target Host: <target_host>
-- Allowed Prefixes: <allowed_prefixes>
-- Forbidden Paths: <forbidden_paths>
-- Allowed Verbs: <allowed_methods>
-- Rate Cap: <rate_limit_per_second> req/s
-- TTL Expiration: <ttl_expiration>
-- Scope File: .torusguard/config/scope.json
-
-Status: 🟢 AUTHORIZED FOR BOUNDED RUNTIME VERIFICATION
-Next Step: Run `/torusguard web-validate` or `/torusguard exploit-check`.
+🔒 [TorusGuard] Target Scope Authorized
+- Target Host: <Host URL> | Environment: <Local / Staging>
+- Allowed Paths: <Prefixes> | Rate Limit: <Max Req/sec>
+- Expiration TTL: <Timestamp>
+- Scope File: `.torusguard/config/scope.json`
+Next: Run `/torusguard web-validate` to begin safe runtime probing.
 ```

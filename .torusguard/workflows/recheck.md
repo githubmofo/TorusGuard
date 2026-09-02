@@ -18,138 +18,78 @@ $ARGUMENTS
 ---
 
 ## Objective
-Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
+Targeted differential AST re-scan, fix closure verification, and regression state transitions.
 
 ---
 
 ## Mandatory Pre-Flight Context Inspection
 
-Before running a targeted differential recheck, you MUST inspect:
-
-1. **Applied Patches Ledger** → Confirm that a patch was applied during the active or recent run (`patches/<bundle-id>/metadata.json` with `applied: true`).
-2. **Modified File Identification** → Identify the exact list of files modified by the applied patches.
-3. **AST Scan Scope Restriction** → Restrict the differential scan strictly to modified files and their direct callers to save token budget.
-4. **4-State Transition Engine** → Prepare to classify each targeted finding into: `Fixed`, `Partially Fixed`, `Not Fixed`, or `Regression`.
-
----
-
-## Objective
-Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
+Inspect applied patch history and target file scope before re-checking:
+1. **Applied Patch Record:** Verify `apply-log.json` or modified file list exists in the active run.
+2. **Scope Limitation:** Restrict differential scan strictly to modified files to conserve token budget.
+3. **Rollback Availability:** Confirm `.bak` snapshot exists in `pre_apply/` in case regression is detected.
+4. **4-State Transition Engine:** Prepare to transition findings to `Fixed`, `Partially Fixed`, `Not Fixed`, or `Regression`.
+5. **Fresh Syntax Validation:** Ensure no compiler or syntax errors exist before re-evaluating rules.
+6. **AST Consistency:** Ensure imported dependencies on modified lines resolve correctly.
 
 ---
 
 ## When to Use /torusguard recheck
 
-| Use `/torusguard recheck` when... | Use something else when... |
+| Trigger Scenario | Recommended Action |
 | :--- | :--- |
-| Immediately after applying a patch bundle | Before applying changes → `/torusguard apply` |
-| Verifying that a specific vulnerability is closed | Scanning whole repo from scratch → `/torusguard audit` |
-| Checking for introduced regressions | Exporting final compliance SARIF → `/torusguard report` |
-| Auditing fix integrity | Full pipeline execution → `/torusguard full` |
+| Immediately after applying a remediation patch | Run `/torusguard recheck` |
+| Verifying that a specific finding is eliminated | Run `/torusguard recheck` |
+| Checking whether a patch introduced new security flaws | Run `/torusguard recheck` |
+| Whole repository baseline audit | Run `/torusguard audit` |
+| Generating final signed release report | Run `/torusguard report` |
 
 ---
 
-## Objective
-Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
+## Execution Steps
+
+1. **Identify Modified Files:** Extract list of altered files from latest apply step.
+2. **Execute Differential AST Scan:** Re-run active security rules exclusively against modified files.
+3. **Evaluate Finding Status:**
+   - If original vulnerable AST pattern is absent and no new sink appears: transition to `Fixed`.
+   - If new security rule triggers on altered lines: classify as `Regression`.
+4. **Update Finding State:** Record verified resolution status into `findings.json`.
+5. **Emit Recheck Report:** Write `recheck-report.md` into the active run folder.
 
 ---
 
-## Execution Steps (Fixed Order)
+## Failure Recovery
 
-### Phase 1 — Scope Isolation to Modified Files
-1. Read `metadata.json` from the applied remediation bundle.
-2. Identify target file(s) modified on disk.
-3. Confirm the files exist and contain valid syntax (`python -m py_compile <file>` or `npx tsc --noEmit`).
-
-### Phase 2 — Targeted AST & Heuristic Re-Scan
-Re-scan the modified file specifically for the original rule violation:
-- Check if vulnerable AST node still exists.
-- Verify that safe pattern is properly implemented (e.g., tenant filter exists, query is parameterized, schema validation is active).
-
-### Phase 3 — Neighboring Regression Scan
-Scan surrounding 50 lines and direct callers for introduced regressions:
-- New syntax errors, broken imports, or missing variable definitions.
-- New security rule violations (e.g., unintended bypasses or dropped decorators).
-
-### Phase 4 — 4-State Transition Evaluation
-Classify outcome for each targeted finding:
-1. **`Confirmed Fixed`**: Original vulnerable AST node eliminated; safe pattern verified; zero regressions.
-2. **`Partially Fixed`**: Vulnerability partially mitigated, but edge cases remain (e.g., sanitized for GET but not POST).
-3. **`Not Fixed`**: Vulnerable AST node remains intact; patch was ineffective.
-4. **`Regression`**: Original flaw or a new flaw was introduced by the code change.
-
-### Phase 5 — Record Recheck Artifacts
-Write recheck outcomes to active run folder:
-- `recheck.md`: Breakdown of transitions for each finding.
-- Update `manifest.json` with closure metrics (`fixed_count`, `remaining_count`).
-
----
-
-## Objective
-Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
-
----
-
-## Failure Recovery & Cascade Rules
-
-```
-Regression detected:      ALERT operator immediately; offer instant rollback to pre_apply/ snapshot
-Syntax error in file:     ROLLBACK immediately using pre_apply/<file>.bak snapshot
-Finding Still Not Fixed:  Reopen finding; recommend alternative remediation strategy
-All findings Fixed:       Mark bundle verified; proceed to /torusguard report
-```
-
----
-
-## Objective
-Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
+- **Finding Still Present (`Not Fixed`):** Review patch diff; the remediation did not neutralize the AST sink.
+- **New Vulnerability Detected (`Regression`):** Alert operator; prompt to revert from `.bak` snapshot.
+- **File Not Found:** Verify file path matches git repository layout.
+- **Halt Trigger:** Abort if diff shows changes outside approved patch scope.
 
 ---
 
 ## Hallucination Guard
 
-```
-❌ Never mark a finding as 'Fixed' without re-reading the active disk file
-❌ Never skip the neighboring regression check around the modified lines
-❌ Never ignore a regression — escalate immediately to Human Gate with rollback option
-```
-
----
-
-## Objective
-Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
+- ❌ Never mark a finding as `Fixed` without re-scanning the actual AST of the patched file.
+- ❌ Never ignore new warnings introduced in modified lines.
+- ✅ Always provide before/after line comparisons confirming sink removal.
 
 ---
 
 ## Output Card Format
 
 ```markdown
-🛡️ [TorusGuard] Targeted Recheck & Regression Audit
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Target File:        [apps/invoices/views.py]
-Tested Findings:    [1 finding re-scanned]
-Outcome:            🟢 CONFIRMED FIXED (0 Regressions Detected)
-Syntax Check:       ✅ Clean compilation
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Finding Status Transition:
-- TG-DB-004-django-tenant-idor:
-  Before: 🔴 Confirmed (Score: 90)
-  After:  🟢 CONFIRMED FIXED (Tenant query scoping verified)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Next Step: Run `/torusguard report` to export the signed audit report and SARIF log.
+### ✅ TorusGuard Differential Recheck
+- **Files Re-scanned:** [List of modified files]
+- **Target Finding:** `TG-XXX-HASH`
+- **Result:** [FIXED / REGRESSION / PARTIAL]
+- **Regressions Introduced:** 0
+- **Report:** `.torusguard/runs/<run_id>/recheck-report.md`
+- **Status:** VERIFIED — ready for `/torusguard report`
 ```
-
----
-
-## Objective
-Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
 
 ---
 
 ## Next Steps
 
-| Outcome | Next Command |
-| :--- | :--- |
-| All targeted findings Fixed | → `/torusguard report` to generate SARIF |
-| Regression detected | → Roll back from snapshot or `/torusguard harden` |
-| More patches to apply | → `/torusguard apply <next-bundle>` |
+1. Run `/torusguard report` to generate executive summary and export OASIS SARIF v2.1.0 data.
+2. Commit the verified patch to version control.

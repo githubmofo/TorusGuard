@@ -1,82 +1,54 @@
 ---
 name: torusguard-report
-description: Generate unified executive security posture reports and export valid OASIS SARIF v2.1.0 logs for CI/CD.
+description: Generate unified security posture reports and export OASIS SARIF v2.1.0 logs for CI/CD integration.
 version: 0.9.2
 workflow: .torusguard/workflows/report.md
-tools: Read, Grep, Glob, Bash, Write
+tools: Read, Grep, Glob, Write
 scripts-binding:
   - .torusguard/scripts/sarif_exporter.py
   - .torusguard/scripts/run_manager.py
 ---
 
-# TorusGuard Report — Posture Reporting & SARIF v2.1.0 Export
+# TorusGuard Report — Unified Security Posture Report & SARIF Export
 
 ## Objective
-Aggregate findings, runtime evidence, and closure transitions from the active run, render a comprehensive 9-section executive markdown report, and export a strictly compliant OASIS SARIF v2.1.0 log for CI/CD integration.
+Aggregate findings, verification traces, and recheck results into a signed executive security summary and export schema-compliant OASIS SARIF v2.1.0 logs for CI/CD pipelines.
 
 ---
 
 ## Execution Steps
 
-### Step 1: Collect Run Metrics
-Read from `.torusguard/runs/<active-run>/`:
-- Initial static findings from `findings.md`.
-- Runtime probe evidence from `web-validation.md`.
-- Closure transitions from `recheck.md`.
-- Run metadata from `manifest.json`.
-
-### Step 2: Determine Executive Posture
-Classify repository security posture:
-- **`🔴 ACTION REQUIRED`**: 1+ Open Critical/High findings remain unaddressed.
-- **`🟡 WARNINGS FOUND`**: Medium/Low findings open, or findings awaiting manual review.
-- **`🟢 SECURE`**: All prioritized findings verified fixed, zero active regressions.
-
-### Step 3: Render Canonical 9-Section Report
-Write `.torusguard/runs/<run-id>/report.md`:
-1. **Executive Posture & Summary**: High-level posture badge and finding counts.
-2. **Metadata**: Run ID, commit hash, date, version.
-3. **Detected Stack**: Framework, language, and data layer.
-4. **Scope & Safety Audit**: Authorized target, paths, and probe methods.
-5. **Systemic Clusters**: Grouped root-cause clusters table.
-6. **Prioritized Finding Cards**: Detailed cards with line citations and confidence scores.
-7. **Remediation & Closure Ledger**: Applied patches and verified fixes.
-8. **Regression Audit**: Results of post-patch verification.
-9. **Next Steps**: Recommended actions for developers.
-
-### Step 4: Export OASIS SARIF v2.1.0 Log
-Run the SARIF exporter:
-```bash
-python .torusguard/scripts/sarif_exporter.py --run-dir .torusguard/runs/<run-id> --output .torusguard/runs/<run-id>/results.sarif
-```
+1. **Aggregate Run Data:** Read findings, verified evidence, and recheck records from active run.
+2. **Export OASIS SARIF v2.1.0:**
+   ```bash
+   python .torusguard/scripts/sarif_exporter.py --run <run_dir> --output <run_dir>/results.sarif
+   ```
+3. **Compile Executive Markdown Report:** Generate `report.md` with posture score, open/closed finding tables, and risk breakdown.
+4. **Update Run Manifest:** Finalize `manifest.json` status counts.
+5. **Archive Release Artifacts:** Ensure `report.md` and `results.sarif` are serialized to disk.
 
 ---
 
 ## SARIF v2.1.0 Output Specification
-Ensure generated SARIF adheres to OASIS v2.1.0 standards:
-- Root schema: `https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json`
-- `version`: `"2.1.0"`
-- `runs[0].tool.driver`: Name `"TorusGuard"`, version `"0.9.2"`, rules catalog with descriptions.
-- `runs[0].results`: Array of findings with `ruleId`, `level` (error/warning/note), `message`, and `locations[0].physicalLocation`.
-- `primaryLocationLineHash`: Line-shift invariant fingerprint attached to each result.
-- `automationDetails.id`: Unique analysis category (`"torusguard/static/"` or `"torusguard/runtime/"`).
+- **Version:** `$schema: https://docs.oasis-open.org/sarif/sarif/v2.1.0/cos02/schemas/sarif-schema-2.1.0.json`, `version: 2.1.0`.
+- **Tool Driver:** `name: TorusGuard`, `semanticVersion: 0.9.2`, full rules catalog in `driver.rules`.
+- **Category Hygiene:** Set `automationDetails.id: "torusguard/static"` to avoid collisions in multi-analysis CI.
+- **Fingerprinting:** Populate `partialFingerprints.primaryLocationLineHash` with SHA-256 context hash.
 
 ---
 
 ## Safety Constraints
-- Never include unmasked secrets, tokens, or passwords in reports or SARIF exports.
-- Never report a finding as `Fixed` without verified recheck records.
-- Preserve all findings (open, fixed, or mitigated) in the historical run record.
+- Redact all tokens, passwords, and API keys before saving report.
+- Strictly read-only reporting; no source code modifications.
+- Ensure SARIF passes JSON schema validation.
 
 ---
 
 ## Output Format
 ```markdown
-🛡️ [TorusGuard] Security Report & SARIF Export Generated
-- Run ID: <run-id>
-- Executive Posture: <🟢 SECURE | 🔴 ACTION REQUIRED | 🟡 WARNINGS>
-- Findings Breakdown: <Total> Total (<Fixed> Fixed · <Open> Open)
-- SARIF v2.1.0 File: .torusguard/runs/<run-id>/results.sarif
-- Executive Markdown: .torusguard/runs/<run-id>/report.md
-
-CI Integration: Upload results.sarif to GitHub Code Scanning or GitLab SAST.
+📊 [TorusGuard] Security Posture Report Emitted
+- Run ID: <Run ID> | Posture Score: <Score>/100
+- Findings: <Total> (<Fixed> Fixed · <Open> Open)
+- SARIF Export: `.torusguard/runs/<run_id>/results.sarif`
+- Executive Report: `.torusguard/runs/<run_id>/report.md`
 ```

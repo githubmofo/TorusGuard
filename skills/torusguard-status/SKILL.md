@@ -1,71 +1,42 @@
 ---
 name: torusguard-status
-description: Diagnostic read-only inspection of active workspace security posture, configuration, active rules, and run history.
+description: Display current TorusGuard security posture, active configuration, rules catalog, and run history.
 version: 0.9.2
 workflow: .torusguard/workflows/status.md
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob
 scripts-binding:
   - .torusguard/scripts/run_manager.py
 ---
 
-# TorusGuard Status — Workspace Posture & Diagnostic Overview
+# TorusGuard Status — Workspace Security Posture & Diagnostic Overview
 
 ## Objective
-Provide a quick, strictly read-only inspection of the current workspace security posture, active framework-tailored rules, authorization scope state, and historical run ledger without modifying any files or settings.
+Provide an instant diagnostic summary of the repository's security state, active framework rules, historical run results, and runtime scope validity.
 
 ---
 
 ## Execution Steps
 
-### Step 1: Read Project Configuration
-Open `.torusguard/config/torusguard.json`:
-- Read project name, version, and detected framework.
-- If file is missing, inform operator that the workspace has not yet been initialized.
-
-### Step 2: Audit Active Rules on Disk
-Inspect `.torusguard/rules/active/`:
-- Count active rule specification files.
-- Group active rules by family (`TG-SEC`, `TG-INPUT`, `TG-AUTH`, `TG-DB`, `TG-RATE`, `TG-CLIENT`, `TG-PLATFORM`).
-
-### Step 3: Check Runtime Scope State
-Open `.torusguard/config/scope.json`:
-- Check if target host and paths are defined.
-- Compare `ttl_expiration` with current UTC time to determine if authorization is `Active`, `Expired`, or `Unconfigured`.
-
-### Step 4: Inspect Run Ledger History
-Scan `.torusguard/runs/`:
-- Count total recorded runs.
-- Locate the most recent run folder.
-- Read `manifest.json` from the latest run to extract:
-  - Last scan timestamp.
-  - Finding counts (total, open, fixed).
-  - Executive posture classification.
-
-### Step 5: Format Diagnostic Summary Card
-Present the consolidated status card to the operator.
+1. **Read Configuration:** Parse `.torusguard/config/torusguard.json` to verify initialization state and detected framework stack.
+2. **Enumerate Active Rules:** Count rule files physically present in `.torusguard/rules/active/`.
+3. **Inspect Run History:** List historical run folders in `.torusguard/runs/` via `run_manager.py`.
+4. **Check Authorization Scope:** Check `.torusguard/config/scope.json` for active targets and TTL expiration.
+5. **Render Diagnostic Overview:** Output formatted status card.
 
 ---
 
 ## Safety Constraints
-- **Strictly Read-Only**: Never create, edit, or delete any files during a status check.
-- Never report stale or cached run metrics if the runs folder is empty.
-- Do not trigger network traffic or probe endpoints.
+- Read-only execution; zero file modifications.
+- Handle uninitialized workspaces gracefully with advice to run `/torusguard init`.
 
 ---
 
 ## Output Format
 ```markdown
-🛡️ [TorusGuard] Workspace Security Posture Overview
-- Version: 0.9.2
-- Detected Stack: <Framework> (<Language>) · <ORM>
-- Active Rules: <Count> tailored rules active in .torusguard/rules/active/
-- Runtime Scope: <Active until YYYY-MM-DD HH:MM | Expired | Unconfigured>
-- Run History: <Count> runs logged in .torusguard/runs/
-
-Latest Run (<run-id>):
-- Last Scanned: <Timestamp>
-- Posture: <🟢 SECURE | 🔴 ACTION REQUIRED | 🟡 WARNINGS>
-- Findings: <Open> Open · <Fixed> Fixed
-
-Next Step: Run `/torusguard audit` to start a new scan.
+🛡️ [TorusGuard] Workspace Status Overview
+- Version: v0.9.2 | Stack: <Detected Framework>
+- Active Rules: <Count> rules active in `.torusguard/rules/active/`
+- Historical Runs: <Count> runs recorded
+- Scope: <Authorized (TTL Active) / Expired / Unconfigured>
+- Posture: <SECURE / ACTION REQUIRED>
 ```

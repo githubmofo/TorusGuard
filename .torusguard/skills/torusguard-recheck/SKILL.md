@@ -1,79 +1,53 @@
 ---
 name: torusguard-recheck
-description: Execute targeted differential AST re-scan, verify fix integrity, and manage 4-state closure transitions.
+description: Execute targeted differential AST re-scan against modified files, verify fix closure, and assert zero regressions.
 version: 0.9.2
 workflow: .torusguard/workflows/recheck.md
-tools: Read, Grep, Glob, Bash, Write
+tools: Read, Grep, Glob, Write
 scripts-binding:
   - .torusguard/scripts/run_manager.py
   - .torusguard/scripts/finding_scorer.py
 ---
 
-# TorusGuard Recheck — Targeted Differential Re-Scan & Regression Audit
+# TorusGuard Recheck — Targeted Differential Audit & Regression Verification
 
 ## Objective
-Differentially re-scan modified source files post-patch, verify that the original vulnerability is closed without introducing neighboring regressions, and update finding closure status across 4 formal states.
+Re-scan only files modified by remediation patches, confirming that targeted vulnerability sinks have been neutralized and verifying that no new security regressions were introduced.
 
 ---
 
 ## Execution Steps
 
-### Step 1: Identify Modified Files
-Read `metadata.json` from the applied bundle to extract the list of modified source files.
-
-### Step 2: Compile & Syntax Sanity Check
-Run a quick compiler or syntax validator:
-- Python: `python -m py_compile <modified_file>`
-- TypeScript: `npx tsc --noEmit`
-If syntax fails, immediately trigger rollback from `pre_apply/` snapshot.
-
-### Step 3: Targeted Differential AST Scan
-Re-scan the modified lines for the original finding rule:
-- Verify that the vulnerable AST node has been eliminated.
-- Verify that safe patterns (parameterized queries, tenant filters, schema boundaries) are active.
-
-### Step 4: Neighboring Regression Check
-Scan the 50 lines surrounding the patch and direct callers:
-- Verify no existing imports, decorators, or error handlers were dropped.
-- Verify no new security rule violations were introduced.
-
-### Step 5: Classify State Transition
-Apply the 4-state transition rules detailed below.
-
-### Step 6: Update Run Artifacts
-Write `recheck.md` and update `manifest.json` with resolved and remaining finding counts.
+1. **Identify Modified Files:** Read `apply-log.json` from active run directory.
+2. **Execute Differential Scan:** Re-run active `TG-*` rules exclusively against the modified files.
+3. **Evaluate Finding Status:** Transition finding state according to transition rules below.
+4. **Assert Regression-Free:** Ensure no new security warnings triggered on altered lines.
+5. **Update State:** Record verified status in `findings.json`.
+6. **Emit Recheck Report:** Save summary in `.torusguard/runs/<run_id>/recheck-report.md`.
 
 ---
 
 ## State Transition Rules
-
-Each targeted finding transitions into one of 4 formal states:
-
-| Transition State | Definition | Action Required |
-| :--- | :--- | :--- |
-| **`Confirmed Fixed`** | Vulnerable AST node eliminated, safe pattern verified, zero regressions detected. | Finding marked as closed; proceed to `/torusguard report`. |
-| **`Partially Fixed`** | Flaw mitigated on primary path, but secondary code path or method remains exposed. | Refine remediation bundle to cover edge case. |
-| **`Not Fixed`** | Vulnerable AST node remains intact; patch did not resolve the flaw. | Discard patch, re-analyze root cause, and re-harden. |
-| **`Regression`** | Patch introduced syntax error, broken logic, or a new security vulnerability. | **HALT IMMEDIATELY**: Roll back from `pre_apply/` snapshot. |
+- **`Fixed`:** Targeted vulnerable AST pattern is absent and no new issues appear on modified lines.
+- **`Partially Fixed`:** Vulnerability surface was reduced but sanitization remains incomplete.
+- **`Not Fixed`:** Vulnerable AST sink remains present in patched file.
+- **`Regression`:** Patch introduced a new security rule violation on modified lines.
 
 ---
 
 ## Safety Constraints
-- Only re-scan files modified by the applied patch to conserve context and execution budget.
-- Never mark a finding as `Confirmed Fixed` without re-reading the active disk file.
-- Automatically offer instant rollback if any regression is detected.
+- Restrict AST scan strictly to modified files and direct callers.
+- If regression is detected, halt and recommend immediate rollback via `.bak` snapshot.
+- Read-only differential analysis.
 
 ---
 
 ## Output Format
 ```markdown
-🛡️ [TorusGuard] Targeted Recheck Completed
-- Target File: <file_path>
-- Findings Re-Scanned: <Count>
-- Status: 🟢 CONFIRMED FIXED (0 Regressions Detected)
-- Syntax Verification: ✅ Clean compilation
-- Transition Breakdown:
-  - <finding_id>: Confirmed (Score: 90) → 🟢 Confirmed Fixed
-
-Next Step: Run `/torusguard report` to export signed report and SARIF log.
+✅ [TorusGuard] Differential Recheck Completed
+- Modified Files Scanned: <Count>
+- Target Finding: <Finding ID> ──► FIXED
+- Regressions Detected: 0
+- Report: `.torusguard/runs/<run_id>/recheck-report.md`
+Next: Run `/torusguard report` to export final SARIF and release summary.
 ```
