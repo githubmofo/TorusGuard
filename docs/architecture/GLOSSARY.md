@@ -25,7 +25,9 @@
 | `TG-WEBHOOK-*` | Webhook Security | Missing HMAC signatures, replay attack vulnerability, timestamp bounds |
 | `TG-GQL-*` | GraphQL Security | Unbounded query depth/complexity, missing field-level authorization |
 | `TG-WS-*` | WebSocket Security | Unauthenticated handshake, missing channel authorization, unbounded frames |
-| `TG-SUPPLY-*` | Supply Chain Security | Vulnerable third-party dependencies, unpinned CI/CD actions |
+| `TG-SUPPLY-*` | Supply Chain Security | Vulnerable third-party dependencies, unpinned CI/CD actions, build secrets |
+| `TG-EDGE-*` | Serverless & Edge Security | Cloudflare Workers state leaks, V8 isolate memory persistence, Lambda cold-start |
+| `TG-AGENT-*` | Agentic AI Security | Prompt injection in system context, unsandboxed shell tools, broad MCP scopes |
 
 ---
 

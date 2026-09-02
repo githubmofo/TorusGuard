@@ -23,6 +23,11 @@ TorusGuard is a security guidance framework for AI coding agents. To ensure that
 ## 📁 Validation Reports Index
 
 ### 🧪 1. Comprehensive Master & Release Validation Reports
+- **v0.9.2 Workflows & Skills Validation Suite:** `harness/validate_v0_9_2_workflows_and_skills.py` (35 assertions, 100% pass)
+- **v0.9.1 Autonomous Installer Sandbox Simulation:** `harness/validate_v0_9_1_installer.py` (14 assertions, 100% pass)
+- **v0.9.0 Granular Skills Validation Suite:** `harness/validate_v0_9_0_skills.py` (53 assertions, 100% pass)
+- **v0.7.0 Senior QA Runtime Validation Suite:** `harness/validate_v0_7_0_runtime.py` (67 assertions, 100% pass)
+- **Core Schemas, Scoring & Replay Runner:** `harness/runner.py` (75 assertions, 100% pass)
 - [v0.5.6 Large-Project Validation Portfolio Report (10 Repositories)](v0.5.6-large-project-validation-report.md)
 - [Complete Historical & Version Validation Report (v0.1.0 – v0.4.1)](complete-version-validation.md)
 - [v0.4.1 Real-World Validation Report](v0.4.1-real-world-validation.md)

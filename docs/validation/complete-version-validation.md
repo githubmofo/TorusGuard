@@ -17,13 +17,20 @@
 
 ## 🏛️ Historical Release Verification
 
-| Version | Tag Exists | Tag Commit SHA | Installation | Core Functions | Rule Catalog | Docs & Changelog Match | Status |
-|---|:---:|---|---|---|---|:---:|:---:|
-| **v0.1.0** | ✅ Yes | `9d519b6842a683d3f866192db32269379d29a0c4` | Clean (`npx skills add`) | Baseline portable skill | 14 baseline guidance areas | ✅ Matches | **Verified** |
-| **v0.2.0** | ✅ Yes | `8d2ba43d4e528c0b0526549d1dadeb81cca32701` | Clean | `/torusguard init`, `audit` | 25 formal `TG-*` rule IDs | ✅ Matches | **Verified** |
-| **v0.3.0** | ✅ Yes | `ee274a375d8f17ef94c501c6117df7508c9adc52` | Clean | Full command suite | 60 universal web/API rules | ✅ Matches | **Verified** |
-| **v0.4.0** | ✅ Yes | `39201734a1b3dbbbc8b06e0db6b07de52f4027e8` | Clean | Python stack detection | Deep Django/DRF/FastAPI/Flask/SQLAlchemy | ✅ Matches | **Verified** |
-| **v0.4.1** | ✅ Yes | `eaa7bc84609dcaa91cb3c4ff7e099e7c2386c561` | Clean | Refined confidence & detection | 60 rules + regression fixtures | ✅ Matches | **Verified** |
+| Version | Tag Exists | Core Functions | Rule Catalog | Status |
+|---|:---:|---|---|:---:|
+| **v0.1.0** | ✅ Yes | Baseline portable skill | 14 baseline guidance areas | **Verified** |
+| **v0.2.0** | ✅ Yes | `/torusguard init`, `audit` | 25 formal `TG-*` rule IDs | **Verified** |
+| **v0.3.0** | ✅ Yes | Full command suite | 60 universal web/API rules | **Verified** |
+| **v0.4.0** | ✅ Yes | Python stack detection | Deep Django/DRF/FastAPI/Flask/SQLAlchemy | **Verified** |
+| **v0.4.1** | ✅ Yes | Refined confidence & detection | 60 rules + regression fixtures | **Verified** |
+| **v0.5.0–v0.5.6** | ✅ Yes | Finding lifecycle, confidence rubric, run-folders, large-project suite | 64 rules + multi-repo validation | **Verified** |
+| **v0.6.0–v0.6.3** | ✅ Yes | Governed remediation, Ponytail protocol, sensitive-path sign-off | 64 rules + SARIF export | **Verified** |
+| **v0.7.0** | ✅ Yes | Authorized runtime validation, bounded HTTP/browser probes, replay traces | 64 rules + dual-category SARIF | **Verified** |
+| **v0.8.0** | ✅ Yes | AI-Agent security skills kit, 5 specialist agents, 11 slash commands | 64 rules + workspace structure | **Verified** |
+| **v0.9.0** | ✅ Yes | Granular specialist skills architecture (12 individual skills) | 64 rules + subagent routing | **Verified** |
+| **v0.9.1** | ✅ Yes | Autonomous workspace bootstrapper (`bootstrap.py`), installer (`install.py`) | 64 rules + integrity manifest | **Verified** |
+| **v0.9.2** | ✅ Yes | Two-tier command engine (`workflows/` & `skills/`), responsive banner | 71 rules (Agentic AI & Edge) | **Verified** |
 
 ---
 

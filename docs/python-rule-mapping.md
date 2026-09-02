@@ -45,6 +45,11 @@
 | `TG-SUPPLY-001` | Missing or Ignored Lockfile | Ensure lockfiles (`poetry.lock`, `Pipfile.lock`, `requirements.lock`) are tracked in git. | 🟡 Medium | Confirmed |
 | `TG-SUPPLY-002` | Vulnerable Dependency Review Missing | Ensure dependencies are scanned via `pip-audit` or automated security advisories. | 🟠 High | Confirmed |
 | `TG-CACHE-001` | Sensitive Response Publicly Cacheable | Verify authenticated profile/billing endpoints send `Cache-Control: no-store, private`. | 🟡 Medium | Confirmed / Likely |
+| `TG-EDGE-003` | AWS Lambda Ephemeral & Cold-Start Security | Isolate STS credentials, clean `/tmp` storage in `finally:`, enforce boto3 socket timeouts. | 🟠 High | Confirmed |
+| `TG-AGENT-001` | System Prompt Injection Boundaries | Ensure user input to Python LLM agents is passed in `user` role or strictly delimited. | 🔴 Critical | Confirmed |
+| `TG-AGENT-002` | Unsandboxed Shell Tool Dispatch | Enforce container sandboxing, command allowlists, and timeout limits on agent tool calls. | 🔴 Critical | Confirmed |
+| `TG-AGENT-003` | Broad MCP & Database Scoping | Restrict MCP server filesystem mounts and database connection strings to least-privilege. | 🔴 Critical | Confirmed |
+| `TG-AGENT-004` | Cross-Session Vector Memory Isolation | Enforce tenant/session ID metadata filtering on vector database queries (pgvector, Chroma). | 🔴 Critical | Confirmed |
 
 ---
 

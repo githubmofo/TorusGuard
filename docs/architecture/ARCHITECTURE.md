@@ -136,7 +136,7 @@ Computes auditable 0–100 scores across 5 dimensions:
 Automated regex-based redactor that replaces Stripe secret keys, GitHub PATs, JWTs, AWS credentials, and generic passwords with masked placeholders before writing evidence to disk.
 
 ### 6.4. Rule Catalog (`rules/`)
-64+ modular security rules organized by vulnerability taxonomy:
+70+ modular security rules organized by vulnerability taxonomy:
 - `TG-AUTH-*`: Authentication, Session, and RBAC security
 - `TG-DB-*`: Database query isolation and credential separation
 - `TG-INPUT-*`: Input sanitization, SQLi, SSTI, and path traversal
@@ -147,6 +147,20 @@ Automated regex-based redactor that replaces Stripe secret keys, GitHub PATs, JW
 - `TG-WEBHOOK-*`: Signature validation and replay mitigation
 - `TG-GQL-*`: GraphQL depth, complexity, and authorization
 - `TG-WS-*`: WebSocket handshakes, channel auth, and message limits
+- `TG-EDGE-*`: Cloudflare Workers, Edge Isolates, and Lambda cold-start security
+- `TG-AGENT-*`: Agentic AI prompt injection, MCP tool scoping, and memory leakage
+
+### 6.5. Specialist Agent Roles (`.torusguard/agents/`)
+Formal separation of responsibilities to eliminate AI confirmation bias:
+- **Profiler (`profiler.md`):** Stack profiling, route discovery, framework AST inspection.
+- **Auditor (`auditor.md`):** Static AST scanning, line-shift invariant fingerprinting, root-cause clustering.
+- **Validator (`validator.md`):** Runtime HTTP/browser probing, token redaction, bounded exploitability checks.
+- **Remediator (`remediator.md`):** Governed remediation bundles, minimal patch plans, Before/After diffs.
+- **Reviewer (`reviewer.md`):** Scoped recheck verification, regression detection, SARIF v2.1.0 sign-off.
+
+### 6.6. Two-Tier Command Engine
+- **Interactive Workflows (`.torusguard/workflows/<cmd>.md`):** Structured playbooks for 11 slash commands + `/torusguard full`.
+- **Specialist Skills (`.torusguard/skills/torusguard-<cmd>/SKILL.md`):** Focused, lazy-loaded domain expertise preserving context budgets.
 
 ---
 

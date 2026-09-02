@@ -37,7 +37,7 @@ TorusGuard is deliberately **not** an autonomous offensive penetration testing a
 TorusGuard bridges the gap between static AST analysis, practical runtime verification, and governed automated code fixes:
 
 ### A. Static Detection & Clustering
-- Detects known vulnerability anti-patterns across 64 canonical security rules spanning secrets, authentication, multi-tenancy, input validation, CSRF, SSRF, webhooks, GraphQL, WebSockets, and CI/CD pipelines.
+- Detects known vulnerability anti-patterns across 70+ canonical security rules spanning secrets, authentication, multi-tenancy, input validation, CSRF, SSRF, webhooks, GraphQL, WebSockets, serverless edge runtimes, agentic AI prompt injection, and CI/CD pipelines.
 - Derives line-shift invariant fingerprints (`FindingFingerprint`) that survive code refactorings.
 - Clusters repeated vulnerabilities by underlying root causes (e.g., `cluster-tenant-isolation`) to prevent alert fatigue.
 

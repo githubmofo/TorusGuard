@@ -21,10 +21,11 @@ TorusGuard is engineered with a **zero-daemon, local-first architecture**. It op
 └─────────────────────────┘       └─────────────────────────┘       └─────────────────────────┘
 ```
 
-### 2.1. Topology A: AI Agent Skill Integration
-- **Mechanism:** Installed via standard skill package managers (`npx skills add ...`) into AI agent environments.
-- **Triggering:** Invoked conversationally or via slash commands (`/torusguard audit`, `/torusguard harden`, `/torusguard apply`, `/torusguard recheck`).
-- **Context Handling:** Reads active workspace AST directly from the IDE's local file system.
+### 2.1. Topology A: AI Agent Skill & Workspace Integration
+- **Mechanism:** Installed via standard skill package managers (`npx skills add ...`) or direct Python installer (`python install.py`).
+- **Autonomous Bootstrapping:** Automatically creates `.torusguard/`, activates rules in `.torusguard/rules/active/`, and configures the 5 specialist agents.
+- **Triggering:** Invoked conversationally or via slash commands (`/torusguard audit`, `verify`, `harden`, `apply`, `recheck`, `report`).
+- **Context Handling:** Reads active workspace AST directly from the IDE's local file system with zero context bloat.
 
 ### 2.2. Topology B: CI/CD Pipeline Enforcement
 - **Mechanism:** Executed as a standalone step in automated build pipelines.
@@ -42,10 +43,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Run Core Validation Suite
-        run: python harness/runner.py
-      - name: Run Large-Project Benchmark
-        run: python harness/validate_large_projects.py projects/manifest.yaml
+      - name: Run Core Test Harnesses
+        run: |
+          python harness/runner.py
+          python harness/validate_v0_9_2_workflows_and_skills.py
+      - name: Export SARIF Security Results
+        run: python .torusguard/scripts/sarif_exporter.py --output results.sarif
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+          category: torusguard/static
 ```
 
 ### 2.3. Topology C: Air-Gapped / High-Security Environments

@@ -34,6 +34,9 @@ To prevent systematic false positives, the engine checks for framework-native mi
 - **`TG-INPUT-005` (Template Escaping):** Differentiates autoescaped framework rendering (e.g. `render_template("foo.html", x=val)`) from explicit escaping bypasses (`| safe`, `mark_safe()`).
 - **`TG-INPUT-006` (Path Traversal):** Differentiates benign `os.path.join()` from unsanitized user-supplied paths reaching disk I/O. Recognizes standard sanitizers (e.g. `secure_filename()`).
 - **`TG-DB-004` (Tenant Query Isolation):** Detects tenant-scoped managers, repositories, `get_queryset()` filters, and dependency-injected tenant context before flagging primary-key lookups.
+- **`TG-EDGE-001` (Edge Isolate Memory Leaks):** Differentiates read-only global constants from mutable in-memory cache dictionaries in Cloudflare Workers and Edge runtimes.
+- **`TG-AGENT-001` (Prompt Injection Boundaries):** Detects user inputs concatenated into LLM system prompts without explicit XML/markdown encapsulation delimiters.
+- **`TG-AGENT-002` (Unsandboxed Tool Execution):** Verifies that agent shell tool callers enforce sandbox environments, command allowlists, and execution timeouts.
 
 ### Stage 4: Mathematical Confidence Rubric
 Every surviving candidate finding is evaluated against an objective 0–100 scoring model:

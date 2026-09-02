@@ -14,20 +14,24 @@ Every execution generates a hermetically isolated, timestamped run directory:
 ```text
 .torusguard/
 └── runs/
-    └── run-20260827-110000-django-core/
-        ├── metadata.json              # Run profile, timestamp, tool version, commit hash
-        ├── findings/                  # Granular JSON finding documents
-        │   ├── finding-001.json
-        │   └── finding-002.json
-        ├── evidence/                  # Raw code snippets with SHA-256 integrity
-        │   ├── evidence-001.txt
-        │   └── evidence-002.txt
-        ├── patches/                   # Ponytail unified Git diffs
-        │   └── patch-001.diff
-        ├── recheck/                   # Differential recheck validation log
-        │   └── recheck-log.json
-        └── validation/                # Rendered human-readable Markdown report
-            └── large-project-report.md
+    └── run-20260902-120000-audit/
+        ├── manifest.json              # Run profile, timestamp, tool version, commit hash
+        ├── findings.md                # Primary Human-First audit report
+        ├── summary.md                 # Executive summary and exploitability matrix
+        ├── results.sarif              # OASIS SARIF v2.1.0 structured export
+        ├── requests.json              # Redacted HTTP request log (runtime mode)
+        ├── responses.json             # Redacted HTTP response log (runtime mode)
+        ├── replay.json                # Deterministic replay trace (runtime mode)
+        ├── remediation_bundles/       # 4-artifact remediation packages
+        │   └── RB-001/
+        │       ├── finding.md
+        │       ├── remediation.md
+        │       ├── minimal_patch_plan.md
+        │       └── verify-after-change.md
+        ├── pre_apply/                 # Byte-for-byte rollback backups
+        │   └── target_file.py.bak
+        └── recheck/                   # Differential recheck validation log
+            └── recheck-log.json
 ```
 
 ---

@@ -59,29 +59,34 @@ flowchart LR
 
 ---
 
-## ⚡ Command-Engine Standard (Workflows & Skills Parity)
+## ⚡ The TorusGuard Command Engine
 
-TorusGuard v0.9.2 operates on a **two-tier command architecture** modeled directly after the reference `.agent/` standard:
+TorusGuard operates on a high-performance **Two-Tier Command Engine** designed for AI-assisted development environments. It unifies interactive slash commands with specialized domain knowledge while preserving maximum context window capacity:
 
-```
-User types Slash Command (e.g. /torusguard audit)
+1. **Interactive Workflows (`.torusguard/workflows/<cmd>.md`):**  
+   Structured execution playbooks triggered by slash commands (e.g., `/torusguard audit`). Each workflow enforces pre-flight context validation, provides situational decision matrices, executes deterministic CLI commands, and enforces strict failure recovery rules.
+2. **Specialist Skills (`.torusguard/skills/torusguard-<cmd>/SKILL.md`):**  
+   Focused domain manuals that are lazy-loaded on demand. Instead of polluting the AI's context with a monolithic security handbook, only the exact AST sinks, non-destructive canaries, and confidence scoring formulas relevant to the active command are loaded into memory.
+
+```text
+User / AI types Slash Command (e.g. /torusguard audit)
                   │
                   ▼
-  [.torusguard/workflows/audit.md]          ← Interactive Execution Playbook (120-170 lines)
-  ├── 1. Formal YAML Frontmatter (agent, required-skills, scripts-binding)
-  ├── 2. Mandatory Pre-Flight Context Inspection
-  ├── 3. "When to Use /torusguard audit" Decision Table
-  ├── 4. Deterministic Phase-by-Phase CLI Commands
+  [.torusguard/workflows/audit.md]          ← Interactive Execution Playbook
+  ├── 1. Formal Metadata & Role Contract (agent, required-skills, bound scripts)
+  ├── 2. Mandatory Pre-Flight Context Inspection (disk state, authorization TTL)
+  ├── 3. "When to Use" Decision Table (situational triggers)
+  ├── 4. Deterministic Phase-by-Phase CLI Invocations
   ├── 5. Failure Recovery & Cascade Rules (3-retry limit, HALT vs CONTINUE)
-  ├── 6. Strict Hallucination Guards (Banned AI Tropes)
-  └── 7. Formatted Output Cards & Next Step Routing
+  ├── 6. Strict Safety & Hallucination Boundaries
+  └── 7. Standardized Output Cards & Next Step Routing
                   │
-                  ▼ Lazy Loads Domain Skill
-  [.torusguard/skills/torusguard-audit/SKILL.md]  ← Deep Domain Manual (58-123 lines)
-  ├── 1. Exact AST search patterns & regex indicators (Python & TypeScript)
-  ├── 2. Root-cause clustering algorithms
-  ├── 3. 5-factor 0–100 confidence scoring math
-  └── 4. Non-destructive safety bounds
+                  ▼ Lazy-Loads Matching Specialist Skill
+  [.torusguard/skills/torusguard-audit/SKILL.md]  ← Focused Domain Manual
+  ├── 1. Framework AST Sinks & Regex Indicators (Python & TypeScript)
+  ├── 2. Root-Cause Clustering Algorithms
+  ├── 3. 5-Factor 0–100 Confidence Scoring Rubric
+  └── 4. Non-Destructive Probe Safety Boundaries
 ```
 
 ---

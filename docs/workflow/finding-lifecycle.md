@@ -1,15 +1,15 @@
 # TorusGuard Finding Lifecycle Guide
 
-This guide explains how security findings are tracked, classified, verified, remediated, and re-checked using the **TorusGuard v0.5.0 Workflow Engine**.
+This guide explains how security findings are tracked, classified, verified, remediated, applied, and re-checked using the **TorusGuard Workflow Engine**.
 
 ---
 
 ## 🔄 Finding Lifecycle Overview
 
-TorusGuard findings follow a strict 6-stage state machine:
+TorusGuard findings follow a strict 7-stage closed-loop state machine:
 
 ```text
-Detect ──► Classify ──► Verify ──► Remediate ──► Re-check ──► Archive
+Detect ──► Classify ──► Verify ──► Remediate ──► Apply ──► Re-check ──► Archive
 ```
 
 ---
@@ -24,17 +24,17 @@ Detect ──► Classify ──► Verify ──► Remediate ──► Re-chec
 ## 2. 🏷️ Stage 2: Classify
 - **Action:** The candidate is normalized into the TorusGuard finding schema:
   - **Rule ID:** Canonical identifier (e.g. `TG-AUTH-007`).
-  - **Taxonomy Category:** One of 9 normalized categories (e.g. `authentication-authorization`).
+  - **Taxonomy Category:** One of 12 normalized categories (e.g. `authentication-authorization`, `agent`, `edge`).
   - **Severity:** `Critical`, `High`, `Medium`, `Low`, or `Informational`.
-  - **Initial Confidence:** `Confirmed`, `Likely`, or `Needs Review`.
+  - **Initial Confidence:** `Confirmed`, `High Confidence`, or `Needs Review`.
 - **Status:** Transitioned to `In Verification`.
 
 ---
 
 ## 3. 🛡️ Stage 3: Verify
-- **Objective:** Establish whether the finding is a genuine, reachable vulnerability.
+- **Objective:** Establish whether the finding is a genuine, reachable vulnerability via static scoring or authorized runtime probing (`/torusguard verify`, `web-validate`, `exploit-check`).
 - **Evidence Evaluation Standard:**
-  - **`Confirmed`:** Requires direct source evidence in the same module proving that an attacker-controlled parameter reaches an unmitigated sensitive sink.
+  - **`Confirmed`:** Requires direct source evidence or runtime canary confirmation proving that an attacker-controlled parameter reaches an unmitigated sensitive sink.
   - **`Needs Review`:** Assigned whenever the code delegates protection to an external layer:
     - *Service Layer Delegation:* Controller calls `OrderService.get_order(id, user)` (must inspect service layer).
     - *Upstream Reverse Proxy:* Missing CSRF middleware on an internal API guarded by an API Gateway.
@@ -43,29 +43,28 @@ Detect ──► Classify ──► Verify ──► Remediate ──► Re-chec
 
 ---
 
-## 4. 🛠️ Stage 4: Remediate & Apply
-- **Formulation (`/torusguard harden`):** Generates framework-native, least-invasive remediation proposals and candidate diffs:
-  - **Problem Statement:** Exact flaw in the current implementation.
-  - **Risk Explanation:** Realistic attack scenario.
-  - **Code Pattern:** Side-by-side **Before (Unsafe)** vs **After (Hardened)** diff.
-  - **Verification Method:** Prescriptive command or unit test assertion.
-  - **Residual Risk Notes:** Deployment-level considerations.
-- **Application (`/torusguard apply`):** Executes the **Ponytail code-writing protocol** to safely apply the minimal patch diff directly to repository files.
+## 4. 🛠️ Stage 4: Remediate
+- **Formulation (`/torusguard harden`):** Generates 4-artifact remediation packages adhering to the Ponytail Protocol:
+  - **`finding.md`:** Finding card and line coordinates.
+  - **`remediation.md`:** Technical mechanics and Before/After examples.
+  - **`minimal_patch_plan.md`:** Surgical patch bounded by $\le 35$ additions and $\le 25$ deletions.
+  - **`verify-after-change.md`:** Concrete validation recipe.
 
 ---
 
-## 5. 🔁 Stage 5: Re-check
-- **Action:** After applying fixes, run `/torusguard recheck`.
-- **Differential Verification:** The engine re-scans the affected file.
-- **State Transition:**
-  - If the safe pattern is detected and the unsafe pattern is gone ──► Status becomes `Verified Safe` (`Remediated`).
-  - If the flaw persists ──► Status reverts to `Open` / `In Verification`.
+## 5. ⚡ Stage 5: Apply
+- **Execution (`/torusguard apply`):** Employs the Ponytail engine to apply surgical, minimal patches directly to repository source files.
+- **Rollback Safety:** Automatically writes byte-for-byte rollback copies to `pre_apply/<file>.bak` before modifying any target file.
 
 ---
 
-## 6. 📦 Stage 6: Archive
-- **Action:** Once verified safe, findings are recorded in the timestamped project audit history (`SECURITY.md` or audit records) with cryptographic evidence and verification notes.
+## 6. 🔁 Stage 6: Re-check
+- **Verification (`/torusguard recheck`):** Scopes differential re-audits strictly to modified files, asserting `Confirmed Fixed` or detecting regressions.
 
+---
+
+## 7. 📦 Stage 7: Archive
+- **Reporting (`/torusguard report`):** Emits signed executive markdown reports and exports OASIS SARIF v2.1.0 scan results for CI/CD integration.
 ---
 
 ## 📊 Summary of Status Values

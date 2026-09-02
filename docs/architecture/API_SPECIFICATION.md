@@ -7,57 +7,51 @@ This document specifies the formal application programming interfaces, CLI comma
 
 ## 2. Skill Commands Interface
 
-TorusGuard exposes five canonical workflow commands via the open `skills` specification (`skills/torusguard/SKILL.md`):
+TorusGuard exposes 11 canonical workflow commands via the open `skills` specification (`skills/torusguard/SKILL.md`):
 
 ### 2.1. `/torusguard init`
-- **Purpose:** Initializes security baseline, creates `SECURITY.md`, and sets up local scan configuration.
-- **Input Parameters:**
-  - `stack` *(optional)*: Explicit stack override (`django`, `fastapi`, `flask`, `express`, `nextjs`).
-  - `policy` *(optional)*: Strictness level (`standard`, `strict`, `p0-only`).
-- **Artifacts Created:**
-  - `SECURITY.md`
-  - `.torusguard/config.yaml`
-- **Exit Codes:** `0` (Success), `1` (Initialization Error).
+- **Purpose:** Initializes `.torusguard/` workspace, detects technology stack, and activates tailored security rules.
+- **Bound Script:** `python .torusguard/scripts/stack_detect.py`
 
-### 2.2. `/torusguard audit`
-- **Purpose:** Executes full static security analysis against the current workspace.
-- **Input Parameters:**
-  - `--path <dir>`: Target root directory (default: `.`).
-  - `--format <json|md>`: Output report format (default: `md`).
-  - `--output <path>`: Custom report path.
-  - `--min-severity <P0|P1|P2>`: Filter threshold.
-- **Artifacts Emitted:**
-  - `.torusguard/runs/run-<timestamp>-<id>/findings/finding-*.json`
-  - `docs/validation/audit-report.md`
+### 2.2. `/torusguard authorize`
+- **Purpose:** Creates and cryptographically manages the target authorization manifest (`scope.json` and `authorization.md`).
+- **Bound Script:** `python .torusguard/scripts/safety_gate.py --check-scope`
 
-### 2.3. `/torusguard verify`
-- **Purpose:** Performs deep evidence verification and confidence score evaluation on detected findings.
-- **Input Parameters:**
-  - `--finding-id <id>`: Target specific finding (or all active findings if omitted).
-- **Behavior:** Validates AST reachability, confirms SHA-256 evidence integrity, and computes 0–100 confidence rubric.
+### 2.3. `/torusguard audit`
+- **Purpose:** Executes full static AST analysis, clusters by root cause, and assigns line-shift invariant fingerprints.
+- **Bound Script:** `python .torusguard/scripts/finding_scorer.py --audit`
 
-### 2.4. `/torusguard harden`
-- **Purpose:** Generates least-invasive, framework-native remediation guides and proposed candidate diffs without touching active code.
-- **Input Parameters:**
-  - `--finding-id <id>`: Target specific finding (or all active findings).
-- **Artifacts Emitted:**
-  - `.torusguard/runs/.../remediation.md`
-  - `.torusguard/runs/.../patches/candidate-*.diff`
+### 2.4. `/torusguard verify`
+- **Purpose:** Performs deep evidence verification, validates AST reachability, and computes 0–100 confidence rubric.
+- **Bound Script:** `python .torusguard/scripts/finding_scorer.py --score 90`
 
-### 2.5. `/torusguard apply`
-- **Purpose:** Executes the **Ponytail code-writing protocol** to surgically apply the minimal patch diff directly to repository source files.
-- **Input Parameters:**
-  - `--dry-run`: Performs pre-flight AST validation and syntax verification without saving.
-  - `--finding-id <id>`: Target specific finding patch.
-  - `--auto-approve`: Applies changes automatically if syntax checks pass.
-- **Ponytail Guardrails Enforced:** Minimal line churn, zero unrelated file modifications, preserves comments/formatting.
+### 2.5. `/torusguard web-validate`
+- **Purpose:** Executes authorized, non-destructive HTTP endpoint probing within allowed scope.
+- **Bound Script:** `python .torusguard/scripts/safety_gate.py --method GET`
 
-### 2.6. `/torusguard recheck`
-- **Purpose:** Re-evaluates post-fix code to assert vulnerability resolution and detect secondary regressions.
-- **Output States:**
-  - `Verified Fixed`: Vulnerability resolved, 0 new risks.
-  - `Still Present`: Unsafe pattern still detectable.
-  - `Partially Fixed`: Vulnerability reduced but residual flaw exists.
+### 2.6. `/torusguard exploit-check`
+- **Purpose:** Executes bounded, non-destructive proof-of-concept canary checks (e.g. CSRF/IDOR reachability).
+- **Bound Script:** `python .torusguard/scripts/safety_gate.py --method POST`
+
+### 2.7. `/torusguard harden`
+- **Purpose:** Formulates self-contained 4-artifact remediation packages adhering to the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions).
+- **Artifacts:** `finding.md`, `remediation.md`, `minimal_patch_plan.md`, `verify-after-change.md`
+
+### 2.8. `/torusguard apply`
+- **Purpose:** Backs up pre-apply snapshots to `pre_apply/<file>.bak` and applies surgical, minimal patches to disk.
+- **Exit Codes:** `0` (Applied), `1` (Pre-flight rejected).
+
+### 2.9. `/torusguard recheck`
+- **Purpose:** Re-evaluates post-fix code to assert vulnerability resolution (`Confirmed Fixed`) and detect secondary regressions.
+- **Bound Script:** `python .torusguard/scripts/sarif_exporter.py`
+
+### 2.10. `/torusguard report`
+- **Purpose:** Generates executive Markdown summaries and exports OASIS SARIF v2.1.0 scan results.
+- **Bound Script:** `python .torusguard/scripts/sarif_exporter.py --output results.sarif`
+
+### 2.11. `/torusguard status`
+- **Purpose:** Read-only inspection of active workspace posture, unexpired authorization TTLs, and run history.
+- **Bound Script:** `python .torusguard/scripts/run_manager.py --status`
   - `New Risk`: Patch introduced a secondary vulnerability.
 
 ---

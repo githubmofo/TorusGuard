@@ -50,6 +50,9 @@ This document specifies the core Minimum Viable Product (MVP) modules comprising
 ---
 
 ## 3. Evolutionary Roadmap to v1.0.0
-- **v0.5.x (Current):** File-level static analysis, Markdown reports, 64 rules, and multi-repo validation harness.
-- **v0.6.x (Upcoming):** Cloudflare Workers, Next.js Server Actions, and AWS Lambda runtime extensions.
-- **v1.0.0 (Target):** Polyglot AST analysis engine (Go, Ruby, Java/Spring), IDE language server protocol (LSP) plugin, and continuous background linter.
+- **v0.5.x - v0.6.x (Completed):** File-level static analysis, Markdown reports, 64 rules, Ponytail governed remediation, line churn governance ($\le 35$ additions, $\le 25$ deletions), and multi-tenant clustering.
+- **v0.7.0 (Completed):** Authorized runtime validation, bounded HTTP/browser probes, deterministic replay traces, and dual-category SARIF export.
+- **v0.8.0 (Completed):** AI-agent security skill kit, 5 specialist agent roles (`profiler`, `auditor`, `validator`, `remediator`, `reviewer`), and 11 slash commands.
+- **v0.9.0 - v0.9.1 (Completed):** Granular specialist skills architecture, autonomous offline bootstrapper (`bootstrap.py`), standalone CLI installer (`install.py`), and cryptographic integrity manifest (`.manifest.json`).
+- **v0.9.2 (Current):** Two-tier command-engine standard (`.torusguard/workflows/` and `.torusguard/skills/`), 70+ canonical security rules (including `TG-EDGE-*` and `TG-AGENT-*`), and zero-hallucination boundaries.
+- **v1.0.0 (Target):** Polyglot language server protocol (LSP) integration, automated GitHub PR review actions, and continuous real-time background validation.

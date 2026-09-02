@@ -2,13 +2,13 @@
 
 ## 🎯 Purpose
 
-This guide explains how engineering teams, security reviewers, and AI coding agents can use TorusGuard v0.5.5 reports to triage vulnerabilities, convert findings into issue tickets, apply code patches, and verify closure.
+This guide explains how engineering teams, security reviewers, and AI coding agents can use TorusGuard reports to triage vulnerabilities, convert findings into issue tickets, apply code patches, and verify closure.
 
 ---
 
 ## 🚦 1. Triage Workflow by Priority
 
-When reviewing Section 5 of a TorusGuard report, follow this triage order:
+When reviewing findings in a TorusGuard report, follow this triage order:
 
 ```text
 ┌────────────────────────────────────────┐
@@ -24,7 +24,7 @@ When reviewing Section 5 of a TorusGuard report, follow this triage order:
 
 ## 🎫 2. Creating Issue Tracker Tickets (GitHub / Jira / Linear)
 
-Every finding in Section 4 includes a pre-formatted payload:
+Every finding card includes a pre-formatted payload:
 
 1. Click on the expandable `<details>` section: **🎫 Copy-Paste Issue Tracker Payload**.
 2. Copy the markdown content.
@@ -53,9 +53,10 @@ Run `/torusguard recheck` to verify resolution.
 
 ## 🔁 3. Remediation & Closure Verification
 
-1. **Apply the Patch:** Follow the Before/After diff provided in the detailed finding block.
-2. **Execute Retest:**
+1. **Formulate Bounded Patch:** Run `/torusguard harden` to generate 4-artifact remediation packages strictly adhering to the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions).
+2. **Apply the Patch:** Run `/torusguard apply` to apply the surgical diff directly to repository files with automated rollback backup in `pre_apply/<file>.bak`.
+3. **Execute Targeted Recheck:**
    ```bash
    /torusguard recheck
    ```
-3. **Verify Status Transition:** The finding will transition to **`🟢 Verified Fixed`** and record the post-fix SHA-256 evidence checksum in the audit trail.
+4. **Assert State:** Verify the finding transitions to **`🟢 Verified Fixed`**, records the post-fix SHA-256 evidence checksum in the audit trail, and exports the updated SARIF report via `/torusguard report`.

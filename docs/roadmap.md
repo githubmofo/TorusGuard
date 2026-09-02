@@ -163,24 +163,32 @@ This document outlines the development milestones, past releases, and future pri
 ### ✅ v0.9.2 — Workflows & Skills Command-Engine Standard (2026-09-02)
 - **Command-Engine Standard Workflows (`.torusguard/workflows/`):** Upgraded all 11 workflows to 120–172 line production playbooks with formal YAML frontmatter, mandatory pre-flight checks, "When to Use" decision tables, deterministic CLI invocations, failure recovery rules, and hallucination guards.
 - **Deepened Specialist Skills:** Enriched all 13 skills with concrete AST detection patterns for Python and TypeScript, safe canaries, and two-way workflow cross-bindings (`workflow: .torusguard/workflows/<cmd>.md`).
+- **`TG-AGENT-*` Rule Family Implemented:**
+  - `TG-AGENT-001`: Direct/Indirect Prompt Injection in System Context Files.
+  - `TG-AGENT-002`: Unsafe Tool Dispatch & Shell Execution without Sandboxing.
+  - `TG-AGENT-003`: Overly Broad MCP Tool Scoping & Credential Access.
+  - `TG-AGENT-004`: Persistent Memory & Cross-Session Information Leakage.
+- **`TG-EDGE-*` Rule Family Implemented:**
+  - `TG-EDGE-001`: Cloudflare Workers & V8 Isolate Global Memory Leakage.
+  - `TG-EDGE-003`: AWS Lambda Ephemeral Execution & Cold-Start Security.
+- **Supply Chain & Runtime Probing Hardening:**
+  - `TG-SUPPLY-002`: Explicit warnings against destructive `npm audit fix --force`.
+  - `TG-SUPPLY-006`: Container Build Secret Persistence & BuildKit secret mounts.
+  - `TG-GQL-001` & `TG-WS-001`: Bounded 3-level canary introspection and unauthenticated handshake probes.
+- **Responsive High-DPI Visual Assets:** README banner optimized for retina displays.
 - **Comprehensive Validation Harness:** Built `harness/validate_v0_9_2_workflows_and_skills.py`, achieving 100% pass rate across **381 automated test assertions**.
 
 ---
 
 ## 🎯 Upcoming Milestones: v0.9.3+ Series
 
-### 🚀 v0.9.3 — Content-Aware Diff Line Scanning & Agent Security Rules (Q4 2026)
+### 🚀 v0.9.3 — Content-Aware Diff Line Scanning & Monorepo Sub-Scopes (Q4 2026)
 - [ ] **Content-Aware Diff Line Scanning:** Extend `PatchGovernor` to scan added/modified unified diff lines for sensitive domain keywords (`auth`, `tenant`).
-- [ ] **`TG-AGENT-*` Rule Family:** First-class rules for agentic AI architectures:
-  - `TG-AGENT-001`: Direct/Indirect Prompt Injection in System Context Files.
-  - `TG-AGENT-002`: Unsafe Tool Dispatch & Shell Execution without Sandboxing.
-  - `TG-AGENT-003`: Overly Broad MCP Tool Scoping & Credential Access.
-  - `TG-AGENT-004`: Persistent Memory & Cross-Session Information Leakage.
+- [ ] **Monorepo Sub-Scope Orchestration:** Automated detection and per-package scoping for Turborepo, Nx, and Cargo workspaces.
 
-### 🚀 v0.9.4 — GraphQL, WebSockets & Container Build Chains (Q1 2027)
-- [ ] **GraphQL & WebSocket Runtime Probes:** Bounded complexity introspection and WebSocket channel authorization assertions.
-- [ ] **Multi-Stage Container Build Inspection:** Detecting build-time secret persistence and layer caching leaks.
+### 🚀 v0.9.4 — CI/CD Permission Modeling & Container Scanners (Q1 2027)
 - [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.
+- [ ] **Base Image Trivy / Grype Integration:** Local wrapper for scanning base container images (`FROM alpine:3.18`).
 
 ### 🚀 v1.0.0 — Sandboxed Replay & Full Multi-Platform Release (Q2 2027)
 - [ ] Headless Chromium sandbox integration inside bounded Docker environments.
