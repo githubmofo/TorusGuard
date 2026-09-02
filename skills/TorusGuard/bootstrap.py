@@ -161,7 +161,13 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
 3. Follow the phase execution steps defined in the workflow.
 """
 
-    # Always ensure .agent/workflows/torusguard.md is created
+    # Ensure .agent/workflows and .agents/workflows are created
+    if (target_root / ".agents").exists():
+        agents_wf = target_root / ".agents" / "workflows"
+        agents_wf.mkdir(parents=True, exist_ok=True)
+        (agents_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
+        registered_ides.append("Antigravity (.agents/workflows/torusguard.md)")
+
     agent_wf = target_root / ".agent" / "workflows"
     agent_wf.mkdir(parents=True, exist_ok=True)
     (agent_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")

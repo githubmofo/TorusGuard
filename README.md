@@ -118,7 +118,7 @@ npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
 ```
 After downloading the skill, initialize the workspace using either method:
 - **Via AI Chat:** Tell your AI assistant: *"Initialize TorusGuard in this project"*
-- **Via Terminal:** Run `python skills/torusguard/bootstrap.py` (or `python .agent/skills/torusguard/bootstrap.py`)
+- **Via Terminal:** Run: `python .agents/skills/torusguard/bootstrap.py` (or `python .agent/skills/torusguard/bootstrap.py`)
 
 *The bootstrapper unpacks `.torusguard/`, detects your stack, and activates `/torusguard` slash commands in your IDE.*
 
