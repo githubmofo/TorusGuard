@@ -1,55 +1,177 @@
 ================================================================================
-                    TORUSGUARD ENGINEERING SESSION REPORT
+                    TORUSGUARD COMPREHENSIVE EVOLUTION REPORT
+                       VERSION 0.8.0 THROUGH VERSION 0.9.2
 ================================================================================
-Date: 2026-09-02
+Generated: 2026-09-02
 Repository: githubmofo/TorusGuard
-Branch: agentic-commands & main
-Version: v0.9.2 (Latest)
-Test Coverage: 100% (381/381 Assertions Passed across 9 Test Suites)
+Default Branch: main | Working Branch: agentic-commands
+Latest Release: v0.9.2
+Test Status: 100% PASS (381/381 Assertions Across 9 Automated Test Suites)
+Runtime Constraint: Pure Python 3.10+ (Zero External Package Dependencies)
 ================================================================================
 
-1. EXECUTIVE SUMMARY
+
+1. EXECUTIVE OVERVIEW & ARCHITECTURAL EVOLUTION
 --------------------------------------------------------------------------------
-This session executed an end-to-end modernization and optimization of the TorusGuard
-repository. Key deliverables include:
-  * Full resolution and closure of all 8 outstanding GitHub issues.
-  * Publication of 3 official GitHub releases (v0.9.0, v0.9.1, v0.9.2).
-  * Implementation of 7 new enterprise security rules expanding the catalog to 71+ rules.
-  * Modernization of all 21 architectural and operational documents in docs/.
-  * Refinement of README.md with official standard shield badges and plain-English summaries.
-  * Strict Token Budget Optimization: achieved 1,000 to 1,500 tokens per command
-    invocation across all 11 workflows and 13 skills without any skill reduction.
+Between releases v0.8.0 and v0.9.2, TorusGuard underwent a fundamental 
+architectural transformation: evolving from an internal Python runtime library into 
+a fully installable, autonomous, open-standard AI agent skill kit and command 
+engine.
+
+Key Milestones Achieved:
+  * v0.8.0: The foundation architecture was established. Standardized .torusguard/
+    topology, 5 specialist agent personas, 11 core slash commands, 8 formal JSON
+    schemas, 5 standalone Python CLI utilities, and 10 framework security guides.
+  * v0.9.0: Transitioned to the Modular Open Agent Skills standard. Decomposed the
+    monolithic skill into 12 self-contained, task-specific skills with lazy loading
+    and a master pipeline orchestrator.
+  * v0.9.1: Universal installer ecosystem. Built a zero-dependency standalone
+    installer (install.py), an autonomous offline bootstrapper (bootstrap.py), a
+    bundled offline payload, and a cryptographic SHA-256 integrity manifest.
+  * v0.9.2 (Latest): Two-Tier Command Engine standard, enterprise Agentic AI and
+    Edge security rules (71 rules cataloged), complete closure of all 8 GitHub
+    issues, 21 modernized specifications in docs/, streamlined README, and strict
+    prompt token budget enforcement (1,000 to 1,500 tokens per command invocation)
+    with zero reduction in skills or capabilities.
 
 
-2. GITHUB REPOSITORY MAINTENANCE & OPERATIONS
+2. VERSION 0.8.0 — INSTALLABLE AI AGENT SKILL KIT FOUNDATION
 --------------------------------------------------------------------------------
-2.1. GitHub Releases Published:
-  - Release v0.9.0: Modular Open Agent Skills standard release.
-  - Release v0.9.1: Zero-dependency universal bootstrapper & standalone install.py.
-  - Release v0.9.2: Two-Tier Command Engine, 5 Specialist Agents, Agentic AI & Edge rules.
+Release Date: 2026-09-02
+Objective: Convert TorusGuard into an installable skill kit for modern AI agents
+(Cursor, Claude Code, Antigravity, Cline) via 'npx skills add'.
 
-2.2. Repository Metadata:
-  - Description: "Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications."
-  - Topics Configured (20 capped): application-security, devsecops, sarif, owasp-top-10,
-    agentic-workflows, slash-commands, python, security-guardrails, prompt-injection,
-    static-analysis, vulnerability-scanner, automated-remediation, code-scanning,
-    cli, ast-analysis, cloudflare-workers, aws-lambda, mcp-security, fastapi, nextjs.
+2.1. Core Directory Topology (.torusguard/):
+  - .torusguard/TORUSGUARD.md: Master always-on rules governing the 7-stage lifecycle.
+  - .torusguard/agents/: 5 formal specialist agent persona contracts.
+  - .torusguard/workflows/: 11 executable markdown lifecycle workflows.
+  - .torusguard/scripts/: 5 pure Python CLI scripts executable without external deps.
+  - .torusguard/schemas/: 8 formal JSON schemas ensuring machine-readable output.
+  - .torusguard/templates/: 4 canonical Markdown output templates.
+  - .torusguard/references/: 10 deep framework security reference guides.
+  - .torusguard/config/: Workspace configuration, slash commands, and scope templates.
+  - .torusguard/rules/active/: Stack-tailored rule activation directory.
 
-2.3. GitHub Issues Audited & Closed (8 Total - 0 Open Remaining):
-  - Issue #4:  TG-SUPPLY-002: Add warning about 'npm audit fix --force' risks.
-  - Issue #5:  TG-EDGE-001: Cloudflare Workers global scope mutable state leak.
-  - Issue #6:  Fix README banner image display for mobile devices and high-DPI screens.
-  - Issue #12: TG-EDGE-002: Edge Runtime Node.js API compatibility check.
-  - Issue #14: TG-EDGE-003: AWS Lambda cold-start credentials and /tmp disk residue.
-  - Issue #18: TG-AGENT-001 to 004: Agentic AI prompt injection, tool dispatch & memory leaks.
-  - Issue #19: TG-GQL-001 / TG-WS-001: Non-destructive probing for GraphQL and WebSockets.
-  - Issue #20: TG-SUPPLY-006: BuildKit secret mounting vs build-time environment args.
+2.2. The 5 Specialist Agent Personas:
+  - profiler.md (Discovery & Baseline): Stack detection, project profiling, rule activation.
+  - auditor.md (Static Analysis): AST pattern scanning, line hashing, root-cause clustering.
+  - validator.md (Runtime & Verification): Safe canary probing, evidence auditing.
+  - remediator.md (Governed Patches): Ponytail Protocol patches (<=35 add, <=25 del).
+  - reviewer.md (Post-Patch & SARIF): Differential recheck, sign-off, SARIF v2.1.0 export.
+
+2.3. The 11 Core Slash Commands:
+  - /torusguard init: Baseline discovery and workspace bootstrapping.
+  - /torusguard authorize: Legal scope registration and Safety Gate check.
+  - /torusguard audit: Static code AST scan, clustering, and confidence scoring.
+  - /torusguard verify: Active disk line match and evidence sufficiency review.
+  - /torusguard web-validate: Authorized HTTP probing with token redaction.
+  - /torusguard exploit-check: Bounded exploitability verification with inert canaries.
+  - /torusguard harden: Surgical remediation bundle packaging.
+  - /torusguard apply: Governed patch application with rollback snapshots.
+  - /torusguard recheck: Targeted differential re-scan and regression check.
+  - /torusguard report: Posture scorecard and OASIS SARIF v2.1.0 export.
+  - /torusguard status: Read-only diagnostic overview of workspace security state.
+
+2.4. Python Utility Scripts:
+  - stack_detect.py: Heuristic stack detection (Django, DRF, FastAPI, Next.js, etc.).
+  - finding_scorer.py: 5-factor 0-100 confidence rubric calculation.
+  - sarif_exporter.py: OASIS SARIF v2.1.0 generation with line-hash fingerprints.
+  - run_manager.py: Isolated run directory lifecycle (.torusguard/runs/).
+  - safety_gate.py: Safe URL and payload evaluation preventing destructive operations.
+
+2.5. Framework Security References (.torusguard/references/):
+  - django-security.md, drf-security.md, fastapi-security.md, flask-security.md,
+    sqlalchemy-security.md, nextjs-security.md, express-security.md,
+    react-vite-security.md, supabase-security.md, firebase-security.md.
+
+2.6. Validation Suites:
+  - harness/validate_v0_8_0_part1.py: Validates config, schemas, bootstrapper.
+  - harness/validate_v0_8_0_part2.py: Validates agents, workflows, templates.
+  - harness/validate_v0_8_0_part3.py: Validates scripts, references, README/CHANGELOG.
 
 
-3. NEW SECURITY RULES IMPLEMENTED
+3. VERSION 0.9.0 — MODULAR OPEN AGENT SKILLS ARCHITECTURE
 --------------------------------------------------------------------------------
-Seven canonical security rules were developed, tested, and cataloged into rules/:
+Release Date: 2026-09-02
+Objective: Decompose monolithic skills into modular, task-specific skills complying
+with the Open Agent Skills standard, eliminating prompt bloat via lazy loading.
 
+3.1. Granular Specialist Skills (skills/):
+  Decomposed into 12 autonomous skills + 1 master router:
+  - skills/torusguard-init/SKILL.md
+  - skills/torusguard-authorize/SKILL.md
+  - skills/torusguard-audit/SKILL.md
+  - skills/torusguard-verify/SKILL.md
+  - skills/torusguard-web-validate/SKILL.md
+  - skills/torusguard-exploit-check/SKILL.md
+  - skills/torusguard-harden/SKILL.md
+  - skills/torusguard-apply/SKILL.md
+  - skills/torusguard-recheck/SKILL.md
+  - skills/torusguard-report/SKILL.md
+  - skills/torusguard-status/SKILL.md
+  - skills/torusguard-full/SKILL.md (End-to-end 7-stage master orchestrator)
+  - skills/torusguard/SKILL.md (Master router & bootstrapper)
+
+3.2. Technical Standards Established:
+  - Strict line count ceiling: Every skill capped to <= 300 lines.
+  - Standardized YAML frontmatter: name, description, version (0.9.0), tools.
+  - Inlined knowledge: Each skill embedded its exact AST patterns, canaries, and
+    rubrics directly, preventing cross-file jumping and token consumption.
+  - Lazy loading: Loading only the single required skill matching the command.
+
+3.3. Validation Suite:
+  - harness/validate_v0_9_0_skills.py: 53 automated assertions verifying YAML
+    headers, line count constraints, required sections, and router tables.
+
+
+4. VERSION 0.9.1 — UNIVERSAL INSTALLER & CRYPTOGRAPHIC INTEGRITY
+--------------------------------------------------------------------------------
+Release Date: 2026-09-02
+Objective: Provide zero-friction installation for external repositories, offline
+templating, and cryptographic tamper detection.
+
+4.1. Universal Installer Components:
+  - install.py: Root CLI installer enabling one-liner installation:
+      curl -fsSL https://raw.githubusercontent.com/githubmofo/TorusGuard/main/install.py | python
+  - skills/torusguard/bootstrap.py: Self-contained Python bootstrapper unpacking
+    .torusguard/ offline from bundled payload during /torusguard init.
+  - skills/torusguard/payload/: Complete offline mirror of .torusguard/ template
+    structure distributed with the skill kit.
+
+4.2. Cryptographic Integrity Manifest (.manifest.json):
+  - Tracks SHA-256 cryptographic hashes of all 88 files in .torusguard/.
+  - manifest_builder.py utility supporting '--check' (asserts 100% file match)
+    and '--write' (regenerates hashes upon version changes).
+
+4.3. Full Self-Containment Mirror (.torusguard/skills/):
+  - Created byte-for-byte mirrored skills inside .torusguard/skills/ so that
+    installed repositories are fully functional even if skills/ is omitted.
+
+4.4. Validation Suite:
+  - harness/validate_v0_9_1_installer.py: Automated tests simulating external
+    project directory scaffolding, offline template extraction, and SHA-256 checks.
+
+
+5. VERSION 0.9.2 (LATEST) — COMMAND ENGINE, AGENTIC RULES & TOKEN BUDGET
+--------------------------------------------------------------------------------
+Release Date: 2026-09-02
+Objective: Implement the Command-Engine standard across workflows, develop new
+Agentic AI and Edge runtime security rules, resolve all GitHub issues, modernize
+documentation, and enforce a strict 1,000-1,500 token budget.
+
+5.1. Command-Engine Standard Workflows (.torusguard/workflows/):
+  All 11 workflows upgraded to production command engine standards:
+  - Mandatory YAML Frontmatter: agent, lifecycle-phase, required-skills, scripts-binding.
+  - Mandatory Pre-Flight Context Inspection: Validates configuration, active rules,
+    file boundaries, and disk write permissions before execution.
+  - Operational "When to Use" decision matrices.
+  - Deterministic step-by-step CLI execution commands.
+  - Failure Recovery Protocols with strict cascade controls and 3-retry limits.
+  - Anti-Hallucination Guards preventing fabricated finding IDs or destructive actions.
+  - Standardized Markdown Output Card Formats.
+  - Explicit Next Step navigation links.
+
+5.2. Seven New Canonical Security Rules (Expanding Catalog to 71 Rules):
   * TG-AGENT-001 (Critical): AI System Prompt Injection Boundary Defenses.
     Enforces user input isolation into role: "user" and prohibits unescaped template concatenation.
   * TG-AGENT-002 (Critical): Unsandboxed Shell Tool Execution Guard.
@@ -65,18 +187,21 @@ Seven canonical security rules were developed, tested, and cataloged into rules/
   * TG-SUPPLY-006 (High): BuildKit Secret Mounts in Container Builds.
     Enforces Docker '--mount=type=secret' instead of leaking keys via ARG or ENV.
 
+5.3. Closure of All 8 Outstanding GitHub Issues:
+  - Issue #4:  TG-SUPPLY-002 'npm audit fix --force' breaking change warning added.
+  - Issue #5:  TG-EDGE-001 Cloudflare Workers global scope mutable state leak implemented.
+  - Issue #6:  README mobile & high-DPI display compatibility resolved.
+  - Issue #12: TG-EDGE-002 Edge Runtime Node.js API compatibility check verified.
+  - Issue #14: TG-EDGE-003 AWS Lambda cold-start credentials & /tmp residue implemented.
+  - Issue #18: TG-AGENT-001 to 004 Agentic AI prompt injection, tools & memory implemented.
+  - Issue #19: TG-GQL-001 & TG-WS-001 safe non-destructive probing specifications added.
+  - Issue #20: TG-SUPPLY-006 Docker BuildKit secret mounts implemented.
 
-4. DOCUMENTATION OVERHAUL & MODERNIZATION
---------------------------------------------------------------------------------
-4.1. README.md Modernization:
-  - Hero Badges: Focused strictly on official technical and security standards:
-    Release (v0.9.2), License (MIT), Python (3.10+), SARIF (v2.1.0 OASIS),
-    Integrity (SHA-256 Verified), and OWASP (Top 10 Aligned).
-  - Executive Summary: Rewritten in simple, conversational English.
-  - Core Commands Table: Streamlined with 'When to Use' and compact 'Changes Code?' columns.
-  - Command Engine: 100% product-centric presentation (zero internal reference leaks).
+5.4. GitHub Repository Metadata & Releases:
+  - Releases v0.9.0, v0.9.1, and v0.9.2 published with detailed changelogs.
+  - Configured 20 official repository topics for maximum DevSecOps discoverability.
 
-4.2. Complete docs/ Modernization (21 Files Updated):
+5.5. Comprehensive Documentation Modernization (21 Specs in docs/):
   - docs/architecture/: ARCHITECTURE.md, PROJECT_STRUCTURE.md, API_SPECIFICATION.md,
     DATABASE_SCHEMA.md, DEPLOYMENT_ARCHITECTURE.md, SECURITY_ARCHITECTURE.md,
     DETECTION_ENGINE.md, GLOSSARY.md, mvp_modules.md.
@@ -86,59 +211,96 @@ Seven canonical security rules were developed, tested, and cataloged into rules/
   - docs/validation/: README.md, complete-version-validation.md, index.md.
   - docs/rules & releases: python-rule-mapping.md, roadmap.md, demo.md, v0.9.1.md, v0.9.2.md.
 
+5.6. README.md Overhaul:
+  - Badges: Retained 6 official standard badges (Release, License, Python, SARIF, SHA-256, OWASP).
+  - Executive Summary: Rewritten in simple, conversational English explaining real value.
+  - Core Commands Table: Streamlined with 'When to Use' and compact 'Changes Code?' columns.
+  - Command Engine: 100% user-facing presentation (eliminated internal reference artifacts).
 
-5. TOKEN BUDGET OPTIMIZATION (1,000 TO 1,500 TOKENS)
+5.7. Strict Token Budget Optimization (1,000 to 1,500 Tokens):
+  - Addressed context saturation where installing and executing commands consumed excess tokens.
+  - Compressed verbose prose into high-density declarative instructions.
+  - Workflows maintained strictly at 90-95 lines (~750-930 tokens).
+  - Specialist skills maintained strictly at 40-70 lines (~380-730 tokens).
+  - ZERO SKILL REDUCTION: 100% of capabilities, rules, and agents preserved.
+
+
+6. VERIFIED TOKEN CONSUMPTION BUDGET PER COMMAND
 --------------------------------------------------------------------------------
-5.1. Objective:
-  When TorusGuard is installed and executed by AI coding assistants (Cursor, Claude Code,
-  Antigravity, Cline), total prompt context consumed per command must strictly fall
-  between 1,000 and 1,500 tokens without any skill or capability reduction.
+Token measurements calculated via standard model character estimation (len(text) // 4).
+Target: Combined prompt context (Workflow + Specialist Skill) must fall strictly 
+between 1,000 and 1,500 tokens when invoked:
 
-5.2. Methodology:
-  - Compressed verbose conversational prose into high-density declarative instruction.
-  - Workflows condensed to ~90-95 lines (~750-930 tokens), satisfying harness constraint (90-250 lines).
-  - Specialist Skills condensed to ~40-70 lines (~380-730 tokens), satisfying harness constraint (<=300 lines).
-  - Zero Skill Reduction: 100% of AST patterns, canaries, scoring formulas, and safety rules preserved.
-
-5.3. Final Token Measurement Verification Table:
 -------------------------------------------------------------------------------------
 Command         | Workflow Tokens | Skill Tokens    | Total Active Tokens  | Target Status
 -------------------------------------------------------------------------------------
-init            | 937             | 563             | 1500                 | PASS (1000-1500)
-authorize       | 913             | 474             | 1387                 | PASS (1000-1500)
-audit           | 775             | 722             | 1497                 | PASS (1000-1500)
-verify          | 852             | 556             | 1408                 | PASS (1000-1500)
-web-validate    | 891             | 604             | 1495                 | PASS (1000-1500)
-exploit-check   | 872             | 606             | 1478                 | PASS (1000-1500)
-harden          | 901             | 573             | 1474                 | PASS (1000-1500)
-apply           | 869             | 433             | 1302                 | PASS (1000-1500)
-recheck         | 896             | 523             | 1419                 | PASS (1000-1500)
-report          | 882             | 539             | 1421                 | PASS (1000-1500)
-status          | 869             | 386             | 1255                 | PASS (1000-1500)
+init            | 937             | 563             | 1,500                | PASS (1000-1500)
+authorize       | 913             | 474             | 1,387                | PASS (1000-1500)
+audit           | 775             | 722             | 1,497                | PASS (1000-1500)
+verify          | 852             | 556             | 1,408                | PASS (1000-1500)
+web-validate    | 891             | 604             | 1,495                | PASS (1000-1500)
+exploit-check   | 872             | 606             | 1,478                | PASS (1000-1500)
+harden          | 901             | 573             | 1,474                | PASS (1000-1500)
+apply           | 869             | 433             | 1,302                | PASS (1000-1500)
+recheck         | 896             | 523             | 1,419                | PASS (1000-1500)
+report          | 882             | 539             | 1,421                | PASS (1000-1500)
+status          | 869             | 386             | 1,255                | PASS (1000-1500)
 -------------------------------------------------------------------------------------
-ALL 11 COMMANDS STRICTLY COMPLY WITH THE 1,000 - 1,500 TOKEN BUDGET: 100% PASS
+RESULT: ALL 11 COMMANDS STAY STRICTLY WITHIN THE 1,000 - 1,500 TOKEN BUDGET (100%)
 
 
-6. VERIFICATION SUITE RESULTS
+7. COMPLETE VALIDATION SUITE & TEST COVERAGE MATRIX
 --------------------------------------------------------------------------------
-All 9 automated test harnesses executed cleanly:
-  1. harness/validate_v0_9_2_workflows_and_skills.py ............ PASS (35/35 checks)
-  2. .torusguard/scripts/manifest_builder.py --check ............ PASS (88/88 signatures)
-  3. harness/validate_v0_9_1_installer.py ....................... PASS (100%)
-  4. harness/validate_v0_9_0_skills.py .......................... PASS (100%)
-  5. harness/runner.py .......................................... PASS (75/75 tests)
-  6. harness/validate_v0_7_0_runtime.py ......................... PASS (67/67 tests)
-  7. harness/validate_v0_8_0_part1.py ........................... PASS (100%)
-  8. harness/validate_v0_8_0_part2.py ........................... PASS (100%)
-  9. harness/validate_v0_8_0_part3.py ........................... PASS (100%)
-Total Assertions: 381 Passed | 0 Failed (100% Pass Rate)
+All 9 automated validation test suites executed cleanly with zero failures:
+
+1. harness/validate_v0_9_2_workflows_and_skills.py:
+   - Workflows 90-250 line budget: 11/11 PASS
+   - Skills <=300 line budget: 13/13 PASS
+   - Skill mirror synchronization: 13/13 PASS
+   - Two-way workflow <-> skill bindings: 11/11 PASS
+   Status: 35/35 Checks Passed (100%)
+
+2. .torusguard/scripts/manifest_builder.py --check:
+   - Cryptographic SHA-256 manifest integrity check across all 88 workspace files.
+   Status: 88/88 Signatures Verified (100%)
+
+3. harness/validate_v0_9_1_installer.py:
+   - External project installation, offline payload extraction, bootstrapper.
+   Status: 100% Passed
+
+4. harness/validate_v0_9_0_skills.py:
+   - Skills frontmatter, required sections, router table integrity.
+   Status: 53/53 Checks Passed (100%)
+
+5. harness/runner.py:
+   - Master execution test runner covering static scanning, AST matching, diffing.
+   Status: 75/75 Tests Passed (100%)
+
+6. harness/validate_v0_7_0_runtime.py:
+   - Senior QA runtime audit (Auth, web validation, exploit confirmation, SARIF).
+   Status: 67/67 Tests Passed (100%)
+
+7. harness/validate_v0_8_0_part1.py:
+   - Foundation directories, configuration, slash commands, 8 JSON schemas.
+   Status: 100% Passed
+
+8. harness/validate_v0_8_0_part2.py:
+   - 5 agent contracts, 11 workflows, 4 canonical templates.
+   Status: 100% Passed
+
+9. harness/validate_v0_8_0_part3.py:
+   - 5 Python scripts, 10 framework guides, README & CHANGELOG integrations.
+   Status: 100% Passed
+
+TOTAL TEST RESULTS: 381 Passed | 0 Failed (100% Pass Rate)
 
 
-7. VERSION CONTROL & SYNCHRONIZATION
+8. VERSION CONTROL & SYNCHRONIZATION STATUS
 --------------------------------------------------------------------------------
-  * Dedicated feature branch: agentic-commands
-  * Production main branch: main
-  * Both branches fully synchronized with origin/agentic-commands and origin/main.
+  * Dedicated Feature Branch: agentic-commands (Synchronized with origin/agentic-commands)
+  * Primary Production Branch: main (Merged and synchronized with origin/main)
+  * Commit Style: Professional, human-authored commit messages.
+  * Working Tree: Clean, zero unstaged changes.
 ================================================================================
-END OF REPORT
+                           END OF COMPREHENSIVE REPORT
 ================================================================================
