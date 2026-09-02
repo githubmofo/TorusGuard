@@ -5,32 +5,27 @@
 
   **Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.**
 
-  [![Release: v0.9.2](https://img.shields.io/badge/Release-v0.9.2-blue.svg?style=flat-square&logo=github&logoColor=white)](https://github.com/githubmofo/TorusGuard/releases/latest)
+  [![Release](https://img.shields.io/badge/Release-v0.9.2-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
   [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-  [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
-  [![Dependencies: Zero](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Python)-success.svg?style=flat-square)](install.py)
-  [![Validation: 100%](https://img.shields.io/badge/Test%20Suites-381%2F381%20Passed%20(100%25)-brightgreen.svg?style=flat-square)](harness/)
-  [![Rules: 71 Canonical](https://img.shields.io/badge/Security%20Rules-71%20Canonical-blueviolet.svg?style=flat-square)](rules/)
-  <br>
-  [![OWASP: Top 10 Aligned](https://img.shields.io/badge/OWASP-Top%2010%20Aligned-orange.svg?style=flat-square&logo=owasp&logoColor=white)](docs/architecture/SECURITY_ARCHITECTURE.md)
-  [![SARIF: v2.1.0](https://img.shields.io/badge/SARIF-v2.1.0%20(OASIS)-purple.svg?style=flat-square)](schemas/)
-  [![Agent Skills: Ready](https://img.shields.io/badge/Agent%20Skills-Standard%20Ready-indigo.svg?style=flat-square)](skills/)
-  [![Commands: 11 Interactive](https://img.shields.io/badge/Slash%20Commands-11%20Interactive-informational.svg?style=flat-square)](.torusguard/workflows/)
-  [![Integrity: SHA--256](https://img.shields.io/badge/Integrity-SHA--256%20Verified-teal.svg?style=flat-square)](.torusguard/.manifest.json)
-  [![PRs: Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square)](MAINTAINERS.md)
+  [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
+  [![Tests: 100% Passed](https://img.shields.io/badge/Tests-100%25%20Passed-brightgreen.svg?style=flat-square)](harness/)
+  [![OWASP Top 10](https://img.shields.io/badge/OWASP-Top%2010%20Aligned-orange.svg?style=flat-square)](docs/architecture/SECURITY_ARCHITECTURE.md)
 </div>
 
 ---
 
 ## 💡 Executive Summary
 
-AI coding assistants accelerate software engineering, but they frequently introduce critical security vulnerabilities: querying databases directly from client-side bundles, exposing service-role keys, omitting tenant isolation scopes, or trusting unsanitized proxy headers.
+AI coding assistants write code fast, but they often make dangerous security mistakes—like putting database keys in frontend code, skipping permission checks, or trusting raw input headers.
 
-**TorusGuard** is an open-source, Markdown-first security guidance system, runtime verification engine, and autonomous AI-agent skill kit. It bridges static security audits with **governed, minimal-churn remediation** and **safe, authorized runtime validation**—guaranteeing that vulnerabilities are identified, empirically confirmed, surgically patched, and verified without breaking codebases or deploying weaponized exploits.
+**TorusGuard** is an automated security co-pilot for AI-built applications. It runs directly inside your IDE (Cursor, Claude Code, Antigravity, VS Code) to:
+- **Find real vulnerabilities:** Scan your codebase against 71 security rules across Python, TypeScript, and modern frameworks.
+- **Confirm exploitability:** Verify whether weaknesses are truly reachable before creating noise.
+- **Patch safely:** Generate and apply minimal, surgical fixes that resolve flaws without breaking existing functionality.
 
 ### 🌐 The Core Principle: The Browser-Code Truth
 > **"If the browser receives it, users can inspect it."**  
-> DevTools, Inspect Element, and network breakpoints cannot be disabled. TorusGuard enforces that database credentials, sensitive business logic, and authorization boundaries must always reside on trusted server-side code.
+> DevTools, Inspect Element, and network breakpoints cannot be blocked. TorusGuard enforces that database credentials, sensitive business logic, and authorization checks must always live safely on the server.
 
 ---
 
@@ -127,22 +122,22 @@ curl -sSL https://raw.githubusercontent.com/githubmofo/TorusGuard/main/install.p
 
 ---
 
-### 2. Core Workflow Commands
+### 2. Core Commands
 
-| Command | Specialist Agent | Lifecycle Phase | Purpose | Modifies Code? |
-|---|:---:|---|---|:---:|
-| `/torusguard init` | `profiler` | Phase 0 (Baseline) | Scaffolds `.torusguard/`, detects stack, activates rules. | ❌ Docs/Config |
-| `/torusguard authorize` | `reviewer` | Phase 1 (Scope Gate) | Enforces target ownership proof & strict host allowlists. | ❌ No |
-| `/torusguard audit` | `auditor` | Phase 2 (Static Audit) | Scans ASTs, generates stable IDs, clusters root causes. | ❌ No |
-| `/torusguard verify` | `validator` | Phase 3a (Evidence) | Evaluates evidence sufficiency & computes 0–100 score. | ❌ No |
-| `/torusguard web-validate` | `validator` | Phase 3b (Web Probing) | Bounded HTTP probing & session tracking with secret redaction. | ❌ No |
-| `/torusguard exploit-check`| `validator` | Phase 3c (Exploit Check) | Safe, non-destructive exploit confirmation (SQLi, XSS, SSRF). | ❌ No |
-| `/torusguard harden` | `remediator` | Phase 4 (Remediation) | Emits 4-artifact remediation bundles & surgical patch plans. | ❌ No |
-| `/torusguard apply` | `remediator` | Phase 5 (Governed Apply) | Applies bounded patches ($\le 35$ add, $\le 25$ del) with rollback backup. | ⚠️ Yes (Governed) |
-| `/torusguard recheck` | `reviewer` | Phase 6 (Recheck) | Differentially audits modified files to verify fix & catch regressions. | ❌ No |
-| `/torusguard report` | `reviewer` | Phase 7 (Reporting) | Exports executive report & OASIS SARIF v2.1.0 log. | ❌ No |
-| `/torusguard status` | `reviewer` | System / Diagnostics | Displays workspace security posture, active rules, & run history. | ❌ No |
-| `/torusguard full` | *All Roles* | End-to-End Orchestrator| Runs full 7-stage closed-loop security pipeline under stage gates. | ⚠️ Governed |
+| Command | What It Does | When to Use | Changes Code? |
+|---|---|---|:---:|
+| `/torusguard init` | Sets up TorusGuard, detects your framework, and enables matching rules. | First-time setup on any project | No |
+| `/torusguard authorize` | Sets approved target domains, allowed URLs, and scan limits for safe testing. | Before testing live web/API routes | No |
+| `/torusguard audit` | Scans source code for security flaws and groups repeated issues by root cause. | Regular development & PR reviews | No |
+| `/torusguard verify` | Validates code paths and scores findings from 0–100 to eliminate false alarms. | Triaging & prioritizing audit findings | No |
+| `/torusguard web-validate` | Sends safe, non-destructive HTTP requests to test if endpoints leak sensitive data. | Checking a local or staging server | No |
+| `/torusguard exploit-check` | Tests if high-risk vulnerabilities (like CSRF or IDOR) are actually exploitable. | Confirming flaws before writing fixes | No |
+| `/torusguard harden` | Prepares a step-by-step fix plan and surgical diff within safe line-change limits. | Planning a fix for an identified issue | No |
+| `/torusguard apply` | Applies the minimal patch to your code with an automatic rollback backup. | Applying an approved code fix | Yes |
+| `/torusguard recheck` | Re-scans only the modified lines to verify the fix works with zero regressions. | Right after applying any fix | No |
+| `/torusguard report` | Generates an executive summary and exports SARIF data for GitHub security tabs. | CI/CD builds and release audits | No |
+| `/torusguard status` | Shows current security posture, active rules, and recent run history. | Checking project security health | No |
+| `/torusguard full` | Runs the full end-to-end security cycle (audit → verify → fix → recheck). | Complete repository security pass | Yes |
 
 ---
 
