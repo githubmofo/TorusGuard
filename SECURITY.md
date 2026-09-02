@@ -2,7 +2,7 @@
 
 ## Reporting Security Vulnerabilities
 
-The TorusGuard project takes security seriously. If you believe you have discovered a vulnerability or security flaw in **TorusGuard itself** (such as unsafe skill instructions, template flaws, or repository infrastructure), please report it responsibly and privately.
+The TorusGuard project takes security and safety seriously. If you believe you have discovered a vulnerability or security flaw in **TorusGuard itself** (such as unsafe skill instructions, template flaws, bootstrapper vulnerabilities, or repository infrastructure), please report it responsibly and privately.
 
 **Do not file public GitHub issues, discussions, or pull requests for undisclosed security vulnerabilities.**
 
@@ -13,11 +13,12 @@ The TorusGuard project takes security seriously. If you believe you have discove
 | Belongs in Private Security Disclosure | Belongs in Public GitHub Issues |
 |---|---|
 | 🔒 Flaws in TorusGuard skill instructions that cause unsafe code generation | 💡 Requesting a new security rule (`TG-...`) |
-| 🔒 Insecure defaults in `templates/` or `guides/` | 🐛 Reporting a false positive or minor rule detection bug |
+| 🔒 Insecure defaults in `templates/` or framework references | 🐛 Reporting a false positive or minor rule detection bug |
 | 🔒 Credential leaks or malicious dependencies in the TorusGuard repository | ❓ General usage questions, installation help, or feature ideas |
+| 🔒 Logic flaws in `safety_gate.py` that allow unauthorized network probes | ⚡ Proposing performance optimizations for AST scanners |
 
 > **Note on Third-Party Applications & Educational Fixtures:**  
-> - **External Codebases:** TorusGuard is an open-source guidance framework. If you find a security vulnerability in an application audited with TorusGuard, please report it directly to the maintainers of that application following their private disclosure policy.  
+> - **External Codebases:** TorusGuard is an open-source guidance framework and automated skill kit. If you find a security vulnerability in an application audited with TorusGuard, please report it directly to the maintainers of that application following their private disclosure policy.  
 > - **Educational Fixtures:** Files located in `examples/vulnerable-*/`, `examples/python/*-vuln/`, and `tests/fixtures/*/` are **intentionally vulnerable educational fixtures**. They are deliberately insecure by design for validation purposes and must never be deployed to production.
 
 ---
@@ -29,93 +30,106 @@ The TorusGuard project takes security seriously. If you believe you have discove
 
 ### What to Include in Your Report
 Please provide:
-- A clear description of the issue.
-- Affected files, guides, templates, or rule identifiers.
-- Step-by-step reproduction instructions or code snippet.
-- Assessment of potential security impact.
+- A clear, concise description of the security issue.
+- Affected files, workflows, skills, templates, or rule identifiers.
+- Step-by-step reproduction instructions or code snippets.
+- Assessment of potential security impact and blast radius.
 - Any suggested remediations or mitigations.
 
 ---
 
 ## Response Commitments & Triage Targets
 
-* **Initial Acknowledgment / Triage:** Within **48 to 72 hours**.
-* **Status Update & Remediation Plan:** Within **7 days** of initial triage.
+* **Initial Acknowledgment / Triage:** Within **24 to 48 hours**.
+* **Status Update & Remediation Plan:** Within **5 days** of initial triage.
 * **Coordinated Disclosure:** We adhere to standard coordinated disclosure principles. Once a fix is verified and released, a public security advisory will be published crediting the researcher (unless anonymity is requested).
-
----
-
-## Authorized Testing & Legal Boundaries
-
-In alignment with OWASP and NIST vulnerability disclosure guidelines:
-- Security testing against TorusGuard must be non-destructive and limited to repository source code, templates, and portable skill definitions.
-- Probing or scanning live infrastructure, production accounts, or external services is strictly out of scope.
 
 ---
 
 ## Supported Versions
 
-Security updates and patches are prioritized for the current active release line:
+Security updates and patches are actively maintained for the following release lines:
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v0.7.x` (`v0.7.0`) | ✅ Yes | Current active release line (Authorized Runtime Validation & Bounded Exploitability Confirmation) |
-| `v0.6.x` | ✅ Yes | Governed Remediation, Minimal Patching & Targeted Recheck System |
-| `v0.5.x` | ⚠️ Best effort | Legacy reporting, validation engine, and rule schemas |
-| `< v0.5.0` | ❌ No | Deprecated |
+| `v0.9.x` (`v0.9.2`) | ✅ Yes | **Current active release line** (Command-Engine Standard, Workspace Autonomy & Parity) |
+| `v0.8.x` | ✅ Yes | Installable AI-Agent Security Skill Kit |
+| `v0.7.x` | ✅ Yes | Authorized Runtime Validation & Bounded Exploitability Confirmation |
+| `v0.6.x` | ⚠️ Best effort | Governed Remediation, Minimal Patching & Targeted Recheck System |
+| `< v0.6.0` | ❌ No | Deprecated |
 
 ---
 
-## Authorized Runtime Validation & Safety Controls (v0.7.0)
+## Security Architecture & Enforcement Controls
 
-TorusGuard v0.7.0 adds runtime validation controls ensuring no automated agent probes live systems without verified authorization:
-1. **Target Authorization Gate (`core/authorization.py`):** Requires written permission or target ownership verification with whitelisted hosts, allowed path prefixes, and request limits. Rejects unauthorized requests with `AuthorizationError`.
-2. **Safety Review Gates (`core/safety_gate.py`):** Categorizes requests into `Auto-Allowed`, `Approval Required`, and `Manual Only`, automatically blocking destructive or privileged actions (`/admin/delete`, `/system/shutdown`).
-3. **Automated Secret Redaction (`core/runtime_evidence.py`):** Strips Bearer tokens, credentials, and API keys prior to persisting request/response evidence.
+```mermaid
+flowchart TD
+    User["Operator / AI Agent"] -->|Runs Slash Command| WF["Workflow Engine<br><code>.torusguard/workflows/</code>"]
+    
+    WF --> Gate1{"Scope Authorized?<br><code>scope.json</code>"}
+    Gate1 -->|Expired / Missing| Block1["❌ HALT: Authorization Required"]
+    Gate1 -->|Valid Host & TTL| Gate2{"Safety Gate Check<br><code>safety_gate.py</code>"}
+    
+    Gate2 -->|Destructive Verb| Block2["❌ HALT: Manual Only / Blocked"]
+    Gate2 -->|Sensitive Path| Prompt["⚠️ Approval Required (Human Gate)"]
+    Gate2 -->|Safe GET/HEAD| Probe["Bounded Probing<br><code>web-validate</code>"]
+    
+    Probe --> Redact["Credential Redaction<br>Scrub JWTs & Passwords"]
+    Redact --> Artifacts["Encrypted / Redacted Logs<br><code>runs/<run-id>/</code>"]
+    
+    Prompt -->|Approved| Remed["Governed Remediation<br>Ponytail Bounds: <=35 add, <=25 del"]
+    Remed --> Snap["Pre-Apply Snapshot<br><code>pre_apply/<file>.bak</code>"]
+    Snap --> Patch["Surgical Patch Apply<br><code>/torusguard apply</code>"]
+    Patch --> Recheck["Targeted Recheck<br><code>/torusguard recheck</code>"]
+```
 
----
+### 1. Legal Scope & Authorization Gate (`.torusguard/config/scope.json`)
+Before any live network traffic is generated, TorusGuard requires an explicit authorization record specifying:
+- Whitelisted `target_host` (localhost, private IP, or confirmed staging domain).
+- Permitted `allowed_prefixes` and strictly blocked `forbidden_paths`.
+- Mandatory Time-To-Live (TTL) expiration (maximum 24 hours).
+- Enforced by `.torusguard/scripts/safety_gate.py`.
 
-## Governed Remediation & Sensitive-Path Safety Controls
+### 2. Tiered Safety Review Gate (`safety_gate.py`)
+Every runtime probe is evaluated through a strict 3-tier risk classification:
+- **Auto-Allowed**: Non-sensitive read-only `GET`, `HEAD`, `OPTIONS` requests within authorized scope.
+- **Approval Required**: Sensitive authentication endpoints (`/auth/login`, `/settings`) or state-changing `POST` verbs. Requires explicit human confirmation.
+- **Manual Only / Blocked**: Destructive operations (`DELETE`, `DROP`), payment endpoints, or forbidden paths. Strictly blocked from automated execution.
 
-TorusGuard incorporates proactive defense mechanisms to prevent AI coding agents from introducing regressions or applying unsafe automated code modifications:
+### 3. Automated Credential Redaction (`.torusguard/scripts/run_manager.py`)
+All captured network payloads, headers, and logs are automatically scrubbed prior to writing to disk:
+- Bearer tokens masked: `Bearer [REDACTED_JWT_sha256:abcd...]`
+- Cookies masked: `session_id=[REDACTED_COOKIE]`
+- Passwords and secret keys masked: `[REDACTED_SECRET]`
 
-1. **Patch Policy Governance (`core/governance.py`):**
-   - Strictly enforces limits on additions ($\le 35$ lines) and deletions ($\le 25$ lines) per file.
-   - Prohibits sweeping boilerplate rewrites, unstructured comment replacements, and multi-file cross-service churn.
-
-2. **Sensitive-Path Review Levels:**
-   - **Authentication & JWT:** Files matching `auth`, `login`, `jwt`, `token`, `session`, `password`.
-   - **Multi-Tenancy:** Files matching `tenant`, `tenant_id`, `organization_id`, `org_id`, `workspace_id`.
-   - **Secrets & Cryptography:** Files matching `secret`, `api_key`, `private_key`, `crypto`, `hmac`.
-   - **Storage & Uploads:** Files matching `upload`, `storage`, `filepath`, `save_file`.
-   - **CI/CD Infrastructure:** `.github/workflows/`, `Dockerfile`, `compose.yaml`.
-   - **Enforcement:** Diffs in sensitive contexts with $> 10$ line churn automatically escalate to `Mandatory Security Sign-Off` and block automated patch execution.
-
-3. **Targeted Scoped Recheck Verification (`core/rechecker.py`):**
-   - Automatically re-evaluates AST sinks and trust boundaries after code edits, requiring human intervention if any regression (`Regressed`) or incomplete remediation (`Needs Manual Review`) is detected.
-
-4. **GitHub Code Scanning Interoperability (`core/sarif.py`):**
-   - Emits standard OASIS SARIF v2.1.0 logs with `partialFingerprints` (`primaryLocationLineHash`) to guarantee deterministic alert tracking and eliminate duplicate alert noise across pull requests.
+### 4. Governed Remediation & The Ponytail Protocol
+To prevent AI coding assistants from introducing subtle bugs, breaking architectures, or rewriting entire modules, TorusGuard enforces hard patch bounds:
+- **Max Additions**: $\le 35$ lines per bundle.
+- **Max Deletions**: $\le 25$ lines per bundle.
+- **Zero Full-File Rewrites**: Only the exact vulnerable function is patched.
+- **Rollback Guarantee**: A byte-for-byte backup is archived in `pre_apply/<file>.bak` before any code edit is written to disk.
 
 ---
 
 ## Continuous Validation & Release Gate Policy
 
-To guarantee that future code changes never compromise security, safety, or backward compatibility, TorusGuard mandates the following release gate policies:
+To guarantee that code changes never compromise security, safety, or backward compatibility, TorusGuard mandates a **100% pass rate across 9 automated test suites (381 test assertions)** prior to any release tag:
 
-### Mandatory Pre-Release Test Harnesses
-Before any release tag (`vX.Y.Z`) is published, the following automated test suites must be executed and achieve a **100% pass rate**:
-1. **Runtime Validation Suite (`harness/validate_v0_7_0_runtime.py`):**
-   - Asserts legal authorization gating, TTL expiration, host/path whitelist enforcement.
-   - Validates bounded exploitability classification, session cookie handling, and secret redaction.
-   - Verifies safety gate review levels (`Auto-Allowed`, `Approval Required`, `Manual Only`) and deterministic replay traces.
-2. **Hardening & Drift Suite (`harness/validate_v0_6_3_hardening.py`):**
-   - Verifies line-shift invariant fingerprint stability across multi-commit refactorings.
-   - Asserts SARIF v2.1.0 schema compliance, `primaryLocationLineHash` deduplication, and zero false positives on modern frameworks.
-3. **Governed Remediation QA Suite (`harness/validate_qa_v0_6_0.py`):**
-   - Validates run folder generation, 5-file remediation bundles, line churn limits ($\le 35$ additions), and targeted recheck transitions.
-4. **Core Schemas & Replay Suite (`harness/runner.py` & `harness/validate_e2e.py`):**
-   - Verifies JSON schema validity across all 16 schemas, 5-factor confidence scoring, SHA-256 evidence integrity, and 3-pass deterministic replay.
+1. **Workflows & Skills Suite (`harness/validate_v0_9_2_workflows_and_skills.py`):**
+   - Asserts 100% YAML frontmatter compliance and required sections across all 11 workflows and 13 skills.
+   - Verifies 1:1 cross-bindings and context line budgets ($\le 300$ lines).
+2. **Cryptographic Manifest Verifier (`.torusguard/scripts/manifest_builder.py --check`):**
+   - Cryptographically verifies all 88 workspace files against SHA-256 integrity signatures.
+3. **Autonomous Installer Suite (`harness/validate_v0_9_1_installer.py`):**
+   - Simulates clean-room installation via `npx skills add` and standalone `install.py`.
+4. **Granular Skills Suite (`harness/validate_v0_9_0_skills.py`):**
+   - Validates specialist skill frontmatter, routing table integrity, and script bindings.
+5. **Runtime Validation & Safety Suite (`harness/validate_v0_7_0_runtime.py`):**
+   - Asserts legal scope gating, TTL expiration, safety gate tiers, token redaction, and role handoffs.
+6. **Core Validation Harness (`harness/runner.py`):**
+   - Verifies 10 JSON schemas, 64 rule definitions, 5-factor confidence scoring, and 3-pass deterministic replay.
+7. **Workspace Foundation Suites (`harness/validate_v0_8_0_part1.py`, `part2.py`, `part3.py`):**
+   - Asserts template structures, reference guides, and script execution sanity.
 
 ### Blocking Release Criteria
 A proposed release is **strictly blocked** if any of the following occur:
@@ -123,24 +137,16 @@ A proposed release is **strictly blocked** if any of the following occur:
 - ❌ Any regression in patch governance bounds or bypass of sensitive-path review escalation.
 - ❌ Any failure in secret redaction leading to unmasked Bearer tokens or credentials in logs.
 - ❌ Any non-deterministic variation in replay trace reproduction.
-
-### High-Risk Change Audit Trigger
-Whenever a pull request modifies:
-- Legal authorization or target scoping logic (`core/authorization.py`, `schemas/authorization.schema.json`),
-- The runtime validation or exploitability confirmation engine (`core/runtime_validator.py`, `core/exploit_checker.py`),
-- Patch governance or line churn rules (`core/governance.py`), or
-- High-risk canonical security rules (`TG-AUTH-*`, `TG-DB-004`, `TG-INPUT-006`),
-the author must execute a focused mini-audit against both safe and vulnerable fixtures, update the validation matrix, and secure sign-off from a second maintainer before merging.
+- ❌ Any checksum discrepancy in `.manifest.json`.
 
 ---
 
 ## Maintainer Security Checklist
 
 All repository maintainers must comply with the operational security standards detailed in [`MAINTAINERS.md`](MAINTAINERS.md):
-- **Accounts:** Hardware 2FA/MFA enforced; zero shared maintainer credentials.
-- **Branches:** Strict branch protection on `main` and `v6`; PR review required on core engine, rule catalogs, and safety gates.
-- **Dependencies:** Reproducible lockfiles required; continuous scanning for dependency CVEs.
+- **Accounts:** Hardware 2FA/MFA enforced (FIDO2/WebAuthn); zero shared maintainer credentials.
+- **Branches:** Strict branch protection on `main`; PR review required on core engine, rule catalogs, and safety gates.
+- **Dependencies:** Reproducible lockfiles required; continuous scanning for dependency CVEs via `pip-audit`.
 - **Secrets:** CI secret scanning enabled; zero credentials permitted in commit history.
+- **Integrity:** SHA-256 manifest regenerated and verified before any release.
 - **Signing:** All release git tags and release assets must be cryptographically signed with maintainer GPG keys.
-
-

@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/finding.schema.json",
+  "title": "TorusGuardCanonicalFinding",
+  "description": "Canonical normalized finding object schema for TorusGuard v0.5.1 with provenance and auditable confidence scoring.",
+  "type": "object",
+  "required": [
+    "finding_id",
+    "rule_id",
+    "title",
+    "category",
+    "severity",
+    "confidence",
+    "status",
+    "affected_component",
+    "evidence",
+    "provenance",
+    "reproduction_method",
+    "remediation",
+    "retest_result",
+    "timestamps"
+  ],
+  "properties": {
+    "finding_id": {
+      "type": "string",
+      "pattern": "^TG-FIND-[0-9]{4}-[a-f0-9]{4,12}$",
+      "description": "Unique canonical identifier for this finding instance."
+    },
+    "rule_id": {
+      "type": "string",
+      "pattern": "^TG-[A-Z0-9]+-[0-9]{3}$",
+      "description": "Canonical TorusGuard Rule ID (e.g. TG-AUTH-007, TG-SEC-001)."
+    },
+    "title": {
+      "type": "string",
+      "description": "Concise, human-readable finding title."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "authentication-authorization",
+        "input-validation-encoding",
+        "data-access-orm",
+        "file-upload-handling",
+        "secrets-configuration",
+        "dependency-supply-chain",
+        "network-ssrf-boundaries",
+        "business-logic-rate-limiting",
+        "client-cache-platform"
+      ],
+      "description": "Normalized lifecycle taxonomy category."
+    },
+    "severity": {
+      "type": "object",
+      "required": ["level", "rationale", "rubric_justification"],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["Critical", "High", "Medium", "Low", "Informational"]
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Justification for assigned severity level."
+        },
+        "rubric_justification": {
+          "type": "string",
+          "description": "Explicit reason why this finding is not a higher or lower severity."
+        }
+      }
+    },
+    "confidence": {
+      "$ref": "confidence.schema.json"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Confirmed",
+        "High Confidence",
+        "Medium Confidence",
+        "Low Confidence",
+        "Unconfirmed",
+        "Needs Review",
+        "Remediated",
+        "Verified Fixed"
+      ],
+      "description": "Standardized operational verification status."
+    },
+    "affected_component": {
+      "type": "object",
+      "required": ["component_name", "target_path"],
+      "properties": {
+        "component_name": { "type": "string" },
+        "target_path": { "type": "string" },
+        "start_line": { "type": "integer" },
+        "end_line": { "type": "integer" },
+        "symbol": { "type": "string" }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "evidence.schema.json" }
+    },
+    "provenance": {
+      "$ref": "provenance.schema.json"
+    },
+    "reproduction_method": {
+      "type": "object",
+      "required": ["step_by_step", "deterministic"],
+      "properties": {
+        "step_by_step": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "test_command": { "type": "string" },
+        "deterministic": { "type": "boolean" },
+        "expected_failure_response": { "type": "string" }
+      }
+    },
+    "remediation": {
+      "$ref": "remediation.schema.json"
+    },
+    "retest_result": {
+      "$ref": "retest.schema.json"
+    },
+    "requirement_reference": {
+      "type": "object",
+      "properties": {
+        "asvs_v4": { "type": "string" },
+        "nist_ssdf": { "type": "string" },
+        "owasp_top10": { "type": "string" }
+      }
+    },
+    "cwe": {
+      "type": "string",
+      "pattern": "^CWE-[0-9]{1,5}$"
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["discovered_at", "updated_at"],
+      "properties": {
+        "discovered_at": { "type": "string", "format": "date-time" },
+        "verified_at": { "type": "string", "format": "date-time" },
+        "remediated_at": { "type": "string", "format": "date-time" },
+        "retested_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "required": ["raw_facts_summary", "ai_interpretation"],
+      "properties": {
+        "raw_facts_summary": {
+          "type": "string",
+          "description": "Objective, unembellished summary of verified code facts."
+        },
+        "ai_interpretation": {
+          "type": "string",
+          "description": "AI-generated risk analysis and contextual reasoning."
+        }
+      }
+    }
+  }
+}

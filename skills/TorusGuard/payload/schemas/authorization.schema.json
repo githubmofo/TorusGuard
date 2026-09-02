@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TorusGuardAuthorizationScope",
+  "description": "Schema for TorusGuard v0.7.0 authorized runtime validation scope and legal boundaries.",
+  "type": "object",
+  "required": [
+    "authorization_id",
+    "target_name",
+    "authorized_by",
+    "target_hosts",
+    "allowed_path_prefixes",
+    "valid_from",
+    "valid_until",
+    "max_depth",
+    "allow_state_changing_methods"
+  ],
+  "properties": {
+    "authorization_id": {
+      "type": "string",
+      "pattern": "^AUTH-[A-Za-z0-9_-]+$"
+    },
+    "target_name": {
+      "type": "string"
+    },
+    "authorized_by": {
+      "type": "string"
+    },
+    "authorization_type": {
+      "type": "string",
+      "enum": ["target_owner", "written_authorization", "ci_sandboxed_test"]
+    },
+    "target_hosts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "allowed_path_prefixes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "max_depth": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "max_requests": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 500
+    },
+    "allow_state_changing_methods": {
+      "type": "boolean"
+    },
+    "allowed_issue_classes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

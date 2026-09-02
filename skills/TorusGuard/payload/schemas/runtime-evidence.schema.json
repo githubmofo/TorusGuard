@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TorusGuardRuntimeEvidence",
+  "description": "Schema for TorusGuard v0.7.0 captured runtime HTTP/browser evidence.",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "finding_id",
+    "timestamp",
+    "method",
+    "url",
+    "status_code",
+    "exploitability_status"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string"
+    },
+    "finding_id": {
+      "type": "string"
+    },
+    "cluster_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "method": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
+    },
+    "url": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "status_code": {
+      "type": "integer"
+    },
+    "request_headers": {
+      "type": "object"
+    },
+    "response_headers": {
+      "type": "object"
+    },
+    "response_body_snippet": {
+      "type": "string"
+    },
+    "exploitability_status": {
+      "type": "string",
+      "enum": [
+        "Runtime Confirmed",
+        "Runtime Likely",
+        "Needs Manual Review",
+        "Not Reproducible in Scope",
+        "Blocked by Environment / Controls"
+      ]
+    },
+    "reproducible": {
+      "type": "boolean"
+    },
+    "route_context": {
+      "type": "string"
+    },
+    "reviewer_notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

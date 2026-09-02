@@ -1,0 +1,24 @@
+{
+  "$schema": "../schemas/authorization.schema.json",
+  "authorization": {
+    "target": "localhost",
+    "owner_confirmed": false,
+    "scope_type": "source_code_only",
+    "allowed_hosts": [
+      "localhost",
+      "127.0.0.1"
+    ],
+    "allowed_paths": [
+      "/api/*",
+      "/auth/*"
+    ],
+    "excluded_paths": [
+      "/admin/delete*",
+      "/system/shutdown*"
+    ],
+    "duration_hours": 24,
+    "authorized_at": null,
+    "authorized_by": null,
+    "notes": "Default authorization scope template. Run /torusguard authorize to activate for live targets."
+  }
+}

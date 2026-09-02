@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/provenance.schema.json",
+  "title": "TorusGuardProvenanceChain",
+  "description": "Structured provenance chain tracking discovery and decision path for TorusGuard v0.5.1 findings.",
+  "type": "object",
+  "required": [
+    "discovery_module",
+    "triggering_input",
+    "evidence_collected",
+    "decision_path",
+    "verification_step"
+  ],
+  "properties": {
+    "discovery_module": {
+      "type": "string",
+      "description": "Module or rule that initiated the detection (e.g. rules/authorization/TG-AUTH-007)."
+    },
+    "triggering_input": {
+      "type": "string",
+      "description": "The specific input, AST node, manifest line, or configuration key that triggered detection."
+    },
+    "evidence_collected": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of evidence identifiers or file locations gathered during discovery."
+    },
+    "decision_path": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered sequence of logical evaluation steps leading to the finding classification."
+    },
+    "verification_step": {
+      "type": "string",
+      "description": "Verification method used to confirm or refute the finding."
+    },
+    "agent_environment": {
+      "type": "string",
+      "description": "Runtime context (e.g. TorusGuard Engine v0.5.1 on Python 3.11)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torusguard.dev/schemas/remediation.schema.json",
+  "title": "TorusGuardRemediation",
+  "description": "Standard remediation guidance schema for TorusGuard v0.5.0 findings.",
+  "type": "object",
+  "required": [
+    "problem_statement",
+    "risk_explanation",
+    "recommended_fix",
+    "framework_pattern",
+    "verification_method",
+    "residual_risk_notes"
+  ],
+  "properties": {
+    "problem_statement": {
+      "type": "string",
+      "description": "Direct, single-sentence summary of the flaw in the current implementation."
+    },
+    "risk_explanation": {
+      "type": "string",
+      "description": "Explains how an adversary can abuse this pattern and the concrete security impact."
+    },
+    "recommended_fix": {
+      "type": "string",
+      "description": "Clear, prescriptive step-by-step instructions to remediate the vulnerability."
+    },
+    "framework_pattern": {
+      "type": "object",
+      "required": ["framework", "unsafe_snippet", "safe_snippet"],
+      "properties": {
+        "framework": {
+          "type": "string",
+          "description": "Target framework or ecosystem (e.g. Django, DRF, FastAPI, Flask, SQLAlchemy, Express, Next.js)."
+        },
+        "unsafe_snippet": {
+          "type": "string",
+          "description": "Illustrative code demonstrating the unsafe pattern."
+        },
+        "safe_snippet": {
+          "type": "string",
+          "description": "Framework-native, production-grade hardened code snippet."
+        },
+        "least_invasive": {
+          "type": "boolean",
+          "description": "True if the remediation preserves existing architectural patterns without unnecessary rewrites."
+        }
+      }
+    },
+    "verification_method": {
+      "type": "string",
+      "description": "How a human engineer or automated test can verify that the fix was applied successfully."
+    },
+    "residual_risk_notes": {
+      "type": "string",
+      "description": "Known edge cases, out-of-band requirements (e.g. cloud IAM, reverse proxy headers), or operational trade-offs."
+    }
+  }
+}

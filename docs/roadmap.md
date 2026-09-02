@@ -138,13 +138,38 @@ This document outlines the development milestones, past releases, and future pri
 - **Multi-Analysis SARIF v2.1.0:** Partitioned category exports via `automationDetails.id: torusguard/runtime/`.
 - **Structural Architecture Refactoring:** Modular clean-tier refactor across core engine with 100% test pass rate.
 
+### ✅ v0.8.0 — Installable AI-Agent Security Skill Kit (2026-09-02)
+- **Installable Open Skill:** Enabled installation via `npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"`.
+- **Autonomous Scaffolding:** One-command setup via `/torusguard init` creating `.torusguard/` in target projects.
+- **5 Specialist Agents:** `profiler.md`, `auditor.md`, `validator.md`, `remediator.md`, `reviewer.md`.
+- **11 Slash Command Workflows:** Initial playbooks for `/torusguard init`, `authorize`, `audit`, `verify`, `web-validate`, `exploit-check`, `harden`, `apply`, `recheck`, `report`, and `status`.
+- **Pure Python Automation Utilities:** `stack_detect.py`, `finding_scorer.py`, `sarif_exporter.py`, `run_manager.py`, `safety_gate.py`.
+
+### ✅ v0.9.0 — Granular Specialist Skills Architecture (2026-09-02)
+- **Decoupled Specialist Skills:** Decomposed TorusGuard into 12 self-contained specialist skills in `skills/` (`torusguard-init`, `torusguard-audit`, etc.).
+- **Strict Context Budget Discipline:** Every skill constrained to $\le 300$ lines (58–123 lines each) with inline safety constraints and scoring models.
+- **Intelligent Lazy-Loading Router:** Root `torusguard` router loading only the single matching specialist skill per command.
+- **Master Pipeline Orchestrator:** Added `/torusguard full` (`skills/torusguard-full/SKILL.md`) for end-to-end 7-stage pipeline execution.
+- **Automated Skills Harness:** `harness/validate_v0_9_0_skills.py` (53 automated checks).
+
+### ✅ v0.9.1 — Workspace Autonomy & Offline Bootstrapper (2026-09-02)
+- **Bundled Offline Template Payload:** Packaged canonical `.torusguard/` inside `skills/torusguard/payload/` so `npx skills add` downloads all templates offline.
+- **Autonomous Bootstrapper (`skills/torusguard/bootstrap.py`):** Cross-platform Python script unpacking `.torusguard/` into project roots during init.
+- **Standalone Zero-Dependency Installer (`install.py`):** CLI tool for direct `python install.py` and remote curl piping.
+- **System Architecture Guide (`.torusguard/ARCHITECTURE.md`):** Complete lifecycle flowcharts, agent authority contracts, and directory topology.
+- **Cryptographic SHA-256 Manifest (`.torusguard/.manifest.json` & `manifest_builder.py`):** Integrity ledger indexing all 88 workspace files with tamper detection.
+- **End-to-End Simulation Test Suite:** `harness/validate_v0_9_1_installer.py`.
+
+### ✅ v0.9.2 — Workflows & Skills Command-Engine Standard (2026-09-02)
+- **Command-Engine Standard Workflows (`.torusguard/workflows/`):** Upgraded all 11 workflows to 120–172 line production playbooks with formal YAML frontmatter, mandatory pre-flight checks, "When to Use" decision tables, deterministic CLI invocations, failure recovery rules, and hallucination guards.
+- **Deepened Specialist Skills:** Enriched all 13 skills with concrete AST detection patterns for Python and TypeScript, safe canaries, and two-way workflow cross-bindings (`workflow: .torusguard/workflows/<cmd>.md`).
+- **Comprehensive Validation Harness:** Built `harness/validate_v0_9_2_workflows_and_skills.py`, achieving 100% pass rate across **381 automated test assertions**.
+
 ---
 
-## 🎯 Upcoming Milestones: v0.7.1+ Series
+## 🎯 Upcoming Milestones: v0.9.3+ Series
 
-Detailed specifications and priorities are tracked in [`ROADMAP_v0_7_1.md`](../ROADMAP_v0_7_1.md):
-
-### 🚀 v0.7.1 — PatchGovernor Diff Line Scanning & Agent Security (Q4 2026)
+### 🚀 v0.9.3 — Content-Aware Diff Line Scanning & Agent Security Rules (Q4 2026)
 - [ ] **Content-Aware Diff Line Scanning:** Extend `PatchGovernor` to scan added/modified unified diff lines for sensitive domain keywords (`auth`, `tenant`).
 - [ ] **`TG-AGENT-*` Rule Family:** First-class rules for agentic AI architectures:
   - `TG-AGENT-001`: Direct/Indirect Prompt Injection in System Context Files.
@@ -152,15 +177,15 @@ Detailed specifications and priorities are tracked in [`ROADMAP_v0_7_1.md`](../R
   - `TG-AGENT-003`: Overly Broad MCP Tool Scoping & Credential Access.
   - `TG-AGENT-004`: Persistent Memory & Cross-Session Information Leakage.
 
-### 🚀 v0.7.2 — GraphQL, WebSockets & Container Build Chains (Q1 2027)
+### 🚀 v0.9.4 — GraphQL, WebSockets & Container Build Chains (Q1 2027)
 - [ ] **GraphQL & WebSocket Runtime Probes:** Bounded complexity introspection and WebSocket channel authorization assertions.
 - [ ] **Multi-Stage Container Build Inspection:** Detecting build-time secret persistence and layer caching leaks.
 - [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.
 
-### 🚀 v0.8.0 — Sandboxed Replay & Full Agentic MCP Suite (Q2 2027)
+### 🚀 v1.0.0 — Sandboxed Replay & Full Multi-Platform Release (Q2 2027)
 - [ ] Headless Chromium sandbox integration inside bounded Docker environments.
 - [ ] Bidirectional WebSocket state-machine recording and deterministic replay.
-- [ ] Full MCP server security evaluation testbed.
+- [ ] Go (Fiber / Gin), Ruby on Rails, and Spring Boot framework reference guides.
 
 ---
 

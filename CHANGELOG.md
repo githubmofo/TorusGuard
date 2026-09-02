@@ -5,6 +5,57 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.2] - 2026-09-02
+
+### Added
+- **Command-Engine Standard Workflows (`.torusguard/workflows/`):** Upgraded all 11 slash command execution playbooks to the production standard:
+  - Formal YAML frontmatter (`description`, `tools`, `version: 0.9.2`, `agent`, `lifecycle-phase`, `required-skills`, `scripts-binding`).
+  - Mandatory Pre-Flight Context Inspection preventing unauthorized mutations or runs.
+  - "When to Use" decision tables clarifying exact operational scope.
+  - Deterministic Phase-by-Phase CLI execution commands with arguments.
+  - Failure Recovery & Cascade Rules (3-retry limit, HALT vs CONTINUE).
+  - Strict Hallucination Guards preventing destructive actions.
+  - Standardized Output Card Formats & Next Step routing.
+- **Deepened Specialist Skills (`skills/` & `.torusguard/skills/`):** Enriched all 13 skills with concrete AST patterns for Python (Django, DRF, FastAPI, Flask, SQLAlchemy) and TypeScript (Next.js, Express, React), safe probe canaries, and two-way workflow cross-bindings (`workflow: .torusguard/workflows/<cmd>.md`).
+- **Workflows & Skills Validation Suite (`harness/validate_v0_9_2_workflows_and_skills.py`):** Automated harness verifying 100% workflow frontmatter integrity, required sections, script bindings, skill line budgets ($\le 300$), mirror sync, and 1:1 cross-bindings.
+
+## [0.9.1] - 2026-09-02
+
+### Added
+- **Autonomous Workspace Bootstrapper (`skills/torusguard/bootstrap.py`):** Self-contained, cross-platform Python installer that unpacks `.torusguard/` offline into any target project during `/torusguard init`.
+- **Bundled Offline Template Payload (`skills/torusguard/payload/`):** Full `.torusguard/` template structure bundled inside the skill package so `npx skills add` downloads it locally and runs offline.
+- **Standalone Zero-Dependency Installer (`install.py`):** Root CLI script enabling one-liner installation (`python install.py` or curl pipe).
+- **Comprehensive System Architecture Guide (`.torusguard/ARCHITECTURE.md`):** Modeled after `.agent/ARCHITECTURE.md`, providing lifecycle flowcharts, agent authority contracts, Ponytail bounds, and directory topology.
+- **Cryptographic Integrity Manifest (`.torusguard/.manifest.json`):** SHA-256 integrity ledger indexing all 88 workspace files with normalized cross-platform paths.
+- **Manifest Builder & Tamper Detection Utility (`.torusguard/scripts/manifest_builder.py`):** CLI utility for `--check` validation and `--write` manifest generation.
+- **Dual-Path Always-On Rules (`.torusguard/rules/TORUSGUARD.md`):** Mirror rule file enabling automatic rule discovery across various AI IDE rule crawlers.
+- **Specialist Skills Mirror (`.torusguard/skills/`):** All 13 specialist skills mirrored locally inside `.torusguard/` for full self-containment.
+- **End-to-End Installation Test Suite (`harness/validate_v0_9_1_installer.py`):** Automated simulation verifying external project scaffolding, offline unpacking, and manifest integrity.
+
+## [0.9.0] - 2026-09-02
+
+### Added
+- **Granular Specialist Skills Architecture (`skills/`):** Decomposed TorusGuard into 12 self-contained, task-specific skills:
+  - `skills/torusguard-init/SKILL.md`: Stack detection, framework mapping, and tailored rule activation.
+  - `skills/torusguard-authorize/SKILL.md`: Target ownership verification, allowed host/path capture, and `scope.json` governance.
+  - `skills/torusguard-audit/SKILL.md`: Deep static AST analysis, stable fingerprinting, root-cause clustering, and complete 0–100 rubric inline.
+  - `skills/torusguard-verify/SKILL.md`: Evidence sufficiency auditing, active disk state re-verification, and finding score refinement.
+  - `skills/torusguard-web-validate/SKILL.md`: Authorized HTTP/API probing, automatic credential redaction, and safety gate policy.
+  - `skills/torusguard-exploit-check/SKILL.md`: Bounded exploitability confirmation across approved vulnerability classes (SQLi, XSS, SSRF, IDOR).
+  - `skills/torusguard-harden/SKILL.md`: Governed remediation formulation under Ponytail Protocol limits ($\le 35$ add, $\le 25$ del) and diff generation.
+  - `skills/torusguard-apply/SKILL.md`: Surgical patch application with pre-apply rollback snapshots and Human Gate confirmation.
+  - `skills/torusguard-recheck/SKILL.md`: Targeted post-patch re-scan with 4-state transition tracking (Fixed, Partially Fixed, Not Fixed, Regression).
+  - `skills/torusguard-report/SKILL.md`: Unified executive report generation and OASIS SARIF v2.1.0 structured export.
+  - `skills/torusguard-status/SKILL.md`: Diagnostic read-only inspection of active configuration, rule counts, and run history.
+- **Master Pipeline Orchestrator (`skills/torusguard-full/SKILL.md`):** Comprehensive end-to-end conductor orchestrating the full 7-stage security pipeline with stage gates and role handoffs.
+- **Lazy Loading & Context Budget Discipline:** Every specialist skill embeds its own instructions, safety rules, and scoring models inline (58–165 lines each, strictly $\le 300$), eliminating cross-file context bloat.
+- **Automated Skills Validation Harness (`harness/validate_v0_9_0_skills.py`):** 53 automated checks validating existence, YAML frontmatter, line budgets, required sections, router integrity, and script bindings across all 13 skills.
+
+### Changed
+- **Router Skill Update (`skills/torusguard/SKILL.md`):** Updated with specialist routing table for lazy loading and bumped version to `0.9.0`.
+- **Command Registry (`.torusguard/config/slash-commands.json`):** Registered `/torusguard full` command for end-to-end pipeline execution.
+- **Configuration Version:** Bumped `.torusguard/config/torusguard.json` to version `0.9.0`.
+
 ## [0.8.0] - 2026-09-02
 
 ### Added
