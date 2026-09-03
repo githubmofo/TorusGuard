@@ -5,6 +5,23 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.5] - 2026-09-03
+
+### Fixed
+- **Socket.dev Security Alert Resolution:** Eliminated `subprocess.run()` from `bootstrap.py` to prevent Socket.dev `gptAnomaly` flagging during `npx skills add` installation. Stack detection is now deferred to first `/torusguard-audit` execution.
+- **GitHub Packages Banner Rendering:** Previous tarball (v0.9.4) was published with stale README. Publishing v0.9.5 pushes corrected absolute-URL README to all registries.
+
+### Changed
+- **Premium Terminal UI Overhaul:** Replaced plain-text terminal output with box-drawn ANSI UI cards across the entire `npx torusguard init` flow — branded header, 3-step progress cards with structured metadata, and a double-border success card with next steps.
+- **Step 2 Redesigned (Security Profile & Coverage):** Replaced broken stack detection step (showed `Language: Unknown` for new projects) with a static **Security Profile & Coverage** card displaying all 11 rule families, supported stacks, and Ponytail Protocol bounds — immediately useful regardless of project state.
+- **Deferred Stack Detection:** Stack detection now runs automatically on first `/torusguard-audit` invocation instead of during init, preventing failures on empty/new projects and eliminating subprocess usage from the init path.
+- **Enhanced CLI Help:** `npx torusguard help` now shows full box-drawn command table, options reference, and AI chat slash command documentation.
+- **Enhanced Status Display:** `npx torusguard status` now shows rule family breakdown, stack detection status (detected vs pending), and governance telemetry in structured card layout.
+
+### Updated
+- **SKILL.md Description:** Updated skill description across all 3 copies (root, skills/torusguard, .torusguard/skills) to provide richer context during `npx skills add` installation display.
+- **Version Synchronized:** All version references bumped to `0.9.5` across `package.json`, `torusguard.json`, `SKILL.md` (×3), `bin/torusguard.js`, `bootstrap.py`, and workflow templates.
+
 ## [0.9.4] - 2026-09-03
 
 ### Added

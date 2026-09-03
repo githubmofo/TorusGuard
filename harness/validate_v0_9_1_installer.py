@@ -43,6 +43,8 @@ def test_bootstrap_simulation():
             [sys.executable, str(bootstrap_script), "--target", str(test_project)],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=15
         )
         assert res.returncode == 0, f"bootstrap.py failed: {res.stderr}\n{res.stdout}"
@@ -74,6 +76,8 @@ def test_bootstrap_simulation():
             [sys.executable, str(manifest_script), "--dir", str(tg_dir), "--check"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=15
         )
         assert res_manifest.returncode == 0, f"Manifest check failed in provisioned workspace: {res_manifest.stderr}"
@@ -108,6 +112,8 @@ def test_standalone_installer():
             [sys.executable, str(install_script), "--target", str(test_project)],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=15
         )
         assert res.returncode == 0, f"install.py failed: {res.stderr}\n{res.stdout}"

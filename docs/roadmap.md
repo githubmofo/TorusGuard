@@ -194,9 +194,16 @@ This document outlines the development milestones, past releases, and future pri
 
 ---
 
-## 🎯 Upcoming Milestones: v0.9.4+ Series
+## 🎯 Upcoming Milestones: v0.9.5+ Series
 
-### 🚀 v0.9.4 — CI/CD Permission Modeling & Container Scanners (Q4 2026)
+### ✅ v0.9.5 — Terminal UX Overhaul & Socket Alert Fix (Completed: September 2026)
+- [x] **Socket.dev Alert Resolution:** Eliminated `subprocess.run()` from `bootstrap.py` to prevent `gptAnomaly` flagging.
+- [x] **Premium Terminal UI:** Box-drawn ANSI cards for init, status, and help flows.
+- [x] **Step 2 Redesign:** Replaced broken stack detection with static Security Profile & Coverage card.
+- [x] **Deferred Stack Detection:** Auto-detects on first `/torusguard-audit` run instead of during init.
+- [x] **GitHub Packages Banner Fix:** Corrected README image URL in published tarball.
+
+### 🚀 v0.9.6 — CI/CD Permission Modeling & Container Scanners (Q4 2026)
 - [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.
 - [ ] **Base Image Trivy / Grype Integration:** Local wrapper for scanning base container images (`FROM alpine:3.18`).
 

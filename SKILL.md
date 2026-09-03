@@ -1,7 +1,7 @@
 ---
 name: torusguard
-description: Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications across Python and TypeScript.
-version: 0.9.4
+description: "Autonomous security engine: 71 rules across 11 families, governed remediation (Ponytail Protocol), SARIF v2.1.0 exports, and 5-agent authority separation for Python & TypeScript web applications."
+version: 0.9.5
 ---
 
 # TorusGuard Master Security Router
