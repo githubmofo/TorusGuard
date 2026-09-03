@@ -179,6 +179,10 @@ This document outlines the development milestones, past releases, and future pri
 - **Monorepo Sub-Scope Orchestration (`monorepo_detector.py`):** Automated detection and per-package profiling for Turborepo, pnpm workspaces, npm/yarn, and multi-service repositories.
 - **Interactive Multi-Stack Playground Suite (`demo/playground/`):** Self-contained runnable test fixtures for FastAPI and Next.js demonstrating SQLi, IDOR, Prompt Injection, and Client Secret leakage out of the box.
 - **Autonomous Slash Command Registration:** Auto-registers `/torusguard` workflows in `.agent/workflows/`, `.claude/commands/`, and `.cursor/rules/`.
+- **Dual-Track Distribution Architecture:** Decoupled TorusGuard into two clean, independent tracks:
+  - *Track 1 (Universal AI Agent Skill):* Single `/torusguard` command for all AI agents (Kimi, Antigravity, Cursor, Copilot, Claude Code, Windsurf) installed via `npx skills add` with zero local file dependencies.
+  - *Track 2 (Production NPM Package):* Standalone package installed via `npx torusguard init` that scaffolds `.torusguard/` and unlocks all 11 individual slash commands (`/torusguard-audit`, `/torusguard-harden`, `/torusguard-apply`, etc.).
+- **Dual-Track Validation Test Suite (`harness/validate_v0_9_2_dual_track.py`):** Automated harness verifying standalone skill execution, npm scaffolding, command unlocking, and token budgets.
 - **Comprehensive Validation Harness:** Built `harness/validate_v0_9_2_workflows_and_skills.py` and `harness/validate_v0_9_2_diff_and_monorepo.py`, achieving 100% pass rate.
 
 ---
