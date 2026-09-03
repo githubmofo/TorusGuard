@@ -98,33 +98,35 @@ User / AI types Slash Command (e.g. /torusguard audit)
 
 ### 1. Installation into Your Project
 
-TorusGuard supports three seamless, zero-friction installation paths:
+TorusGuard offers two clean, decoupled adoption tracks designed for different developer workflows:
 
-#### Option A: One-Line Autonomous Installer (Fastest & Zero-Dependencies)
-Run directly from your project root:
-```bash
-# Directly if cloned:
-python install.py
-
-# Or via remote one-liner:
-curl -sSL https://raw.githubusercontent.com/githubmofo/TorusGuard/main/install.py | python
-```
-*Instantly unpacks `.torusguard/`, detects your framework stack, and automatically registers `/torusguard` slash commands in Antigravity (`.agent/workflows/`), Claude Code (`.claude/commands/`), and Cursor (`.cursor/rules/`).*
-
-#### Option B: Install via Open Agent Skills CLI
-Add the TorusGuard skill kit to your AI coding assistant:
+#### ⚡ Track 1: Universal AI Agent Skill (Zero Local Footprint)
+Install directly into any AI coding assistant (Kimi, Antigravity, VS Code Copilot, Cursor, Claude Code, Windsurf, Cline):
 ```bash
 npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
 ```
-After downloading the skill, initialize the workspace using either method:
-- **Via AI Chat:** Tell your AI assistant: *"Initialize TorusGuard in this project"*
-- **Via Terminal:** Run: `python .agents/skills/torusguard/bootstrap.py` (or `python .agent/skills/torusguard/bootstrap.py`)
+* **Footprint:** Pure in-memory AI reasoning. Zero local `.torusguard/` directory required.
+* **Commands:** Adds a single, unified `/torusguard` slash command.
+* **Use Case:** Instant security reviews, OWASP AST guidance, and Ponytail Protocol patch boundaries in any chat.
 
-*The bootstrapper unpacks `.torusguard/`, detects your stack, and activates `/torusguard` slash commands in your IDE.*
-
-#### Option C: Install via npx
+#### 🛡️ Track 2: Production NPM Package (Full Workspace Governance)
+Scaffold the complete `.torusguard/` directory and unlock all individual slash commands:
 ```bash
-npx torusguard
+# Direct runner:
+npx torusguard init
+
+# Or install locally in your project:
+npm install -D torusguard
+```
+* **Footprint:** Full `.torusguard/` workspace (configuration, rules, schemas, offline Python scripts, runs history).
+* **Commands:** Unlocks the entire suite of 11 individual slash commands (`/torusguard-audit`, `/torusguard-harden`, `/torusguard-apply`, `/torusguard-verify`, etc.) in Antigravity, Cursor, and Claude Code.
+* **Use Case:** Deep automated audits, SARIF exports for GitHub Code Scanning, and deterministic local patch governance.
+
+#### 🐍 Standalone Python Installer (Alternative)
+```bash
+python install.py
+# Or remote one-liner:
+curl -sSL https://raw.githubusercontent.com/githubmofo/TorusGuard/main/install.py | python
 ```
 
 ---

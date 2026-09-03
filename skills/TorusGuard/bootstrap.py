@@ -33,7 +33,7 @@ def find_project_root(start_dir=None):
     return current
 
 
-def scaffold_workspace(target_root=None, force=False):
+def scaffold_workspace(target_root=None, force=False, full_commands=False):
     """Scaffold the .torusguard workspace into the target project root."""
     target_root = Path(target_root or find_project_root()).resolve()
     torusguard_target = target_root / ".torusguard"
@@ -162,16 +162,34 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
 """
 
     # Ensure .agent/workflows and .agents/workflows are created
+    dest_workflow_dirs = []
     if (target_root / ".agents").exists():
         agents_wf = target_root / ".agents" / "workflows"
         agents_wf.mkdir(parents=True, exist_ok=True)
         (agents_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
+        dest_workflow_dirs.append(agents_wf)
         registered_ides.append("Antigravity / Gemini (.agents/workflows/torusguard.md)")
 
     agent_wf = target_root / ".agent" / "workflows"
     agent_wf.mkdir(parents=True, exist_ok=True)
     (agent_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
+    dest_workflow_dirs.append(agent_wf)
     registered_ides.append("Antigravity / Tribunal (.agent/workflows/torusguard.md)")
+
+    # When full_commands is requested (e.g. via NPM package npx torusguard init),
+    # unlock and register all 11 individual slash commands (/torusguard-audit, /torusguard-harden, etc.)
+    if full_commands:
+        src_wf = torusguard_target / "workflows"
+        if src_wf.is_dir():
+            count = 0
+            for wf_file in src_wf.glob("*.md"):
+                if wf_file.name == "torusguard.md":
+                    continue
+                cmd_filename = f"torusguard-{wf_file.name}"
+                for d in dest_workflow_dirs:
+                    shutil.copy2(wf_file, d / cmd_filename)
+                count += 1
+            registered_ides.append(f"Unlocked {count} Individual Slash Commands (/torusguard-audit, /torusguard-apply, etc.)")
 
     # Claude Code (.claude/commands)
     claude_dir = target_root / ".claude"
@@ -231,7 +249,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="TorusGuard Autonomous Workspace Bootstrapper")
     parser.add_argument("--target", type=str, help="Target project root directory")
     parser.add_argument("--force", action="store_true", help="Force overwrite existing workspace")
+    parser.add_argument("--full-commands", action="store_true", help="Unlock and register all 11 individual slash commands")
     args = parser.parse_args()
 
-    success = scaffold_workspace(target_root=args.target, force=args.force)
+    success = scaffold_workspace(target_root=args.target, force=args.force, full_commands=args.full_commands)
     sys.exit(0 if success else 1)

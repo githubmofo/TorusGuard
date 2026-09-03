@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.2] - 2026-09-02
 
-### Added
+- **Dual-Track Distribution Architecture:** Decoupled TorusGuard into two clean, independent tracks:
+  - *Track 1 (Universal AI Agent Skill):* Single `/torusguard` command for all AI agents (Kimi, Antigravity, Cursor, Copilot, Claude Code, Windsurf) installed via `npx skills add` with zero local file dependencies.
+  - *Track 2 (Production NPM Package):* Standalone package installed via `npx torusguard init` that scaffolds `.torusguard/` and unlocks all 11 individual slash commands (`/torusguard-audit`, `/torusguard-harden`, `/torusguard-apply`, etc.).
+- **Dual-Track Validation Test Suite (`harness/validate_v0_9_2_dual_track.py`):** Automated harness verifying standalone skill execution, npm scaffolding, command unlocking, and token budgets.
 - **Autonomous IDE Slash Command Registration (`skills/torusguard/bootstrap.py`):** Scaffolding engine automatically registers `/torusguard` workflows in Antigravity (`.agent/workflows/torusguard.md`), Claude Code (`.claude/commands/torusguard.md`), and Cursor (`.cursor/rules/torusguard.mdc`).
 - **Zero-Dependency NPM Runner (`bin/torusguard.js` & `package.json`):** Direct support for `npx torusguard` CLI bridging into the autonomous Python engine.
 - **Content-Aware Diff Line Scanner (`.torusguard/scripts/diff_guard.py`):** Unified patch inspector evaluating proposed diff additions and deletions against security invariants:
