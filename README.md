@@ -6,7 +6,7 @@
   **Autonomous Security Guardrails, Governed Remediation, and Authorized Runtime Validation for AI-Built Web Applications.**
 
   [![npm version](https://img.shields.io/npm/v/torusguard.svg?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/torusguard)
-  [![Release](https://img.shields.io/badge/Release-v0.9.3-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
+  [![Release](https://img.shields.io/badge/Release-v0.9.4-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
   [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
   [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
   [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
@@ -38,20 +38,35 @@ Modern AI coding agents generate full-stack web applications at unprecedented ve
 
 TorusGuard features a decoupled **Dual-Track Architecture** allowing teams to choose between zero-setup in-memory agent intelligence and full repository governance:
 
-```text
-┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                              TORUSGUARD DUAL-TRACK ARCHITECTURE                             │
-└─────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Core ["🛡️ TorusGuard Core Intelligence Engine"]
+        Rules["71 Canonical Security Rules"]
+        Ponytail["Ponytail Patch Governor (<=35 add, <=25 del)"]
+        Scorer["5-Factor Mathematical Confidence Scorer"]
+    end
 
-         ┌───────────────────────────────────────┴───────────────────────────────────────┐
-         ▼                                                                               ▼
-  [ ⚡ TRACK 1: UNIVERSAL AI SKILL ]                                      [ 🛡️ TRACK 2: PRODUCTION NPM PACKAGE ]
-  npx skills add ... -a universal -y                                     npx torusguard init  /  npm i -D torusguard
-  ──────────────────────────────────                                     ───────────────────────────────────────────
-  • Works in ANY AI Agent (Cursor, Kimi,                                 • Scaffolds persistent .torusguard/ workspace
-    Antigravity, Copilot, Claude Code)                                   • Terminal CLI: npx torusguard status / audit
-  • Zero local disk footprint required                                   • Unlocks all 11 granular slash commands
-  • Single unified command: /torusguard                                  • Full SARIF telemetry and CI/CD automation
+    Core --> Track1["⚡ Track 1: Universal AI Agent Skill"]
+    Core --> Track2["🛡️ Track 2: Production NPM Package"]
+
+    subgraph Track1Scope ["Track 1: In-Memory Agent Execution"]
+        T1Cmd["npx skills add ... -a universal -y"]
+        T1Env["Works in ANY AI Agent (Cursor, Kimi, Antigravity, Copilot)"]
+        T1Disk["Zero local file footprint (pure in-memory reasoning)"]
+        T1Router["Single clean slash command: /torusguard"]
+    end
+
+    subgraph Track2Scope ["Track 2: Full Local Governance"]
+        T2Cmd["npx torusguard init  /  npm i -D torusguard"]
+        T2Env["Persistent .torusguard/ repository workspace"]
+        T2CLI["Native Terminal CLI: npx torusguard status / audit"]
+        T2Palette["Unlocks all 11 individual slash commands (/torusguard-*)"]
+    end
+
+    Track1 --> Track1Scope
+    Track2 --> Track2Scope
+
+    Track1Scope -. Harmonizes with .- Track2Scope
 ```
 
 ### Track Comparison Matrix
@@ -135,19 +150,22 @@ When Track 2 is initialized, the complete 11-command palette becomes available i
 
 Every candidate vulnerability transitions through an auditable, deterministic state machine with zero regression tolerance:
 
-```text
-┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                           TORUSGUARD CLOSED-LOOP FINDING LIFECYCLE                          │
-└─────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    Detect["1. Detect<br>/torusguard audit"] --> Classify["2. Classify<br>AST Line Hashing"]
+    Classify --> Verify["3. Verify<br>verify / web-validate"]
+    Verify --> Remediate["4. Remediate<br>/torusguard harden"]
+    Remediate --> Apply["5. Apply<br>/torusguard apply"]
+    Apply --> Recheck["6. Recheck<br>/torusguard recheck"]
+    Recheck --> Report["7. Report<br>/torusguard report"]
 
-  [ 1. DETECT ] ──────> [ 2. CLASSIFY ] ────> [ 3. VERIFY ] ──────> [ 4. REMEDIATE ]
-  /torusguard audit      AST Fingerprint      verify / web-validate  /torusguard harden
-         │                                                                   │
-         └───────────────────────────────────────────────────────────────────┤
-                                                                             ▼
-  [ 7. REPORT ] <────── [ 6. RECHECK ] <──────────────────────────── [ 5. APPLY ]
-  /torusguard report     Zero-Regress Gate                           Pre-Apply Snapshot
-  (OASIS SARIF v2.1.0)   /torusguard recheck                         /torusguard apply
+    style Detect fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Classify fill:#1e293b,stroke:#6366f1,stroke-width:2px,color:#fff
+    style Verify fill:#1e293b,stroke:#8b5cf6,stroke-width:2px,color:#fff
+    style Remediate fill:#1e293b,stroke:#ec4899,stroke-width:2px,color:#fff
+    style Apply fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fff
+    style Recheck fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#fff
+    style Report fill:#1e293b,stroke:#06b6d4,stroke-width:2px,color:#fff
 ```
 
 ### Lifecycle Stage Breakdown
@@ -168,17 +186,41 @@ Every candidate vulnerability transitions through an auditable, deterministic st
 
 To eliminate AI confirmation bias, security responsibilities are divided across **5 formal, isolated roles**:
 
-```text
-┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                           5-AGENT ROLE SEPARATION & AUTHORITY GATES                         │
-└─────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph DiscoveryPhase ["Discovery Phase"]
+        P["🔍 Profiler Agent<br>profiler.md"]
+    end
 
-     [ 🔍 Profiler ] ──────> [ 🔎 Auditor ] ──────> [ 🧪 Validator ] ──────> [ 🛠️ Remediator ]
-      Stack Discovery         Static Detection       Runtime Verification     Surgical Patching
-                                                                                     │
-                                                                                     ▼
-  [ 👤 HUMAN OPERATOR ] <──────────────────────────────────────────────────── [ ⚖️ Reviewer ]
-    Gate Authorization                                                         Audit & Sign-Off
+    subgraph DetectionPhase ["Detection Phase"]
+        A["🔎 Auditor Agent<br>auditor.md"]
+    end
+
+    subgraph VerificationPhase ["Verification Phase"]
+        V["🧪 Validator Agent<br>validator.md"]
+    end
+
+    subgraph RemediationPhase ["Remediation Phase"]
+        R["🛠️ Remediator Agent<br>remediator.md"]
+    end
+
+    subgraph ReviewPhase ["Review & Sign-Off Phase"]
+        REV["⚖️ Reviewer Agent<br>reviewer.md"]
+        HumanGate["👤 Human Gate (Approval)"]
+    end
+
+    P -->|Stack Profile| A
+    A -->|Static Findings| V
+    V -->|Validated Evidence| R
+    R -->|Remediation Diff| REV
+    REV -->|Zero-Regress Sign-Off| HumanGate
+
+    style P fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style A fill:#1e293b,stroke:#6366f1,stroke-width:2px,color:#fff
+    style V fill:#1e293b,stroke:#8b5cf6,stroke-width:2px,color:#fff
+    style R fill:#1e293b,stroke:#ec4899,stroke-width:2px,color:#fff
+    style REV fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#fff
+    style HumanGate fill:#334155,stroke:#f59e0b,stroke-width:2px,color:#fff
 ```
 
 ### Agent Responsibilities & Isolation Rules
@@ -193,6 +235,28 @@ To eliminate AI confirmation bias, security responsibilities are divided across 
 
 * **Zero Self-Review:** The agent that writes a patch (`Remediator`) can never sign off on its merge (`Reviewer` + Human Gate required).
 * **Cryptographic Provenance:** Every role handoff is recorded in `role-audit.json` with SHA-256 signatures.
+
+---
+
+## 🛡️ Core Innovation Highlights
+
+### 1. The Ponytail Protocol (Minimal Patch Churn Bounds)
+Unbounded AI code generators frequently rewrite adjacent business logic, introduce accidental syntax errors, or strip comments. TorusGuard strictly enforces the **Ponytail Protocol**:
+* **$\le 35$ Additions** per remediation patch.
+* **$\le 25$ Deletions** per remediation patch.
+* **Deterministic Single Responsibility:** Every patch resolves exactly one root-cause cluster without side effects.
+
+### 2. Auditable Mathematical Confidence Scoring (0–100)
+TorusGuard computes confidence scores using a formal 5-factor mathematical formula before escalating findings to developers:
+$$\text{Score} = (w_d \cdot D) + (w_e \cdot E) + (w_c \cdot C_{ast}) - P_{fp} - P_{drift}$$
+* **$D$ (Detection Determinism, 30%):** Exact string/AST regex matches vs speculative patterns.
+* **$E$ (Runtime Evidence, 25%):** Confirmed HTTP exploitability response status.
+* **$C_{ast}$ (AST Contextuality, 25%):** Direct assignment in critical execution path vs commented code.
+* **$P_{fp}$ (False Positive Penalty, up to -20):** Safe wrapper detection (e.g. parameterized queries, sanitizers).
+* **$P_{drift}$ (Line Drift Penalty, up to -10):** Unmatched surrounding file context.
+
+### 3. Stable Line-Shift Invariant Fingerprinting (`primaryLocationLineHash`)
+Traditional static tools break finding identity when a developer inserts 2 lines at the top of a file. TorusGuard computes a stable SHA-256 hash across the AST node content, enclosing function scope, and syntactic tokens. Findings maintain permanent tracking identity across Git commits and branch renames.
 
 ---
 

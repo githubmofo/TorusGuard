@@ -55,9 +55,9 @@ def test_dual_track_architecture():
     assert package_json_file.is_file(), "Missing root package.json"
     pkg_data = json.loads(package_json_file.read_text(encoding="utf-8"))
     assert pkg_data.get("name") == "torusguard", f"Invalid package name: {pkg_data.get('name')}"
-    assert pkg_data.get("version") in ("0.9.2", "0.9.3"), f"Invalid version: {pkg_data.get('version')}"
+    assert pkg_data.get("version") in ("0.9.2", "0.9.3", "0.9.4"), f"Invalid version: {pkg_data.get('version')}"
     assert "bin" in pkg_data and "torusguard" in pkg_data["bin"], "Missing bin.torusguard entry"
-    print("  [PASS] package.json verified (name: torusguard, version: 0.9.3, bin configured)")
+    print("  [PASS] package.json verified (name: torusguard, version: 0.9.4, bin configured)")
 
     cli_file = ROOT_DIR / "bin" / "torusguard.js"
     assert cli_file.is_file(), "Missing bin/torusguard.js CLI runner"
@@ -65,8 +65,8 @@ def test_dual_track_architecture():
     # Test running CLI status
     res_status = subprocess.run(["node", str(cli_file), "status"], capture_output=True, text=True)
     assert res_status.returncode == 0, f"CLI status failed: {res_status.stderr}"
-    assert "TORUSGUARD ACTIVE POSTURE STATUS" in res_status.stdout
-    assert ("0.9.2" in res_status.stdout or "0.9.3" in res_status.stdout)
+    assert "TORUSGUARD ACTIVE SECURITY POSTURE" in res_status.stdout or "TORUSGUARD ACTIVE POSTURE STATUS" in res_status.stdout
+    assert any(v in res_status.stdout for v in ("0.9.2", "0.9.3", "0.9.4"))
     print("  [PASS] bin/torusguard.js status executed cleanly")
 
     # Test full scaffolding in a clean temporary directory

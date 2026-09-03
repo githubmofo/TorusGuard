@@ -1,7 +1,7 @@
 ---
 name: torusguard
 description: Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications across Python and TypeScript.
-version: 0.9.2
+version: 0.9.4
 ---
 
 # TorusGuard Master Router

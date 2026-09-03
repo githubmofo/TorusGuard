@@ -5,6 +5,13 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2026-09-03
+
+### Added
+- **Enhanced Mermaid Flowcharts:** Re-architected visual flowcharts in `README.md` across Dual-Track Architecture, 7-Stage Closed-Loop Finding Lifecycle, and 5-Agent Authority Separation.
+- **Core Security Innovations Documented:** Added formal documentation for the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions), 5-factor mathematical confidence scoring ($0-100$), and stable AST line-shift invariant fingerprinting (`primaryLocationLineHash`).
+- **NPM Package Release v0.9.4:** Updated package release files to `0.9.4` for public npm registry distribution.
+
 ## [0.9.3] - 2026-09-03
 
 ### Added

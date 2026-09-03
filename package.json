@@ -1,6 +1,6 @@
 {
   "name": "torusguard",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.",
   "main": "bin/torusguard.js",
   "bin": {

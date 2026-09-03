@@ -46,7 +46,7 @@ try {
 function printHelp() {
   console.log(`
   ${CYAN}╭──────────────────────────────────────────────────────────────────────────╮${RESET}
-  ${CYAN}│${RESET}  ${BOLD}🛡️  TORUSGUARD CLI v0.9.3${RESET}                     ${GRAY}[Autonomous Security Engine]${RESET} ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${BOLD}🛡️  TORUSGUARD CLI v0.9.4${RESET}                     ${GRAY}[Autonomous Security Engine]${RESET} ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${DIM}Governed Remediation & Security Guardrails for AI Web Applications${RESET}      ${CYAN}│${RESET}
   ${CYAN}╰──────────────────────────────────────────────────────────────────────────╯${RESET}
 
@@ -78,7 +78,7 @@ if (command === 'status') {
       const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf-8'));
       console.log(`
   ${CYAN}╭──────────────────────────────────────────────────────────────────────────╮${RESET}
-  ${CYAN}│${RESET}  ${BOLD}🛡️  TORUSGUARD ACTIVE SECURITY POSTURE${RESET}                          ${GRAY}v0.9.3${RESET} ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${BOLD}🛡️  TORUSGUARD ACTIVE SECURITY POSTURE${RESET}                          ${GRAY}v0.9.4${RESET} ${CYAN}│${RESET}
   ${CYAN}╰──────────────────────────────────────────────────────────────────────────╯${RESET}
 
   ${BOLD}▸ Workspace Location:${RESET}   ${GREEN}${cwd}${RESET}
