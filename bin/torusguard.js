@@ -37,7 +37,7 @@ try {
 function printHelp() {
   console.log(`
 ================================================================================
-TORUSGUARD NPM PACKAGE — CLI COMMANDS (v0.9.2)
+TORUSGUARD NPM PACKAGE — CLI COMMANDS (v0.9.3)
 ================================================================================
 Usage:
   npx torusguard [command] [options]
@@ -69,7 +69,7 @@ if (command === 'status') {
       console.log('================================================================================');
       console.log('TORUSGUARD ACTIVE POSTURE STATUS');
       console.log('================================================================================');
-      console.log(`Version:            ${cfg.version || '0.9.2'}`);
+      console.log(`Version:            ${cfg.version || '0.9.3'}`);
       console.log(`Product:            ${cfg.product || 'TorusGuard'}`);
       console.log(`Severity Threshold: ${cfg.severity_threshold || 'medium'}`);
       console.log(`Runs Directory:     ${cfg.runs_dir || '.torusguard/runs'}`);

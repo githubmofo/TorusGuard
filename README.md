@@ -6,7 +6,7 @@
   **Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.**
 
   [![npm version](https://img.shields.io/npm/v/torusguard.svg?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/torusguard)
-  [![Release](https://img.shields.io/badge/Release-v0.9.2-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
+  [![Release](https://img.shields.io/badge/Release-v0.9.3-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
   [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
   [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
   [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)

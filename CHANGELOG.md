@@ -5,6 +5,12 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3] - 2026-09-03
+
+### Changed
+- **NPM Package Standardization:** Validated bin script path (`bin/torusguard.js`) and git repository URL for standard npm CLI execution.
+- **Dual-Track Documentation Overhaul:** Rewrote `README.md` from scratch showcasing the Dual-Track Distribution Architecture, live npm badges, centered brand banner, and complete 11-command reference matrix.
+
 ## [0.9.2] - 2026-09-02
 
 - **Dual-Track Distribution Architecture:** Decoupled TorusGuard into two clean, independent tracks:

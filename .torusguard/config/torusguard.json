@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/torusguard-config.schema.json",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "product": "TorusGuard Security Skill Kit",
   "severity_threshold": "medium",
   "auto_detect_stack": true,
