@@ -42,6 +42,11 @@ def test_dual_track_architecture():
     assert len(skill_lines) <= 60, f"SKILL.md exceeds 60 lines: {len(skill_lines)}"
     print(f"  [PASS] Universal Skill is concise ({len(skill_lines)} lines) and handles standalone operation")
 
+    root_skill = ROOT_DIR / "SKILL.md"
+    assert root_skill.is_file(), "Missing root SKILL.md for Open Agent single-skill discovery"
+    assert "name: torusguard" in root_skill.read_text(encoding="utf-8")
+    print("  [PASS] Root SKILL.md verified for single-skill discovery")
+
     # -------------------------------------------------------------------------
     # 2. Test Track 2: NPM Package Scaffolding & Command Registration
     # -------------------------------------------------------------------------

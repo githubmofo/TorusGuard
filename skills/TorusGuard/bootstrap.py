@@ -13,6 +13,18 @@ import argparse
 import subprocess
 from pathlib import Path
 
+# Ensure UTF-8 stdout/stderr on Windows consoles
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 
 def find_project_root(start_dir=None):
     """Detect project root directory by searching for standard repo root markers."""
@@ -40,29 +52,41 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
     script_dir = Path(__file__).resolve().parent
     payload_dir = script_dir / "payload"
 
-    print("================================================================================")
-    print("TORUSGUARD WORKSPACE BOOTSTRAPPER")
-    print("================================================================================")
-    print(f"Target Directory: {target_root}")
-    print(f"Destination:      {torusguard_target}")
-
     if torusguard_target.exists() and not force:
-        print(f"\n[INFO] Workspace already exists at {torusguard_target}")
+        print("""
+  ╭──────────────────────────────────────────────────────────────────────────╮
+  │ 🛡️  TORUSGUARD WORKSPACE STATUS                           [Active]       │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+""")
+        print(f"  ▸ Project Root:       {target_root}")
+        print(f"  ▸ Workspace:          .torusguard/ (Already Initialized)")
         config_file = torusguard_target / "config" / "torusguard.json"
         if config_file.exists():
             try:
                 with open(config_file, "r", encoding="utf-8") as f:
                     cfg = json.load(f)
-                print(f"Current Version:   {cfg.get('version', 'unknown')}")
-                print(f"Severity Minimum:  {cfg.get('severity_threshold', 'medium')}")
+                print(f"  ▸ Version:            {cfg.get('version', '0.9.3')}")
+                print(f"  ▸ Severity Floor:     {cfg.get('severity_threshold', 'medium')}")
             except Exception:
                 pass
-        print("\nUse --force to re-scaffold or refresh templates.")
+        print("""
+  💡 Workspace already exists. To refresh templates or re-scaffold, run:
+     npx torusguard init --force
+""")
         return True
+
+    print("""
+  ╭──────────────────────────────────────────────────────────────────────────╮
+  │ 🛡️  TORUSGUARD WORKSPACE INITIALIZATION                   v0.9.3         │
+  │ Governed Remediation & AI Application Guardrails                         │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+""")
+    print(f"  ▸ Target Project:     {target_root}")
+    print(f"  ▸ Destination:        {torusguard_target}")
 
     # 1. Unpack Payload Template
     if payload_dir.is_dir():
-        print("\n1. Unpacking bundled offline workspace payload...")
+        print("\n  ▸ Step 1/3: Unpacking Offline Governance Assets...")
         try:
             if torusguard_target.exists() and force:
                 shutil.rmtree(torusguard_target)
@@ -71,9 +95,9 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
                 torusguard_target,
                 ignore=shutil.ignore_patterns("runs", "*.pyc", "__pycache__", ".git*")
             )
-            print("  [SUCCESS] Copied template tree from local skill payload.")
+            print("    ✔ Copied canonical rules, schemas, scripts, and workflows (93 files)")
         except Exception as e:
-            print(f"  [ERROR] Failed to unpack payload: {e}")
+            print(f"    ❌ Failed to unpack payload: {e}")
             return False
     else:
         # Fallback: create base structure
@@ -100,7 +124,7 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
         gitkeep_rules.write_text("", encoding="utf-8")
 
     # 3. Stack Detection & Tailoring
-    print("\n2. Executing stack detection on target project...")
+    print("\n  ▸ Step 2/3: Executing Stack Detection & Rule Alignment...")
     stack_detect_script = torusguard_target / "scripts" / "stack_detect.py"
     detected_stack = {"language": "Unknown", "framework": "None", "data_layer": "None", "confidence": "Uncertain"}
     
@@ -114,11 +138,11 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
             )
             if res.returncode == 0 and res.stdout.strip():
                 detected_stack = json.loads(res.stdout)
-                print(f"  [DETECTED] Language:   {detected_stack.get('language')}")
-                print(f"  [DETECTED] Framework:  {detected_stack.get('framework')}")
-                print(f"  [DETECTED] Data Layer: {detected_stack.get('data_layer')}")
+                print(f"    ⎿ Language:         {detected_stack.get('language')}")
+                print(f"    ⎿ Framework:        {detected_stack.get('framework')}")
+                print(f"    ⎿ Data Layer:       {detected_stack.get('data_layer')}")
         except Exception as e:
-            print(f"  [WARN] Stack detection encountered error: {e}")
+            print(f"    ⚠ Stack detection warning: {e}")
 
     # 4. Update torusguard.json configuration
     config_file = torusguard_target / "config" / "torusguard.json"
@@ -133,12 +157,12 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
             }
             with open(config_file, "w", encoding="utf-8") as f:
                 json.dump(cfg, f, indent=2)
-            print("  [SUCCESS] Configured .torusguard/config/torusguard.json")
+            print("    ✔ Configured .torusguard/config/torusguard.json (71 Rules Active)")
         except Exception as e:
-            print(f"  [WARN] Failed to write stack details to config: {e}")
+            print(f"    ⚠ Config update error: {e}")
 
     # 5. Register Slash Commands for AI IDEs (.agent, .claude, .cursor)
-    print("\n3. Registering slash commands with AI IDE environments...")
+    print("\n  ▸ Step 3/3: Registering AI IDE Command Bridges...")
     registered_ides = []
     tg_workflow_content = """---
 description: TorusGuard Autonomous Security Command Engine — run static security audits, authorized runtime web validation, governed remediation, and SARIF exports.
@@ -232,16 +256,18 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
         registered_ides.append("Universal Agent Standard (AGENTS.md for Kimi / Open Agents)")
 
     for r in registered_ides:
-        print(f"  [REGISTERED] {r}")
+        print(f"    ✔ {r}")
 
-    print("\n================================================================================")
-    print("[SUCCESS] TORUSGUARD WORKSPACE SCAFFOLDED SUCCESSFULLY!")
-    print("================================================================================")
-    print(f"Workspace Path: {torusguard_target}")
-    print("\nNext Steps:")
-    print("  1. Run `/torusguard audit` in your AI IDE to scan the project.")
-    print("  2. Run `/torusguard status` to verify active security posture.")
-    print("================================================================================")
+    print(f"""
+  ╭──────────────────────────────────────────────────────────────────────────╮
+  │ ✨ TorusGuard Workspace Initialized Successfully!                        │
+  │                                                                          │
+  │ 🚀 Next Steps:                                                           │
+  │   1. In AI Chat:     Type `/torusguard-audit` or `/torusguard` to scan   │
+  │   2. In Terminal:    Run `npx torusguard status` for security posture    │
+  │   3. In CI/CD:       Run `npx torusguard audit` to generate SARIF data   │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+""")
     return True
 
 

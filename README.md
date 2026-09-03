@@ -75,10 +75,13 @@ Choose the path that fits your development workflow:
 ### Track 1: Universal AI Agent Skill (Zero Setup)
 Install directly into any AI assistant compatible with the Open Agent Skills standard:
 ```bash
-npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"
+# Recommended one-liner (silent, zero-prompts, targets all IDE agents):
+npx skills add https://github.com/githubmofo/TorusGuard -a universal -y
 ```
+* **`-a universal`**: Automatically registers the skill for Antigravity, Cursor, Gemini CLI, Claude Code, VS Code Copilot, and Kimi without asking you to pick from a list of 77 agents.
+* **`-y`**: Skips confirmation prompts and installs in 2 seconds.
 * Once installed, simply type `/torusguard` in chat or ask: *"Audit this component for security flaws"*.
-* Operates immediately with zero project configuration required.
+* Operates immediately in-memory with zero local configuration required.
 
 ### Track 2: Production NPM Package (Full Governance)
 Scaffold your repository with full local governance and terminal automation:
