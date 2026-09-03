@@ -185,11 +185,18 @@ This document outlines the development milestones, past releases, and future pri
 - **Dual-Track Validation Test Suite (`harness/validate_v0_9_2_dual_track.py`):** Automated harness verifying standalone skill execution, npm scaffolding, command unlocking, and token budgets.
 - **Comprehensive Validation Harness:** Built `harness/validate_v0_9_2_workflows_and_skills.py` and `harness/validate_v0_9_2_diff_and_monorepo.py`, achieving 100% pass rate.
 
+### ✅ v0.9.3 — Dual-Track Distribution & Public NPM Registry Release (2026-09-03)
+- **Official NPM Publication:** Published `torusguard@0.9.3` to the global public npm registry (`https://www.npmjs.com/package/torusguard`).
+- **Canonical Root `SKILL.md`:** Single-skill auto-discovery for Open Agent Skills CLI (`npx skills add`), stopping the "Found 13 skills" multi-select prompt.
+- **Modern Box-Drawn Terminal UX:** Redesigned CLI status, help, and initialization rendering into clean Unicode box-drawn cards with step-by-step progress tracking.
+- **Cross-Registry Documentation Parity:** Upgraded all system architecture diagrams and finding lifecycles from Mermaid to high-fidelity Unicode text diagrams to ensure 100% rendering fidelity on npmjs.com and GitHub.
+- **Windows UTF-8 Console Hardening:** Implemented `sys.stdout.reconfigure` in the Python bootstrapper to eliminate Windows `cp1252` encoding errors.
+
 ---
 
-## 🎯 Upcoming Milestones: v0.9.3+ Series
+## 🎯 Upcoming Milestones: v0.9.4+ Series
 
-### 🚀 v0.9.3 — CI/CD Permission Modeling & Container Scanners (Q4 2026)
+### 🚀 v0.9.4 — CI/CD Permission Modeling & Container Scanners (Q4 2026)
 - [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.
 - [ ] **Base Image Trivy / Grype Integration:** Local wrapper for scanning base container images (`FROM alpine:3.18`).
 

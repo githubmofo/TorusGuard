@@ -52,7 +52,7 @@ Security updates and patches are actively maintained for the following release l
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v0.9.x` (`v0.9.2`) | ✅ Yes | **Current active release line** (Command-Engine Standard, Workspace Autonomy & Parity) |
+| `v0.9.x` (`v0.9.3`) | ✅ Yes | **Current active release line** (Dual-Track Architecture, NPM CLI & Single Discovery) |
 | `v0.8.x` | ✅ Yes | Installable AI-Agent Security Skill Kit |
 | `v0.7.x` | ✅ Yes | Authorized Runtime Validation & Bounded Exploitability Confirmation |
 | `v0.6.x` | ⚠️ Best effort | Governed Remediation, Minimal Patching & Targeted Recheck System |
@@ -62,25 +62,33 @@ Security updates and patches are actively maintained for the following release l
 
 ## Security Architecture & Enforcement Controls
 
-```mermaid
-flowchart TD
-    User["Operator / AI Agent"] -->|Runs Slash Command| WF["Workflow Engine<br><code>.torusguard/workflows/</code>"]
-    
-    WF --> Gate1{"Scope Authorized?<br><code>scope.json</code>"}
-    Gate1 -->|Expired / Missing| Block1["❌ HALT: Authorization Required"]
-    Gate1 -->|Valid Host & TTL| Gate2{"Safety Gate Check<br><code>safety_gate.py</code>"}
-    
-    Gate2 -->|Destructive Verb| Block2["❌ HALT: Manual Only / Blocked"]
-    Gate2 -->|Sensitive Path| Prompt["⚠️ Approval Required (Human Gate)"]
-    Gate2 -->|Safe GET/HEAD| Probe["Bounded Probing<br><code>web-validate</code>"]
-    
-    Probe --> Redact["Credential Redaction<br>Scrub JWTs & Passwords"]
-    Redact --> Artifacts["Encrypted / Redacted Logs<br><code>runs/<run-id>/</code>"]
-    
-    Prompt -->|Approved| Remed["Governed Remediation<br>Ponytail Bounds: <=35 add, <=25 del"]
-    Remed --> Snap["Pre-Apply Snapshot<br><code>pre_apply/<file>.bak</code>"]
-    Snap --> Patch["Surgical Patch Apply<br><code>/torusguard apply</code>"]
-    Patch --> Recheck["Targeted Recheck<br><code>/torusguard recheck</code>"]
+```text
+┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+│                           TORUSGUARD RUNTIME ENFORCEMENT & SAFETY GATES                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  [ Operator / AI Agent ] ──────> [ Workflow Engine (.torusguard/workflows/) ]
+                                                  │
+                                                  ▼
+                                    { Scope Authorized? (scope.json) }
+                                     ├─ Expired / Invalid ──> ❌ HALT: Authorization Required
+                                     └─ Valid Host & TTL
+                                                  │
+                                                  ▼
+                                    { Safety Gate Check (safety_gate.py) }
+                                     ├─ Destructive Verb ───> ❌ HALT: Manual Only / Blocked
+                                     ├─ Sensitive Path ─────> ⚠️ Human Gate Approval Required
+                                     └─ Safe Read-Only GET
+                                                  │
+                                                  ▼
+                                    [ Bounded Probing (web-validate) ]
+                                                  │
+                                                  ▼
+                                    [ Automatic Credential Scrubbing ]
+                                    (Zero JWTs, Tokens, or Keys to Disk)
+                                                  │
+                                                  ▼
+                                    [ Redacted Run Artifacts (runs/<run-id>/) ]
 ```
 
 ### 1. Legal Scope & Authorization Gate (`.torusguard/config/scope.json`)

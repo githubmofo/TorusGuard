@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.3] - 2026-09-03
 
+### Added
+- **Official NPM Registry Publication:** Published `torusguard@0.9.3` to the public npm registry with standardized package manifest, reduced tarball footprint (128 kB), and direct `bin/torusguard.js` CLI execution.
+- **Canonical Root SKILL.md:** Added root `SKILL.md` so Open Agent Skills CLI (`npx skills add`) immediately recognizes TorusGuard as a single canonical skill instead of discovering 13 separate subdirectories.
+- **Modern Box-Drawn Terminal UI:** Redesigned `npx torusguard status` and `npx torusguard init` outputs with clean Unicode box-drawing borders, colored status indicators, environment discovery summaries, and actionable next steps cards.
+- **Windows UTF-8 Console Hardening:** Implemented `sys.stdout.reconfigure(encoding="utf-8")` in `skills/torusguard/bootstrap.py` to prevent Windows `cp1252` encoding errors during terminal rendering.
+
 ### Changed
-- **NPM Package Standardization:** Validated bin script path (`bin/torusguard.js`) and git repository URL for standard npm CLI execution.
-- **Dual-Track Documentation Overhaul:** Rewrote `README.md` from scratch showcasing the Dual-Track Distribution Architecture, live npm badges, centered brand banner, and complete 11-command reference matrix.
+- **Cross-Registry Documentation Rendering:** Upgraded `README.md` and `SECURITY.md` by replacing raw Mermaid code blocks with universal high-fidelity Unicode architecture diagrams and comprehensive markdown lifecycle tables, guaranteeing flawless rendering on npmjs.com, GitHub, and terminal viewers.
+- **Streamlined Universal One-Liner:** Documented `npx skills add https://github.com/githubmofo/TorusGuard -a universal -y` to eliminate interactive multi-agent prompt friction and prevent PowerShell line duplication glitches.
+- **Maintainer & Contribution Governance:** Synchronized `MAINTAINERS.md` and `CONTRIBUTING.md` with the full 11-test verification battery, 93 indexed manifest files, and 2FA npm publishing procedures.
 
 ## [0.9.2] - 2026-09-02
 

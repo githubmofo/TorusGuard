@@ -43,7 +43,7 @@ Whenever changes are made to `.torusguard/` (rules, workflows, agents, scripts, 
    python .torusguard/scripts/manifest_builder.py --write
    ```
 2. **Verify Manifest Check:**
-   Confirm that all 88 workspace files match their cryptographic signatures:
+   Confirm that all 93 workspace files match their cryptographic signatures:
    ```bash
    python .torusguard/scripts/manifest_builder.py --check
    ```
@@ -62,21 +62,29 @@ Whenever changes are made to `.torusguard/` (rules, workflows, agents, scripts, 
 
 ---
 
-## 6. Release Governance & Cryptographic Signing
+## 6. Release Governance, NPM Publishing & Cryptographic Signing
+- **NPM Package Publishing:**
+  - Standard SemVer releases (`package.json`, `.torusguard/config/torusguard.json`, `bin/torusguard.js`).
+  - Mandatory Two-Factor Authentication (2FA OTP) required on publish:
+    ```bash
+    npm publish --access public
+    ```
 - **Cryptographic Release Signing:**
   - Every release tag must be a signed git tag (`git tag -s vX.Y.Z -m "Release vX.Y.Z"`).
   - Packaged release tarballs and wheels must publish detached GPG signatures and a signed `SHA256SUMS` manifest.
 - **Mandatory Pre-Release Verification:**
-  No release tag may be published unless all **9 automated test suites** achieve a **100% pass rate (381 test assertions)**:
-  1. `harness/validate_v0_9_2_workflows_and_skills.py` (Workflows & skills command-engine standard)
-  2. `.torusguard/scripts/manifest_builder.py --check` (Cryptographic SHA-256 workspace integrity)
-  3. `harness/validate_v0_9_1_installer.py` (Clean-room `npx skills add` and `install.py` simulations)
-  4. `harness/validate_v0_9_0_skills.py` (Granular skills frontmatter, line budgets, and routing)
-  5. `harness/runner.py` (Core schemas, confidence scoring, 3-pass replay integrity)
-  6. `harness/validate_v0_7_0_runtime.py` (Runtime validation, safety gates, role handoffs)
-  7. `harness/validate_v0_8_0_part1.py` (Workspace foundation integrity)
-  8. `harness/validate_v0_8_0_part2.py` (Agent definitions and workflows)
-  9. `harness/validate_v0_8_0_part3.py` (Automation scripts and framework references)
+  No release tag or npm publish may proceed unless all **11 automated test suites** achieve a **100% pass rate**:
+  1. `harness/validate_v0_9_2_dual_track.py` (Dual-track architecture, isolation, and command unlocking)
+  2. `harness/validate_v0_9_2_diff_and_monorepo.py` (Diff guard line inspector and monorepo detection)
+  3. `harness/validate_v0_9_2_workflows_and_skills.py` (Workflows & skills command-engine standard)
+  4. `.torusguard/scripts/manifest_builder.py --check` (Cryptographic SHA-256 workspace integrity across 93 files)
+  5. `harness/validate_v0_9_1_installer.py` (Clean-room `npx skills add` and `install.py` simulations)
+  6. `harness/validate_v0_9_0_skills.py` (Granular skills frontmatter, line budgets, and routing)
+  7. `harness/runner.py` (Core schemas, confidence scoring, 3-pass replay integrity)
+  8. `harness/validate_v0_7_0_runtime.py` (Runtime validation, safety gates, role handoffs)
+  9. `harness/validate_v0_8_0_part1.py` (Workspace foundation integrity)
+  10. `harness/validate_v0_8_0_part2.py` (Agent definitions and workflows)
+  11. `harness/validate_v0_8_0_part3.py` (Automation scripts, references, and README/CHANGELOG integration)
 
 ---
 
