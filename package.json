@@ -6,9 +6,19 @@
   "bin": {
     "torusguard": "./bin/torusguard.js"
   },
+  "files": [
+    "bin/",
+    ".torusguard/",
+    "skills/",
+    "install.py",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "python harness/runner.py",
-    "init": "node bin/torusguard.js"
+    "init": "node bin/torusguard.js init",
+    "audit": "node bin/torusguard.js audit",
+    "status": "node bin/torusguard.js status"
   },
   "keywords": [
     "security",
@@ -17,12 +27,22 @@
     "owasp",
     "ast-analysis",
     "devsecops",
-    "ai-safety"
+    "ai-safety",
+    "antigravity",
+    "cursor",
+    "claude-code"
   ],
-  "author": "TorusGuard Maintainers",
+  "author": "Jenish Lad <githubmofo>",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/githubmofo/TorusGuard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/githubmofo/TorusGuard/issues"
+  },
+  "homepage": "https://github.com/githubmofo/TorusGuard#readme",
+  "publishConfig": {
+    "access": "public"
   }
 }
