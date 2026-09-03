@@ -4,7 +4,7 @@
   "description": "Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.",
   "main": "bin/torusguard.js",
   "bin": {
-    "torusguard": "./bin/torusguard.js"
+    "torusguard": "bin/torusguard.js"
   },
   "files": [
     "bin/",
@@ -36,7 +36,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/githubmofo/TorusGuard.git"
+    "url": "git+https://github.com/githubmofo/TorusGuard.git"
   },
   "bugs": {
     "url": "https://github.com/githubmofo/TorusGuard/issues"
