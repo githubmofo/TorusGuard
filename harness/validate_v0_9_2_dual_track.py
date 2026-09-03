@@ -63,7 +63,13 @@ def test_dual_track_architecture():
     assert cli_file.is_file(), "Missing bin/torusguard.js CLI runner"
 
     # Test running CLI status
-    res_status = subprocess.run(["node", str(cli_file), "status"], capture_output=True, text=True)
+    res_status = subprocess.run(
+        ["node", str(cli_file), "status"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace"
+    )
     assert res_status.returncode == 0, f"CLI status failed: {res_status.stderr}"
     assert "TORUSGUARD ACTIVE SECURITY POSTURE" in res_status.stdout or "TORUSGUARD ACTIVE POSTURE STATUS" in res_status.stdout
     assert any(v in res_status.stdout for v in ("0.9.2", "0.9.3", "0.9.4"))
@@ -79,7 +85,9 @@ def test_dual_track_architecture():
         res_scaffold = subprocess.run(
             [sys.executable, str(bootstrap_script), "--target", str(tmp_path), "--force", "--full-commands"],
             capture_output=True,
-            text=True
+            text=True,
+            encoding="utf-8",
+            errors="replace"
         )
         assert res_scaffold.returncode == 0, f"Scaffolding failed: {res_scaffold.stderr}"
 
