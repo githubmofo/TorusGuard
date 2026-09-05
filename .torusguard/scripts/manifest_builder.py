@@ -13,12 +13,12 @@ from pathlib import Path
 
 
 def compute_file_sha256(filepath):
-    """Compute SHA-256 digest of a file in binary mode."""
-    hasher = hashlib.sha256()
+    """Compute SHA-256 digest of a file, normalizing line endings for cross-platform determinism."""
     with open(filepath, "rb") as fh:
-        while chunk := fh.read(65536):
-            hasher.update(chunk)
-    return hasher.hexdigest()
+        content = fh.read()
+    # Normalize CRLF to LF so manifests match identically on Windows, Linux, and macOS
+    content = content.replace(b"\r\n", b"\n")
+    return hashlib.sha256(content).hexdigest()
 
 
 def scan_workspace_files(base_dir):

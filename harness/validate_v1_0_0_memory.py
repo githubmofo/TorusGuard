@@ -39,9 +39,9 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = ROOT_DIR / ".torusguard" / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-import memory_engine
-import finding_scorer
-import diff_guard
+import memory_engine  # type: ignore
+import finding_scorer  # type: ignore
+import diff_guard  # type: ignore
 
 
 def test_v1_0_0_memory_engine():
