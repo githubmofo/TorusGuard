@@ -49,7 +49,7 @@ function printHelp() {
   console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.0.0${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.1.0${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}   ${DIM}Autonomous Security Engine for AI-Built Applications${RESET}               ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
@@ -61,10 +61,17 @@ function printHelp() {
   ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
   ${CYAN}│${RESET}  ${GREEN}init${RESET}      Scaffold ${BOLD}.torusguard/${RESET} workspace + unlock 12 slash commands   ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}status${RESET}    Display active security posture, memory, rules, and stack   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}memory${RESET}    Manage persistent security memory (export, import, decay)   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}memory${RESET}    Manage persistent security memory (export, hook, learn)     ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}audit${RESET}     Run static AST security scan on the target project          ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}report${RESET}    Export OASIS SARIF v2.1.0 structured telemetry              ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}help${RESET}      Show this interactive command guide                         ${CYAN}│${RESET}
+  ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
+  ${CYAN}│${RESET}  ${BOLD}Memory Subcommands${RESET}                                                    ${CYAN}│${RESET}
+  ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
+  ${CYAN}│${RESET}  ${WHITE}memory context${RESET}   ${DIM}[--role auditor|remediator|reviewer] [--file <f>]${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${WHITE}memory hook${RESET}      ${DIM}[install|uninstall] Git pre-commit regression hook${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${WHITE}memory learn${RESET}     ${DIM}[--commits <range>] Ingest security commit fixes${RESET}     ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${WHITE}memory export${RESET}    ${DIM}[--path <file>] [--sanitized] Safe team sharing${RESET}      ${CYAN}│${RESET}
   ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
   ${CYAN}│${RESET}  ${BOLD}Options${RESET}                                                               ${CYAN}│${RESET}
   ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
@@ -126,7 +133,7 @@ if (command === 'status') {
       console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.0.0${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.1.0${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
 
@@ -190,6 +197,18 @@ if (command === 'memory') {
     pyArgs.push('--action', 'status');
   } else if (sub === 'context') {
     pyArgs.push('--action', 'context');
+    const roleIdx = args.indexOf('--role');
+    if (roleIdx !== -1 && args[roleIdx + 1]) {
+      pyArgs.push('--role', args[roleIdx + 1]);
+    }
+    const fileIdx = args.indexOf('--file') !== -1 ? args.indexOf('--file') : args.indexOf('-f');
+    if (fileIdx !== -1 && args[fileIdx + 1]) {
+      pyArgs.push('--file', args[fileIdx + 1]);
+    }
+    const ruleIdx = args.indexOf('--rule') !== -1 ? args.indexOf('--rule') : args.indexOf('-r');
+    if (ruleIdx !== -1 && args[ruleIdx + 1]) {
+      pyArgs.push('--rule-id', args[ruleIdx + 1]);
+    }
   } else if (sub === 'distill') {
     pyArgs.push('--action', 'distill');
   } else if (sub === 'decay') {
@@ -212,6 +231,9 @@ if (command === 'memory') {
     } else {
       pyArgs.push('--target', 'torusguard-memory-export.json');
     }
+    if (args.includes('--sanitized')) {
+      pyArgs.push('--sanitized');
+    }
   } else if (sub === 'import') {
     pyArgs.push('--action', 'import');
     const pathIdx = args.indexOf('--path') !== -1 ? args.indexOf('--path') : args.indexOf('-p');
@@ -221,6 +243,21 @@ if (command === 'memory') {
       console.error(`${RED}Error: --path <file> is required for memory import${RESET}`);
       process.exit(1);
     }
+  } else if (sub === 'hook') {
+    const hookAction = args[2] === 'uninstall' ? 'hook-uninstall' : 'hook-install';
+    pyArgs.push('--action', hookAction);
+  } else if (sub === 'learn') {
+    pyArgs.push('--action', 'learn');
+    const commitsIdx = args.indexOf('--commits');
+    if (commitsIdx !== -1 && args[commitsIdx + 1]) {
+      pyArgs.push('--commits', args[commitsIdx + 1]);
+    }
+    const daysIdx = args.indexOf('--days');
+    if (daysIdx !== -1 && args[daysIdx + 1]) {
+      pyArgs.push('--days', args[daysIdx + 1]);
+    }
+  } else if (sub === 'recipe') {
+    pyArgs.push('--action', 'recipe', ...args.slice(2));
   } else if (sub === 'fp') {
     pyArgs.push('--action', 'fp');
     const ruleIdx = args.indexOf('--rule') !== -1 ? args.indexOf('--rule') : args.indexOf('-r');

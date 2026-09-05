@@ -202,10 +202,31 @@ def main():
     parser = argparse.ArgumentParser(description="TorusGuard Unified Diff Security Scanner")
     parser.add_argument("diff_path", nargs="?", help="Path to unified diff file (or read stdin if omitted)")
     parser.add_argument("--check-memory", action="store_true", help="Check additions against persistent memory regression watch patterns")
+    parser.add_argument("--pre-commit", action="store_true", help="Audit git staged diff (--cached) for pre-commit hook")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
     args = parser.parse_args()
 
-    if args.diff_path:
+    if args.pre_commit:
+        import subprocess
+        try:
+            res_git = subprocess.run(
+                ["git", "diff", "--cached"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace"
+            )
+            diff_text = res_git.stdout
+        except Exception as e:
+            print(f"[ERROR] Diff Guard: Could not read git staged diff: {e}", file=sys.stderr)
+            sys.exit(1)
+
+        if not diff_text.strip():
+            print("[PASS] Diff Guard (pre-commit): No staged changes detected.")
+            sys.exit(0)
+
+        res = audit_diff(diff_text, check_memory=True)
+    elif args.diff_path:
         res = audit_diff_file(args.diff_path, check_memory=args.check_memory)
     else:
         if sys.stdin.isatty():

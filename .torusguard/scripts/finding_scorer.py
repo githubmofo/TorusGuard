@@ -44,11 +44,13 @@ def compute_memory_boost(
     try:
         with open(patterns_file, "r", encoding="utf-8") as f:
             patterns = json.load(f)
-    except Exception:
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
         return 0
 
     boost = 0
     matched_file = False
+    matched_dir = False
+    target_path = Path(file_path) if file_path else None
 
     for pat in patterns:
         if pat.get("rule_id") == rule_id:
@@ -62,14 +64,21 @@ def compute_memory_boost(
             elif ptype == "security_idiom":
                 boost += 5
 
-            # File-specific correlation bonus
-            if file_path and file_path in pat.get("affected_files", []):
+            # File-specific and directory-level correlation bonus
+            affected = pat.get("affected_files", [])
+            if file_path and file_path in affected:
                 matched_file = True
+            elif target_path and any(target_path.parent == Path(af).parent for af in affected if af):
+                matched_dir = True
 
     if matched_file and boost > 0:
         boost += 5
     elif matched_file and boost < 0:
         boost -= 10
+    elif matched_dir and boost > 0:
+        boost += 2
+    elif matched_dir and boost < 0:
+        boost -= 4
 
     return boost
 

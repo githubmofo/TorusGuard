@@ -89,7 +89,7 @@ def test_v1_0_0_memory_engine():
             assert evt.get("event_type") == etype, f"Recorded wrong type: {etype}"
             assert evt.get("event_id", "").startswith("evt-"), "Missing or invalid event_id"
             assert evt.get("timestamp"), "Missing timestamp"
-            assert evt.get("version") == "1.0.0", "Version mismatch in event"
+            assert evt.get("version") in ("1.0.0", memory_engine.VERSION), "Version mismatch in event"
             recorded_events.append(evt)
 
         all_events = memory_engine.load_all_events(root_dir=test_root)
@@ -122,7 +122,7 @@ def test_v1_0_0_memory_engine():
         # ---------------------------------------------------------------------
         print("\n--- 4. Testing Context Window Generation & Token Budget ---")
         ctx = memory_engine.compute_context_window(max_tokens=2000, root_dir=test_root)
-        assert ctx.get("version") == "1.0.0", "Context version mismatch"
+        assert ctx.get("version") in ("1.0.0", memory_engine.VERSION), "Context version mismatch"
         assert ctx.get("token_estimate", 0) <= 2000, "Context exceeds 2000 token budget"
         assert len(ctx.get("cards", [])) >= 2, "Context missing intelligence cards"
 
@@ -130,7 +130,7 @@ def test_v1_0_0_memory_engine():
         for c in ctx["cards"]:
             assert "card_id" in c and "card_type" in c and "priority" in c
             assert "title" in c and "summary" in c and "card_data" in c
-            assert c["card_type"] in ("profile", "pattern", "regression_watch", "false_positive", "fix_idiom")
+            assert c["card_type"] in ("profile", "pattern", "regression_watch", "false_positive", "false_positive_suppression", "fix_idiom", "common_vulnerability", "golden_recipe")
 
         print(f"  [PASS] Generated {len(ctx['cards'])} structured JSON cards within budget ({ctx['token_estimate']}/2000 tokens)")
 

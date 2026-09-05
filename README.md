@@ -131,34 +131,37 @@ TorusGuard executes an automated, auditable closed-loop lifecycle that eliminate
 
 ```mermaid
 flowchart TD
-    Scan["🔍 1. Scan & Detect<br><code>npx torusguard audit</code>"] --> Score["🧠 2. Adaptive Memory & Scoring<br><code>5-Factor Mathematical Model</code>"]
+    Scan["🔍 1. Scan & Detect<br><code>npx torusguard audit</code>"] --> Score["🧠 2. Adaptive Scoring & Memory<br><code>5-Factor Confidence Model</code>"]
     Score --> Decision{"Confidence<br>Threshold"}
-    Decision -- "Score < 70 (False Alarm)" --> Suppress["🛡️ Suppress & Decay<br><code>-30 Penalty / Zero Noise</code>"]
-    Decision -- "Score ≥ 70 (Confirmed Flaw)" --> Patch["🛠️ 3. Governed Remediation<br><code>Ponytail Protocol (≤35 add, ≤25 del)</code>"]
-    Patch --> Gate["👤 4. Human Authorization Gate<br><code>Zero Self-Review Invariant</code>"]
-    Gate --> Recheck["🔄 5. Differential Recheck<br><code>npx torusguard recheck (TG-DIFF)</code>"]
-    Recheck --> Telemetry["📊 6. SARIF Telemetry & Memory Append<br><code>OASIS SARIF v2.1.0 + Local Profile</code>"]
+    Decision -- "Score < 70 (Noise)" --> Suppress["🛡️ Suppress & Decay<br><code>-30 Penalty / Zero Alarms</code>"]
+    Decision -- "Score ≥ 70 (Confirmed)" --> Harden["🛠️ 3. Harden: Formulate Patch<br><code>/torusguard harden (Ponytail Limits)</code>"]
+    Harden --> Gate["👤 4. Authorize: Human Gate<br><code>Reviewer Sign-Off (Zero Self-Review)</code>"]
+    Gate --> Apply["⚡ 5. Apply: Governed Patch<br><code>/torusguard apply (Pre-Apply .bak)</code>"]
+    Apply --> Recheck["🔄 6. Recheck: Verify Closure<br><code>npx torusguard recheck (TG-DIFF)</code>"]
+    Recheck --> Telemetry["📊 7. Report: Telemetry & Memory<br><code>OASIS SARIF v2.1.0 + Context Append</code>"]
 
     style Scan fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc
     style Score fill:#0f172a,stroke:#818cf8,stroke-width:2px,color:#f8fafc
     style Decision fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
     style Suppress fill:#0f172a,stroke:#64748b,stroke-width:2px,color:#94a3b8
-    style Patch fill:#0f172a,stroke:#ec4899,stroke-width:2px,color:#f8fafc
+    style Harden fill:#0f172a,stroke:#ec4899,stroke-width:2px,color:#f8fafc
     style Gate fill:#1e293b,stroke:#f97316,stroke-width:2px,color:#f8fafc
+    style Apply fill:#0f172a,stroke:#eab308,stroke-width:2px,color:#f8fafc
     style Recheck fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc
     style Telemetry fill:#0f172a,stroke:#06b6d4,stroke-width:2px,color:#f8fafc
 ```
 
 ### Lifecycle Stage Breakdown
 
-| Stage | Command | Core Activity | Invariant Guarantee |
+| Stage | Command / Trigger | Core Activity | Invariant Guarantee |
 | :---: | :--- | :--- | :--- |
 | **1. Scan** | `npx torusguard audit`<br>*(or `/torusguard audit`)* | AST & regex scanning across Python & TypeScript. | Clusters duplicate alerts by root-cause identity. |
 | **2. Score** | `npx torusguard verify`<br>*(or `/torusguard verify`)* | Evaluates findings via 5-factor mathematical scoring (0–100). | Suppresses false alarms (`-30` penalty) before alerting developers. |
-| **3. Harden** | `/torusguard harden` | Packages a 4-artifact self-contained Remediation Bundle. | Produces framework-idiomatic fixes and rollback snapshots. |
-| **4. Apply** | `/torusguard apply` | Applies patch with automated pre-apply file snapshots. | **Ponytail Protocol strictly bounded:** $\le 35$ additions, $\le 25$ deletions. |
-| **5. Recheck** | `npx torusguard recheck`<br>*(or `/torusguard recheck`)* | Re-scans strictly modified files + Content-Aware Diff Guard. | Zero regression tolerance; blocks bypass markers (`# nosec`). |
-| **6. Report** | `npx torusguard report`<br>*(or `/torusguard report`)* | Generates Markdown summary and OASIS SARIF v2.1.0 telemetry. | Appends run metadata to local persistent memory engine. |
+| **3. Harden** | `/torusguard harden` | Formulates 4-artifact self-contained Remediation Bundle. | **Ponytail Protocol strictly bounded:** $\le 35$ additions, $\le 25$ deletions. |
+| **4. Authorize** | *(Human Gate / Reviewer)* | Independent operator reviews `patch.diff` and signs off. | **Zero Self-Review Invariant:** Remediator cannot approve its own patch. |
+| **5. Apply** | `/torusguard apply` | Executes patch with automated byte-for-byte rollback snapshot (`.bak`). | Validates syntax integrity & logs SHA-256 before/after hashes. |
+| **6. Recheck** | `npx torusguard recheck`<br>*(or `/torusguard recheck`)* | Re-scans strictly modified files + Content-Aware Diff Guard. | Zero regression tolerance; blocks bypass markers (`# nosec`). |
+| **7. Report** | `npx torusguard report`<br>*(or `/torusguard report`)* | Generates Markdown summary and OASIS SARIF v2.1.0 telemetry. | Appends run metadata and distilled insights to local memory engine. |
 
 ---
 

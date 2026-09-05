@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://torusguard.dev/schemas/golden-recipe.schema.json",
+  "title": "TorusGuard Golden Fix Recipe Schema",
+  "description": "Schema for reusable, verified AST remediation code snippets distilled from passing security patches.",
+  "type": "object",
+  "required": [
+    "recipe_id",
+    "rule_id",
+    "file_type",
+    "before_snippet",
+    "after_snippet",
+    "diff_snippet",
+    "ponytail_metrics",
+    "verified_count",
+    "last_verified"
+  ],
+  "properties": {
+    "recipe_id": {
+      "type": "string",
+      "pattern": "^recipe-[A-Za-z0-9_-]+$"
+    },
+    "rule_id": {
+      "type": "string",
+      "pattern": "^TG-[A-Z]+-[0-9]{3}$"
+    },
+    "file_type": {
+      "type": "string",
+      "description": "File extension or language identifier (e.g., .py, .ts, .js)"
+    },
+    "framework": {
+      "type": ["string", "null"],
+      "description": "Target web framework (e.g., Django, FastAPI, Next.js)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable summary of the fix strategy"
+    },
+    "before_snippet": {
+      "type": "string",
+      "description": "Vulnerable code pattern before remediation"
+    },
+    "after_snippet": {
+      "type": "string",
+      "description": "Remediated code pattern adhering to Ponytail bounds"
+    },
+    "diff_snippet": {
+      "type": "string",
+      "description": "Unified diff snippet representing the surgical fix"
+    },
+    "ponytail_metrics": {
+      "type": "object",
+      "required": ["additions", "deletions"],
+      "properties": {
+        "additions": {
+          "type": "integer",
+          "maximum": 35
+        },
+        "deletions": {
+          "type": "integer",
+          "maximum": 25
+        }
+      }
+    },
+    "verified_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "last_verified": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
