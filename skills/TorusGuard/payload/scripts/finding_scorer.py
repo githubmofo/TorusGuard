@@ -93,7 +93,7 @@ def compute_confidence_score(
     rule_id: Optional[str] = None,
     file_path: Optional[str] = None,
     root_dir: Optional[Path] = None
-) -> Tuple[int, str, Dict[str, int]]:
+) -> Tuple[int, str, Dict[str, Any]]:
     """
     Computes total score and assigns confidence band.
     Max points:

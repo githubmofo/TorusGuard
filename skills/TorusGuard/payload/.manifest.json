@@ -37,7 +37,7 @@
   "schemas/retest.schema.json": "97c0407ca4365a524020c430912f686f698cc0de90043194621071e9fc681cc7",
   "schemas/runtime-evidence.schema.json": "929d2b094c1cd1f7f9db07be1eba5994e8002477eab3fd24140e1e973fd18cc1",
   "scripts/diff_guard.py": "69be5eb015e4813facfcc4aae22b37e61128481dd493a030af4f340e047f24ae",
-  "scripts/finding_scorer.py": "175fc5b3c669579a451d90f25694b8414ec836c52beebbb8ae4aa83d2517c243",
+  "scripts/finding_scorer.py": "160a596b10a408823ed23c3ca302cbdc80b8dc8c55837d7e954cb977528ba152",
   "scripts/manifest_builder.py": "ce351a18ed5092099019d4f469a8cf9c4ae186a426ff9c711ee2c0402755abb9",
   "scripts/memory_engine.py": "2239350fe00c20bde56e99d7adb232d2025d079b97b06a7dbd21f61ec607010b",
   "scripts/monorepo_detector.py": "304ef120f3f18b417b0398081b158c3db58fa44a27749154e8c87916b9bbce7a",
