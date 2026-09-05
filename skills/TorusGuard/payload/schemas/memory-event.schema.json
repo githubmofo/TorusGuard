@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "torusguard-memory-event.schema.json",
+  "title": "TorusGuard Memory Event",
+  "description": "Schema for individual memory events recorded during audit/fix/recheck cycles.",
+  "type": "object",
+  "required": ["event_id", "event_type", "timestamp", "version"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique event identifier (UUID v4 or timestamp-based)."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": ["audit_finding", "fix_applied", "fix_verified", "false_positive", "pattern_learned", "stack_changed"],
+      "description": "Category of security event."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp."
+    },
+    "version": {
+      "type": "string",
+      "description": "TorusGuard version that recorded this event."
+    },
+    "rule_id": {
+      "type": ["string", "null"],
+      "description": "TorusGuard rule ID (e.g., TG-DB-004)."
+    },
+    "file_path": {
+      "type": ["string", "null"],
+      "description": "Relative file path within the project."
+    },
+    "line_number": {
+      "type": ["integer", "null"],
+      "description": "Line number of the finding."
+    },
+    "severity": {
+      "type": ["string", "null"],
+      "enum": ["critical", "high", "medium", "low", "info", null]
+    },
+    "confidence_score": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "code_hash": {
+      "type": ["string", "null"],
+      "description": "SHA-256 hash of the relevant code snippet for pattern matching."
+    },
+    "fix_strategy": {
+      "type": ["string", "null"],
+      "description": "Human-readable description of the fix approach used."
+    },
+    "verification_result": {
+      "type": ["string", "null"],
+      "enum": ["fixed", "regressed", "partial", "not_tested", null]
+    },
+    "suppression_reason": {
+      "type": ["string", "null"],
+      "description": "Reason for false positive suppression."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional event-specific metadata.",
+      "additionalProperties": true
+    }
+  }
+}

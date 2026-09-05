@@ -157,7 +157,7 @@ def print_already_initialized(target_root, cfg):
 
   {BOLD}▸ Project Root:{RESET}       {GREEN}{target_root}{RESET}
   {BOLD}▸ Workspace:{RESET}          {GREEN}.torusguard/{RESET} {DIM}(Already Initialized){RESET}
-  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '0.9.5')}{RESET}
+  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '1.0.0')}{RESET}
   {BOLD}▸ Severity Floor:{RESET}     {YELLOW}{cfg.get('severity_threshold', 'medium')}{RESET}
 
   {DIM}To refresh templates or re-scaffold, run:{RESET}
@@ -231,6 +231,70 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
     if not gitkeep_rules.exists():
         gitkeep_rules.write_text("", encoding="utf-8")
 
+    # ── Ensure memory subsystem is initialized (v1.0.0) ────────────────────
+    memory_dir = torusguard_target / "memory"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    events_dir = memory_dir / "events"
+    events_dir.mkdir(parents=True, exist_ok=True)
+
+    gitkeep_events = events_dir / ".gitkeep"
+    if not gitkeep_events.exists():
+        gitkeep_events.write_text("", encoding="utf-8")
+
+    mem_gitignore = memory_dir / ".gitignore"
+    if not mem_gitignore.exists():
+        mem_gitignore.write_text("*\n", encoding="utf-8")
+
+    decay_file = memory_dir / "decay.json"
+    if not decay_file.exists():
+        decay_file.write_text(json.dumps({
+            "default_ttl_days": 90,
+            "decay_rate": 0.15,
+            "last_decay_run": None
+        }, indent=2), encoding="utf-8")
+
+    patterns_file = memory_dir / "patterns.json"
+    if not patterns_file.exists():
+        patterns_file.write_text("[]", encoding="utf-8")
+
+    profile_file = memory_dir / "profile.json"
+    if not profile_file.exists():
+        profile_file.write_text(json.dumps({
+            "stack": [],
+            "total_events": 0,
+            "active_patterns_count": 0,
+            "fix_rate_percentage": None,
+            "top_vulnerabilities": [],
+            "last_updated": None
+        }, indent=2), encoding="utf-8")
+
+    context_file = memory_dir / "context.json"
+    if not context_file.exists():
+        context_file.write_text(json.dumps({
+            "version": "1.0.0",
+            "generated_at": None,
+            "token_estimate": 0,
+            "max_token_budget": 2000,
+            "project_profile": {
+                "stack": [],
+                "total_events": 0,
+                "active_patterns_count": 0,
+                "fix_rate_percentage": None,
+                "top_vulnerabilities": []
+            },
+            "cards": []
+        }, indent=2), encoding="utf-8")
+
+    # Ensure target project root .gitignore excludes .torusguard/memory/
+    root_gitignore = target_root / ".gitignore"
+    if root_gitignore.exists():
+        try:
+            gi_content = root_gitignore.read_text(encoding="utf-8")
+            if ".torusguard/memory" not in gi_content:
+                root_gitignore.write_text(gi_content.rstrip() + "\n\n# TorusGuard security memory (local only)\n.torusguard/memory/\n", encoding="utf-8")
+        except Exception:
+            pass
+
     # ── Step 2: Security Profile & Coverage (In-Process, Zero Subprocess) ──
     # Execute stack detection in-process without spawning child processes (Socket.dev safe)
     detected_stack = None
@@ -275,7 +339,7 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
     registered_ides = []
     tg_workflow_content = """---
 description: TorusGuard Autonomous Security Command Engine — run static security audits, authorized runtime web validation, governed remediation, and SARIF exports.
-version: 0.9.5
+version: 1.0.0
 tools: Read, Grep, Glob, Bash, Edit, Write
 agent: auditor
 ---

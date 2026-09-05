@@ -1,7 +1,7 @@
 ---
 name: torusguard
-description: "Autonomous security engine: 71 rules across 11 families, governed remediation (Ponytail Protocol), SARIF v2.1.0 exports, and 5-agent authority separation for Python & TypeScript web applications."
-version: 0.9.5
+description: "Autonomous security engine: 71 rules across 11 families, governed remediation (Ponytail Protocol), SARIF v2.1.0 exports, and persistent security memory context for Python & TypeScript web applications."
+version: 1.0.0
 ---
 
 # TorusGuard Master Security Router
@@ -11,7 +11,7 @@ version: 0.9.5
 ---
 
 ## ⚡ Workspace Bootstrap Check
-1. **If `.torusguard/` exists on disk:** Full governance active. Route slash commands to local specialist workflows below.
+1. **If `.torusguard/` exists on disk:** Full governance active. Load `.torusguard/memory/context.json` into prompt context for local-first intelligence. Route commands to specialist workflows below.
 2. **If `.torusguard/` is absent (Autonomous AI Mode):** Operates standalone in any AI agent (Kimi, Antigravity, VS Code, Cursor). Apply in-memory security invariants:
    - Server-side auth & tenant scoping (`.filter(tenant=...)`).
    - Zero client-side secrets (`SUPABASE_SERVICE_ROLE_KEY`, live API keys).
@@ -36,6 +36,7 @@ Load **only** the designated sub-skill on demand to preserve the 1,000–1,500 t
 | `/torusguard recheck` | `skills/torusguard-recheck/SKILL.md` | `reviewer` |
 | `/torusguard report` | `skills/torusguard-report/SKILL.md` | `reviewer` |
 | `/torusguard status` | `skills/torusguard-status/SKILL.md` | `reviewer` |
+| `/torusguard memory` | `skills/torusguard/SKILL.md` | `reviewer` |
 | `/torusguard full` | `skills/torusguard-full/SKILL.md` | *All* |
 
 *Note: Never load all skills simultaneously. Lazy-load strictly on demand.*

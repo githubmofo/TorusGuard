@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "torusguard-memory-pattern.schema.json",
+  "title": "TorusGuard Memory Pattern",
+  "description": "Schema for distilled security patterns extracted from raw events. Patterns represent recurring fix strategies, vulnerability classes, and project-specific security idioms.",
+  "type": "object",
+  "required": ["pattern_id", "rule_id", "pattern_type", "confidence", "occurrences", "first_seen", "last_seen"],
+  "properties": {
+    "pattern_id": {
+      "type": "string",
+      "description": "Unique pattern identifier (PAT-NNN)."
+    },
+    "rule_id": {
+      "type": "string",
+      "description": "TorusGuard rule ID this pattern relates to."
+    },
+    "pattern_type": {
+      "type": "string",
+      "enum": ["recurring_fix", "common_vulnerability", "false_positive_class", "regression_watch", "security_idiom"],
+      "description": "Category of the distilled pattern."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable summary of the pattern."
+    },
+    "fix_strategy": {
+      "type": ["string", "null"],
+      "description": "The preferred fix approach observed across multiple occurrences."
+    },
+    "confidence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Pattern confidence (amplified by repeated confirmations, decayed by TTL)."
+    },
+    "occurrences": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of times this pattern has been observed."
+    },
+    "affected_files": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of relative file paths where this pattern has been observed."
+    },
+    "first_seen": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_seen": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decay_checkpoint": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Last timestamp when this pattern's confidence was reconfirmed or decayed."
+    },
+    "source_events": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of event_ids that contributed to this pattern."
+    }
+  }
+}

@@ -49,7 +49,7 @@ function printHelp() {
   console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v0.9.5${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.0.0${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}   ${DIM}Autonomous Security Engine for AI-Built Applications${RESET}               ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
@@ -59,8 +59,9 @@ function printHelp() {
   ${CYAN}┌─────────────────────────────────────────────────────────────────────────┐${RESET}
   ${CYAN}│${RESET}  ${BOLD}Commands${RESET}                                                              ${CYAN}│${RESET}
   ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
-  ${CYAN}│${RESET}  ${GREEN}init${RESET}      Scaffold ${BOLD}.torusguard/${RESET} workspace + unlock 11 slash commands   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}status${RESET}    Display active security posture, rules, and stack info      ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}init${RESET}      Scaffold ${BOLD}.torusguard/${RESET} workspace + unlock 12 slash commands   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}status${RESET}    Display active security posture, memory, rules, and stack   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}memory${RESET}    Manage persistent security memory (export, import, decay)   ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}audit${RESET}     Run static AST security scan on the target project          ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}report${RESET}    Export OASIS SARIF v2.1.0 structured telemetry              ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}help${RESET}      Show this interactive command guide                         ${CYAN}│${RESET}
@@ -73,7 +74,7 @@ function printHelp() {
 
   ${BOLD}AI Chat Commands:${RESET}
     ${DIM}In your AI IDE chat, use any of these slash commands:${RESET}
-    ${CYAN}/torusguard${RESET}          Main orchestrator (status, audit, harden, etc.)
+    ${CYAN}/torusguard${RESET}          Main orchestrator (status, audit, harden, memory)
     ${CYAN}/torusguard-audit${RESET}    Static AST security scan
     ${CYAN}/torusguard-harden${RESET}   Generate governed fix patches
     ${CYAN}/torusguard-apply${RESET}    Apply patches with rollback snapshots
@@ -100,10 +101,32 @@ if (command === 'status') {
       const stackDb = cfg.detected_stack?.data_layer || 'Not yet detected';
       const stackStatus = cfg.detected_stack ? `${GREEN}Detected${RESET}` : `${YELLOW}Pending first audit${RESET}`;
 
+      // Memory telemetry
+      const memProfilePath = path.join(cwd, '.torusguard', 'memory', 'profile.json');
+      const memContextPath = path.join(cwd, '.torusguard', 'memory', 'context.json');
+      let memPatterns = 0;
+      let memEvents = 0;
+      let memTokens = 0;
+      let memFixRate = 'N/A';
+      if (fs.existsSync(memProfilePath)) {
+        try {
+          const prof = JSON.parse(fs.readFileSync(memProfilePath, 'utf-8'));
+          memPatterns = prof.active_patterns_count || 0;
+          memEvents = prof.total_events || 0;
+          memFixRate = prof.fix_rate_percentage !== null && prof.fix_rate_percentage !== undefined ? `${prof.fix_rate_percentage}%` : 'N/A';
+        } catch (e) {}
+      }
+      if (fs.existsSync(memContextPath)) {
+        try {
+          const ctx = JSON.parse(fs.readFileSync(memContextPath, 'utf-8'));
+          memTokens = ctx.token_estimate || 0;
+        } catch (e) {}
+      }
+
       console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v0.9.5${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.0.0${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
 
@@ -115,6 +138,13 @@ if (command === 'status') {
   ${CYAN}│${RESET}  Framework:         ${BOLD}${stackFw}${RESET}
   ${CYAN}│${RESET}  Data Layer:        ${BOLD}${stackDb}${RESET}
   ${CYAN}│${RESET}  Stack Detection:   ${stackStatus}
+  ${CYAN}└─────────────────────────────────────────────────────────────────────────┘${RESET}
+
+  ${CYAN}┌── Security Memory Engine ───────────────────────────────────────────────┐${RESET}
+  ${CYAN}│${RESET}  Patterns Learned:  ${GREEN}${memPatterns} active patterns${RESET}
+  ${CYAN}│${RESET}  Events Recorded:   ${WHITE}${memEvents} events (local-first log)${RESET}
+  ${CYAN}│${RESET}  Context Window:    ${CYAN}${memTokens} / 2,000 tokens${RESET} (${Math.round((memTokens / 2000) * 100)}% utilized)
+  ${CYAN}│${RESET}  Fix Velocity Rate: ${YELLOW}${memFixRate}${RESET}
   ${CYAN}└─────────────────────────────────────────────────────────────────────────┘${RESET}
 
   ${CYAN}┌── Governance Telemetry ─────────────────────────────────────────────────┐${RESET}
@@ -146,6 +176,70 @@ if (command === 'status') {
 `);
     process.exit(0);
   }
+}
+
+// Subcommand: memory
+if (command === 'memory') {
+  const sub = args[1] || 'status';
+  const memScript = path.join(cwd, '.torusguard', 'scripts', 'memory_engine.py');
+  const fallbackMemScript = path.join(rootDir, '.torusguard', 'scripts', 'memory_engine.py');
+  const actualMemScript = fs.existsSync(memScript) ? memScript : fallbackMemScript;
+
+  let pyArgs = [actualMemScript];
+  if (sub === 'status') {
+    pyArgs.push('--action', 'status');
+  } else if (sub === 'context') {
+    pyArgs.push('--action', 'context');
+  } else if (sub === 'distill') {
+    pyArgs.push('--action', 'distill');
+  } else if (sub === 'decay') {
+    pyArgs.push('--action', 'decay');
+    const ttlIdx = args.indexOf('--ttl');
+    if (ttlIdx !== -1 && args[ttlIdx + 1]) {
+      pyArgs.push('--ttl', args[ttlIdx + 1]);
+    }
+  } else if (sub === 'compact') {
+    pyArgs.push('--action', 'compact');
+    const ageIdx = args.indexOf('--older-than');
+    if (ageIdx !== -1 && args[ageIdx + 1]) {
+      pyArgs.push('--older-than', args[ageIdx + 1]);
+    }
+  } else if (sub === 'export') {
+    pyArgs.push('--action', 'export');
+    const pathIdx = args.indexOf('--path') !== -1 ? args.indexOf('--path') : args.indexOf('-p');
+    if (pathIdx !== -1 && args[pathIdx + 1]) {
+      pyArgs.push('--target', args[pathIdx + 1]);
+    } else {
+      pyArgs.push('--target', 'torusguard-memory-export.json');
+    }
+  } else if (sub === 'import') {
+    pyArgs.push('--action', 'import');
+    const pathIdx = args.indexOf('--path') !== -1 ? args.indexOf('--path') : args.indexOf('-p');
+    if (pathIdx !== -1 && args[pathIdx + 1]) {
+      pyArgs.push('--source', args[pathIdx + 1]);
+    } else {
+      console.error(`${RED}Error: --path <file> is required for memory import${RESET}`);
+      process.exit(1);
+    }
+  } else if (sub === 'fp') {
+    pyArgs.push('--action', 'fp');
+    const ruleIdx = args.indexOf('--rule') !== -1 ? args.indexOf('--rule') : args.indexOf('-r');
+    if (ruleIdx !== -1 && args[ruleIdx + 1]) {
+      pyArgs.push('--rule-id', args[ruleIdx + 1]);
+    } else {
+      console.error(`${RED}Error: --rule <rule_id> is required for fp suppression${RESET}`);
+      process.exit(1);
+    }
+    const reasonIdx = args.indexOf('--reason');
+    if (reasonIdx !== -1 && args[reasonIdx + 1]) {
+      pyArgs.push('--reason', args[reasonIdx + 1]);
+    }
+  } else {
+    pyArgs.push('--action', sub, ...args.slice(2));
+  }
+
+  const proc = spawnSync(pythonCmd, pyArgs, { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
 }
 
 // Locate bootstrap / runner scripts

@@ -6,8 +6,8 @@
   **Autonomous Security Guardrails, Governed Remediation, and Authorized Runtime Validation for AI-Built Web Applications.**
 
   [![npm version](https://img.shields.io/npm/v/torusguard.svg?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/torusguard)
-  [![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-v0.9.5-181717.svg?style=flat-square&logo=github)](https://github.com/githubmofo/TorusGuard/pkgs/npm/torusguard)
-  [![Release](https://img.shields.io/badge/Release-v0.9.5-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
+  [![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-v1.0.0-181717.svg?style=flat-square&logo=github)](https://github.com/githubmofo/TorusGuard/pkgs/npm/torusguard)
+  [![Release](https://img.shields.io/badge/Release-v1.0.0-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
   [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
   [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
   [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
@@ -143,6 +143,7 @@ When Track 2 is initialized, the complete 11-command palette becomes available i
 | `/torusguard recheck`<br>*(or `/torusguard-recheck`)* | `skills/torusguard-recheck` | Phase 6 | Executes differential re-audit strictly on modified files to verify fix closure. | No |
 | `/torusguard report`<br>*(or `/torusguard-report`)* | `skills/torusguard-report` | Phase 7 | Emits executive summary markdown and OASIS SARIF v2.1.0 CI artifacts. | No |
 | `/torusguard status`<br>*(or `/torusguard-status`)* | `skills/torusguard-status` | Diagnostic | Inspects active security posture, thresholds, and recent run history. | No |
+| `/torusguard memory` | `skills/torusguard` | Intelligence | Inspects, exports, imports, or compacts persistent security memory context. | Yes (`.torusguard/memory/`) |
 | `/torusguard full` | `skills/torusguard-full` | End-to-End | Orchestrates the entire 7-stage security cycle in one coordinated sequence. | **Yes (Governed)** |
 
 ---
@@ -258,6 +259,14 @@ $$\text{Score} = (w_d \cdot D) + (w_e \cdot E) + (w_c \cdot C_{ast}) - P_{fp} - 
 
 ### 3. Stable Line-Shift Invariant Fingerprinting (`primaryLocationLineHash`)
 Traditional static tools break finding identity when a developer inserts 2 lines at the top of a file. TorusGuard computes a stable SHA-256 hash across the AST node content, enclosing function scope, and syntactic tokens. Findings maintain permanent tracking identity across Git commits and branch renames.
+
+### 4. Adaptive Security Memory Engine (`.torusguard/memory/`)
+Traditional scanners are stateless — they scan, report, and forget. TorusGuard v1.0.0 introduces persistent, local-first intelligence that learns from every audit, fix, and verification:
+* **4-Tier Intelligence Architecture:** Raw event append-log (`events/`) ──► Distilled pattern store (`patterns.json`) ──► Pre-computed context window (`context.json`) ──► Project security profile (`profile.json`).
+* **Structured JSON Cards:** Pre-computes context cards within a strict $\le 2,000$ token budget for instant, hallucination-free injection into AI coding agent prompts.
+* **Confidence Amplification & TTL Decay:** Multi-file fix verifications boost pattern confidence up to 98%, while unconfirmed patterns decay gracefully over 90 days.
+* **Zero-Leakage Guarantee:** Memory is strictly gitignored (`*`), excluded from npm distribution tarballs, and stored only in the user's project.
+* **CLI Memory Management:** Inspect, export, import, or compact memory via `npx torusguard memory`.
 
 ---
 

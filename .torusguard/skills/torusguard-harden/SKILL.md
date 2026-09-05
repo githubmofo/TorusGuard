@@ -1,7 +1,7 @@
 ---
 name: torusguard-harden
 description: Package surgical remediation bundles conforming to the Ponytail Protocol (<= 35 additions, <= 25 deletions).
-version: 0.9.2
+version: 1.0.0
 workflow: .torusguard/workflows/harden.md
 tools: Read, Grep, Glob, Write
 scripts-binding:
@@ -38,8 +38,8 @@ Formulate minimal, surgical code fixes bound by the Ponytail Protocol ($\le 35$ 
 
 1. **Select Finding:** Choose prioritized verified flaw from active run's `findings.md`.
 2. **Read AST Context:** View target file surrounding lines (±15) using `view_file`.
-3. **Formulate Minimal Fix:** Parameterize SQL, add tenant filters, insert validation schemas.
-4. **Validate Line Churn:** Assert additions $\le 35$ and deletions $\le 25$.
+3. **Formulate Minimal Fix:** Consult `.torusguard/memory/context.json` for verified idioms; parameterize SQL, add tenant filters.
+4. **Validate Line Churn:** Assert additions $\le 35$ and deletions $\le 25$ via `diff_guard.py`.
 5. **Package Bundle:** Write 4 artifacts (`patch.diff`, `plan.md`, `verification.md`, `rollback.md`).
 6. **Flag Sensitive Paths:** Mark changes touching auth or billing with `Requires Sensitive-Path Sign-Off`.
 

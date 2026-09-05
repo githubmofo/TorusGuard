@@ -5,6 +5,28 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-09-05
+
+### Added
+- **Adaptive Security Memory Engine (`.torusguard/memory/`):** Local-first persistent intelligence layer that learns from audits, fixes, and rechecks, maintaining a pre-computed token-budgeted context window for AI agent consumption.
+- **4-Tier Structured Memory Architecture:**
+  - *Append-Only Event Ledger (`memory/events/`):* Records 6 distinct event types (`audit_finding`, `fix_applied`, `fix_verified`, `false_positive`, `pattern_learned`, `stack_changed`) with line hashes and timestamps.
+  - *Distilled Pattern Store (`memory/patterns.json`):* Synthesizes raw events into actionable pattern types (`recurring_fix`, `common_vulnerability`, `false_positive_class`, `regression_watch`, `security_idiom`) with multi-file confidence amplification.
+  - *Pre-Computed Context Window (`memory/context.json`):* Generates structured JSON cards with strict token enforcement ($\le 2,000$ tokens) for instant injection into LLM prompts without hallucination.
+  - *Project Security Profile (`memory/profile.json`):* Tracks project security DNA, detected stack, fix velocity, and top vulnerability rules.
+- **Memory Decay (TTL Engine):** Configurable 90-day time-to-live decay reduces confidence of unconfirmed historical patterns to prevent stale architectural advice.
+- **Memory Compaction:** Automatically compresses loose event files older than 30 days into `compacted_archive.json` to prevent inode bloat.
+- **Export & Import Subsystem:** Explicit, user-controlled memory bundling for team sharing without data leakage.
+- **Memory-Augmented Finding Scorer:** `finding_scorer.py` evaluates memory patterns to adjust confidence: -30 for false positives, +15 for regression watch, +10 for recurring patterns.
+- **Content-Aware Diff Regression Blocker:** `diff_guard.py` checks patches against memory patterns to block re-introduced vulnerabilities (`TG-DIFF-004`).
+- **CLI Memory Suite:** Added `npx torusguard memory` with subcommands (`status`, `context`, `export`, `import`, `decay`, `compact`, `fp`) and real-time memory metrics on `npx torusguard status`.
+- **Validation Test Suite (`harness/validate_v1_0_0_memory.py`):** 11-check test suite validating memory scaffolding, event logging, distillation, context budgeting, false positive suppression, decay, export/import, compaction, scoring, diff regression, and npm tarball isolation.
+
+### Changed
+- **Official Version Bump to v1.0.0:** TorusGuard graduates to version 1.0.0 across CLI, schemas, rules, and agents.
+- **Router Skill Updated:** Universal `SKILL.md` and specialist skills inject `context.json` on initialization.
+- **Bootstrap Scaffolding:** `bootstrap.py` automatically initializes `.torusguard/memory/` and ensures `.gitignore` isolation.
+
 ## [0.9.5] - 2026-09-03
 
 ### Fixed

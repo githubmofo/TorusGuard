@@ -90,7 +90,7 @@ def test_part3_scripts_references_integration():
     # 5. Check README & CHANGELOG Integration
     readme_file = root / "README.md"
     readme_content = readme_file.read_text(encoding="utf-8")
-    assert "Release-v0." in readme_content, "README.md missing Release badge"
+    assert "Release-v0." in readme_content or "Release-v1." in readme_content, "README.md missing Release badge"
     assert "npx skills add" in readme_content, "README.md missing npx skills add instruction"
     assert "/torusguard verify" in readme_content, "README.md missing /torusguard verify command"
     assert "/torusguard report" in readme_content, "README.md missing /torusguard report command"

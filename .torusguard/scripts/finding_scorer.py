@@ -1,20 +1,89 @@
 #!/usr/bin/env python3
 """
-TorusGuard 5-Factor Finding Confidence Scorer
-Evaluates finding confidence against the objective 0–100 scoring model.
+TorusGuard Finding Confidence Scorer (v1.0.0)
+Evaluates finding confidence against the objective 0–100 scoring model,
+augmented by persistent memory patterns and false-positive suppression.
 """
 
 import sys
 import json
 import argparse
-from typing import Dict, Any, Tuple
+from pathlib import Path
+from typing import Dict, Any, Tuple, Optional
+
+
+def compute_memory_boost(
+    rule_id: str,
+    file_path: Optional[str] = None,
+    root_dir: Optional[Path] = None
+) -> int:
+    """
+    Query .torusguard/memory/patterns.json to calculate memory confidence modifier:
+    - False positive class: -30 (heavily suppressed)
+    - Regression watch: +15 (high alert / known recurrence)
+    - Recurring fix / Common vulnerability: +10
+    - Security idiom: +5
+    - Multi-file pattern match bonus: +5
+    """
+    if not rule_id:
+        return 0
+
+    base = Path(root_dir or Path.cwd()).resolve()
+    # Search for .torusguard
+    torusguard_dir = base / ".torusguard"
+    if not torusguard_dir.exists():
+        for parent in base.parents:
+            if (parent / ".torusguard").exists():
+                torusguard_dir = parent / ".torusguard"
+                break
+
+    patterns_file = torusguard_dir / "memory" / "patterns.json"
+    if not patterns_file.exists():
+        return 0
+
+    try:
+        with open(patterns_file, "r", encoding="utf-8") as f:
+            patterns = json.load(f)
+    except Exception:
+        return 0
+
+    boost = 0
+    matched_file = False
+
+    for pat in patterns:
+        if pat.get("rule_id") == rule_id:
+            ptype = pat.get("pattern_type")
+            if ptype == "false_positive_class":
+                boost -= 30
+            elif ptype == "regression_watch":
+                boost += 15
+            elif ptype in ("recurring_fix", "common_vulnerability"):
+                boost += 10
+            elif ptype == "security_idiom":
+                boost += 5
+
+            # File-specific correlation bonus
+            if file_path and file_path in pat.get("affected_files", []):
+                matched_file = True
+
+    if matched_file and boost > 0:
+        boost += 5
+    elif matched_file and boost < 0:
+        boost -= 10
+
+    return boost
+
 
 def compute_confidence_score(
     evidence_quality: int = 35,
     reproduction_success: int = 0,
     independent_confirmations: int = 5,
     environmental_clarity: int = 15,
-    manual_review_status: int = 0
+    manual_review_status: int = 0,
+    memory_boost: int = 0,
+    rule_id: Optional[str] = None,
+    file_path: Optional[str] = None,
+    root_dir: Optional[Path] = None
 ) -> Tuple[int, str, Dict[str, int]]:
     """
     Computes total score and assigns confidence band.
@@ -24,6 +93,8 @@ def compute_confidence_score(
     - independent_confirmations: 15
     - environmental_clarity: 15
     - manual_review_status: 10
+    - memory_boost: -30 to +20 (modifier from persistent memory)
+    Total is clamped to [0, 100].
     """
     eq = min(max(evidence_quality, 0), 35)
     rs = min(max(reproduction_success, 0), 25)
@@ -31,7 +102,13 @@ def compute_confidence_score(
     ec = min(max(environmental_clarity, 0), 15)
     mr = min(max(manual_review_status, 0), 10)
 
-    total = eq + rs + ic + ec + mr
+    # Auto-calculate memory boost if rule_id provided and memory_boost == 0
+    eff_mem_boost = memory_boost
+    if rule_id and eff_mem_boost == 0:
+        eff_mem_boost = compute_memory_boost(rule_id, file_path=file_path, root_dir=root_dir)
+
+    raw_total = eq + rs + ic + ec + mr + eff_mem_boost
+    total = min(max(raw_total, 0), 100)
 
     if total >= 90:
         band = "Confirmed"
@@ -48,6 +125,7 @@ def compute_confidence_score(
         "independent_confirmations": ic,
         "environmental_clarity": ec,
         "manual_review_status": mr,
+        "memory_boost": eff_mem_boost,
         "total_score": total,
         "classification_band": band
     }
@@ -61,6 +139,9 @@ def main():
     parser.add_argument("--ic", type=int, default=5, help="Independent confirmations score (0-15)")
     parser.add_argument("--ec", type=int, default=15, help="Environmental clarity score (0-15)")
     parser.add_argument("--mr", type=int, default=0, help="Manual review status score (0-10)")
+    parser.add_argument("--memory-boost", type=int, default=0, help="Memory boost score (-30 to +20)")
+    parser.add_argument("--rule-id", type=str, help="TorusGuard rule ID for memory pattern matching")
+    parser.add_argument("--file", type=str, help="File path for correlation matching")
     parser.add_argument("--json", action="store_true", help="Output JSON")
     args = parser.parse_args()
 
@@ -69,7 +150,10 @@ def main():
         reproduction_success=args.rs,
         independent_confirmations=args.ic,
         environmental_clarity=args.ec,
-        manual_review_status=args.mr
+        manual_review_status=args.mr,
+        memory_boost=args.memory_boost,
+        rule_id=args.rule_id,
+        file_path=args.file
     )
 
     if args.json:
@@ -81,6 +165,7 @@ def main():
         for k, v in factors.items():
             if k not in ("total_score", "classification_band"):
                 print(f"  - {k}: {v}")
+
 
 if __name__ == "__main__":
     main()

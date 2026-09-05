@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-TorusGuard Content-Aware Diff Line Scanner (v0.9.3)
-Evaluates unified diff patches against security invariants before harden or apply.
+TorusGuard Content-Aware Diff Line Scanner (v1.0.0)
+Evaluates unified diff patches against security invariants before harden or apply,
+including regression watch checks against persistent memory patterns.
 Pure Python 3.10+ standard library (zero external dependencies).
 """
 
@@ -38,16 +39,69 @@ TENANT_FILTER_PATTERNS = [
 ]
 
 
-def audit_diff(diff_content: str) -> Dict[str, Any]:
+def check_memory_regressions(
+    current_file: str,
+    current_line: int,
+    added_content: str,
+    root_dir: Optional[Path] = None
+) -> List[Dict[str, Any]]:
+    """
+    Check if the added line re-introduces a vulnerability in a file
+    that is tracked under active Regression Watch in .torusguard/memory/patterns.json.
+    """
+    violations = []
+    base = Path(root_dir or Path.cwd()).resolve()
+    torusguard_dir = base / ".torusguard"
+    if not torusguard_dir.exists():
+        for parent in base.parents:
+            if (parent / ".torusguard").exists():
+                torusguard_dir = parent / ".torusguard"
+                break
+
+    patterns_file = torusguard_dir / "memory" / "patterns.json"
+    if not patterns_file.exists():
+        return violations
+
+    try:
+        with open(patterns_file, "r", encoding="utf-8") as f:
+            patterns = json.load(f)
+    except Exception:
+        return violations
+
+    clean_file = current_file.replace("\\", "/")
+    for pat in patterns:
+        if pat.get("pattern_type") == "regression_watch":
+            affected = [f.replace("\\", "/") for f in pat.get("affected_files", [])]
+            if clean_file in affected or any(clean_file.endswith(a) for a in affected):
+                rule_id = pat.get("rule_id", "TG-REG")
+                desc = pat.get("description", "Regression watch violation")
+                violations.append({
+                    "rule_id": "TG-DIFF-004",
+                    "category": "Regression Watch",
+                    "severity": "HIGH",
+                    "file": current_file,
+                    "line": current_line,
+                    "content": added_content.strip(),
+                    "description": f"File {current_file} matches active Regression Watch for {rule_id}: {desc}"
+                })
+    return violations
+
+
+def audit_diff(
+    diff_content: str,
+    check_memory: bool = False,
+    root_dir: Optional[Path] = None
+) -> Dict[str, Any]:
     """
     Parses a unified diff and returns detected violations.
+    Optionally checks against active regression watch patterns in memory.
     """
     lines = diff_content.splitlines()
     violations: List[Dict[str, Any]] = []
-    
+
     current_file = "unknown"
     current_line = 0
-    
+
     additions: List[tuple[int, str]] = []
     deletions: List[tuple[int, str]] = []
 
@@ -68,7 +122,7 @@ def audit_diff(diff_content: str) -> Dict[str, Any]:
             current_line += 1
             added_content = line[1:]
             additions.append((current_line, added_content))
-            
+
             # Check bypass patterns
             for pat, desc in BYPASS_PATTERNS:
                 if pat.search(added_content):
@@ -81,7 +135,7 @@ def audit_diff(diff_content: str) -> Dict[str, Any]:
                         "content": added_content.strip(),
                         "description": desc
                     })
-                    
+
             # Check secret ingestion
             for pat, desc in SECRET_PATTERNS:
                 if pat.search(added_content):
@@ -94,6 +148,11 @@ def audit_diff(diff_content: str) -> Dict[str, Any]:
                         "content": "[REDACTED_POTENTIAL_SECRET]",
                         "description": desc
                     })
+
+            # Check memory regression watch if requested
+            if check_memory:
+                reg_violations = check_memory_regressions(current_file, current_line, added_content, root_dir=root_dir)
+                violations.extend(reg_violations)
 
         elif line.startswith('-') and not line.startswith('---'):
             deleted_content = line[1:]
@@ -127,7 +186,7 @@ def audit_diff(diff_content: str) -> Dict[str, Any]:
     }
 
 
-def audit_diff_file(file_path: str) -> Dict[str, Any]:
+def audit_diff_file(file_path: str, check_memory: bool = False, root_dir: Optional[Path] = None) -> Dict[str, Any]:
     path = Path(file_path)
     if not path.is_file():
         return {
@@ -136,23 +195,24 @@ def audit_diff_file(file_path: str) -> Dict[str, Any]:
             "violations": []
         }
     content = path.read_text(encoding="utf-8", errors="replace")
-    return audit_diff(content)
+    return audit_diff(content, check_memory=check_memory, root_dir=root_dir)
 
 
 def main():
     parser = argparse.ArgumentParser(description="TorusGuard Unified Diff Security Scanner")
     parser.add_argument("diff_path", nargs="?", help="Path to unified diff file (or read stdin if omitted)")
+    parser.add_argument("--check-memory", action="store_true", help="Check additions against persistent memory regression watch patterns")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
     args = parser.parse_args()
 
     if args.diff_path:
-        res = audit_diff_file(args.diff_path)
+        res = audit_diff_file(args.diff_path, check_memory=args.check_memory)
     else:
         if sys.stdin.isatty():
             parser.print_help()
             sys.exit(1)
         diff_text = sys.stdin.read()
-        res = audit_diff(diff_text)
+        res = audit_diff(diff_text, check_memory=args.check_memory)
 
     if args.json:
         print(json.dumps(res, indent=2))

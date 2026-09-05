@@ -1,7 +1,7 @@
 ---
 name: torusguard-recheck
 description: Execute targeted differential AST re-scan against modified files, verify fix closure, and assert zero regressions.
-version: 0.9.2
+version: 1.0.0
 workflow: .torusguard/workflows/recheck.md
 tools: Read, Grep, Glob, Write
 scripts-binding:
@@ -19,10 +19,10 @@ Re-scan only files modified by remediation patches, confirming that targeted vul
 ## Execution Steps
 
 1. **Identify Modified Files:** Read `apply-log.json` from active run directory.
-2. **Execute Differential Scan:** Re-run active `TG-*` rules exclusively against the modified files.
+2. **Execute Differential Scan:** Re-run active `TG-*` rules exclusively against modified files.
 3. **Evaluate Finding Status:** Transition finding state according to transition rules below.
 4. **Assert Regression-Free:** Ensure no new security warnings triggered on altered lines.
-5. **Update State:** Record verified status in `findings.json`.
+5. **Update State & Memory:** Record status in `findings.json` and sync verified results to memory engine.
 6. **Emit Recheck Report:** Save summary in `.torusguard/runs/<run_id>/recheck-report.md`.
 
 ---

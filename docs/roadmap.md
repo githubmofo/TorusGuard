@@ -194,23 +194,35 @@ This document outlines the development milestones, past releases, and future pri
 
 ---
 
-## 🎯 Upcoming Milestones: v0.9.5+ Series
+### ✅ v1.0.0 — Adaptive Security Memory Engine & General Availability (2026-09-05)
+- **Adaptive Security Memory Engine (`.torusguard/memory/`):** Persistent local intelligence layer maintaining audit findings, verified fix idioms, and false-positive suppressions across sessions.
+- **4-Tier Structured Memory Store:**
+  - Append-only event ledger (`memory/events/`) with 6 distinct event types.
+  - Distilled pattern store (`memory/patterns.json`) with multi-file confidence amplification.
+  - Pre-computed context window (`memory/context.json`) formatted as structured JSON cards ($\le 2,000$ tokens).
+  - Project DNA security profile (`memory/profile.json`) tracking fix velocity and top vulnerability rules.
+- **Configurable TTL Decay:** 90-day time-to-live decay prevents stale architectural advice.
+- **Event Compaction:** Automatically condenses loose event files older than 30 days into `compacted_archive.json`.
+- **Export & Import Subsystem:** Explicit, user-controlled memory bundling for team collaboration.
+- **Pipeline Memory Integration:**
+  - `finding_scorer.py`: Memory-augmented confidence scoring (+15 for regression watch, -30 for false positives, +10 for recurring patterns).
+  - `diff_guard.py`: Added `TG-DIFF-004` regression detection for files on Regression Watch.
+  - `run_manager.py`: Run-to-memory synchronization.
+  - `bootstrap.py`: Automatic memory layout initialization during `init`.
+- **CLI Commands:** Added `npx torusguard memory` and real-time memory metrics on `npx torusguard status`.
+- **Validation Test Suite:** 11-check test suite (`harness/validate_v1_0_0_memory.py`) achieving 100% pass rate.
 
-### ✅ v0.9.5 — Terminal UX Overhaul & Socket Alert Fix (Completed: September 2026)
-- [x] **Socket.dev Alert Resolution:** Eliminated `subprocess.run()` from `bootstrap.py` to prevent `gptAnomaly` flagging.
-- [x] **Premium Terminal UI:** Box-drawn ANSI cards for init, status, and help flows.
-- [x] **Step 2 Redesign:** Replaced broken stack detection with static Security Profile & Coverage card.
-- [x] **Deferred Stack Detection:** Auto-detects on first `/torusguard-audit` run instead of during init.
-- [x] **GitHub Packages Banner Fix:** Corrected README image URL in published tarball.
+---
 
-### 🚀 v0.9.6 — CI/CD Permission Modeling & Container Scanners (Q4 2026)
+## 🎯 Upcoming Milestones: Post-v1.0.0 Series
+
+### 🚀 v1.1.0 — CI/CD Least-Privilege & Container Hardening (Q4 2026)
 - [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.
-- [ ] **Base Image Trivy / Grype Integration:** Local wrapper for scanning base container images (`FROM alpine:3.18`).
+- [ ] **Base Image Vulnerability Scanning:** Local container image configuration checks.
 
-### 🚀 v1.0.0 — Sandboxed Replay & Full Multi-Platform Release (Q2 2027)
-- [ ] Headless Chromium sandbox integration inside bounded Docker environments.
+### 🚀 v1.2.0 — Expanded Framework Idioms (Q1 2027)
+- [ ] Go (Fiber / Gin), Ruby on Rails, and Spring Boot framework reference guides and memory idioms.
 - [ ] Bidirectional WebSocket state-machine recording and deterministic replay.
-- [ ] Go (Fiber / Gin), Ruby on Rails, and Spring Boot framework reference guides.
 
 ---
 

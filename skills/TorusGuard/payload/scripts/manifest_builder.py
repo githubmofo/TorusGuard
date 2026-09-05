@@ -29,6 +29,8 @@ def scan_workspace_files(base_dir):
     for root, dirs, files in os.walk(base_dir):
         if "runs" in dirs:
             dirs.remove("runs")
+        if "memory" in dirs:
+            dirs.remove("memory")
         if "__pycache__" in dirs:
             dirs.remove("__pycache__")
 

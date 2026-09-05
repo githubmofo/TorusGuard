@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "torusguard-memory-context.schema.json",
+  "title": "TorusGuard Memory Context Window",
+  "description": "Pre-computed, token-budgeted context window for AI agent consumption formatted as structured JSON cards.",
+  "type": "object",
+  "required": ["version", "generated_at", "token_estimate", "max_token_budget", "project_profile", "cards"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "TorusGuard engine version (e.g., 1.0.0)."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when this context window was computed."
+    },
+    "token_estimate": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Estimated token count of this context document."
+    },
+    "max_token_budget": {
+      "type": "integer",
+      "default": 2000,
+      "description": "Maximum allowed tokens for agent context injection (default: 2000)."
+    },
+    "project_profile": {
+      "type": "object",
+      "required": ["stack", "total_events", "active_patterns_count"],
+      "properties": {
+        "stack": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Detected technology stack frameworks/languages."
+        },
+        "total_events": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "active_patterns_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fix_rate_percentage": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "top_vulnerabilities": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "cards": {
+      "type": "array",
+      "description": "Ordered list of high-priority intelligence cards for LLM grounding.",
+      "items": {
+        "type": "object",
+        "required": ["card_id", "card_type", "priority", "title", "summary", "card_data"],
+        "properties": {
+          "card_id": {
+            "type": "string",
+            "description": "Unique card identifier (e.g., CARD-001)."
+          },
+          "card_type": {
+            "type": "string",
+            "enum": ["pattern", "profile", "regression_watch", "false_positive", "fix_idiom"],
+            "description": "Semantic category of this context card."
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Rank order priority (higher = more relevant/critical)."
+          },
+          "title": {
+            "type": "string",
+            "description": "Short, human-readable and agent-scannable card title."
+          },
+          "summary": {
+            "type": "string",
+            "description": "One-line operational summary for rapid agent reasoning."
+          },
+          "card_data": {
+            "type": "object",
+            "description": "Structured card payload containing rule_id, fix_strategy, confidence, affected_files, etc.",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}
