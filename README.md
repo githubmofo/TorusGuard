@@ -20,18 +20,9 @@
 
 ## 💡 Executive Summary
 
-Modern AI coding agents generate full-stack web applications at superhuman speeds. However, they consistently introduce catastrophic security anti-patterns: leaking backend database secrets into browser client bundles, omitting multi-tenant isolation filters in ORM queries, stripping CSRF protections, or granting unconstrained tool permissions to autonomous agents.
+AI coding assistants generate application code at superhuman speeds. However, they routinely hallucinate critical security boundaries: leaking database credentials into client bundles, omitting multi-tenant filters in ORM queries, stripping CSRF protections, or granting unconstrained tool permissions to autonomous agents.
 
-**TorusGuard** is an autonomous application security co-pilot and governed remediation engine engineered specifically for AI-built software. Operating natively inside developer IDEs (Antigravity, Cursor, Claude Code, Windsurf, VS Code Copilot, Cline) and continuous integration workflows, TorusGuard delivers:
-
-1. **Universal Polyglot Profiling:** Automatically detects and inspects 16+ programming languages, 30+ web frameworks, and 20+ ORMs, with full monorepo fleet discovery.
-2. **Deterministic Static Auditing:** Evaluates 71 specialized security rules across 11 families, with context-aware test-path suppression (`is_test_path()`) to eliminate noise.
-3. **Adaptive Security Memory:** Retains persistent local intelligence across runs, distilling verified Golden Fix Recipes and computing proximity-affinity context cards.
-4. **Governed Minimal Remediation (Ponytail Protocol):** Replaces destructive full-file rewrites with surgical, bounded patches ($\le 35$ additions, $\le 25$ deletions) backed by byte-for-byte rollback snapshots.
-5. **Pre-Commit Interception (Diff Guard):** Installs in 1 command to block dangerous security bypasses, hardcoded tokens, and tenant stripping before commits reach git history.
-6. **AI IDE Rules Synchronization:** Compiles active invariants and recipes into prompt-optimized rules for Cursor, Claude Code, Antigravity, and Windsurf within $\le 300$ tokens.
-7. **Visual HTML Posture Dashboard:** Generates standalone, zero-external-CDN dark-mode reports featuring animated SVG posture gauges and interactive diff viewers.
-8. **Enterprise Telemetry:** Emits OASIS SARIF v2.1.0 telemetry with stable AST line-shift invariant hashes for native GitHub Code Scanning integration.
+**TorusGuard** is an autonomous application security co-pilot and governed remediation engine built specifically for AI-written code. Operating natively within developer IDEs (Cursor, Claude Code, Antigravity, Windsurf, VS Code Copilot) and CI workflows, it deterministically audits, runtime-verifies, and surgically patches vulnerabilities without destructive full-file rewrites.
 
 ### 🌐 The Core Invariant: The Browser-Code Truth
 > **"If the browser receives it, users can inspect it."**  
@@ -39,281 +30,195 @@ Modern AI coding agents generate full-stack web applications at superhuman speed
 
 ---
 
-## 🏛️ System Architecture & Lifecycle Flowchart
+## ⚔️ Why TorusGuard? (Traditional SAST vs. AI Coding Agents)
 
-The following comprehensive architecture diagram illustrates the end-to-end operational pipeline—from the developer's prompt in an AI editor through workspace ingestion, static AST scanning, memory-assisted scoring, runtime verification, Ponytail remediation, pre-commit enforcement, and multi-format telemetry distribution.
+| Capability | Traditional SAST (SonarQube, Snyk) | Raw AI Coding Agents | TorusGuard Engine |
+|---|:---:|:---:|:---:|
+| **Target Code Base** | Human-written legacy code | Fast, high-churn AI generations | **AI-built full-stack applications** |
+| **Remediation Model** | Issue tickets & PDF reports | Destructive full-file rewrites | **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions) |
+| **Learning Feedback** | Static rules, zero memory | Forgets fixes across prompts | **Adaptive Security Memory** & Golden Recipes |
+| **IDE Integration** | Heavy background language servers | Bloated prompt context | **AI IDE Rules Auto-Sync** ($\le 300$ tokens) |
+| **Commit Interception** | Slow server-side webhooks | None (pushes broken code) | **Git Pre-Commit Diff Guard** ($< 200\text{ ms}$) |
+| **Privacy & Telemetry** | Cloud code upload / SaaS | Third-party cloud LLMs | **100% Local, Zero-Egress Guarantee** |
+
+---
+
+## 🏛️ System Architecture & Visual Flowcharts
+
+### 1. End-to-End Governance Pipeline
+The complete operational pipeline from developer prompt down to telemetry and IDE rule synchronization:
 
 ```mermaid
 flowchart TD
-    subgraph Layer1 ["1. Developer IDE & Agent Execution Layer"]
-        Agent["🤖 AI Coding Agent<br/>(Cursor, Claude Code, Antigravity, Windsurf)"]
-        DevCLI["💻 Software Engineer<br/>(Terminal / Local CLI / CI-CD)"]
-        GitCommit["⚡ Git Commit Trigger<br/>(Pre-Commit Hook)"]
+    subgraph Execution ["1. Execution Layer"]
+        Agent["🤖 AI Agent (Cursor, Claude, Antigravity)"]
+        CLI["💻 Developer CLI / Local Git Hook"]
     end
 
-    subgraph Layer2 ["2. Ingestion, Profiling & Fleet Discovery"]
-        Profiler["🔍 Universal Stack Profiler<br/>(16+ Languages, 30+ Frameworks, 20+ ORMs)"]
-        Monorepo["🏢 Monorepo Fleet Detector<br/>(npm / pnpm / yarn / Cargo / Go / Gradle)"]
-        Exclusions["🛡️ Context Noise Filter<br/>(.venv, node_modules, dist, test fixtures)"]
+    subgraph Profiling ["2. Profiling & Discovery"]
+        Profiler["🔍 Universal Stack Profiler (16+ Languages)"]
+        Monorepo["🏢 Monorepo Fleet Detector (pnpm, Cargo, Go)"]
     end
 
-    subgraph Layer3 ["3. Static Analysis & Verification Pipeline"]
-        ASTMatcher["⚙️ Static AST & Heuristic Matcher<br/>(71 Rules across 11 Security Families)"]
-        TestPathFilter["🎯 Test-Path Noise Suppressor<br/>(is_test_path() Mock Credential Filtering)"]
-        Scorer["🧮 5-Factor Mathematical Scorer<br/>(0–100 Confidence Rubric)"]
+    subgraph Detection ["3. AST Audit & Scoring"]
+        Rules["⚙️ 71 Security Rules across 11 Families"]
+        TestFilter["🎯 Test-Path Noise Suppressor"]
+        Scorer["🧮 5-Factor Confidence Scorer (0–100)"]
     end
 
-    subgraph Layer4 ["4. Adaptive Security Memory Engine"]
-        Ledger["📜 Append-Only Event Ledger<br/>(.torusguard/memory/events/*.json)"]
-        Patterns["🧠 Distilled Pattern Store<br/>(.torusguard/memory/patterns.json)"]
-        Recipes["🏆 Golden Fix Recipes<br/>(Bounded Before/After Unified Diffs)"]
-        Proximity["🎯 Proximity Affinity Engine<br/>(Card Generation &lt;= 2,000 Tokens)"]
+    subgraph Intelligence ["4. Memory & Runtime Verification"]
+        Memory["🧠 Adaptive Memory Engine (.torusguard/memory/)"]
+        RuntimeGate["🧪 Authorized Runtime Prober (Masked HTTP)"]
     end
 
-    subgraph Layer5 ["5. Authorized Runtime Validation"]
-        ScopeCheck["🔒 Target Ownership &amp; Scope Gate<br/>(scope.json Host Allowlisting)"]
-        SafetyGate["🚦 Three-Tier Safety Controller<br/>(Auto-Allowed / Approval Required / Blocked)"]
-        Prober["🧪 Bounded HTTP &amp; Replay Prober<br/>(Masked Live Exploit Confirmation)"]
+    subgraph Governance ["5. Governed Remediation & Interception"]
+        Ponytail["✂️ Ponytail Remediation (&lt;= 35 Add, &lt;= 25 Del)"]
+        DiffGuard["🛑 Git Diff Guard (Pre-Commit Interception)"]
     end
 
-    subgraph Layer6 ["6. Governed Remediation & Interception"]
-        Ponytail["✂️ Ponytail Patch Formulator<br/>(&lt;= 35 Additions, &lt;= 25 Deletions)"]
-        Snapshot["💾 Pre-Apply Rollback Backup<br/>(pre_apply/*.bak Byte-for-Byte Snapshots)"]
-        DiffGuard["🛑 Content-Aware Diff Guard<br/>(TG-DIFF-001..004 Bypass &amp; Credential Blocker)"]
+    subgraph Output ["6. Telemetry & AI Sync"]
+        IDEs["🔄 AI IDE Rules Sync (&lt;= 300 Tokens)"]
+        HTML["📊 Standalone Dark-Mode HTML Report"]
+        SARIF["📋 OASIS SARIF v2.1.0 Export"]
     end
 
-    subgraph Layer7 ["7. Telemetry, Reporting &amp; AI Synchronization"]
-        RulesSync["🔄 AI IDE Rules Compiler<br/>(Cursor, Claude, Antigravity &lt;= 300 Tokens)"]
-        HTMLReport["📊 Single-File Dark Mode Dashboard<br/>(100% Self-Contained 0-CDN HTML)"]
-        SARIFExport["📋 OASIS SARIF v2.1.0 Exporter<br/>(Native GitHub Code Scanning Telemetry)"]
-        HumanGate["👤 Human Gate Authorization<br/>(Explicit Developer Review &amp; Sign-off)"]
-    end
+    Agent --> Profiler
+    CLI --> Profiler
+    CLI --> DiffGuard
 
-    Agent -->|"Runs /torusguard audit"| Profiler
-    DevCLI -->|"npx torusguard audit"| Profiler
-    DevCLI -->|"git commit"| GitCommit
-    GitCommit -->|"Executes local hook"| DiffGuard
+    Profiler --> Monorepo --> Rules --> TestFilter --> Scorer
+    Memory -.->|"Historical Boost"| Scorer
+    Scorer --> RuntimeGate --> Ponytail
+    Scorer --> Ponytail
+    Ponytail --> DiffGuard
 
-    Profiler --> Monorepo
-    Monorepo --> Exclusions
-    Exclusions --> ASTMatcher
-
-    ASTMatcher --> TestPathFilter
-    TestPathFilter --> Scorer
-    Memory -.->|"Historical Memory Boost"| Scorer
-
-    Scorer -->|"P0 / P1 Candidates"| ScopeCheck
-    Scorer -->|"Audit Signals"| Ledger
-
-    ScopeCheck --> SafetyGate
-    SafetyGate --> Prober
-    Prober -->|"Live Exploit Confirmed"| Ponytail
-
-    Scorer -->|"Candidate Findings"| Ponytail
-    Ponytail -->|"Presents Patch Plan"| HumanGate
-    HumanGate -->|"Authorized Apply"| Snapshot
-    Snapshot -->|"Applies Surgical Fix"| DiffGuard
-
-    DiffGuard -->|"Clean Diff Verified"| Recipes
-    Recipes --> Patterns
-    Patterns --> Proximity
-
-    Proximity --> RulesSync
-    Scorer --> HTMLReport
-    Scorer --> SARIFExport
-    Recipes --> HTMLReport
+    Ponytail --> Memory
+    Memory --> IDEs
+    Scorer --> HTML
+    Scorer --> SARIF
 ```
 
 ---
 
-## ⚡ Enterprise Subsystems & Core Capabilities
+### 2. The 7-Stage Finding Lifecycle
+Every finding follows a strict closed-loop state machine with an unskippable **Human Gate** and rollback backup before disk modifications:
 
-TorusGuard organizes 10 enterprise subsystems into an autonomous, locally executed security loop:
-
-### 1. Universal Polyglot Profiler (`stack_detect.py` & `core/stack_profiler.py`)
-Inspects workspace manifests and dependency lockfiles across 16+ programming languages:
-- **Languages:** Python, TypeScript/JavaScript, Go, Rust, Java, C# (.NET), PHP, Ruby, Kotlin, Elixir, Dart, C/C++, Scala, Swift.
-- **Frameworks (30+):** FastAPI, Django, Flask, Express, Next.js, NestJS, Spring Boot, ASP.NET Core, Gin, Fiber, Echo, Actix-web, Axum, Rocket, Laravel, Symfony, Rails, Phoenix, Flutter.
-- **ORMs & Data Layers (20+):** SQLAlchemy, Prisma, Drizzle, TypeORM, GORM, Ent, Diesel, SeaORM, Hibernate, Entity Framework Core, Eloquent, ActiveRecord, Ecto.
-- **Extension Census Fallback:** In projects without standard manifests, performs a recursive source extension census to auto-select the dominant runtime.
-
-### 2. Monorepo Fleet Discovery (`monorepo_detector.py`)
-Discovers and profiles complex multi-package codebases:
-- Maps npm/pnpm/yarn workspaces, Cargo workspaces, Go multi-module workspaces, and Gradle multi-project setups.
-- Enforces package-isolated framework and ORM boundaries without cross-contamination.
-
-### 3. Context-Aware Static Auditing & Noise Suppression
-Evaluates 71 rules across 11 vulnerability families:
-- `TG-AUTH-*`: Authentication, JWT algorithms, session boundaries, mass assignment, and RBAC.
-- `TG-DB-*`: Query parameterization, tenant query isolation, credential separation.
-- `TG-INPUT-*`: Path traversal, SSTI, template escaping, SQL injection, open redirects.
-- `TG-SEC-*`: Secrets detection, environment variables, log hygiene, CORS headers.
-- `TG-RATE-*`: Unbounded resource consumption, missing rate limits on auth routes.
-- `TG-SSRF-*`: Outbound request validation and IP allowlisting.
-- `TG-WEBHOOK-*`: Signature validation, timing-safe equality, replay mitigation.
-- `TG-GQL-*`: Query depth limiting, complexity analysis, field authorization.
-- `TG-WS-*`: WebSocket handshake auth, origin validation, frame size limits.
-- `TG-EDGE-*`: Edge isolate global state leakage and shared runtime cache boundaries.
-- `TG-AGENT-*`: Prompt injection delimiter wrapping, unsandboxed agent tool execution.
-- **`is_test_path()` Suppression:** Dynamically identifies test files (`test/`, `tests/`, `spec/`, `__tests__/`, fixtures) and discounts mock credentials or intentional test harness bypasses.
-
-### 4. Objective 5-Factor Mathematical Confidence Scorer (`core/confidence.py`)
-Every candidate finding is scored on an auditable 0–100 rubric:
-$$\text{Score} = E_q (0\text{–}25) + R_p (0\text{–}25) + C_f (0\text{–}20) + D_c (0\text{–}15) + M_r (0\text{–}15) + \text{MemoryBoost} - P_{fp} - P_{drift}$$
-
-- **Confirmed ($\ge 90$ pts):** Direct, verifiable exploitability path in source code.
-- **High Confidence ($70\text{--}89$ pts):** Strong static signal with framework context verified.
-- **Needs Review ($< 70$ pts):** Ambiguous external dependencies or multi-tier indirection.
-
-### 5. Adaptive Security Memory Engine (`.torusguard/memory/`)
-A persistent local intelligence layer that retains project security context:
-- **Append-Only Event Ledger (`memory/events/`):** Records audit findings, verified fixes, and suppressions.
-- **Distilled Pattern Store (`memory/patterns.json`):** Tracks recurring vulnerabilities with confidence boosts.
-- **Golden Fix Recipes (`memory/golden_recipes/`):** Learns verified Before/After diff idioms conforming to strict Ponytail churn bounds.
-- **Proximity Affinity Scoring:** Matches cards to the file being edited ($\ge 90$ exact file match, $40\text{--}80$ directory match, $10\text{--}30$ extension match) into a compact context card ($\le 2,000$ tokens).
-- **90-Day TTL Decay & Compaction:** Stale events decay automatically, and loose records older than 30 days are compacted into `compacted_archive.json`.
-
-### 6. Governed Ponytail Remediation & Rollback Safety
-Eliminates catastrophic AI-generated full-file rewrites:
-- **Strict Bounds:** Additions $\le 35$ lines, deletions $\le 25$ lines per bundle.
-- **4-Artifact Package:** Generates `finding.md`, `remediation.md`, `minimal_patch_plan.md`, and `verify-after-change.md`.
-- **Byte-for-Byte Snapshots:** Saves original files to `pre_apply/<file>.bak` before modifying a single byte on disk.
-- **Deterministic Rechecks:** Differentially re-evaluates AST sinks over modified scopes via `/torusguard recheck`.
-
-### 7. Content-Aware Diff Guard & Pre-Commit Hook (`diff_guard.py`)
-Scans unified diffs in $< 200\text{ ms}$ before code enters git history:
-- `TG-DIFF-001`: Multi-language security bypass detection (`InsecureSkipVerify: true`, `csrf().disable()`, `[AllowAnonymous]`, `CURLOPT_SSL_VERIFYPEER => false`, `unsafe {`).
-- `TG-DIFF-002`: Hardcoded JWTs, Bearer tokens, and private API keys in additions.
-- `TG-DIFF-003`: Multi-ORM tenant boundary deletions (GORM, LINQ / EF Core, Prisma).
-- `TG-DIFF-004`: Modifications violating files under active Memory Regression Watch.
-- **1-Command Hook Installer:** `npx torusguard diff-guard --install-hook` wires up `.git/hooks/pre-commit`.
-
-### 8. AI IDE Rules Auto-Sync Engine (`rules_sync.py`)
-Compiles project security invariants, active guardrails, and golden recipes into prompt-optimized rule files:
-- **Supported Editors:** Cursor (`.cursorrules`), Claude Code (`CLAUDE.md`), Antigravity (`.agent/rules/torusguard.md`), and Windsurf (`.windsurfrules`).
-- **Prompt Token Ceiling:** Strict $\le 300$ token overhead (typically ~180–270 tokens).
-- **Non-Destructive Sync:** Uses comment fences `<!-- TORUSGUARD-SECURITY-GUARDRAILS:START -->` and `<!-- TORUSGUARD-SECURITY-GUARDRAILS:END -->` to leave custom user instructions intact.
-
-### 9. Visual Single-File HTML Posture Dashboard (`html_reporter.py`)
-Produces a self-contained, zero-external-CDN dark-mode dashboard (`.torusguard/runs/report-latest.html`):
-- Animated SVG circular gauge for Security Posture Score (0–100).
-- Interactive 7-Stage closed-loop governance pipeline timeline.
-- Dynamic polyglot ecosystem badges.
-- Golden Fix Recipes card grid with unified diff viewer and Ponytail metrics.
-
-### 10. Cryptographic Provenance & Manifest Integrity
-- **SHA-256 Checksums:** All code snippets and finding artifacts are hashed ($H_{raw}$, $H_{post}$).
-- **Distribution Manifest (`.manifest.json`):** Tracks and cryptographically verifies all 112 payload files in `.torusguard/` and `skills/torusguard/payload/`.
+```mermaid
+flowchart LR
+    Detect["1. DETECT<br/>Static AST Signal"] --> Classify["2. CLASSIFY<br/>0–100 Confidence"]
+    Classify --> Verify["3. VERIFY<br/>Authorized Probe"]
+    Verify --> Remediate["4. REMEDIATE<br/>Ponytail Patch Plan"]
+    Remediate --> Gate{"👤 Human Gate<br/>Approved?"}
+    Gate -- Yes --> Apply["5. APPLY<br/>Backup &amp; Surgical Patch"]
+    Gate -- No --> Reject["❌ Discarded"]
+    Apply --> Recheck["6. RE-CHECK<br/>Differential AST Audit"]
+    Recheck -- Fixed --> Archive["7. ARCHIVE<br/>Golden Recipe Distilled"]
+    Recheck -- Regressed --> Rollback["⏪ Instant Rollback<br/>(pre_apply/*.bak)"]
+```
 
 ---
 
-## 🌐 Polyglot Ecosystem & Framework Support Matrix
+### 3. Adaptive Memory & AI Rules Sync Loop
+Verified patches are converted into Golden Fix Recipes and injected back into your AI editor's prompt instructions:
 
-| Language / Ecosystem | Manifest Indicators | Supported Frameworks | ORMs & Data Layers | Diff Guard Heuristics (`TG-DIFF-001/003`) |
+```mermaid
+flowchart TD
+    Fix["✅ Verified Fix Applied (/torusguard apply)"] --> Extract["🏆 Golden Recipe Distilled (Diff &lt;= 35/25)"]
+    Extract --> Ledger["📜 Event Appended (memory/events/)"]
+    Ledger --> Patterns["🧠 Pattern Store &amp; Profile Updated"]
+    Patterns --> Sync["🔄 Rules Compiler (rules_sync.py)"]
+    Sync --> Cursor["Cursor (.cursorrules)"]
+    Sync --> Claude["Claude Code (CLAUDE.md)"]
+    Sync --> Antigravity["Antigravity (.agent/rules/)"]
+    Sync --> Windsurf["Windsurf (.windsurfrules)"]
+    Cursor & Claude & Antigravity & Windsurf --> AgentPrompt["🤖 AI Editor Enforces Guardrails (&lt;= 300 Tokens)"]
+```
+
+---
+
+### 4. Git Pre-Commit Interception (Diff Guard)
+Blocks security bypasses, exposed credentials, and tenant boundary removals in $< 200\text{ ms}$ before code enters git history:
+
+```mermaid
+flowchart TD
+    Commit["💻 Developer or AI Agent runs: git commit"] --> Hook["⚡ Git Pre-Commit Hook (.git/hooks/pre-commit)"]
+    Hook --> Scanner["🔍 Content-Aware Diff Guard (diff_guard.py &lt; 200 ms)"]
+    Scanner --> Check1{"TG-DIFF-001<br/>Security Bypass?"}
+    Check1 -- Yes --> Block["🚨 COMMIT BLOCKED<br/>Detailed violation + remediation emitted"]
+    Check1 -- No --> Check2{"TG-DIFF-002<br/>Hardcoded Credential?"}
+    Check2 -- Yes --> Block
+    Check2 -- No --> Check3{"TG-DIFF-003<br/>Tenant Boundary Stripped?"}
+    Check3 -- Yes --> Block
+    Check3 -- No --> Pass["✅ COMMIT ALLOWED<br/>Clean diff merged into git history"]
+```
+
+---
+
+## ⚡ Core Subsystems (At a Glance)
+
+```text
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 TORUSGUARD SUBSYSTEMS                                  │
+├──────────────────────────┬──────────────────────────┬──────────────────────────────────┤
+│ 🔍 Detection & Profiling │ 🧠 Adaptive Intelligence │ 🛡️ Governance & Developer Flow   │
+├──────────────────────────┼──────────────────────────┼──────────────────────────────────┤
+│ • 16+ Languages Profiled │ • 0–100 Confidence Model │ • Ponytail Protocol (<= 35/25)   │
+│ • Monorepo Fleet Map     │ • Persistent Event Store │ • Pre-Apply Byte Snapshots (.bak)│
+│ • 71 AST Security Rules  │ • Golden Recipe Learning │ • Pre-Commit Diff Hook (<200 ms) │
+│ • Test-Path Suppression  │ • 90-Day Auto TTL Decay  │ • AI Rules Auto-Sync (<= 300 tok)│
+└──────────────────────────┴──────────────────────────┴──────────────────────────────────┘
+```
+
+- **Universal Profiler & Monorepo Detector:** Discovers manifests across 16+ languages (Go, Rust, Java, C#, PHP, Python, TS) and isolates nested packages (pnpm, Cargo, Gradle, Go work).
+- **Context-Aware Static Auditing:** Evaluates 71 rules across 11 families (`TG-AUTH`, `TG-DB`, `TG-INPUT`, `TG-SEC`, `TG-AGENT`, etc.). Suppresses test mocks automatically via `is_test_path()`.
+- **Adaptive Memory Engine:** Distills verified Before/After fixes into Golden Recipes. Proximity scoring injects targeted advice into a compact card ($\le 2,000$ tokens).
+- **Ponytail Governed Remediation:** Restricts code fixes to $\le 35$ additions and $\le 25$ deletions. Automatically saves byte-for-byte `.bak` backups for instant rollbacks.
+- **Pre-Commit Diff Guard:** 1-command installer (`diff-guard --install-hook`) blocks bypasses (`InsecureSkipVerify`, `[AllowAnonymous]`, `csrf().disable()`, `unsafe`) before git commit.
+- **AI IDE Rules Auto-Sync:** Compiles project security invariants into Cursor, Claude Code, Antigravity, and Windsurf within a strict $\le 300$ token overhead ceiling.
+- **Visual HTML Posture Dashboard:** Generates a 100% self-contained, offline-ready dark-mode report with animated SVG score gauges and interactive diff viewers.
+
+---
+
+## 🌐 Polyglot Ecosystem & Framework Matrix
+
+| Language / Stack | Manifests & Ecosystem | Supported Frameworks | Data Layers / ORMs | Intercepted Bypasses (`TG-DIFF`) |
 |---|---|---|---|---|
-| **Python** | `pyproject.toml`, `requirements.txt` | FastAPI, Django, Flask, DRF | SQLAlchemy, Tortoise, Django ORM | `mark_safe()`, raw SQL interpolation |
-| **TypeScript / JS** | `package.json` | Next.js, Express, NestJS, Nuxt | Prisma, Drizzle, TypeORM, Mongoose | Client-side secrets, `where: { tenantId }` |
-| **Go** | `go.mod` | Gin, Fiber, Echo, Chi | GORM, Ent, SQLx | `InsecureSkipVerify: true`, GORM tenant removal |
-| **Rust** | `Cargo.toml` | Actix-web, Axum, Rocket | Diesel, SeaORM, SQLx | `unsafe {`, unverified TLS clients |
+| **Python** | `pyproject.toml`, `requirements.txt` | FastAPI, Django, Flask, DRF | SQLAlchemy, Django ORM, Tortoise | Raw SQL formatting, unescaped templates |
+| **TypeScript / JS** | `package.json` | Next.js, Express, NestJS, Nuxt | Prisma, Drizzle, TypeORM, Mongoose | Client-side secrets, tenant deletion |
+| **Go** | `go.mod` | Gin, Fiber, Echo, Chi | GORM, Ent, SQLx | `InsecureSkipVerify: true`, GORM tenant drop |
+| **Rust** | `Cargo.toml` | Actix-web, Axum, Rocket | Diesel, SeaORM, SQLx | Unvetted `unsafe {`, unverified TLS |
 | **Java** | `pom.xml`, `build.gradle` | Spring Boot, Quarkus, Micronaut | Hibernate, JPA, MyBatis, jOOQ | `csrf().disable()`, `permitAll()` |
-| **C# (.NET)** | `*.csproj`, `*.sln` | ASP.NET Core, Blazor | Entity Framework Core, Dapper | `[AllowAnonymous]`, LINQ tenant removal |
+| **C# (.NET)** | `*.csproj`, `*.sln` | ASP.NET Core, Blazor | Entity Framework Core, Dapper | `[AllowAnonymous]`, LINQ tenant deletion |
 | **PHP** | `composer.json` | Laravel, Symfony, Slim | Eloquent, Doctrine | `CURLOPT_SSL_VERIFYPEER => false` |
-| **Ruby** | `Gemfile` | Ruby on Rails, Sinatra | ActiveRecord, Sequel | `raw()`, unescaped SQL fragments |
-| **Kotlin** | `build.gradle.kts` | Spring Boot, Ktor | Exposed, Hibernate | Missing security interceptors |
+| **Ruby** | `Gemfile` | Ruby on Rails, Sinatra | ActiveRecord, Sequel | Raw unescaped SQL fragments |
+| **Kotlin** | `build.gradle.kts` | Spring Boot, Ktor | Exposed, Hibernate | Unauthenticated route decorators |
 | **Elixir** | `mix.exs` | Phoenix | Ecto | Unfiltered changeset mutations |
-| **Dart** | `pubspec.yaml` | Flutter, Shelf | Drift | Insecure HTTP client overrides |
-| **C / C++** | `CMakeLists.txt`, `Makefile` | Crow, Drogon, Oat++ | Raw SQLite, libpq | Buffer bounds, raw pointers |
-
----
-
-## 📈 Real-World Enterprise Portfolio Evaluation (26 Repositories)
-
-TorusGuard has been evaluated against a benchmark portfolio of **26 production-grade repositories** across 9 programming language ecosystems:
-
-```text
-================================================================================
-🏆 TORUSGUARD v1.3.0 ENTERPRISE PORTFOLIO VALIDATION RESULTS
-================================================================================
-Repositories Evaluated:        26 Projects
-Language Ecosystems Covered:   9 (Python, TS/JS, Go, Rust, Java, C#, PHP, Ruby, Elixir)
-Overall Validation Pass Rate:  100.0% (26/26 Passing)
-False Positive Noise Ratio:    0.0% (Suppressed via is_test_path() & AST profiling)
-Diff Guard Hook Execution:     < 200 ms average latency
-Residual Disk Footprint:       0 Bytes on clean reference projects
-Cryptographic Integrity:       112/112 files SHA-256 verified
-================================================================================
-```
-
-### Evaluated Repositories Summary
-
-| Repository Stack | Category | Detection Engine Outcome | Diff Guard & Hook | Memory & Rules Sync |
-|---|---|:---:|:---:|:---:|
-| **FastAPI + SQLAlchemy** | Python REST API | ✅ Detected (FastAPI/SQLAlchemy) | ✅ Clean Pass | ✅ Synced (`.cursorrules`, `CLAUDE.md`) |
-| **Django + DRF** | Enterprise Backend | ✅ Detected (Django/DRF) | ✅ Clean Pass | ✅ Golden Recipe Extracted |
-| **Flask + SQLAlchemy** | Microservice | ✅ Detected (Flask/SQLAlchemy) | ✅ Clean Pass | ✅ Context Card Active |
-| **Next.js 15 (App Router)** | Full-Stack Web | ✅ Detected (Next.js/Prisma) | ✅ Intercepted secret leak | ✅ Synced (`.agent/rules/torusguard.md`) |
-| **Express + MongoDB** | Node API | ✅ Detected (Express/Mongoose) | ✅ Clean Pass | ✅ Context Card Active |
-| **NestJS + TypeORM** | Enterprise TypeScript | ✅ Detected (NestJS/TypeORM) | ✅ Clean Pass | ✅ Synced (`.windsurfrules`) |
-| **Go Gin + GORM** | High-Throughput Service | ✅ Detected (Gin/GORM) | ✅ Blocked `InsecureSkipVerify` | ✅ Synced (`CLAUDE.md`) |
-| **Go Fiber + SQLx** | Cloud Native Microservice | ✅ Detected (Fiber/SQLx) | ✅ Clean Pass | ✅ Context Card Active |
-| **Rust Actix-Web + Diesel** | Systems Web Service | ✅ Detected (Actix/Diesel) | ✅ Blocked `unsafe {` bypass | ✅ Synced (`.cursorrules`) |
-| **Rust Axum + SeaORM** | Async Microservice | ✅ Detected (Axum/SeaORM) | ✅ Clean Pass | ✅ Context Card Active |
-| **Spring Boot 3 (Java)** | Enterprise Service | ✅ Detected (Spring Boot/JPA) | ✅ Blocked `csrf().disable()` | ✅ Synced (`CLAUDE.md`) |
-| **ASP.NET Core 8 (C#)** | Enterprise Web API | ✅ Detected (ASP.NET/EF Core) | ✅ Blocked `[AllowAnonymous]` | ✅ Synced (`.cursorrules`) |
-| **Laravel 11 (PHP)** | Web Application | ✅ Detected (Laravel/Eloquent) | ✅ Blocked SSL verify bypass | ✅ Context Card Active |
-| **Ruby on Rails 7** | Full-Stack SaaS | ✅ Detected (Rails/ActiveRecord) | ✅ Clean Pass | ✅ Synced (`CLAUDE.md`) |
-| **Phoenix 1.7 (Elixir)** | Real-Time Engine | ✅ Detected (Phoenix/Ecto) | ✅ Clean Pass | ✅ Context Card Active |
-| **+ 11 Polyglot Monorepos** | Multi-Package Fleets | ✅ Isolated per-package stacks | ✅ Pre-commit hook verified | ✅ Deduplicated $\le 300$ tokens |
-
----
-
-## ⚡ Dual-Track Distribution Architecture
-
-TorusGuard offers two complementary distribution tracks tailored to developer workflow preferences:
-
-```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           TorusGuard Distribution                           │
-├──────────────────────────────────────┬──────────────────────────────────────┤
-│  Track 1: Global In-Memory Agent Kit │ Track 2: Local Repository Governance │
-│  (Zero Disk Footprint, Instant)      │ (Deterministic Project Scaffolding)  │
-├──────────────────────────────────────┼──────────────────────────────────────┤
-│ • Pure context-level agent reasoning │ • Full local .torusguard/ directory  │
-│ • No files written to your repo      │ • Immutable run history & audit logs │
-│ • Runs via Global NPM / Open Skills  │ • Ponytail patches & pre-apply .bak  │
-│ • Instant slash-command ergonomics   │ • Single-file HTML dashboards        │
-└──────────────────────────────────────┴──────────────────────────────────────┘
-```
+| **Dart** | `pubspec.yaml` | Flutter, Shelf | Drift | Permissive HTTP certificate overrides |
+| **C / C++** | `CMakeLists.txt`, `Makefile` | Crow, Drogon, Oat++ | Raw SQLite, libpq | Unbounded buffers, raw pointer leaks |
 
 ---
 
 ## 🚀 60-Second Quickstart
 
-### Method A: Via Node.js / NPX (Recommended)
-
-Run TorusGuard directly without installing global dependencies:
-
+### Method A: Via Node.js / NPX (Zero Setup)
 ```bash
-# 1. Initialize TorusGuard in your repository
+# 1. Initialize TorusGuard in your workspace
 npx torusguard init
 
-# 2. Audit codebase and evaluate security rules
+# 2. Run static security audit
 npx torusguard audit
 
-# 3. Generate visual HTML posture dashboard
+# 3. Generate visual dark-mode HTML dashboard
 npx torusguard report --html
 
 # 4. Install Git Pre-Commit Diff Guard Hook (blocks dangerous commits)
 npx torusguard diff-guard --install-hook
 
-# 5. Synchronize prompt rules across Cursor, Claude Code, Antigravity, and Windsurf
+# 5. Synchronize prompt guardrails across AI editors (<= 300 tokens)
 npx torusguard rules sync
 ```
 
-### Method B: Via Python 3.10+ Native CLI (Zero Dependencies)
-
-TorusGuard requires only the Python standard library:
-
+### Method B: Via Pure Python 3.10+ (Standard Library)
 ```bash
 # 1. Initialize workspace
 python .torusguard/scripts/bootstrap.py --workspace .
@@ -321,51 +226,37 @@ python .torusguard/scripts/bootstrap.py --workspace .
 # 2. Run static audit
 python .torusguard/scripts/finding_scorer.py --dir .
 
-# 3. Generate visual HTML dashboard
-python .torusguard/scripts/html_reporter.py --run-dir .torusguard/runs/latest --out .torusguard/runs/report-latest.html
-
-# 4. Install Pre-Commit Diff Guard
+# 3. Install Pre-Commit Diff Guard
 python .torusguard/scripts/diff_guard.py --install-hook
 
-# 5. Sync AI IDE rules
+# 4. Sync AI IDE rules
 python .torusguard/scripts/rules_sync.py --workspace . --format all
 ```
 
 ---
 
-## 💻 Complete CLI Command Reference
+## 💻 CLI Command Reference
 
-| Command | Subcommand / Options | Description |
+| Command | Subcommands & Flags | Description |
 |---|---|---|
-| `torusguard init` | `[--stack <name>] [--profile <type>]` | Discovers stack and scaffolds `.torusguard/` with active rules and workflows. |
-| `torusguard audit` | `[--scope <path>] [--format md\|json]` | Scans source code against active rules, scores confidence, and creates run folder. |
-| `torusguard verify` | `[--id <finding_id>]` | Validates finding exploitability against authorized targets with masked outputs. |
-| `torusguard harden` | `[--id <finding_id>]` | Formulates 4-artifact Ponytail remediation bundles ($\le 35$ additions, $\le 25$ deletions). |
-| `torusguard apply` | `[--id <finding_id>] [--dry-run]` | Saves pre-apply rollback snapshots (`.bak`) and applies surgical patch to disk. |
-| `torusguard recheck`| `[--id <finding_id>]` | Differentially audits modified files and transitions status to `Confirmed Fixed`. |
-| `torusguard report` | `[--sarif] [--html] [--out <path>]` | Exports OASIS SARIF v2.1.0 or visual self-contained HTML posture report. |
-| `torusguard status` | `[--json]` | Displays diagnostic status: stack, active rules, memory metrics, and run history. |
-| `torusguard diff-guard` | `[--install-hook] [--diff <file>]` | Audits git diff for security bypasses (`TG-DIFF-001..004`) or installs pre-commit hook. |
-| `torusguard rules sync` | `[--format all\|cursor\|claude\|agent\|windsurf]` | Compiles project security rules into AI IDE configs within $\le 300$ prompt tokens. |
-| `torusguard memory` | `status \| context \| export \| learn` | Inspects adaptive memory, generates proximity cards, or exports sanitized team packs. |
+| `torusguard init` | `[--stack <name>] [--profile <type>]` | Scaffolds `.torusguard/` with active security rules and workflows. |
+| `torusguard audit` | `[--scope <path>] [--format md\|json]` | Audits source code against active rules and emits run folder. |
+| `torusguard verify` | `[--id <finding_id>]` | Probes authorized endpoints with automated credential masking. |
+| `torusguard harden` | `[--id <finding_id>]` | Generates 4-artifact Ponytail patch plans ($\le 35$ additions, $\le 25$ deletions). |
+| `torusguard apply` | `[--id <finding_id>] [--dry-run]` | Saves pre-apply `.bak` snapshots and applies surgical patch to disk. |
+| `torusguard recheck`| `[--id <finding_id>]` | Differentially re-evaluates AST sinks over modified scopes. |
+| `torusguard report` | `[--sarif] [--html] [--out <path>]` | Exports OASIS SARIF v2.1.0 or single-file visual HTML posture report. |
+| `torusguard status` | `[--json]` | Displays stack detection, active rule count, memory metrics, and run history. |
+| `torusguard diff-guard`| `[--install-hook] [--diff <file>]` | Scans git diff for bypasses (`TG-DIFF-001..004`) or installs pre-commit hook. |
+| `torusguard rules sync`| `[--format all\|cursor\|claude\|agent\|windsurf]` | Compiles project rules into AI IDE configs within $\le 300$ prompt tokens. |
+| `torusguard memory` | `status \| context \| export \| learn` | Inspects adaptive memory, generates proximity cards, or exports team packs. |
 
 ---
 
-## 🤖 AI IDE & Agent Integration Guide
+## 🤖 AI IDE & Agent Setup
 
-TorusGuard works seamlessly with all modern AI editors and coding agents:
+TorusGuard injects non-destructive comment fences so your personal instructions remain untouched:
 
-### 1. Antigravity IDE
-Place TorusGuard rules in `.agent/rules/torusguard.md` or invoke the `/torusguard` workflow:
-```markdown
-# Run via Antigravity Chat:
-/torusguard audit
-/torusguard harden
-/torusguard apply
-```
-
-### 2. Cursor (`.cursorrules`)
-Run `npx torusguard rules sync --format cursor`. TorusGuard injects non-destructive comment fences:
 ```markdown
 <!-- TORUSGUARD-SECURITY-GUARDRAILS:START -->
 ## TorusGuard Security Invariants
@@ -375,70 +266,32 @@ Run `npx torusguard rules sync --format cursor`. TorusGuard injects non-destruct
 <!-- TORUSGUARD-SECURITY-GUARDRAILS:END -->
 ```
 
-### 3. Claude Code (`CLAUDE.md`)
-Run `npx torusguard rules sync --format claude`. Synchronizes active guardrails directly into your project instructions while staying strictly under the 300 token overhead budget.
-
-### 4. Windsurf (`.windsurfrules`)
-Run `npx torusguard rules sync --format windsurf`. Updates Cascade prompt instructions with framework-specific security boundaries.
-
-### 5. VS Code Copilot & Cline
-Add `SKILL.md` to your agent skill manifest for zero-footprint cognitive guidance across every prompt session.
+- **Cursor (`.cursorrules`):** Run `npx torusguard rules sync --format cursor`.
+- **Claude Code (`CLAUDE.md`):** Run `npx torusguard rules sync --format claude`.
+- **Antigravity (`.agent/rules/torusguard.md`):** Run `npx torusguard rules sync --format agent`.
+- **Windsurf (`.windsurfrules`):** Run `npx torusguard rules sync --format windsurf`.
+- **VS Code Copilot & Cline:** Add `SKILL.md` to your skill directory for zero-footprint cognitive guidance.
 
 ---
 
-## 🛡️ The Ponytail Protocol: Governed Minimal Remediation
+## 🛡️ The Ponytail Protocol & Rollback Guarantees
 
-AI coding agents often break codebases by attempting entire file rewrites when fixing small bugs. TorusGuard solves this via the **Ponytail Protocol**:
+AI coding models often destroy working applications by attempting full-file rewrites to fix minor issues. TorusGuard enforces the **Ponytail Protocol**:
 
-```text
-┌────────────────────────────────────────────────────────────────────────┐
-│                        The Ponytail Protocol                           │
-├────────────────────────────────────────────────────────────────────────┤
-│ 1. Line Churn Bounds:    Additions <= 35 lines, Deletions <= 25 lines │
-│ 2. Rewrite Prohibition:  Full-file rewrites are rejected by engine     │
-│ 3. Rollback Guarantee:   Byte-for-byte backup to pre_apply/<file>.bak  │
-│ 4. Differential Recheck: Retests modified AST scopes before sign-off   │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
-### The 4-Artifact Remediation Package:
-Each `/torusguard harden` bundle contains:
-1. `finding.md`: Exact source location, line-shift invariant fingerprint, and exploit scenario.
-2. `remediation.md`: Framework-idiomatic solution rationale.
-3. `minimal_patch_plan.md`: Surgical Before/After unified diff with Ponytail churn metrics.
-4. `verify-after-change.md`: Reproducible curl, test, or browser verification sequence.
-
----
-
-## 🧪 Continuous Testing & Quality Gates
-
-TorusGuard enforces exceptional quality through **13 automated test suites** executed locally before every release:
-
-| Suite Name | Harness Script | Focus Area | Status |
-|---|---|---|:---:|
-| **v1.3.0 Polyglot Engine** | `harness/validate_v1_3_0_polyglot.py` | 16+ Language Detection, Polyglot Diff Guard, IDE Rules Compiler | ✅ 100% Pass |
-| **v1.2.0 Rules & HTML** | `harness/validate_v1_2_0_rules_and_html.py` | Rules Auto-Sync, Token Overhead, Visual HTML Reporter | ✅ 100% Pass |
-| **v1.1.0 Advanced Memory** | `harness/validate_v1_1_0_advanced_memory.py` | Proximity Affinity Scoring, Golden Recipe Extraction, Pre-Commit Hooks | ✅ 100% Pass |
-| **v1.0.0 Memory Engine** | `harness/validate_v1_0_0_memory.py` | 4-Tier Memory Hierarchy, TTL Decay, Event Compaction | ✅ 100% Pass |
-| **v0.9.2 Dual-Track** | `harness/validate_v0_9_2_dual_track.py` | Global In-Memory vs Local Repo Dual Distribution | ✅ 100% Pass |
-| **v0.9.2 Diff & Monorepo** | `harness/validate_v0_9_2_diff_and_monorepo.py` | Monorepo Detection, Test-Path Noise Suppression, Pre-Commit Hooks | ✅ 100% Pass |
-| **v0.9.1 Offline Bootstrap** | `harness/validate_v0_9_1_offline_bootstrap.py` | Offline Payload Unpacking & Manifest Cryptography | ✅ 100% Pass |
-| **Core Workflow Harness** | `harness/runner.py` | 7-Stage Finding Lifecycle State Machine | ✅ 100% Pass |
-| **Complete Version Suite** | `harness/validate_complete_version.py` | End-to-End Regression & Recheck Assertions | ✅ 100% Pass |
-| **Cross-Platform Parity** | `harness/validate_cross_platform_rules.py` | Windows / macOS / Linux Path Normalization & Regex Portability | ✅ 100% Pass |
-| **Enterprise Portfolio** | `harness/validate_large_project_simulation.py` | High-Concurrency 10,000 File Scale & Complexity Testing | ✅ 100% Pass |
-| **Historical Validation** | `harness/validate_master_historical.py` | Multi-Pass Deterministic Replay (3x identical SHA-256 digests) | ✅ 100% Pass |
-| **Rule Catalog Integrity** | `harness/validate_rule_catalog.py` | YAML Frontmatter, CWE Mapping, and JSON Schema Conformance | ✅ 100% Pass |
+- **Strict Churn Limits:** Every fix is capped at $\le 35$ additions and $\le 25$ deletions.
+- **Full-File Rewrite Ban:** Large destructive edits are rejected by the patch engine.
+- **Rollback Snapshot Guarantee:** Before any file is modified, a byte-for-byte snapshot is saved to `pre_apply/<file>.bak`.
+- **Instant Rollback:** Restoring an original file takes 1 command (`cp pre_apply/<file>.bak <file>`).
 
 ---
 
 ## 🔒 Zero-Telemetry Local Privacy Guarantee
 
-TorusGuard is built on a strict **Zero-Trust, Local Execution Guarantee**:
-- **Zero Cloud Egress:** No source code, AST trees, credentials, or audit findings are ever transmitted over the network.
-- **Pure Local Execution:** Operates entirely within your local repository or private CI runner using the Python standard library.
-- **Sensitive Data Redaction:** Automatically redacts API keys, JWTs, AWS credentials, and passwords in all evidence outputs.
-- **Sanitized Team Export:** `npx torusguard memory export --sanitized` strips developer usernames, local absolute paths, and secrets before sharing memory files.
+TorusGuard operates under an uncompromising **Local Execution Guarantee**:
+- **Zero Network Egress:** No source code, AST trees, credentials, or audit findings leave your machine.
+- **Pure Local Execution:** 100% Python standard library and local Node.js. No background daemons or cloud SaaS accounts.
+- **Automatic Secret Redaction:** Live API keys, JWTs, AWS credentials, and passwords are automatically masked before writing reports.
+- **Sanitized Team Export:** `npx torusguard memory export --sanitized` strips developer usernames and local paths before sharing.
 
 For security policies and responsible disclosure, please refer to [SECURITY.md](SECURITY.md).
 
@@ -448,7 +301,7 @@ For security policies and responsible disclosure, please refer to [SECURITY.md](
 
 TorusGuard is open-source software licensed under the [MIT License](LICENSE).
 
-- **Documentation:** Explore our comprehensive architecture guides in [docs/](docs/).
-- **Changelog:** Track release histories in [CHANGELOG.md](CHANGELOG.md).
-- **Security Policy:** Read our responsible disclosure guidelines in [SECURITY.md](SECURITY.md).
-- **Contributions:** Pull requests and community issues are welcomed! See [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Documentation:** Architecture guides and specifications in [docs/](docs/).
+- **Changelog:** Release milestones and updates in [CHANGELOG.md](CHANGELOG.md).
+- **Security Policy:** Vulnerability reporting in [SECURITY.md](SECURITY.md).
+- **Contributions:** Pull requests and discussions are welcomed via [CONTRIBUTING.md](CONTRIBUTING.md).
