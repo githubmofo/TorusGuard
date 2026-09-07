@@ -1,4 +1,9 @@
 {
+  "include": [
+    ".torusguard/scripts",
+    "skills/torusguard",
+    "harness"
+  ],
   "extraPaths": [
     ".torusguard/scripts",
     "skills/torusguard",

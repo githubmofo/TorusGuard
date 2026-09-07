@@ -15,12 +15,39 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 BYPASS_PATTERNS = [
-    (re.compile(r'(?:#|//)\s*(?:TODO\s*:?\s*)?(?:bypass|skip|disable)[_\s]*(?:auth|security|check|guard|filter|csrf|tenant)', re.IGNORECASE), "Suspicious authentication or security check bypass comment"),
+    (re.compile(r'(?:#|//|/\*)\s*(?:TODO\s*:?\s*)?(?:bypass|skip|disable)[_\s]*(?:auth|security|check|guard|filter|csrf|tenant)', re.IGNORECASE), "Suspicious authentication or security check bypass comment"),
+    # TLS / Certificate validation bypasses across Python, Go, Node, Java, C#, PHP, Rust
     (re.compile(r'\bverify\s*=\s*False\b'), "Disabled TLS certificate verification (verify=False)"),
+    (re.compile(r'\bInsecureSkipVerify\s*:\s*true\b'), "Disabled Go TLS certificate verification (InsecureSkipVerify: true)"),
+    (re.compile(r'\bNODE_TLS_REJECT_UNAUTHORIZED\s*=\s*[\'"]?0[\'"]?'), "Disabled Node.js TLS verification (NODE_TLS_REJECT_UNAUTHORIZED=0)"),
+    (re.compile(r'\brejectUnauthorized\s*:\s*false\b'), "Disabled Node.js TLS rejectUnauthorized"),
+    (re.compile(r'\b(?:TrustAllStrategy|NoopHostnameVerifier|DangerousAcceptAnyServerCertificateValidator)\b'), "Disabled Java / C# TLS certificate validation"),
+    (re.compile(r'\bServerCertificateCustomValidationCallback\s*=\s*(?:\([^)]*\)\s*=>\s*true|HttpClientHandler\.DangerousAcceptAnyServerCertificateValidator)'), "Disabled C# TLS certificate callback"),
+    (re.compile(r'\bCURLOPT_SSL_VERIFYPEER\s*(?:=>|,)\s*(?:false|0)\b', re.IGNORECASE), "Disabled PHP curl SSL verification (CURLOPT_SSL_VERIFYPEER => false)"),
+    (re.compile(r'\bdanger_accept_invalid_certs\s*\(\s*true\s*\)'), "Disabled Rust reqwest TLS certificate validation"),
+    # Auth & CSRF bypasses
     (re.compile(r'\b(?:skip_auth|bypass_auth|disable_auth|allow_all|permit_all)\s*=\s*True\b', re.IGNORECASE), "Explicit security bypass flag enabled"),
     (re.compile(r'@(?:csrf_exempt|allow_anonymous|disable_token_check)\b'), "Decorator disabling route-level security or CSRF protection"),
+    (re.compile(r'\[(?:AllowAnonymous|Authorize\s*\(\s*Roles\s*=\s*"\*"\s*\))\]'), "Attribute disabling ASP.NET authentication or authorization"),
+    (re.compile(r'\.csrf\(\)\.disable\(\)|\.csrf\([^)]*AbstractHttpConfigurer::disable\)'), "Spring Security CSRF protection explicitly disabled"),
+    # CORS wildcard with credentials
     (re.compile(r'\bCORS_ALLOW_ALL_ORIGINS\s*=\s*True\b'), "Wildcard CORS origin enabled in patch"),
-    (re.compile(r'(?:#|//)\s*nosec\b', re.IGNORECASE), "Suppression comment (nosec) hiding potential vulnerability")
+    (re.compile(r'@CrossOrigin\s*\(\s*(?:origins\s*=\s*)?["\']\*["\']'), "Wildcard CORS origin annotation in Java/Spring"),
+    # Native dangerous constructs
+    (re.compile(r'\bextract\s*\(\s*\$_(?:POST|GET|REQUEST)\s*\)'), "Dangerous PHP extract() on untrusted user input"),
+    (re.compile(r'\bunsafe\s*\{'), "Unvetted Rust unsafe block introduced in patch"),
+    # Polyglot additional security bypasses (Python, Ruby, Java, Kotlin, Elixir, Dart, C++)
+    (re.compile(r'\bSESSION_COOKIE_SECURE\s*=\s*False\b'), "Session cookie secure flag disabled"),
+    (re.compile(r'\bparams\.permit!'), "Rails strong parameters mass assignment bypass (params.permit!)"),
+    (re.compile(r'\b(?:csrf(?:\(\))?\.disable\(\)|\.csrf\(\)\.disable\(\)|\.csrf\([^)]*AbstractHttpConfigurer::disable\))'), "CSRF protection explicitly disabled"),
+    (re.compile(r'\b(?:verify_peer\s*:\s*false|verify\s*:\s*:verify_none)\b'), "Disabled Elixir TLS certificate verification"),
+    (re.compile(r'\bbadCertificateCallback\s*='), "Disabled Dart/Flutter badCertificateCallback validation"),
+    (re.compile(r'\bSSL_VERIFY_NONE\b'), "Disabled C/C++ OpenSSL certificate verification (SSL_VERIFY_NONE)"),
+    (re.compile(r'\bpermitAll\(\)'), "Unrestricted access granted via permitAll()"),
+    (re.compile(r'\bverify\s*(?:=>|=)\s*false\b', re.IGNORECASE), "Disabled TLS/HTTP client verification (verify => false)"),
+    # Linters and scanners suppressions
+    (re.compile(r'(?:#|//|/\*)\s*nosec\b', re.IGNORECASE), "Suppression comment (nosec) hiding potential vulnerability"),
+    (re.compile(r'@SuppressWarnings\s*\(\s*["\'](?:security|all)["\']\s*\)'), "Java security suppression annotation")
 ]
 
 SECRET_PATTERNS = [
@@ -35,7 +62,10 @@ TENANT_FILTER_PATTERNS = [
     re.compile(r'\.filter\([^)]*\btenant\s*='),
     re.compile(r'\.filter_by\([^)]*\btenant\s*='),
     re.compile(r'\bwhere\s+tenant_id\s*='),
-    re.compile(r'\btenant_id\s*==?')
+    re.compile(r'\btenant_id\s*==?'),
+    re.compile(r'\btenantId\s*:'),
+    re.compile(r'\.Where\([^)]*(?:tenant_id|TenantId)'),
+    re.compile(r'\bwhere\s*:\s*\{[^}]*tenant')
 ]
 
 
@@ -198,13 +228,88 @@ def audit_diff_file(file_path: str, check_memory: bool = False, root_dir: Option
     return audit_diff(content, check_memory=check_memory, root_dir=root_dir)
 
 
+def check_diff_content(diff_content: str, file_path: str = "") -> List[Dict[str, Any]]:
+    """Convenience helper to audit diff string directly and return list of violations."""
+    res = audit_diff(diff_content)
+    return res.get("violations", [])
+
+
+def install_pre_commit_hook(root_dir: Optional[Path] = None) -> bool:
+    """Install TorusGuard pre-commit security hook into .git/hooks/pre-commit."""
+    base = Path(root_dir or Path.cwd()).resolve()
+    git_dir = base / ".git"
+    if not git_dir.exists():
+        for parent in base.parents:
+            if (parent / ".git").exists():
+                git_dir = parent / ".git"
+                break
+    if not git_dir.exists():
+        print("[ERROR] Diff Guard: Not a git repository (no .git directory found).", file=sys.stderr)
+        return False
+
+    hooks_dir = git_dir / "hooks"
+    hooks_dir.mkdir(parents=True, exist_ok=True)
+    hook_file = hooks_dir / "pre-commit"
+
+    hook_script = """#!/usr/bin/env sh
+# TorusGuard Pre-Commit Security Diff Guard
+# Automatically blocks commits containing security bypasses, secret leaks, or tenant stripping.
+python .torusguard/scripts/diff_guard.py --pre-commit
+"""
+    try:
+        hook_file.write_text(hook_script, encoding="utf-8")
+        if os.name != "nt":
+            import stat
+            os.chmod(hook_file, hook_file.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        print(f"[SUCCESS] Installed TorusGuard pre-commit hook at: {hook_file}")
+        return True
+    except Exception as e:
+        print(f"[ERROR] Diff Guard: Failed to install pre-commit hook: {e}", file=sys.stderr)
+        return False
+
+
+def uninstall_pre_commit_hook(root_dir: Optional[Path] = None) -> bool:
+    """Uninstall TorusGuard pre-commit hook from .git/hooks/pre-commit."""
+    base = Path(root_dir or Path.cwd()).resolve()
+    git_dir = base / ".git"
+    if not git_dir.exists():
+        for parent in base.parents:
+            if (parent / ".git").exists():
+                git_dir = parent / ".git"
+                break
+    if not git_dir.exists():
+        print("[WARN] Diff Guard: No .git directory found.", file=sys.stderr)
+        return False
+
+    hook_file = git_dir / "hooks" / "pre-commit"
+    if hook_file.exists():
+        try:
+            hook_file.unlink()
+            print("[SUCCESS] Uninstalled TorusGuard pre-commit hook.")
+            return True
+        except Exception as e:
+            print(f"[ERROR] Diff Guard: Failed to delete hook file: {e}", file=sys.stderr)
+            return False
+    else:
+        print("[INFO] Diff Guard: No pre-commit hook currently installed.")
+        return True
+
+
 def main():
     parser = argparse.ArgumentParser(description="TorusGuard Unified Diff Security Scanner")
     parser.add_argument("diff_path", nargs="?", help="Path to unified diff file (or read stdin if omitted)")
     parser.add_argument("--check-memory", action="store_true", help="Check additions against persistent memory regression watch patterns")
     parser.add_argument("--pre-commit", action="store_true", help="Audit git staged diff (--cached) for pre-commit hook")
+    parser.add_argument("--install-hook", action="store_true", help="Install TorusGuard pre-commit hook into .git/hooks/pre-commit")
+    parser.add_argument("--uninstall-hook", action="store_true", help="Uninstall TorusGuard pre-commit hook")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
     args = parser.parse_args()
+
+    if args.install_hook:
+        sys.exit(0 if install_pre_commit_hook() else 1)
+
+    if args.uninstall_hook:
+        sys.exit(0 if uninstall_pre_commit_hook() else 1)
 
     if args.pre_commit:
         import subprocess
@@ -250,3 +355,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

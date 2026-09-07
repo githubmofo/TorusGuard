@@ -31,6 +31,10 @@
 | **v0.9.0** | ✅ Yes | Granular specialist skills architecture (12 individual skills) | 64 rules + subagent routing | **Verified** |
 | **v0.9.1** | ✅ Yes | Autonomous workspace bootstrapper (`bootstrap.py`), installer (`install.py`) | 64 rules + integrity manifest | **Verified** |
 | **v0.9.2** | ✅ Yes | Two-tier command engine (`workflows/` & `skills/`), responsive banner | 71 rules (Agentic AI & Edge) | **Verified** |
+| **v1.0.0** | ✅ Yes | Adaptive Security Memory Engine, 4-tier storage, TTL decay, `npx torusguard memory` | 71 canonical rules + Memory | **Verified** |
+| **v1.1.0** | ✅ Yes | Proximity scoring, Golden Recipe distillation, role contexts, git hooks | 71 canonical rules + Recipes | **Verified** |
+| **v1.2.0** | ✅ Yes | AI IDE Rules auto-sync (`rules_sync.py`), single-file HTML dashboard (`html_reporter.py`) | 71 canonical rules + IDE Rules | **Verified** |
+| **v1.3.0** | ✅ Yes | Universal Polyglot Engine (16+ languages, 30+ frameworks, 20+ ORMs, diff guard) | 71 canonical rules + Polyglot | **Verified** |
 
 ---
 

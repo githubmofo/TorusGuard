@@ -83,6 +83,18 @@ def compute_memory_boost(
     return boost
 
 
+def is_test_path(file_path: Optional[str]) -> bool:
+    """Detects whether a file path belongs to a test suite, fixture, or mock."""
+    if not file_path:
+        return False
+    clean = file_path.replace("\\", "/").lower()
+    test_markers = [
+        "/test/", "/tests/", "/spec/", "/specs/", "/fixtures/", "/mock/", "/mocks/",
+        "/e2e/", "__tests__", "test_", "_test.", ".test.", ".spec.", "testcase"
+    ]
+    return any(marker in clean for marker in test_markers) or clean.endswith(("_test.go", "test.java", "test.py", ".spec.ts", ".test.ts", ".spec.js", ".test.js"))
+
+
 def compute_confidence_score(
     evidence_quality: int = 35,
     reproduction_success: int = 0,
@@ -103,6 +115,7 @@ def compute_confidence_score(
     - environmental_clarity: 15
     - manual_review_status: 10
     - memory_boost: -30 to +20 (modifier from persistent memory)
+    - test_deduction: -30 if file is located in a test/mock path
     Total is clamped to [0, 100].
     """
     eq = min(max(evidence_quality, 0), 35)
@@ -116,7 +129,11 @@ def compute_confidence_score(
     if rule_id and eff_mem_boost == 0:
         eff_mem_boost = compute_memory_boost(rule_id, file_path=file_path, root_dir=root_dir)
 
-    raw_total = eq + rs + ic + ec + mr + eff_mem_boost
+    # Test path noise suppression: -30 deduction for test mocks/fixtures
+    is_test = is_test_path(file_path)
+    test_deduction = -30 if is_test else 0
+
+    raw_total = eq + rs + ic + ec + mr + eff_mem_boost + test_deduction
     total = min(max(raw_total, 0), 100)
 
     if total >= 90:
@@ -135,6 +152,8 @@ def compute_confidence_score(
         "environmental_clarity": ec,
         "manual_review_status": mr,
         "memory_boost": eff_mem_boost,
+        "test_exemption": is_test,
+        "test_deduction": test_deduction,
         "total_score": total,
         "classification_band": band
     }

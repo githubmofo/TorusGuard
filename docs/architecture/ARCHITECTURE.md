@@ -162,6 +162,28 @@ Formal separation of responsibilities to eliminate AI confirmation bias:
 - **Interactive Workflows (`.torusguard/workflows/<cmd>.md`):** Structured playbooks for 11 slash commands + `/torusguard full`.
 - **Specialist Skills (`.torusguard/skills/torusguard-<cmd>/SKILL.md`):** Focused, lazy-loaded domain expertise preserving context budgets.
 
+### 6.7. Adaptive Security Memory Engine (`scripts/memory_engine.py`, `.torusguard/memory/`)
+Persistent local intelligence layer maintaining:
+- Append-only event ledger (`memory/events/`) with 6 distinct event types.
+- Distilled pattern store (`memory/patterns.json`) with multi-file confidence amplification.
+- Golden Fix Recipe extraction (`memory/golden_recipes/`) adhering to strict Ponytail churn bounds.
+- File and rule proximity affinity scoring ($\ge 90$ for exact file match) feeding prompt context cards ($\le 2,000$ tokens).
+
+### 6.8. Universal Polyglot Stack Profiler & Monorepo Detector (`core/stack_profiler.py`, `scripts/monorepo_detector.py`)
+- Analyzes workspace manifests across 16+ languages (Go, Rust, Java, C#, PHP, Ruby, Kotlin, Elixir, Dart, C/C++, Scala, Swift, Python, TypeScript/JavaScript).
+- Traverses multi-package monorepos (npm/pnpm/yarn, Cargo, Go work, Gradle) and resolves package-specific framework and ORM boundaries.
+
+### 6.9. Content-Aware Diff Guard & Pre-Commit Hook (`scripts/diff_guard.py`)
+- Audits unified git diffs before commits or PR merges.
+- Detects multi-language security bypasses (`TG-DIFF-001`), hardcoded credentials (`TG-DIFF-002`), multi-ORM tenant boundary strippings (`TG-DIFF-003`), and memory regression watch files (`TG-DIFF-004`).
+- Provides 1-command pre-commit hook installation: `diff_guard.py --install-hook`.
+
+### 6.10. AI IDE Rules Compiler (`scripts/rules_sync.py`)
+- Automatically compiles project security invariants, golden recipes, and active guardrails into prompt-optimized rule files for Cursor, Claude Code, Antigravity, and Windsurf within $\le 300$ prompt tokens.
+
+### 6.11. Visual Single-File HTML Reporter (`scripts/html_reporter.py`)
+- Self-contained, zero-external-CDN dark-mode dashboard (`.torusguard/runs/report-latest.html`) featuring animated SVG posture gauges, 7-stage lifecycle status, dynamic polyglot ecosystem badges, and interactive diff viewers.
+
 ---
 
 ## 7. Request Lifecycle
@@ -234,7 +256,7 @@ Repository Files ──► [Stack Detector] ──► Active Rule Subset
 - **Rule Definitions:** GitHub Flavored Markdown (GFM) with YAML Frontmatter.
 - **Agent Skill Standard:** Open `skills` specification (`skills/torusguard/SKILL.md`).
 - **Harness & Automation:** Pytest / Standard Python unittest harness.
-- **Target Environments:** Node.js / TypeScript, Python (Django, DRF, FastAPI, Flask, SQLAlchemy).
+- **Target Environments:** Universal Polyglot support across 16+ languages (Go, Rust, Java, C#, PHP, Ruby, Kotlin, Elixir, Dart, C/C++, Scala, Swift, Python, TypeScript/JavaScript) and 30+ frameworks (FastAPI, Django, Flask, Express, Next.js, Spring Boot, ASP.NET Core, Gin, Actix, Laravel, Rails, Phoenix, etc.).
 
 ---
 

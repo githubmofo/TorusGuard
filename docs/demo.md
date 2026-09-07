@@ -99,3 +99,93 @@ Once candidate fixes are reviewed:
 1. **Formulate the Remediation Bundle:** Run `/torusguard harden` to generate 4-artifact remediation packages strictly adhering to the **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions per bundle).
 2. **Pre-Apply Snapshot:** Run `/torusguard apply`. TorusGuard automatically saves a byte-for-byte rollback backup in `pre_apply/<file>.bak` before modifying any code.
 3. **Targeted Recheck:** Run `/torusguard recheck` to differentially re-audit the modified lines. The finding transitions to `Confirmed Fixed` and a verified SARIF v2.1.0 report is exported to `.torusguard/runs/<run-id>/results.sarif`.
+
+---
+
+## 🔒 Step 5: Git Pre-Commit Diff Guard (`npx torusguard diff-guard`)
+
+Install the local pre-commit hook in one command:
+```bash
+npx torusguard diff-guard --install-hook
+```
+
+When an engineer or AI agent stages code with a security bypass or leaked credentials:
+```bash
+git commit -m "feat: bypass ssl check for dev"
+```
+
+TorusGuard instantly blocks the commit:
+```text
+🚨 TorusGuard Diff Guard: BLOCKED (Exit 1)
+--------------------------------------------------
+File: internal/client/transport.go
+Line: +42: InsecureSkipVerify: true
+Violation: [TG-DIFF-001] Dangerous security bypass detected in staged diff.
+Remediation: Remove InsecureSkipVerify: true and configure proper CA certificates.
+```
+
+---
+
+## 🔄 Step 6: AI IDE Rules Auto-Sync (`npx torusguard rules sync`)
+
+Compile project security invariants into prompt-optimized rules for your AI editor:
+```bash
+npx torusguard rules sync --format all
+```
+
+Output:
+```text
+🛡️  TorusGuard AI IDE Rules Sync Engine v1.3.0
+============================================================
+Detected Stack: Express, React, TypeScript (ORM: Prisma)
+Compiling security rules with max overhead <= 300 tokens...
+
+  ✓ Updated .cursorrules (245 prompt tokens)
+  ✓ Updated CLAUDE.md (260 prompt tokens)
+  ✓ Updated .agent/rules/torusguard.md (230 prompt tokens)
+  ✓ Updated .windsurfrules (245 prompt tokens)
+
+✨ Successfully synced 4 AI IDE rule files.
+```
+
+---
+
+## 📊 Step 7: Single-File Visual HTML Posture Dashboard (`npx torusguard report --html`)
+
+Generate a standalone, zero-external-CDN dark-mode dashboard:
+```bash
+npx torusguard report --html
+```
+
+Output:
+```text
+📊 Visual HTML Security Posture Report generated:
+   --> .torusguard/runs/report-latest.html
+   Size: 34.2 KB (100% self-contained, offline-ready, dark-mode)
+```
+
+The report renders:
+- Circular animated SVG Security Posture Score gauge (0–100).
+- 7-Stage closed-loop governance pipeline timeline.
+- Dynamic polyglot ecosystem badges.
+- Golden Fix Recipes card grid with before/after diffs.
+
+---
+
+## 🧠 Step 8: Adaptive Security Memory (`npx torusguard memory`)
+
+Inspect project security intelligence accumulated across audit runs:
+```bash
+npx torusguard memory status
+```
+
+Output:
+```text
+🧠 TorusGuard Security Memory Status
+============================================================
+Events Recorded:      14 events (Ledger: memory/events/)
+Distilled Patterns:   3 active patterns (memory/patterns.json)
+Golden Fix Recipes:   2 recipes (memory/golden_recipes/)
+Active Context Card:  ~210 tokens (memory/context.json)
+TTL Decay:            90 days active (0 expired events)
+```

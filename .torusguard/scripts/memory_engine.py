@@ -19,12 +19,12 @@ from typing import Dict, List, Any, Optional, Tuple
 # Ensure UTF-8 stdout/stderr on Windows consoles
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        getattr(sys.stdout, "reconfigure")(encoding="utf-8", errors="replace")
     except Exception:
         pass
 if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     try:
-        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        getattr(sys.stderr, "reconfigure")(encoding="utf-8", errors="replace")
     except Exception:
         pass
 
@@ -32,6 +32,28 @@ VERSION = "1.1.0"
 DEFAULT_TOKEN_BUDGET = 2000
 DEFAULT_TTL_DAYS = 90
 DEFAULT_DECAY_RATE = 0.15
+
+
+def _utc_now() -> datetime.datetime:
+    """Return timezone-aware current UTC datetime."""
+    return datetime.datetime.now(datetime.timezone.utc)
+
+
+def _utc_now_iso() -> str:
+    """Return ISO 8601 formatted UTC timestamp string ending with 'Z'."""
+    return datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _parse_iso_utc(ts_str: str) -> datetime.datetime:
+    """Parse ISO timestamp string and guarantee timezone-aware UTC datetime."""
+    clean = ts_str.replace("Z", "+00:00")
+    try:
+        dt = datetime.datetime.fromisoformat(clean)
+    except ValueError:
+        dt = datetime.datetime.fromisoformat(clean.split(".")[0] + "+00:00")
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return dt
 
 
 def find_project_root(start_dir: Optional[str] = None) -> Path:
@@ -104,13 +126,13 @@ def ensure_memory_structure(root_dir: Optional[Path] = None) -> Dict[str, Path]:
             "active_patterns_count": 0,
             "fix_rate_percentage": None,
             "top_vulnerabilities": [],
-            "last_updated": datetime.datetime.utcnow().isoformat() + "Z"
+            "last_updated": _utc_now_iso()
         }, indent=2), encoding="utf-8")
 
     if not paths["context"].exists():
         initial_context = {
             "version": VERSION,
-            "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+            "generated_at": _utc_now_iso(),
             "token_estimate": 0,
             "max_token_budget": DEFAULT_TOKEN_BUDGET,
             "project_profile": {
@@ -156,8 +178,8 @@ def record_event(
         raise ValueError(f"Invalid event_type: {event_type}. Must be one of {valid_types}")
 
     paths = ensure_memory_structure(root_dir)
-    now_utc = datetime.datetime.utcnow()
-    timestamp_iso = now_utc.isoformat() + "Z"
+    now_utc = _utc_now()
+    timestamp_iso = _utc_now_iso()
     event_id = f"evt-{now_utc.strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}"
 
     # Sanitize file_path to be relative to project root
@@ -298,7 +320,7 @@ def distill_patterns(root_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
     # 1. Distill Recurring Fixes & Security Idioms
     for (rule_id, fix_strat), fix_evts in rule_fixes.items():
         occurrences = len(fix_evts)
-        affected_files = sorted(list({e.get("file_path") for e in fix_evts if e.get("file_path")}))
+        affected_files = sorted(list({str(e["file_path"]) for e in fix_evts if e.get("file_path")}))
         verified_count = sum(1 for e in fix_evts if e.get("verification_result") == "fixed")
 
         # Confidence amplification logic
@@ -308,8 +330,8 @@ def distill_patterns(root_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
             base_confidence = min(98, base_confidence + 5)
 
         pattern_type = "security_idiom" if occurrences >= 3 and verified_count >= 2 else "recurring_fix"
-        timestamps = [e.get("timestamp") for e in fix_evts if e.get("timestamp")]
-        first_seen = min(timestamps) if timestamps else datetime.datetime.utcnow().isoformat() + "Z"
+        timestamps: List[str] = [str(e["timestamp"]) for e in fix_evts if e.get("timestamp")]
+        first_seen = min(timestamps) if timestamps else _utc_now_iso()
         last_seen = max(timestamps) if timestamps else first_seen
 
         patterns.append({
@@ -332,9 +354,9 @@ def distill_patterns(root_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
     for rule_id, find_evts in rule_findings.items():
         occurrences = len(find_evts)
         if occurrences >= 2:
-            affected_files = sorted(list({e.get("file_path") for e in find_evts if e.get("file_path")}))
-            timestamps = [e.get("timestamp") for e in find_evts if e.get("timestamp")]
-            first_seen = min(timestamps) if timestamps else datetime.datetime.utcnow().isoformat() + "Z"
+            affected_files = sorted(list({str(e["file_path"]) for e in find_evts if e.get("file_path")}))
+            timestamps: List[str] = [str(e["timestamp"]) for e in find_evts if e.get("timestamp")]
+            first_seen = min(timestamps) if timestamps else _utc_now_iso()
             last_seen = max(timestamps) if timestamps else first_seen
 
             confidence = min(90, 55 + (occurrences * 5))
@@ -357,11 +379,11 @@ def distill_patterns(root_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
     # 3. Distill False Positive Classes
     for rule_id, fp_evts in false_positives.items():
         occurrences = len(fp_evts)
-        affected_files = sorted(list({e.get("file_path") for e in fp_evts if e.get("file_path")}))
+        affected_files = sorted(list({str(e["file_path"]) for e in fp_evts if e.get("file_path")}))
         reasons = [e.get("suppression_reason") for e in fp_evts if e.get("suppression_reason")]
         summary_reason = reasons[-1] if reasons else "Suppressed by team policy"
-        timestamps = [e.get("timestamp") for e in fp_evts if e.get("timestamp")]
-        first_seen = min(timestamps) if timestamps else datetime.datetime.utcnow().isoformat() + "Z"
+        timestamps: List[str] = [str(e["timestamp"]) for e in fp_evts if e.get("timestamp")]
+        first_seen = min(timestamps) if timestamps else _utc_now_iso()
         last_seen = max(timestamps) if timestamps else first_seen
 
         patterns.append({
@@ -383,9 +405,9 @@ def distill_patterns(root_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
     # 4. Distill Regression Watch Entries
     for rule_id, reg_evts in regressions.items():
         occurrences = len(reg_evts)
-        affected_files = sorted(list({e.get("file_path") for e in reg_evts if e.get("file_path")}))
-        timestamps = [e.get("timestamp") for e in reg_evts if e.get("timestamp")]
-        first_seen = min(timestamps) if timestamps else datetime.datetime.utcnow().isoformat() + "Z"
+        affected_files = sorted(list({str(e["file_path"]) for e in reg_evts if e.get("file_path")}))
+        timestamps: List[str] = [str(e["timestamp"]) for e in reg_evts if e.get("timestamp")]
+        first_seen = min(timestamps) if timestamps else _utc_now_iso()
         last_seen = max(timestamps) if timestamps else first_seen
 
         patterns.append({
@@ -424,7 +446,7 @@ def decay_stale_entries(
     Reduces confidence to prevent stale architectural advice.
     """
     paths = ensure_memory_structure(root_dir)
-    now = datetime.datetime.utcnow()
+    now = _utc_now()
 
     # Read config from decay.json if available
     try:
@@ -449,9 +471,7 @@ def decay_stale_entries(
         if not chk_str:
             continue
         try:
-            # Parse ISO date string (strip Z if present)
-            clean_ts = chk_str.rstrip("Z")
-            last_dt = datetime.datetime.fromisoformat(clean_ts)
+            last_dt = _parse_iso_utc(chk_str)
             days_elapsed = (now - last_dt).days
 
             if days_elapsed >= ttl_days:
@@ -460,7 +480,7 @@ def decay_stale_entries(
                 new_conf = max(10, old_conf - reduction)
                 if new_conf != old_conf:
                     pat["confidence"] = new_conf
-                    pat["decay_checkpoint"] = now.isoformat() + "Z"
+                    pat["decay_checkpoint"] = _utc_now_iso()
                     decayed_count += 1
         except Exception:
             continue
@@ -546,7 +566,7 @@ def get_project_profile(root_dir: Optional[Path] = None) -> Dict[str, Any]:
         "fixes_verified_count": verified_fixed_count,
         "fix_rate_percentage": fix_rate,
         "top_vulnerabilities": top_vulns,
-        "last_updated": datetime.datetime.utcnow().isoformat() + "Z"
+        "last_updated": _utc_now_iso()
     }
     paths["profile"].write_text(json.dumps(profile, indent=2), encoding="utf-8")
     return profile
@@ -638,7 +658,7 @@ def record_golden_recipe(
 
     recipe_hash = hashlib.sha256(diff_snippet.strip().encode("utf-8")).hexdigest()[:8]
     recipe_id = f"recipe-{rule_id}-{recipe_hash}"
-    timestamp = datetime.datetime.utcnow().isoformat() + "Z"
+    timestamp = _utc_now_iso()
 
     recipe = {
         "recipe_id": recipe_id,
@@ -664,8 +684,6 @@ def record_golden_recipe(
         except Exception:
             patterns = []
 
-    existing = False
-    matched_p: Optional[Dict[str, Any]] = None
     for p in patterns:
         if p.get("pattern_type") == "golden_fix_recipe" and p.get("recipe_id") == recipe_id:
             count = p.get("verified_count", 1) + 1
@@ -674,30 +692,27 @@ def record_golden_recipe(
             p["last_verified"] = timestamp
             p["confidence"] = min(99, p.get("confidence", 85) + 5)
             p["recipe_data"] = recipe
-            matched_p = p
-            existing = True
-            break
+            paths["patterns"].write_text(json.dumps(patterns, indent=2), encoding="utf-8")
+            return p
 
-    if not existing:
-        recipe_pattern = {
-            "pattern_id": f"PAT-RECIPE-{recipe_id}",
-            "rule_id": rule_id,
-            "pattern_type": "golden_fix_recipe",
-            "recipe_id": recipe_id,
-            "file_type": file_type,
-            "framework": framework,
-            "description": description,
-            "recipe_data": recipe,
-            "confidence": 90,
-            "occurrences": 1,
-            "affected_files": [],
-            "first_seen": timestamp,
-            "last_seen": timestamp
-        }
-        patterns.append(recipe_pattern)
-
+    recipe_pattern: Dict[str, Any] = {
+        "pattern_id": f"PAT-RECIPE-{recipe_id}",
+        "rule_id": rule_id,
+        "pattern_type": "golden_fix_recipe",
+        "recipe_id": recipe_id,
+        "file_type": file_type,
+        "framework": framework,
+        "description": description,
+        "recipe_data": recipe,
+        "confidence": 90,
+        "occurrences": 1,
+        "affected_files": [],
+        "first_seen": timestamp,
+        "last_seen": timestamp
+    }
+    patterns.append(recipe_pattern)
     paths["patterns"].write_text(json.dumps(patterns, indent=2), encoding="utf-8")
-    return matched_p if existing and matched_p is not None else recipe_pattern
+    return recipe_pattern
 
 
 def compute_context_window(
@@ -848,7 +863,7 @@ def compute_context_window(
     # Build Context Window Payload
     context = {
         "version": VERSION,
-        "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "generated_at": _utc_now_iso(),
         "role": target_role,
         "target_role": target_role,
         "target_query": {
@@ -978,7 +993,7 @@ def export_memory(
         "format": "torusguard-memory-bundle",
         "schema_version": VERSION,
         "sanitized": sanitized,
-        "exported_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "exported_at": _utc_now_iso(),
         "project_profile": profile,
         "decay_config": decay_cfg,
         "patterns": patterns,
@@ -1035,7 +1050,7 @@ def import_memory(source_path: str, merge: bool = True, root_dir: Optional[Path]
 def compact_events(older_than_days: int = 30, root_dir: Optional[Path] = None) -> int:
     """Archive events older than older_than_days into compacted_archive.json."""
     paths = ensure_memory_structure(root_dir)
-    cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=older_than_days)
+    cutoff = _utc_now() - datetime.timedelta(days=older_than_days)
 
     archived: List[Dict[str, Any]] = []
     archived_ids = set()
@@ -1059,7 +1074,7 @@ def compact_events(older_than_days: int = 30, root_dir: Optional[Path] = None) -
             ts_str = evt.get("timestamp")
             if not ts_str:
                 continue
-            ts = datetime.datetime.fromisoformat(ts_str.replace("Z", "+00:00")).replace(tzinfo=None)
+            ts = _parse_iso_utc(ts_str)
             if ts < cutoff:
                 eid = evt.get("event_id")
                 if eid and eid not in archived_ids:

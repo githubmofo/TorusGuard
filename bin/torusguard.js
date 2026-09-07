@@ -49,7 +49,7 @@ function printHelp() {
   console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.1.0${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.3.0${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}   ${DIM}Autonomous Security Engine for AI-Built Applications${RESET}               ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
@@ -61,13 +61,17 @@ function printHelp() {
   ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
   ${CYAN}│${RESET}  ${GREEN}init${RESET}      Scaffold ${BOLD}.torusguard/${RESET} workspace + unlock 12 slash commands   ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}status${RESET}    Display active security posture, memory, rules, and stack   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}rules${RESET}     Auto-sync memory to AI IDE rules (.cursorrules, CLAUDE.md)  ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}memory${RESET}    Manage persistent security memory (export, hook, learn)     ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}audit${RESET}     Run static AST security scan on the target project          ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}report${RESET}    Export OASIS SARIF v2.1.0 structured telemetry              ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}report${RESET}    Export OASIS SARIF v2.1.0 or single-file visual HTML report ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}diff-guard${RESET} Scan diffs or wire pre-commit hook (--install-hook)        ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}help${RESET}      Show this interactive command guide                         ${CYAN}│${RESET}
   ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
-  ${CYAN}│${RESET}  ${BOLD}Memory Subcommands${RESET}                                                    ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${BOLD}AI & Memory Subcommands${RESET}                                               ${CYAN}│${RESET}
   ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
+  ${CYAN}│${RESET}  ${WHITE}rules sync${RESET}       ${DIM}[--format all|cursor|claude|agent|windsurf]${RESET}        ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${WHITE}report --html${RESET}    ${DIM}[--out <path>] Self-contained visual HTML dashboard${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${WHITE}memory context${RESET}   ${DIM}[--role auditor|remediator|reviewer] [--file <f>]${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${WHITE}memory hook${RESET}      ${DIM}[install|uninstall] Git pre-commit regression hook${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${WHITE}memory learn${RESET}     ${DIM}[--commits <range>] Ingest security commit fixes${RESET}     ${CYAN}│${RESET}
@@ -133,7 +137,7 @@ if (command === 'status') {
       console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.1.0${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.3.0${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
 
@@ -277,6 +281,69 @@ if (command === 'memory') {
 
   const proc = spawnSync(pythonCmd, pyArgs, { stdio: 'inherit', cwd });
   process.exit(proc.status !== null ? proc.status : 0);
+}
+
+// Subcommand: diff-guard
+if (command === 'diff-guard') {
+  const diffScript = path.join(cwd, '.torusguard', 'scripts', 'diff_guard.py');
+  const fallbackDiffScript = path.join(rootDir, '.torusguard', 'scripts', 'diff_guard.py');
+  const actualDiffScript = fs.existsSync(diffScript) ? diffScript : fallbackDiffScript;
+
+  const proc = spawnSync(pythonCmd, [actualDiffScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
+// Subcommand: rules
+if (command === 'rules') {
+  const sub = args[1] || 'sync';
+  const rulesScript = path.join(cwd, '.torusguard', 'scripts', 'rules_sync.py');
+  const fallbackRulesScript = path.join(rootDir, '.torusguard', 'scripts', 'rules_sync.py');
+  const actualRulesScript = fs.existsSync(rulesScript) ? rulesScript : fallbackRulesScript;
+
+  let pyArgs = [actualRulesScript];
+  if (sub === 'sync') {
+    const fmtIdx = args.indexOf('--format');
+    if (fmtIdx !== -1 && args[fmtIdx + 1]) {
+      pyArgs.push('--format', args[fmtIdx + 1]);
+    }
+    const rootIdx = args.indexOf('--root') !== -1 ? args.indexOf('--root') : args.indexOf('--target');
+    if (rootIdx !== -1 && args[rootIdx + 1]) {
+      pyArgs.push('--root', args[rootIdx + 1]);
+    }
+    if (args.includes('--json')) {
+      pyArgs.push('--json');
+    }
+  } else {
+    pyArgs.push(...args.slice(1));
+  }
+
+  const proc = spawnSync(pythonCmd, pyArgs, { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
+// Subcommand: report
+if (command === 'report') {
+  if (args.includes('--html') || args[1] === 'html') {
+    const htmlScript = path.join(cwd, '.torusguard', 'scripts', 'html_reporter.py');
+    const fallbackHtmlScript = path.join(rootDir, '.torusguard', 'scripts', 'html_reporter.py');
+    const actualHtmlScript = fs.existsSync(htmlScript) ? htmlScript : fallbackHtmlScript;
+
+    let pyArgs = [actualHtmlScript];
+    const outIdx = args.indexOf('--out');
+    if (outIdx !== -1 && args[outIdx + 1]) {
+      pyArgs.push('--out', args[outIdx + 1]);
+    }
+    const rootIdx = args.indexOf('--root') !== -1 ? args.indexOf('--root') : args.indexOf('--target');
+    if (rootIdx !== -1 && args[rootIdx + 1]) {
+      pyArgs.push('--root', args[rootIdx + 1]);
+    }
+    if (args.includes('--json')) {
+      pyArgs.push('--json');
+    }
+
+    const proc = spawnSync(pythonCmd, pyArgs, { stdio: 'inherit', cwd });
+    process.exit(proc.status !== null ? proc.status : 0);
+  }
 }
 
 // Locate bootstrap / runner scripts

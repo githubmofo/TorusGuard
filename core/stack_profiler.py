@@ -56,7 +56,7 @@ class StackProfiler:
         file_names = {f.name for f in all_files}
         file_paths_str = [str(f.relative_to(repo_path)).replace("\\", "/") for f in all_files]
 
-        # 1. Dependency Manager Detection
+        # 1. Dependency Manager & Ecosystem Detection
         if "uv.lock" in file_names:
             profile.dependency_manager = "uv"
             detected_features.append("uv (Astral) fast package manager")
@@ -71,6 +71,34 @@ class StackProfiler:
             profile.dependency_manager = "npm"
         elif "yarn.lock" in file_names:
             profile.dependency_manager = "yarn"
+        elif "go.mod" in file_names:
+            profile.primary_language = "Go"
+            profile.dependency_manager = "go modules"
+            detected_features.append("Go Modules package ecosystem")
+        elif "Cargo.toml" in file_names:
+            profile.primary_language = "Rust"
+            profile.dependency_manager = "cargo"
+            detected_features.append("Cargo package manager (Rust)")
+        elif "pom.xml" in file_names:
+            profile.primary_language = "Java"
+            profile.dependency_manager = "maven"
+            detected_features.append("Maven project layout")
+        elif "build.gradle" in file_names or "build.gradle.kts" in file_names:
+            profile.primary_language = "Kotlin" if "build.gradle.kts" in file_names else "Java"
+            profile.dependency_manager = "gradle"
+            detected_features.append("Gradle build tool")
+        elif any(f.endswith(".csproj") for f in file_names):
+            profile.primary_language = "C#"
+            profile.dependency_manager = "dotnet / nuget"
+            detected_features.append(".NET / C# project ecosystem")
+        elif "composer.json" in file_names:
+            profile.primary_language = "PHP"
+            profile.dependency_manager = "composer"
+            detected_features.append("Composer package manager (PHP)")
+        elif "Gemfile" in file_names:
+            profile.primary_language = "Ruby"
+            profile.dependency_manager = "bundler"
+            detected_features.append("Bundler package manager (Ruby)")
         elif "pyproject.toml" in file_names:
             profile.dependency_manager = "pyproject.toml (PEP 621)"
 

@@ -69,5 +69,22 @@ To prevent AI coding assistants from introducing catastrophic code modifications
 
 ---
 
-## 5. Responsible Disclosure & Vulnerability Handling
+## 5. Security Memory Privacy & Sanitization (`memory_engine.py`)
+
+The Adaptive Security Memory Engine (`.torusguard/memory/`) stores project security history locally:
+- **Local Isolation:** Memory ledgers, cards, and patterns reside strictly within the project directory.
+- **Sanitized Team Export:** The `npx torusguard memory export --sanitized` command automatically strips absolute system file paths, developer usernames, and embedded credentials before generating team sharing bundles.
+- **Automatic TTL & Compaction:** Stale advice decays after 90 days, and loose event files older than 30 days are automatically compacted into `compacted_archive.json`.
+
+---
+
+## 6. Pre-Commit Interception & Diff Guard (`diff_guard.py`)
+
+TorusGuard enforces local pre-commit verification via `.git/hooks/pre-commit`:
+- **Local Execution:** Diff evaluation runs entirely on the developer machine in $< 200\text{ ms}$.
+- **Zero Bypass:** Intercepts security bypasses (`InsecureSkipVerify`, `permitAll()`, `unsafe`), raw credentials, and tenant query boundary deletions before `git commit` succeeds.
+
+---
+
+## 7. Responsible Disclosure & Vulnerability Handling
 Please refer to [SECURITY.md](../../SECURITY.md) for responsible disclosure guidelines. Security reports regarding the TorusGuard engine or skill manifest should be reported via private maintainer channels rather than public issue trackers.

@@ -214,23 +214,74 @@ This document outlines the development milestones, past releases, and future pri
 
 ---
 
-## 🎯 Upcoming Milestones: Post-v1.0.0 Series
-
-### 🚀 v1.1.0 — CI/CD Least-Privilege & Container Hardening (Q4 2026)
-- [ ] **CI/CD Permission Modeling:** GitHub Actions least privilege and OIDC trust policy analysis.
-- [ ] **Base Image Vulnerability Scanning:** Local container image configuration checks.
-
-### 🚀 v1.2.0 — Expanded Framework Idioms (Q1 2027)
-- [ ] Go (Fiber / Gin), Ruby on Rails, and Spring Boot framework reference guides and memory idioms.
-- [ ] Bidirectional WebSocket state-machine recording and deterministic replay.
+### ✅ v1.1.0 — Advanced Security Memory & Proximity Scoring (2026-09-06)
+- **File & Rule Proximity Scoring Engine:** Multi-dimensional affinity scoring matches memory cards to the active file being edited (exact file match $\ge 90$, directory match $40-80$, extension match $10-30$).
+- **Golden Fix Recipe Distillation:** Verified Before/After diff extraction from `/torusguard apply` with strict Ponytail bounds ($\le 35$ additions, $\le 25$ deletions).
+- **Formal Golden Recipe JSON Schema:** `.torusguard/schemas/golden-recipe.schema.json`.
+- **Role-Tailored Context Windows:** Dynamic memory perspectives for Auditor, Remediator, and Reviewer roles (`--role auditor|remediator|reviewer`).
+- **Git Pre-Commit Regression Hooks:** `npx torusguard memory hook install` configures `.git/hooks/pre-commit` to prevent committing regressions.
+- **Git Commit Learning:** Analyzes git commit logs for security fixes (`npx torusguard memory learn`).
+- **Sanitized Team Export:** `npx torusguard memory export --sanitized` removes sensitive local paths and secrets.
+- **Validation Test Suite:** 9-point validation battery (`harness/validate_v1_1_0_advanced_memory.py`).
 
 ---
 
-## 🔭 Future Horizons: v1.0.0 — Stable Multi-Platform Standard
+### ✅ v1.2.0 — AI IDE Rules Auto-Sync & Visual HTML Security Posture Report (2026-09-07)
+- **AI IDE Rules Auto-Sync Engine (`rules_sync.py`):**
+  - Compiles project security invariants, golden recipes, and active guardrails into prompt-optimized rule files for Cursor (`.cursorrules`), Claude Code (`CLAUDE.md`), Antigravity (`.agent/rules/torusguard.md`), and Windsurf (`.windsurfrules`).
+  - Strict token overhead ceiling $\le 400$ prompt tokens (typically ~180–270 tokens).
+  - Non-destructive sync with comment fences `<!-- TORUSGUARD-SECURITY-GUARDRAILS:START -->` and `<!-- TORUSGUARD-SECURITY-GUARDRAILS:END -->`.
+  - CLI subcommand: `npx torusguard rules sync [--format all|cursor|claude|agent|windsurf]`.
+- **Visual Single-File HTML Posture Report (`html_reporter.py`):**
+  - Self-contained, zero-external-CDN, dark-mode visual dashboard (`.torusguard/runs/report-latest.html`).
+  - Animated SVG circular gauge for Security Posture Score ($0-100$).
+  - Interactive 7-Stage closed-loop governance pipeline visualizer.
+  - Golden Fix Recipes card grid with unified diff viewer and Ponytail metrics.
+  - CLI subcommand: `npx torusguard report --html [--out <path>]`.
+- **Validation Test Suite:** 8-point validation battery (`harness/validate_v1_2_0_rules_and_html.py`).
 
-- **Broader Ecosystem Guides:** Go (Fiber / Gin), Ruby on Rails, and Spring Boot.
-- **Automated Catalog Linter:** GitHub Actions CI workflow to validate Markdown structure, rule IDs, and link integrity.
-- **Interactive Playground / Multi-Language Fixture Suite:** Broadened automated test fixtures for local evaluation.
+---
+
+### ✅ v1.3.0 — Universal Polyglot Security Engine (2026-09-07)
+- **Universal Polyglot Stack Detector (`stack_detect.py` & `core/stack_profiler.py`):**
+  - 16+ programming languages (Go, Rust, Java, C#, PHP, Ruby, Kotlin, Elixir, Dart, C/C++, Scala, Swift, Python, TypeScript/JavaScript).
+  - 30+ frameworks and 20+ ORMs recognized from manifests and dependency trees.
+  - Multi-language source file extension census fallback.
+- **Monorepo Fleet Discovery (`monorepo_detector.py`):**
+  - Discovers multi-package workspace hierarchies (npm/pnpm/yarn workspaces, Cargo workspaces, Go multi-module workspaces, Gradle multi-project builds).
+  - Per-package security profiling with individual framework and ORM boundary resolution.
+- **Polyglot Content-Aware Diff Guard (`diff_guard.py`):**
+  - Multi-language security bypass detection (`TG-DIFF-001`) for Go (`InsecureSkipVerify`), Java (`csrf().disable()`), C# (`[AllowAnonymous]`), PHP (`CURLOPT_SSL_VERIFYPEER => false`), and Rust (`unsafe {`).
+  - Multi-ORM tenant boundary stripping detection (`TG-DIFF-003`) for GORM, LINQ / EF Core, and Prisma.
+  - Added programmatic string-based audit helper `check_diff_content()`.
+- **1-Command Git Pre-Commit Hook Installer:**
+  - `diff_guard.py --install-hook` (or `npx torusguard diff-guard --install-hook`) automatically binds `.git/hooks/pre-commit` to prevent committing bypasses, plain credentials, or tenant boundary strippings.
+- **Context-Aware Test-Path False Positive Suppression:**
+  - `is_test_path()` dynamically discounts mock credentials, test fixtures, and harness files, eliminating spurious warnings in `test/`, `tests/`, `spec/`, and `__tests__/`.
+- **Multi-Stack AI IDE Rules Auto-Deduplication:**
+  - Dynamic language-tailored guardrail compilation matching repository stack within $\le 300$ prompt tokens for multi-framework setups.
+- **Polyglot Reference Guides & Custom Rules:**
+  - Dedicated reference matrices for Go, Rust, Java, C#, and universal polyglot security in `.torusguard/references/`.
+  - Custom rules framework in `.torusguard/rules/custom/` with schema guidelines.
+- **Visual Polyglot Posture Report (`html_reporter.py`):**
+  - Self-contained, zero-external-CDN, dark-mode visual dashboard (`.torusguard/runs/report-latest.html`) with dynamic ecosystem badges for 16+ languages.
+- **26-Repository Real-World Enterprise Portfolio Evaluation:**
+  - Validated across 26 production-grade repositories spanning 9 language ecosystems with 100.0% validation pass rate and 0-byte residual footprint on clean repos.
+- **Validation Test Suite:** 10-point validation battery (`harness/validate_v1_3_0_polyglot.py`) and 13 active test suites.
+
+---
+
+## 🎯 Upcoming Milestones: Post-v1.3.0 Series
+
+### 🚀 v1.4.0 — Container & Infrastructure-as-Code (IaC) Security (Q4 2026)
+- [ ] **Dockerfile & OCI Container Hardening:** Local containerfile static security analysis (non-root execution, secret leakage, multi-stage builds).
+- [ ] **Kubernetes & Compose Manifest Scanning:** Audit K8s YAML and Docker Compose services for security context, privileged mode, and host network exposure.
+- [ ] **CI/CD Least-Privilege & OIDC Auditing:** Deep GitHub Actions token permissions and OIDC trust configuration checks.
+
+### 🚀 v1.5.0 — Multi-Agent Consensus & Real-Time LSP Integration (Q1 2027)
+- [ ] **Language Server Protocol (LSP) Daemon:** Real-time in-editor security linting as you type across VS Code, Neovim, and JetBrains.
+- [ ] **Distributed Multi-Agent Consensus:** Parallel verification voting between auditor, validator, and independent external verifier before patch application.
+- [ ] **Live Telemetry Bridge:** Optional encrypted local-first webhook dispatcher for internal enterprise SIEM / SOC ingestion.
 
 ---
 

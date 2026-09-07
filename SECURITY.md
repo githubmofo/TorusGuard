@@ -52,11 +52,12 @@ Security updates and patches are actively maintained for the following release l
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v0.9.x` (`v0.9.3`) | ✅ Yes | **Current active release line** (Dual-Track Architecture, NPM CLI & Single Discovery) |
-| `v0.8.x` | ✅ Yes | Installable AI-Agent Security Skill Kit |
-| `v0.7.x` | ✅ Yes | Authorized Runtime Validation & Bounded Exploitability Confirmation |
-| `v0.6.x` | ⚠️ Best effort | Governed Remediation, Minimal Patching & Targeted Recheck System |
-| `< v0.6.0` | ❌ No | Deprecated |
+| `v1.3.x` (`v1.3.0`) | ✅ Yes | **Current active release line** (Universal Polyglot Engine, Fleets, Pre-Commit Hooks, HTML Dashboard) |
+| `v1.2.x` | ✅ Yes | AI IDE Rules Auto-Sync & Visual HTML Posture Reporting |
+| `v1.1.x` | ✅ Yes | Advanced Security Memory Engine, Proximity Scoring & Golden Fix Recipes |
+| `v1.0.x` | ✅ Yes | Core Adaptive Security Memory Engine & Context Window Generation |
+| `v0.9.x` | ⚠️ Best effort | Dual-Track Architecture & Scaffolding |
+| `< v0.9.0` | ❌ No | Deprecated |
 
 ---
 
@@ -121,23 +122,34 @@ To prevent AI coding assistants from introducing subtle bugs, breaking architect
 
 ## Continuous Validation & Release Gate Policy
 
-To guarantee that code changes never compromise security, safety, or backward compatibility, TorusGuard mandates a **100% pass rate across 9 automated test suites (381 test assertions)** prior to any release tag:
+To guarantee that code changes never compromise security, safety, or backward compatibility, TorusGuard mandates a **100% pass rate across 13 automated test suites** prior to any release tag:
 
-1. **Workflows & Skills Suite (`harness/validate_v0_9_2_workflows_and_skills.py`):**
+1. **Universal Polyglot Engine Suite (`harness/validate_v1_3_0_polyglot.py`):**
+   - Asserts ecosystem profiling across 16+ languages, multi-language bypasses, tenant stripping, and token bounds.
+2. **AI IDE Rules & HTML Reporter Suite (`harness/validate_v1_2_0_rules_and_html.py`):**
+   - Asserts non-destructive rule sync across Cursor, Claude, Antigravity, Windsurf and zero-external-CDN HTML generation.
+3. **Advanced Memory & Governance Suite (`harness/validate_v1_1_0_advanced_memory.py`):**
+   - Asserts golden fix recipe storage, Ponytail bounds enforcement, proximity scoring, and sanitized export.
+4. **Core Security Memory Suite (`harness/validate_v1_0_0_memory.py`):**
+   - Asserts 6 event types, pattern distillation, confidence amplification, and TTL decay.
+5. **Dual-Track Architecture Suite (`harness/validate_v0_9_2_dual_track.py`):**
+   - Validates Track 1 portable agent skill and Track 2 NPM CLI orchestration.
+6. **Diff Guard & Monorepo Engine Suite (`harness/validate_v0_9_2_diff_and_monorepo.py`):**
+   - Asserts unified diff safety line scanner and multi-package workspace detector.
+7. **Workflows & Skills Suite (`harness/validate_v0_9_2_workflows_and_skills.py`):**
    - Asserts 100% YAML frontmatter compliance and required sections across all 11 workflows and 13 skills.
-   - Verifies 1:1 cross-bindings and context line budgets ($\le 300$ lines).
-2. **Cryptographic Manifest Verifier (`.torusguard/scripts/manifest_builder.py --check`):**
-   - Cryptographically verifies all 88 workspace files against SHA-256 integrity signatures.
-3. **Autonomous Installer Suite (`harness/validate_v0_9_1_installer.py`):**
+8. **Cryptographic Manifest Verifier (`.torusguard/scripts/manifest_builder.py --check`):**
+   - Cryptographically verifies all 112 workspace files against SHA-256 integrity signatures.
+9. **Autonomous Installer Suite (`harness/validate_v0_9_1_installer.py`):**
    - Simulates clean-room installation via `npx skills add` and standalone `install.py`.
-4. **Granular Skills Suite (`harness/validate_v0_9_0_skills.py`):**
-   - Validates specialist skill frontmatter, routing table integrity, and script bindings.
-5. **Runtime Validation & Safety Suite (`harness/validate_v0_7_0_runtime.py`):**
-   - Asserts legal scope gating, TTL expiration, safety gate tiers, token redaction, and role handoffs.
-6. **Core Validation Harness (`harness/runner.py`):**
-   - Verifies 10 JSON schemas, 64 rule definitions, 5-factor confidence scoring, and 3-pass deterministic replay.
-7. **Workspace Foundation Suites (`harness/validate_v0_8_0_part1.py`, `part2.py`, `part3.py`):**
-   - Asserts template structures, reference guides, and script execution sanity.
+10. **Granular Skills Suite (`harness/validate_v0_9_0_skills.py`):**
+    - Validates specialist skill frontmatter, routing table integrity, and script bindings.
+11. **Runtime Validation & Safety Suite (`harness/validate_v0_7_0_runtime.py`):**
+    - Asserts legal scope gating, TTL expiration, safety gate tiers, token redaction, and role handoffs.
+12. **Core Validation Harness (`harness/runner.py`):**
+    - Verifies 10 JSON schemas, 71 rule definitions, 5-factor confidence scoring, and 3-pass deterministic replay.
+13. **Workspace Foundation Suites (`harness/validate_v0_8_0_part1.py`, `part2.py`, `part3.py`):**
+    - Asserts template structures, reference guides, and script execution sanity.
 
 ### Blocking Release Criteria
 A proposed release is **strictly blocked** if any of the following occur:

@@ -5,6 +5,90 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-09-07
+
+### Added
+- **Universal Polyglot Stack Detector (`stack_detect.py` & `core/stack_profiler.py`):**
+  - Expanded ecosystem recognition from 2 languages to 16+ languages: Go, Rust, Java, C#, PHP, Ruby, Kotlin, Elixir, Dart, C/C++, Scala, Swift, Python, and TypeScript/JavaScript.
+  - Built-in recognition for 30+ frameworks (Gin, Fiber, Actix, Axum, Spring, ASP.NET Core, Laravel, Rails, Phoenix, Flutter, Django, FastAPI, Next.js, etc.).
+  - Built-in recognition for 20+ ORMs (GORM, Diesel, SQLx, Hibernate, Entity Framework Core, Eloquent, ActiveRecord, Ecto, SQLAlchemy, Prisma, Drizzle, etc.).
+  - Multi-language fallback census analyzing file extensions across source trees when manifest files are located in subdirectories or absent.
+  - Multi-stack monorepo discovery identifying independent backend and frontend runtimes.
+- **Polyglot Content-Aware Diff Guard (`diff_guard.py`):**
+  - Multi-language security bypass detection (`TG-DIFF-001`):
+    - Go: `InsecureSkipVerify: true`, `tls.Config{InsecureSkipVerify: true}`
+    - Java: `csrf().disable()`, `permitAll()`
+    - C#: `[AllowAnonymous]`, `ServerCertificateCustomValidationCallback = .*true`
+    - PHP: `CURLOPT_SSL_VERIFYPEER => false`, `verify => false`
+    - Rust: `unsafe {`
+  - Multi-ORM tenant boundary stripping detection (`TG-DIFF-003`):
+    - GORM: `.Where("tenant_id = ?")`
+    - LINQ / Entity Framework: `.Where(x => x.TenantId == ...)`
+    - Prisma: `where: { tenantId: ... }`
+  - Helper API `check_diff_content()` enabling direct string-based diff auditing for external integrations and IDE extensions.
+- **Stack-Adaptive AI IDE Rules Compiler (`rules_sync.py`):**
+  - Dynamic rule tailoring: detects repository language and outputs ecosystem-specific invariants (e.g. Go concurrency safety and SQL parameterization, Rust memory bounds, Java Spring CSRF protection, C# LINQ tenant scoping).
+  - Maintains strict token budget overhead ($\le 400$ prompt tokens, averaging ~177–185 tokens) to protect LLM context windows.
+- **Polyglot Reference Ecosystem & Custom Rules:**
+  - Dedicated security hardening guides in `.torusguard/references/`: `polyglot-security-matrix.md`, `go-security.md`, `rust-security.md`, `java-security.md`, `csharp-security.md`.
+  - Custom rules framework: `.torusguard/rules/custom/` with schema guidelines and examples for proprietary organizational security rules.
+  - Fully synchronized with payload mirror (`skills/torusguard/payload/`).
+- **Comprehensive Polyglot Test Suite (`harness/validate_v1_3_0_polyglot.py`):**
+  - 10-point test battery asserting ecosystem profiling, multi-language bypasses, tenant stripping patterns, token ceilings, and payload hash parity.
+- **Composite Monorepo & Multi-Service Fleet Discovery (`monorepo_detector.py` & `stack_detect.py`):**
+  - Added multi-package inspection across 12 languages and candidate discovery in `src/`, `apps/`, `services/`, `packages/`, `libs/`, and `modules/`.
+  - Discovers polyglot microservice fleets (such as Google Online Boutique's 11 polyglot services) without collapsing into a single language.
+- **Test & Fixture False Positive Noise Suppression (`finding_scorer.py`):**
+  - Implemented `is_test_path()` pattern matching for `test/`, `tests/`, `spec/`, `fixtures/`, `*_test.go`, `*Test.java`, `*.spec.ts`, and `*.test.js`.
+  - Applies automated -30 point penalty and marks findings with `"test_exemption": true` to eliminate developer alert fatigue from intentional mock secrets or test CSRF exemptions.
+- **1-Command Git Pre-Commit Hook Installer (`diff_guard.py` & `bin/torusguard.js`):**
+  - Added `install_pre_commit_hook()` and `uninstall_pre_commit_hook()`.
+  - Added CLI flags `--install-hook` and `--uninstall-hook` callable directly via `npx torusguard diff-guard --install-hook` or `python .torusguard/scripts/diff_guard.py --install-hook`.
+- **Multi-Stack IDE Rule Deduplication (`rules_sync.py`):**
+  - Deduplicated shared invariants across multi-stack composite repositories, ensuring minimal prompt token footprint (~173 tokens).
+- **Polyglot Ecosystem Visual Dashboard Card (`html_reporter.py`):**
+  - Added "Polyglot Architecture & Workspace Intelligence" interactive section displaying primary language, framework, data layer, and sub-package badges in the single-file offline HTML report.
+- **26-Repository Real-World Portfolio Evaluation:**
+  - Evaluated TorusGuard v1.3.0 across 26 real-world GitHub repositories with **100.0% full-subsystem pass rate (26/26 passed)** in 100.15s with 0 bytes residual scratch footprint.
+- **Engine Reliability & Timezone-Aware UTC Normalization (`memory_engine.py`):**
+  - Replaced deprecated `datetime.utcnow()` with timezone-aware `_utc_now()` and `_utc_now_iso()` across all 13 occurrences.
+  - Eliminated unbound `recipe_pattern` variable state in `record_golden_recipe()`.
+  - Resolved `TextIO.reconfigure` static type access diagnostics across all core scripts.
+
+## [1.2.0] - 2026-09-07
+
+### Added
+- **AI IDE Rules Auto-Sync Engine (`rules_sync.py`):**
+  - Compiles project security invariants, golden recipes, and active guardrails into prompt-optimized rule files for Cursor (`.cursorrules`), Claude Code (`CLAUDE.md`), Antigravity (`.agent/rules/torusguard.md`), and Windsurf (`.windsurfrules`).
+  - Strict token budget overhead ceiling $\le 400$ tokens (typically ~180-270 tokens) preventing context saturation.
+  - Non-destructive sync preserving existing user instructions via demarcated `<!-- TORUSGUARD-SECURITY-GUARDRAILS:START -->` and `<!-- TORUSGUARD-SECURITY-GUARDRAILS:END -->` comment fences.
+  - Format selection flag: `--format [all|cursor|claude|agent|windsurf]`.
+  - CLI subcommand: `npx torusguard rules sync`.
+- **Visual Single-File HTML Posture Report (`html_reporter.py`):**
+  - Self-contained, zero-external-CDN, dark-mode visual dashboard (`.torusguard/runs/report-latest.html`).
+  - SVG circular gauge for Security Posture Score ($0-100$) with dynamic color transitions and smooth animation math.
+  - Interactive 7-Stage closed-loop governance pipeline visualizer (Scan $\to$ Score $\to$ Harden $\to$ Authorize $\to$ Apply $\to$ Recheck $\to$ Report).
+  - Golden Fix Recipes card grid with unified diff viewer and Ponytail bound metrics.
+  - Regression watches and false positive suppressions monitoring table.
+  - 100% air-gapped and offline compliant: uses system font stacks and inline SVG vector graphics, zero external HTTP/HTTPS assets.
+  - CLI subcommand: `npx torusguard report --html [--out <path>]`.
+- **Comprehensive Test Suite (`harness/validate_v1_2_0_rules_and_html.py`):**
+  - Full end-to-end coverage of non-destructive injection, re-sync idempotency, token ceilings, HTML structure, SVG math, zero-CDN compliance, and Node.js CLI orchestration.
+- **Synchronized Payload Mirrors:**
+  - Mirrored `rules_sync.py` and `html_reporter.py` to `skills/torusguard/payload/scripts/` with 100% verified SHA-256 integrity signatures in `.manifest.json`.
+
+## [1.1.0] - 2026-09-06
+
+### Added
+- **File & Rule Proximity Scoring Engine:** Enhanced `memory_engine.py` with multi-dimensional affinity scoring (exact file $\ge 90$, directory match $40-80$, extension match $10-30$) to deliver context relevant to the active editing target.
+- **Golden Fix Recipe Learning:** Verified unified diff snippets (`.diff_snippet`, `before_snippet`, `after_snippet`) distilled from `/torusguard-apply` with strict Ponytail Protocol bounds enforcement ($\le 35$ additions, $\le 25$ deletions).
+- **Formal Golden Recipe JSON Schema:** `.torusguard/schemas/golden-recipe.schema.json` ensuring full structural validation of captured recipes.
+- **Role-Tailored Context Windows:** Dynamic persona views (`--role auditor|remediator|reviewer`) providing specialized memory cards without exceeding the 2,000 token context window.
+- **Git Pre-Commit Regression Hooks:** `npx torusguard memory hook install` installs `.git/hooks/pre-commit` running `diff_guard.py` on staged diffs before commits can be finalized.
+- **Git Commit Learning Engine:** `npx torusguard memory learn` analyzes git security commits to extract recurring fix idioms automatically.
+- **Sanitized Team Export:** `npx torusguard memory export --sanitized` scrubs absolute paths, usernames, and host secrets for safe team sharing.
+- **Validation Test Suite (`harness/validate_v1_1_0_advanced_memory.py`):** 9-stage validation battery covering proximity scoring, golden recipes, schema compliance, role filtering, git hooks, and diff regression checks.
+
 ## [1.0.0] - 2026-09-05
 
 ### Added
