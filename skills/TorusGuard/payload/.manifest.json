@@ -157,7 +157,7 @@
   "scripts/safety_gate.py": "3379b7534b2590cf563717a448983ad8ed7e8f174f0ad65683d33e8a10f51558",
   "scripts/sarif_exporter.py": "35c66637413afc4b72d5bd426638447c77231d2a8594dce5addceffd4803a20d",
   "scripts/stack_detect.py": "7848006e3cd6e828f7dbe189a8c9728abd58e021ff02efbc4230ef8ca3444596",
-  "skills/torusguard/SKILL.md": "d629385740f6e14e11f394dbca466174d4ccc6695450b6e723efd2a7bd890819",
+  "skills/torusguard/SKILL.md": "595008bf365b77729118b0312ec636fb72668ee57f458087ed555a00e1d3db6b",
   "skills/torusguard/bootstrap.py": "3d946f388cb4befa739c9d3b1404255d9a8ea5770ebbb79e5a1b9839589e9bc7",
   "skills/torusguard/references/auth-and-sessions.md": "c3e4b9600cb53fc28c993922dc880accbec5783ac90d5ee98d63b52762d19525",
   "skills/torusguard/references/business-logic-and-abuse.md": "58e87df2864d468af70c1ff39f5d540c687fa846b671457f85046ab2065fe99c",

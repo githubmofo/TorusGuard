@@ -5,6 +5,15 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-09-08
+
+### Fixed
+- **CLI Dispatcher Command Routing (`bin/torusguard.js`):**
+  - Added dedicated dispatch routing for `npx torusguard audit`, preventing fallback into `bootstrap.py` which caused `unrecognized arguments: audit`.
+  - Added dedicated command handlers for `harden`, `apply`, `rollback`, `recheck`, and `recipes`.
+- **Pre-Commit Diff Guard False Positive Elimination (`diff_guard.py`):**
+  - Added `is_exempt_diff_path()` to bypass documentation files (`.md`, `.txt`), AI editor prompt instructions (`.cursorrules`, `CLAUDE.md`, `.windsurfrules`), rule definition manifests, and test fixtures, preventing false alarms when rules describe forbidden bypass patterns.
+
 ## [1.3.0] - 2026-09-07
 
 ### Added

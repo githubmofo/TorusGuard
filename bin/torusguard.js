@@ -49,7 +49,7 @@ function printHelp() {
   console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.3.0${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.3.1${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}   ${DIM}Autonomous Security Engine for AI-Built Applications${RESET}               ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
@@ -142,7 +142,7 @@ if (command === 'status') {
       console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.3.0${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.3.1${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
 
