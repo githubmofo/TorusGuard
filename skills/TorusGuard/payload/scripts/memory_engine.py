@@ -1330,5 +1330,9 @@ def main():
         print(f"  Fix Velocity Rate: {prof.get('fix_rate_percentage')}%")
 
 
+# Backward-compatible alias
+store_golden_recipe = record_golden_recipe
+
+
 if __name__ == "__main__":
     main()

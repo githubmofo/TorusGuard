@@ -117,6 +117,50 @@ def check_memory_regressions(
     return violations
 
 
+def is_exempt_diff_path(file_path: Optional[str]) -> bool:
+    """
+    Detects whether a file path is exempt from diff guard checks.
+    Documentation, rule manifests, AI editor prompts, test fixtures, and scanner
+    definitions are exempt to prevent false alarms on security instructions and mock data.
+    """
+    if not file_path:
+        return False
+    clean = file_path.replace("\\", "/").lower().strip()
+    if clean in ("unknown", "", "none"):
+        return False
+
+    # Documentation, changelogs, markdown, plain text
+    if clean.endswith((".md", ".txt", ".rst", ".jsonl")):
+        return True
+
+    # AI editor prompt and rule instruction files
+    if clean.endswith((".cursorrules", ".windsurfrules")) or clean in ("claude.md", "agents.md"):
+        return True
+    if ".agent/rules" in clean or ".cursor/rules" in clean:
+        return True
+
+    # Security rule catalog, schemas, and cryptographic manifests
+    if "/rules/" in clean or clean.startswith("rules/") or "/schemas/" in clean or clean.startswith("schemas/"):
+        return True
+    if clean.endswith((".schema.json", ".manifest.json")):
+        return True
+
+    # Test fixtures, test suites, mocks, and test harness
+    test_markers = [
+        "/test/", "/tests/", "/spec/", "/specs/", "/fixtures/", "/mock/", "/mocks/",
+        "/e2e/", "__tests__", "test_", "_test.", ".test.", ".spec.", "testcase",
+        "harness/"
+    ]
+    if any(m in clean for m in test_markers) or clean.endswith(("_test.go", "test.java", "test.py", ".spec.ts", ".test.ts", ".spec.js", ".test.js")):
+        return True
+
+    # TorusGuard security engine scripts that define scanner regexes / templates
+    if ("/scripts/" in clean or clean.startswith("scripts/")) and any(s in clean for s in ("diff_guard", "harden_runner", "finding_scorer", "rules_sync", "memory_engine", "audit_runner", "apply_runner", "recheck_runner", "manifest_builder")):
+        return True
+
+    return False
+
+
 def audit_diff(
     diff_content: str,
     check_memory: bool = False,
@@ -133,7 +177,7 @@ def audit_diff(
     current_line = 0
 
     additions: List[tuple[int, str]] = []
-    deletions: List[tuple[int, str]] = []
+    deletions: List[tuple[str, int, str]] = []
 
     for line_idx, line in enumerate(lines, 1):
         if line.startswith('+++ b/'):
@@ -152,6 +196,9 @@ def audit_diff(
             current_line += 1
             added_content = line[1:]
             additions.append((current_line, added_content))
+
+            if is_exempt_diff_path(current_file):
+                continue
 
             # Check bypass patterns
             for pat, desc in BYPASS_PATTERNS:
@@ -186,10 +233,11 @@ def audit_diff(
 
         elif line.startswith('-') and not line.startswith('---'):
             deleted_content = line[1:]
-            deletions.append((line_idx, deleted_content))
+            if not is_exempt_diff_path(current_file):
+                deletions.append((current_file, line_idx, deleted_content))
 
     # Check for tenant filter deletion without replacement
-    for del_idx, del_line in deletions:
+    for del_file, del_idx, del_line in deletions:
         for t_pat in TENANT_FILTER_PATTERNS:
             if t_pat.search(del_line):
                 # Verify if an equivalent tenant filter exists in additions
@@ -199,7 +247,7 @@ def audit_diff(
                         "rule_id": "TG-DIFF-003",
                         "category": "Tenant Filter Removal",
                         "severity": "HIGH",
-                        "file": current_file,
+                        "file": del_file,
                         "line": del_idx,
                         "content": del_line.strip(),
                         "description": "Tenant isolation filter was removed without being restored in additions"

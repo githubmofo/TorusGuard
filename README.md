@@ -12,7 +12,7 @@
   [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
   [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
   [![SARIF: v2.1.0](https://img.shields.io/badge/SARIF-v2.1.0%20OASIS-purple.svg?style=flat-square)](.torusguard/schemas/)
-  [![Integrity: SHA--256](https://img.shields.io/badge/Integrity-SHA--256%20(112%20Files)-teal.svg?style=flat-square)](.torusguard/.manifest.json)
+  [![Integrity: SHA--256](https://img.shields.io/badge/Integrity-SHA--256%20(216%20Files)-teal.svg?style=flat-square)](.torusguard/.manifest.json)
   [![OWASP: Top 10](https://img.shields.io/badge/OWASP-Top%2010%20Aligned-orange.svg?style=flat-square)](docs/architecture/SECURITY_ARCHITECTURE.md)
 </div>
 
@@ -100,20 +100,20 @@ flowchart TD
 
 ---
 
-### 2. The 7-Stage Finding Lifecycle
-Every finding follows a strict closed-loop state machine with an unskippable **Human Gate** and rollback backup before disk modifications:
+### 2. The 7-Stage Finding Lifecycle (Dual-Strategy Governance)
+Every finding follows a strict closed-loop state machine supported equally via **Terminal CLI** (`npx torusguard ...`) and **AI Chat Workflows** (`/torusguard-...`) with an unskippable **Human Gate** and automatic `.bak` snapshots before disk modification:
 
 ```mermaid
 flowchart LR
-    Detect["1. DETECT<br/>Static AST Signal"] --> Classify["2. CLASSIFY<br/>0–100 Confidence"]
-    Classify --> Verify["3. VERIFY<br/>Authorized Probe"]
-    Verify --> Remediate["4. REMEDIATE<br/>Ponytail Patch Plan"]
-    Remediate --> Gate{"👤 Human Gate<br/>Approved?"}
-    Gate -- Yes --> Apply["5. APPLY<br/>Backup &amp; Surgical Patch"]
+    Detect["1. DETECT<br/>Static AST Signal<br/><code>audit · /audit</code>"] --> Classify["2. CLASSIFY<br/>0–100 Confidence"]
+    Classify --> Verify["3. VERIFY<br/>Authorized Probe<br/><code>verify · /verify</code>"]
+    Verify --> Remediate["4. REMEDIATE<br/>Ponytail Patch Plan<br/><code>harden · /harden</code>"]
+    Remediate --> Gate{"👤 Human Gate<br/>Approved? [y/N]"}
+    Gate -- Yes --> Apply["5. APPLY<br/>Backup &amp; Surgical Patch<br/><code>apply · /apply</code>"]
     Gate -- No --> Reject["❌ Discarded"]
-    Apply --> Recheck["6. RE-CHECK<br/>Differential AST Audit"]
-    Recheck -- Fixed --> Archive["7. ARCHIVE<br/>Golden Recipe Distilled"]
-    Recheck -- Regressed --> Rollback["⏪ Instant Rollback<br/>(pre_apply/*.bak)"]
+    Apply --> Recheck["6. RE-CHECK<br/>Differential AST Audit<br/><code>recheck · /recheck</code>"]
+    Recheck -- Fixed --> Archive["7. ARCHIVE<br/>Golden Recipe Distilled<br/><code>recipes</code>"]
+    Recheck -- Regressed --> Rollback["⏪ Instant Rollback<br/><code>rollback (.bak)</code>"]
 ```
 
 ---
@@ -198,27 +198,44 @@ flowchart TD
 
 ---
 
-## 🚀 60-Second Quickstart
+## 🚀 60-Second Quickstart (Dual-Strategy: CLI & Chat)
 
-### Method A: Via Node.js / NPX (Zero Setup)
+TorusGuard works natively in both standard terminal environments (Cursor, VS Code, CI/CD runners) and AI chat workflows:
+
+### Method A: Via Node.js / NPX (Full 7-Stage Governance Lifecycle)
 ```bash
-# 1. Initialize TorusGuard in your workspace
+# 1. Initialize TorusGuard in your workspace (or /torusguard init)
 npx torusguard init
 
-# 2. Run static security audit
+# 2. Run static security audit (or /torusguard audit)
 npx torusguard audit
 
-# 3. Generate visual dark-mode HTML dashboard
+# 3. Formulate minimal Ponytail candidate patches (or /torusguard harden)
+npx torusguard harden
+
+# 4. Review interactive Human Gate & apply with pre-apply rollback snapshots (.bak) (or /torusguard apply)
+npx torusguard apply
+
+# 5. Targeted differential re-scan verifying fix closure (or /torusguard recheck)
+npx torusguard recheck
+
+# 6. Explore distilled Golden Fix Recipes
+npx torusguard recipes
+
+# 7. Generate visual dark-mode HTML posture report (or /torusguard report)
 npx torusguard report --html
 
-# 4. Install Git Pre-Commit Diff Guard Hook (blocks dangerous commits)
+# 8. (Optional) Revert to pre-apply snapshot at any time
+npx torusguard rollback
+
+# 9. Install Git Pre-Commit Diff Guard Hook (blocks dangerous commits)
 npx torusguard diff-guard --install-hook
 
-# 5. Synchronize prompt guardrails across AI editors (<= 300 tokens)
+# 10. Synchronize prompt guardrails across AI editors (<= 300 tokens)
 npx torusguard rules sync
 ```
 
-### Method B: Via Pure Python 3.10+ (Standard Library)
+### Method B: Via Pure Python 3.10+ (Zero-Dependency Standard Library)
 ```bash
 # 1. Initialize workspace
 python .torusguard/scripts/bootstrap.py --workspace .
@@ -226,10 +243,28 @@ python .torusguard/scripts/bootstrap.py --workspace .
 # 2. Run static audit
 python .torusguard/scripts/finding_scorer.py --dir .
 
-# 3. Install Pre-Commit Diff Guard
+# 3. Formulate candidate patch plans (Ponytail Protocol <= 35 add, <= 25 del)
+python .torusguard/scripts/harden_runner.py
+
+# 4. Interactive Human Gate patch applier with pre-apply byte snapshots
+python .torusguard/scripts/apply_runner.py
+
+# 5. Targeted differential recheck
+python .torusguard/scripts/recheck_runner.py
+
+# 6. Explore distilled Golden Fix Recipes
+python .torusguard/scripts/recipes_runner.py
+
+# 7. Generate single-file visual HTML posture report
+python .torusguard/scripts/html_reporter.py
+
+# 8. Rollback pre-apply snapshots
+python .torusguard/scripts/apply_runner.py --rollback
+
+# 9. Install Pre-Commit Diff Guard
 python .torusguard/scripts/diff_guard.py --install-hook
 
-# 4. Sync AI IDE rules
+# 10. Sync AI IDE rules
 python .torusguard/scripts/rules_sync.py --workspace . --format all
 ```
 
@@ -239,15 +274,17 @@ python .torusguard/scripts/rules_sync.py --workspace . --format all
 
 | Command | Subcommands & Flags | Description |
 |---|---|---|
-| `torusguard init` | `[--stack <name>] [--profile <type>]` | Scaffolds `.torusguard/` with active security rules and workflows. |
-| `torusguard audit` | `[--scope <path>] [--format md\|json]` | Audits source code against active rules and emits run folder. |
+| `torusguard init` | `[--stack <name>] [--profile <type>]` | Scaffolds `.torusguard/` with active security rules, schemas, and workflows. |
+| `torusguard audit` | `[--scope <path>] [--format md\|json]` | Audits source code against active rules, scores confidence, and emits run folder. |
 | `torusguard verify` | `[--id <finding_id>]` | Probes authorized endpoints with automated credential masking. |
-| `torusguard harden` | `[--id <finding_id>]` | Generates 4-artifact Ponytail patch plans ($\le 35$ additions, $\le 25$ deletions). |
-| `torusguard apply` | `[--id <finding_id>] [--dry-run]` | Saves pre-apply `.bak` snapshots and applies surgical patch to disk. |
-| `torusguard recheck`| `[--id <finding_id>]` | Differentially re-evaluates AST sinks over modified scopes. |
-| `torusguard report` | `[--sarif] [--html] [--out <path>]` | Exports OASIS SARIF v2.1.0 or single-file visual HTML posture report. |
+| `torusguard harden` | `[--scope <path>] [--format md\|json]` | Formulates surgical candidate patch bundles adhering to Ponytail bounds ($\le 35$ additions, $\le 25$ deletions). |
+| `torusguard apply` | `[--bundle <id>] [--yes \| -y]` | Interactive terminal Human Gate (`[y/N/all/quit]`) with syntax diffs, creates `.bak` snapshots, applies patches, and distills Golden Recipes. |
+| `torusguard rollback` | `[--run <run_id>]` | Restores all files from `.torusguard/snapshots/<run_id>/` back to disk instantly. |
+| `torusguard recheck`| `[--scope <path>]` | Differentially re-evaluates AST sinks over modified scopes (`Confirmed Fixed` vs `Regressed`). |
+| `torusguard recipes`| `[--rule <id>] [--json]` | Interactive explorer for distilled, verified Golden Fix Recipes stored in persistent memory. |
+| `torusguard report` | `[--sarif] [--html] [--out <path>]` | Exports OASIS SARIF v2.1.0 or single-file visual HTML posture dashboard. |
 | `torusguard status` | `[--json]` | Displays stack detection, active rule count, memory metrics, and run history. |
-| `torusguard diff-guard`| `[--install-hook] [--diff <file>]` | Scans git diff for bypasses (`TG-DIFF-001..004`) or installs pre-commit hook. |
+| `torusguard diff-guard`| `[--install-hook] [--uninstall-hook] [--diff <file>]` | Scans git diff for bypasses (`TG-DIFF-001..004`) or installs pre-commit hook. |
 | `torusguard rules sync`| `[--format all\|cursor\|claude\|agent\|windsurf]` | Compiles project rules into AI IDE configs within $\le 300$ prompt tokens. |
 | `torusguard memory` | `status \| context \| export \| learn` | Inspects adaptive memory, generates proximity cards, or exports team packs. |
 
@@ -280,8 +317,8 @@ AI coding models often destroy working applications by attempting full-file rewr
 
 - **Strict Churn Limits:** Every fix is capped at $\le 35$ additions and $\le 25$ deletions.
 - **Full-File Rewrite Ban:** Large destructive edits are rejected by the patch engine.
-- **Rollback Snapshot Guarantee:** Before any file is modified, a byte-for-byte snapshot is saved to `pre_apply/<file>.bak`.
-- **Instant Rollback:** Restoring an original file takes 1 command (`cp pre_apply/<file>.bak <file>`).
+- **Rollback Snapshot Guarantee:** Before any file is modified, a byte-for-byte snapshot is saved to `.torusguard/snapshots/<run_id>/<path>.bak`.
+- **Instant Rollback:** Restoring original files takes 1 command (`npx torusguard rollback`).
 
 ---
 

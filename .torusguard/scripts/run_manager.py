@@ -13,8 +13,17 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 
+# ─── Timezone Configuration: Indian Standard Time (IST, UTC+05:30) ───────────
+IST = datetime.timezone(datetime.timedelta(hours=5, minutes=30), name="IST")
+
+def get_ist_now() -> datetime.datetime:
+    """Return timezone-aware datetime strictly in Indian Standard Time (IST)."""
+    return datetime.datetime.now(IST)
+
+
 def create_run(base_dir: Path, command: str, target_name: str = "project") -> Path:
-    timestamp = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+    now_ist = get_ist_now()
+    timestamp = now_ist.strftime("%Y%m%d-%H%M%S")
     run_id = f"run-{timestamp}-{command}"
     run_folder = base_dir / run_id
     run_folder.mkdir(parents=True, exist_ok=True)
@@ -23,9 +32,10 @@ def create_run(base_dir: Path, command: str, target_name: str = "project") -> Pa
         "run_id": run_id,
         "command": command,
         "target_name": target_name,
-        "created_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "created_at": now_ist.strftime("%Y-%m-%d %H:%M:%S IST"),
+        "created_at_iso": now_ist.isoformat(),
         "status": "in_progress",
-        "torusguard_version": "1.0.0",
+        "torusguard_version": "1.3.0",
         "findings_count": 0,
         "confirmed_fixed_count": 0,
         "regressed_count": 0
@@ -136,7 +146,8 @@ def main():
     subparsers = parser.add_subparsers(dest="subcommand")
 
     create_p = subparsers.add_parser("create")
-    create_p.add_argument("--command", "-c", default="audit", help="TorusGuard command (audit, web-validate, harden, etc.)")
+    create_p.add_argument("cmd_pos", nargs="?", default=None, help="TorusGuard command (positional)")
+    create_p.add_argument("--command", "-c", default=None, help="TorusGuard command (audit, web-validate, harden, etc.)")
     create_p.add_argument("--target", "-t", default="project", help="Target project name")
     create_p.add_argument("--dir", "-d", default=".torusguard/runs", help="Base runs directory")
 
@@ -150,7 +161,8 @@ def main():
     args = parser.parse_args()
 
     if args.subcommand == "create":
-        folder = create_run(Path(args.dir), args.command, args.target)
+        eff_command = args.cmd_pos or args.command or "audit"
+        folder = create_run(Path(args.dir), eff_command, args.target)
         print(f"Created run folder: {folder}")
     elif args.subcommand == "list":
         runs = list_runs(Path(args.dir))

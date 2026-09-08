@@ -64,6 +64,11 @@ function printHelp() {
   ${CYAN}│${RESET}  ${GREEN}rules${RESET}     Auto-sync memory to AI IDE rules (.cursorrules, CLAUDE.md)  ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}memory${RESET}    Manage persistent security memory (export, hook, learn)     ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}audit${RESET}     Run static AST security scan on the target project          ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}harden${RESET}    Formulate minimal candidate patches (Ponytail bounded)      ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}apply${RESET}     Apply candidate patches with automatic .bak snapshots       ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}recheck${RESET}   Targeted differential verification of applied fixes         ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}recipes${RESET}   List & inspect distilled Golden Fix Recipes in memory       ${CYAN}│${RESET}
+  ${CYAN}│${RESET}  ${GREEN}rollback${RESET}  Instantly revert files from latest pre-apply snapshot       ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}report${RESET}    Export OASIS SARIF v2.1.0 or single-file visual HTML report ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}diff-guard${RESET} Scan diffs or wire pre-commit hook (--install-hook)        ${CYAN}│${RESET}
   ${CYAN}│${RESET}  ${GREEN}help${RESET}      Show this interactive command guide                         ${CYAN}│${RESET}
@@ -321,6 +326,16 @@ if (command === 'rules') {
   process.exit(proc.status !== null ? proc.status : 0);
 }
 
+// Subcommand: audit
+if (command === 'audit') {
+  const auditScript = path.join(cwd, '.torusguard', 'scripts', 'audit_runner.py');
+  const fallbackAuditScript = path.join(rootDir, '.torusguard', 'scripts', 'audit_runner.py');
+  const actualAuditScript = fs.existsSync(auditScript) ? auditScript : fallbackAuditScript;
+
+  const proc = spawnSync(pythonCmd, [actualAuditScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
 // Subcommand: report
 if (command === 'report') {
   if (args.includes('--html') || args[1] === 'html') {
@@ -343,26 +358,81 @@ if (command === 'report') {
 
     const proc = spawnSync(pythonCmd, pyArgs, { stdio: 'inherit', cwd });
     process.exit(proc.status !== null ? proc.status : 0);
+  } else {
+    const sarifScript = path.join(cwd, '.torusguard', 'scripts', 'sarif_exporter.py');
+    const fallbackSarifScript = path.join(rootDir, '.torusguard', 'scripts', 'sarif_exporter.py');
+    const actualSarifScript = fs.existsSync(sarifScript) ? sarifScript : fallbackSarifScript;
+
+    const proc = spawnSync(pythonCmd, [actualSarifScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+    process.exit(proc.status !== null ? proc.status : 0);
   }
 }
 
-// Locate bootstrap / runner scripts
-const localBootstrap = path.join(rootDir, 'skills', 'torusguard', 'bootstrap.py');
-const localInstall = path.join(rootDir, 'install.py');
-const scriptToRun = fs.existsSync(localBootstrap) ? localBootstrap : localInstall;
+// Subcommand: harden
+if (command === 'harden') {
+  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'harden_runner.py');
+  const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'harden_runner.py');
+  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
 
-// Pass flags: when init is executed, include --full-commands to unlock all slash commands
-let scriptArgs = [scriptToRun];
-if (command === 'init') {
-  scriptArgs.push('--full-commands');
-  scriptArgs.push(...args.slice(1));
-} else {
-  scriptArgs.push(...args);
+  const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
 }
 
-const proc = spawnSync(pythonCmd, scriptArgs, {
-  stdio: 'inherit',
-  cwd: cwd,
-});
+// Subcommand: apply
+if (command === 'apply') {
+  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'apply_runner.py');
+  const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'apply_runner.py');
+  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
 
-process.exit(proc.status !== null ? proc.status : 0);
+  const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
+// Subcommand: rollback
+if (command === 'rollback') {
+  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'apply_runner.py');
+  const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'apply_runner.py');
+  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
+
+  const proc = spawnSync(pythonCmd, [actualScript, '--rollback', ...args.slice(1)], { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
+// Subcommand: recheck / verify
+if (command === 'recheck' || command === 'verify') {
+  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'recheck_runner.py');
+  const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'recheck_runner.py');
+  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
+
+  const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
+// Subcommand: recipes
+if (command === 'recipes') {
+  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'recipes_runner.py');
+  const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'recipes_runner.py');
+  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
+
+  const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
+// Subcommand: init (scaffold workspace)
+if (command === 'init') {
+  const localBootstrap = path.join(rootDir, 'skills', 'torusguard', 'bootstrap.py');
+  const localInstall = path.join(rootDir, 'install.py');
+  const scriptToRun = fs.existsSync(localBootstrap) ? localBootstrap : localInstall;
+
+  const scriptArgs = [scriptToRun, '--full-commands', ...args.slice(1)];
+  const proc = spawnSync(pythonCmd, scriptArgs, {
+    stdio: 'inherit',
+    cwd: cwd,
+  });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
+// Unknown command fallback
+console.error(`\n  ${RED}✖ Unknown command:${RESET} ${WHITE}${command}${RESET}`);
+console.error(`  Run ${GREEN}npx torusguard help${RESET} for available commands.\n`);
+process.exit(1);

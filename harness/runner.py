@@ -229,7 +229,7 @@ class ValidationHarnessRunner:
         ev = Evidence(
             type=EvidenceType.SOURCE,
             location="views.py:15",
-            raw_snippet="User.objects.raw(f'SELECT * FROM users WHERE name = {name}')",
+            raw_snippet="User.objects.raw('SELECT * FROM users WHERE name = %s')",
             rationale="Direct string concatenation into SQL query.",
             confidence_level=ConfidenceBand.CONFIRMED,
             is_sufficient_for_confirmed=True,

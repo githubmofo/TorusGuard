@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2026-09-07
 
 ### Added
+- **Dual-Strategy Governance Architecture (Terminal CLI & AI Chat Workflows):**
+  - Added dedicated CLI lifecycle commands enabling full governance flow in standard terminal environments (Cursor terminal, VS Code terminal, and CI/CD runners) where AI chat slash commands are not available.
+  - `npx torusguard harden` (`harden_runner.py`): Formulates surgical candidate patch bundles under `.torusguard/runs/<run_id>/bundles/` adhering strictly to Ponytail Protocol bounds ($\le 35$ additions, $\le 25$ deletions). Emits `patch.diff`, `minimal_patch_plan.md`, and run-level `remediation.md`.
+  - `npx torusguard apply` (`apply_runner.py`): Interactive terminal Human Gate authorization (`[y/N/all/quit]`) with syntax-highlighted diffs and non-interactive `--yes` / `-y` support. Automatically distills verified fixes into Golden Fix Recipes stored in `.torusguard/memory/patterns.json`.
+  - `npx torusguard rollback` (`apply_runner.py --rollback`): Instant one-command rollback restoring all `.bak` files from `.torusguard/snapshots/<run_id>/` without data loss.
+  - `npx torusguard recheck` (`recheck_runner.py`): Targeted differential AST scan over modified file scopes evaluating `Confirmed Fixed` vs `Regressed` state machine and appending `fix_verified` events.
+  - `npx torusguard recipes` (`recipes_runner.py`): Explores distilled Golden Fix Recipes with Ponytail metrics, rule IDs, and interactive unified diff snippets.
+  - Maintained 100% functional parity with slash commands (`/torusguard-harden`, `/torusguard-apply`, `/torusguard-recheck`).
+  - Zero External Dependencies: All new runners implemented in pure Python 3.10+ standard library (`pathlib`, `re`, `json`, `difflib`, `shutil`, `datetime`).
+  - Standardized Indian Standard Time (IST, UTC+05:30) timestamps for all audit runs, reports, and manifests.
+- **Visual HTML Posture Report Dual-Strategy Flowchart (`html_reporter.py`):**
+  - Updated 7-stage interactive pipeline flow displaying dual prompts for both CLI and chat at every stage (`audit · /audit`, `harden · /harden`, `apply · .bak`, `recheck · verify`, `report · SARIF`).
+  - Updated Golden Fix Recipes empty state with dual-strategy guidance.
+  - Fixed stack detection fallback from `Unknown` to `TypeScript`.
+  - Synchronized header and footer version to `v1.3.0`.
 - **Universal Polyglot Stack Detector (`stack_detect.py` & `core/stack_profiler.py`):**
   - Expanded ecosystem recognition from 2 languages to 16+ languages: Go, Rust, Java, C#, PHP, Ruby, Kotlin, Elixir, Dart, C/C++, Scala, Swift, Python, and TypeScript/JavaScript.
   - Built-in recognition for 30+ frameworks (Gin, Fiber, Actix, Axum, Spring, ASP.NET Core, Laravel, Rails, Phoenix, Flutter, Django, FastAPI, Next.js, etc.).

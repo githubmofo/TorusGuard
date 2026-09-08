@@ -88,10 +88,12 @@ def load_report_telemetry(root_dir: Path) -> dict[str, Any]:
         except Exception:
             stack_info = {"language": "Universal", "framework": "None", "data_layer": "None"}
 
+    ist_tz = datetime.timezone(datetime.timedelta(hours=5, minutes=30), name="IST")
+    now_ist = datetime.datetime.now(ist_tz)
     return {
         "project_name": root_dir.name or "Project",
         "root_dir": str(root_dir),
-        "generated_at": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "generated_at": now_ist.strftime("%Y-%m-%d %H:%M:%S IST"),
         "config": cfg,
         "profile": profile,
         "patterns": patterns,
@@ -167,7 +169,7 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
     else:
         recipe_cards_html = """
         <div class="empty-state">
-          <p>No golden fix recipes captured yet. Run <code>/torusguard-apply</code> on verified remediations to distill reusable recipes.</p>
+          <p>No golden fix recipes captured yet. Run <code>npx torusguard apply</code> (CLI) or <code>/torusguard-apply</code> (AI Chat) on verified remediations to distill reusable recipes.</p>
         </div>
         """
 
@@ -207,6 +209,19 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
 
     stack_info = telemetry.get("detected_stack", {})
     primary_lang = stack_info.get("language", "Universal")
+    if primary_lang in ("Unknown", "None", "", None):
+        root_path = Path(telemetry.get("root_dir", "."))
+        if (root_path / "tsconfig.json").is_file() or list(root_path.glob("*.ts")) or list((root_path / "src").glob("*.ts*")):
+            primary_lang = "TypeScript"
+        elif (root_path / "package.json").is_file():
+            primary_lang = "JavaScript / TypeScript"
+        elif (root_path / "pyproject.toml").is_file() or (root_path / "requirements.txt").is_file() or list(root_path.glob("*.py")):
+            primary_lang = "Python"
+        elif (root_path / "go.mod").is_file():
+            primary_lang = "Go"
+        else:
+            primary_lang = "Universal Polyglot"
+
     primary_fw = stack_info.get("framework", "None")
     primary_orm = stack_info.get("data_layer", "None")
     sub_stacks = stack_info.get("sub_stacks", [])
@@ -514,17 +529,17 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
         <div class="pipeline-step">
           <div class="step-circle active">1</div>
           <div class="step-name">Scan</div>
-          <div class="step-cmd">/audit</div>
+          <div class="step-cmd">audit &middot; /audit</div>
         </div>
         <div class="pipeline-step">
           <div class="step-circle active">2</div>
           <div class="step-name">Score</div>
-          <div class="step-cmd">0-100</div>
+          <div class="step-cmd">0-100 Score</div>
         </div>
         <div class="pipeline-step">
           <div class="step-circle active">3</div>
           <div class="step-name">Harden</div>
-          <div class="step-cmd">/harden</div>
+          <div class="step-cmd">harden &middot; /harden</div>
         </div>
         <div class="pipeline-step">
           <div class="step-circle active">4</div>
@@ -534,17 +549,17 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
         <div class="pipeline-step">
           <div class="step-circle active">5</div>
           <div class="step-name">Apply</div>
-          <div class="step-cmd">.bak Snapshot</div>
+          <div class="step-cmd">apply &middot; .bak</div>
         </div>
         <div class="pipeline-step">
           <div class="step-circle active">6</div>
           <div class="step-name">Recheck</div>
-          <div class="step-cmd">Differential</div>
+          <div class="step-cmd">recheck &middot; verify</div>
         </div>
         <div class="pipeline-step">
           <div class="step-circle active">7</div>
           <div class="step-name">Report</div>
-          <div class="step-cmd">SARIF v2.1.0</div>
+          <div class="step-cmd">report &middot; SARIF</div>
         </div>
       </div>
     </div>
@@ -578,7 +593,7 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
     </div>
 
     <footer>
-      TorusGuard v1.2.0 &middot; Autonomous Security Engine for AI-Built Applications &middot; 100% Local-First &middot; Zero Cloud Telemetry Leakage
+      TorusGuard v1.3.0 &middot; Autonomous Security Engine for AI-Built Applications &middot; 100% Local-First &middot; Zero Cloud Telemetry Leakage
     </footer>
   </div>
 </body>
@@ -621,7 +636,7 @@ def main():
         print(json.dumps(res, indent=2))
     else:
         print(f"[SUCCESS] Emitted TorusGuard visual dashboard: {res['report_path']}")
-        print(f"Posture Score: {res['posture_score']}/100 &middot; Size: {res['file_size_bytes']} bytes")
+        print(f"Posture Score: {res['posture_score']}/100 · Size: {res['file_size_bytes']} bytes")
 
 
 if __name__ == "__main__":

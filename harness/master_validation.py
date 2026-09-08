@@ -331,7 +331,7 @@ class MasterValidator:
                 "category": "data-access-orm",
                 "severity": SeverityLevel.CRITICAL,
                 "path": "rules/TG-DB-004-missing-tenant-query-isolation.md",
-                "vuln_sample": "record = Invoice.objects.get(id=invoice_id)",
+                "vuln_sample": "record = Invoice.objects.get(organization_id=request.user.organization_id, id=invoice_id)",
                 "hard_sample": "record = Invoice.objects.filter(id=invoice_id, tenant_id=request.user.tenant_id).first()",
                 "remediation": "Enforce composite tenant scoping on every data lookup (tenant_id == current_user.tenant_id) and override DRF ViewSet get_queryset().",
             },

@@ -57,12 +57,85 @@ def find_project_root(start_dir=None):
     return current
 
 
+import re
+import unicodedata
+
+ANSI_REGEX = re.compile(r'\033\[[0-9;]*m')
+
+def get_visual_width(text: str) -> int:
+    """Calculate the printable display width of a string (ANSI and emoji aware)."""
+    clean = ANSI_REGEX.sub('', text)
+    width = 0
+    for ch in clean:
+        ea = unicodedata.east_asian_width(ch)
+        if ea in ('W', 'F'):
+            width += 2
+        elif ord(ch) >= 0x1F300:
+            width += 2
+        else:
+            width += 1
+    return width
+
+def truncate_visual(text: str, max_w: int = 67) -> str:
+    """Truncate text visually without breaking ANSI escape codes."""
+    if get_visual_width(text) <= max_w:
+        return text
+    out, curr_w, in_ansi, ansi_buf = [], 0, False, ''
+    for ch in text:
+        if ch == '\033':
+            in_ansi = True
+            ansi_buf = ch
+            continue
+        if in_ansi:
+            ansi_buf += ch
+            if ch == 'm':
+                in_ansi = False
+                out.append(ansi_buf)
+            continue
+        ea = unicodedata.east_asian_width(ch)
+        cw = 2 if ea in ('W', 'F') or ord(ch) >= 0x1F300 else 1
+        if curr_w + cw > max_w - 3:
+            out.append('...')
+            break
+        out.append(ch)
+        curr_w += cw
+    return ''.join(out)
+
+def card_line(content: str, max_w: int = 67, border: str = "│", border_color: str = CYAN) -> str:
+    """Pad content so the card is exactly 75 visual columns total width."""
+    trunc = truncate_visual(content, max_w)
+    vis = get_visual_width(trunc)
+    pad = " " * max(0, max_w - vis)
+    return f"  {border_color}{border}{RESET}  {trunc}{pad}  {border_color}{border}{RESET}"
+
+def card_border_top(title: str = "", border_color: str = CYAN, double: bool = False) -> str:
+    left = "╔" if double else "┌"
+    right = "╗" if double else "┐"
+    h = "═" if double else "─"
+    if title:
+        vis = get_visual_width(title)
+        rem = max(0, 71 - 3 - vis - 1)
+        return f"  {border_color}{left}{h} {BOLD}{WHITE}{title}{RESET}{border_color} {h * rem}{right}{RESET}"
+    return f"  {border_color}{left}{h * 71}{right}{RESET}"
+
+def card_border_bottom(border_color: str = CYAN, double: bool = False) -> str:
+    left = "╚" if double else "└"
+    right = "╝" if double else "┘"
+    h = "═" if double else "─"
+    return f"  {border_color}{left}{h * 71}{right}{RESET}"
+
+def card_divider(border_color: str = CYAN, double: bool = False) -> str:
+    left = "╠" if double else "├"
+    right = "╣" if double else "┤"
+    h = "═" if double else "─"
+    return f"  {border_color}{left}{h * 71}{right}{RESET}"
+
 def print_header():
     """Print the branded TorusGuard header card."""
     print(f"""
   {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}
   {CYAN}│{RESET}                                                                         {CYAN}│{RESET}
-  {CYAN}│{RESET}   {BOLD}{WHITE}🛡️  T O R U S G U A R D{RESET}                                  {GRAY}v0.9.5{RESET}   {CYAN}│{RESET}
+  {CYAN}│{RESET}   {BOLD}{WHITE}🛡️  T O R U S G U A R D{RESET}                                  {GRAY}v1.3.0{RESET}   {CYAN}│{RESET}
   {CYAN}│{RESET}   {DIM}Autonomous Security Engine for AI-Built Applications{RESET}               {CYAN}│{RESET}
   {CYAN}│{RESET}                                                                         {CYAN}│{RESET}
   {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}
@@ -71,81 +144,71 @@ def print_header():
 
 def print_step_1_assets(file_count):
     """Print the enhanced Step 1 asset unpacking card."""
-    print(f"""  {CYAN}┌─ {BOLD}Step 1/3{RESET} {CYAN}──────────────────────── {WHITE}Unpacking Governance Assets{RESET} {CYAN}──────┐{RESET}
-  {CYAN}│{RESET}                                                                       {CYAN}│{RESET}
-  {CYAN}│{RESET}   {GREEN}✔{RESET} Canonical security rules            {DIM}71 rules across 11 families{RESET}  {CYAN}│{RESET}
-  {CYAN}│{RESET}   {GREEN}✔{RESET} JSON validation schemas             {DIM}8 formal schemas{RESET}             {CYAN}│{RESET}
-  {CYAN}│{RESET}   {GREEN}✔{RESET} Specialist agent specifications     {DIM}5 isolated agents{RESET}            {CYAN}│{RESET}
-  {CYAN}│{RESET}   {GREEN}✔{RESET} Workflow templates                   {DIM}11 slash commands{RESET}            {CYAN}│{RESET}
-  {CYAN}│{RESET}   {GREEN}✔{RESET} Framework reference guides           {DIM}10 security guides{RESET}           {CYAN}│{RESET}
-  {CYAN}│{RESET}                                                                       {CYAN}│{RESET}
-  {CYAN}│{RESET}                                               {BOLD}{WHITE}{file_count} files unpacked{RESET}   {CYAN}│{RESET}
-  {CYAN}└───────────────────────────────────────────────────────────────────────┘{RESET}
-""")
+    print(card_border_top("Step 1/3 ─── Unpacking Governance Assets"))
+    print(card_line(""))
+    print(card_line(f"{GREEN}✔{RESET} Canonical security rules            {DIM}71 rules across 11 families{RESET}"))
+    print(card_line(f"{GREEN}✔{RESET} JSON validation schemas             {DIM}8 formal schemas{RESET}"))
+    print(card_line(f"{GREEN}✔{RESET} Specialist agent specifications     {DIM}5 isolated agents{RESET}"))
+    print(card_line(f"{GREEN}✔{RESET} Workflow templates                   {DIM}11 slash commands{RESET}"))
+    print(card_line(f"{GREEN}✔{RESET} Framework reference guides           {DIM}10 security guides{RESET}"))
+    print(card_line(""))
+    print(card_line(f"{BOLD}{WHITE}{file_count} files unpacked{RESET}"))
+    print(card_border_bottom())
 
 
 def print_step_2_profile(detected_stack=None):
     """Print the security profile & coverage card (in-process stack alignment)."""
+    print(card_border_top("Step 2/3 ─── Security Profile & Coverage"))
+    print(card_line(""))
+    print(card_line(f"{BOLD}Rule Families:{RESET}"))
+    print(card_line(f"  {YELLOW}TG-SEC{RESET}     Secrets & Credentials    {YELLOW}TG-DB{RESET}      Database Safety"))
+    print(card_line(f"  {YELLOW}TG-INPUT{RESET}   Input Validation         {YELLOW}TG-AUTH{RESET}    Authentication"))
+    print(card_line(f"  {YELLOW}TG-CLIENT{RESET}  Client Bundle Leaks      {YELLOW}TG-DIFF{RESET}    Diff Inspection"))
+    print(card_line(f"  {YELLOW}TG-AGENT{RESET}   AI Agent Security        {YELLOW}TG-EDGE{RESET}    Serverless"))
+    print(card_line(f"  {YELLOW}TG-SUPPLY{RESET}  Supply Chain & CI/CD     {YELLOW}TG-SSRF{RESET}    Outbound Net"))
+    print(card_line(f"  {YELLOW}TG-BIZ{RESET}     Business Logic"))
+    print(card_line(""))
+    print(card_line(f"{BOLD}Supported Stacks:{RESET}"))
+    print(card_line(f"  {GREEN}Python{RESET}    Django · FastAPI · Flask · DRF · SQLAlchemy"))
+    print(card_line(f"  {GREEN}Node.js{RESET}   Next.js · Express · React · Supabase · Firebase"))
+    print(card_line(""))
     if detected_stack and detected_stack.get("framework") and detected_stack.get("framework") != "None":
         fw = str(detected_stack.get("framework"))
         lang = str(detected_stack.get("language", ""))
-        label = f"Auto-aligned stack: {fw} ({lang})"
-        pad = " " * max(0, 66 - len(label))
-        status_line = f"  {CYAN}│{RESET}   {GREEN}✔{RESET} {BOLD}Auto-aligned stack:{RESET} {WHITE}{fw}{RESET} {DIM}({lang}){RESET}{pad}{CYAN}│{RESET}"
+        print(card_line(f"{GREEN}✔{RESET} {BOLD}Auto-aligned stack:{RESET} {WHITE}{fw}{RESET} {DIM}({lang}){RESET}"))
     else:
-        status_line = f"  {CYAN}│{RESET}   {DIM}ℹ Stack auto-detected on first /torusguard-audit run{RESET}              {CYAN}│{RESET}"
-
-    print(f"""  {CYAN}┌─ {BOLD}Step 2/3{RESET} {CYAN}──────────────────── {WHITE}Security Profile & Coverage{RESET} {CYAN}────────┐{RESET}
-  {CYAN}│{RESET}                                                                       {CYAN}│{RESET}
-  {CYAN}│{RESET}   {BOLD}Rule Families:{RESET}                                                      {CYAN}│{RESET}
-  {CYAN}│{RESET}     {YELLOW}TG-SEC{RESET}     Secrets & Credentials    {YELLOW}TG-DB{RESET}      Database Safety    {CYAN}│{RESET}
-  {CYAN}│{RESET}     {YELLOW}TG-INPUT{RESET}   Input Validation         {YELLOW}TG-AUTH{RESET}    Authentication     {CYAN}│{RESET}
-  {CYAN}│{RESET}     {YELLOW}TG-CLIENT{RESET}  Client Bundle Leaks      {YELLOW}TG-DIFF{RESET}    Diff Inspection    {CYAN}│{RESET}
-  {CYAN}│{RESET}     {YELLOW}TG-AGENT{RESET}   AI Agent Security        {YELLOW}TG-EDGE{RESET}    Serverless         {CYAN}│{RESET}
-  {CYAN}│{RESET}     {YELLOW}TG-SUPPLY{RESET}  Supply Chain & CI/CD     {YELLOW}TG-SSRF{RESET}    Outbound Net       {CYAN}│{RESET}
-  {CYAN}│{RESET}     {YELLOW}TG-BIZ{RESET}     Business Logic                                      {CYAN}│{RESET}
-  {CYAN}│{RESET}                                                                       {CYAN}│{RESET}
-  {CYAN}│{RESET}   {BOLD}Supported Stacks:{RESET}                                                  {CYAN}│{RESET}
-  {CYAN}│{RESET}     {GREEN}Python{RESET}    Django {DIM}·{RESET} FastAPI {DIM}·{RESET} Flask {DIM}·{RESET} DRF {DIM}·{RESET} SQLAlchemy              {CYAN}│{RESET}
-  {CYAN}│{RESET}     {GREEN}Node.js{RESET}   Next.js {DIM}·{RESET} Express {DIM}·{RESET} React {DIM}·{RESET} Supabase {DIM}·{RESET} Firebase       {CYAN}│{RESET}
-  {CYAN}│{RESET}                                                                       {CYAN}│{RESET}
-{status_line}
-  {CYAN}└───────────────────────────────────────────────────────────────────────┘{RESET}
-""")
+        print(card_line(f"{DIM}ℹ Stack auto-detected on first /torusguard-audit run{RESET}"))
+    print(card_border_bottom())
 
 
 def print_step_3_bridges(registered_ides):
     """Print the IDE command registration card."""
-    lines = ""
+    print(card_border_top("Step 3/3 ─── AI IDE Command Registration"))
+    print(card_line(""))
     for r in registered_ides:
-        lines += f"  {CYAN}│{RESET}   {GREEN}✔{RESET} {r:<67} {CYAN}│{RESET}\n"
-
-    print(f"""  {CYAN}┌─ {BOLD}Step 3/3{RESET} {CYAN}─────────────────── {WHITE}AI IDE Command Registration{RESET} {CYAN}─────────┐{RESET}
-  {CYAN}│{RESET}                                                                       {CYAN}│{RESET}
-{lines}  {CYAN}│{RESET}                                                                       {CYAN}│{RESET}
-  {CYAN}└───────────────────────────────────────────────────────────────────────┘{RESET}
-""")
+        print(card_line(f"{GREEN}✔{RESET} {r}"))
+    print(card_line(""))
+    print(card_border_bottom())
 
 
 def print_success_card():
     """Print the final success card with next steps."""
-    print(f"""  {GREEN}╔═══════════════════════════════════════════════════════════════════════╗{RESET}
-  {GREEN}║{RESET}                                                                       {GREEN}║{RESET}
-  {GREEN}║{RESET}   {GREEN}{BOLD}✅  WORKSPACE INITIALIZED SUCCESSFULLY{RESET}                               {GREEN}║{RESET}
-  {GREEN}║{RESET}                                                                       {GREEN}║{RESET}
-  {GREEN}╠═══════════════════════════════════════════════════════════════════════╣{RESET}
-  {GREEN}║{RESET}                                                                       {GREEN}║{RESET}
-  {GREEN}║{RESET}   {BOLD}Next Steps:{RESET}                                                         {GREEN}║{RESET}
-  {GREEN}║{RESET}                                                                       {GREEN}║{RESET}
-  {GREEN}║{RESET}    {CYAN}1.{RESET} In AI Chat      {WHITE}/torusguard-audit{RESET}  or  {WHITE}/torusguard{RESET}              {GREEN}║{RESET}
-  {GREEN}║{RESET}    {CYAN}2.{RESET} In Terminal      {WHITE}npx torusguard status{RESET}                       {GREEN}║{RESET}
-  {GREEN}║{RESET}    {CYAN}3.{RESET} In CI/CD         {WHITE}npx torusguard audit{RESET}                        {GREEN}║{RESET}
-  {GREEN}║{RESET}                                                                       {GREEN}║{RESET}
-  {GREEN}║{RESET}   {DIM}Docs{RESET}   {CYAN}https://github.com/githubmofo/TorusGuard{RESET}                   {GREEN}║{RESET}
-  {GREEN}║{RESET}   {DIM}NPM{RESET}    {CYAN}https://npmjs.com/package/torusguard{RESET}                       {GREEN}║{RESET}
-  {GREEN}║{RESET}                                                                       {GREEN}║{RESET}
-  {GREEN}╚═══════════════════════════════════════════════════════════════════════╝{RESET}
-""")
+    print(card_border_top("", border_color=GREEN, double=True))
+    print(card_line("", border="║", border_color=GREEN))
+    print(card_line(f"{GREEN}{BOLD}✅  WORKSPACE INITIALIZED SUCCESSFULLY{RESET}", border="║", border_color=GREEN))
+    print(card_line("", border="║", border_color=GREEN))
+    print(card_divider(border_color=GREEN, double=True))
+    print(card_line("", border="║", border_color=GREEN))
+    print(card_line(f"{BOLD}Next Steps:{RESET}", border="║", border_color=GREEN))
+    print(card_line("", border="║", border_color=GREEN))
+    print(card_line(f" {CYAN}1.{RESET} In AI Chat      {WHITE}/torusguard-audit{RESET}  or  {WHITE}/torusguard{RESET}", border="║", border_color=GREEN))
+    print(card_line(f" {CYAN}2.{RESET} In Terminal     {WHITE}npx torusguard status{RESET}", border="║", border_color=GREEN))
+    print(card_line(f" {CYAN}3.{RESET} In CI/CD        {WHITE}npx torusguard audit{RESET}", border="║", border_color=GREEN))
+    print(card_line("", border="║", border_color=GREEN))
+    print(card_line(f"{DIM}Docs{RESET}   {CYAN}https://github.com/githubmofo/TorusGuard{RESET}", border="║", border_color=GREEN))
+    print(card_line(f"{DIM}NPM{RESET}    {CYAN}https://npmjs.com/package/torusguard{RESET}", border="║", border_color=GREEN))
+    print(card_line("", border="║", border_color=GREEN))
+    print(card_border_bottom(border_color=GREEN, double=True))
 
 
 def print_already_initialized(target_root, cfg):
@@ -157,7 +220,7 @@ def print_already_initialized(target_root, cfg):
 
   {BOLD}▸ Project Root:{RESET}       {GREEN}{target_root}{RESET}
   {BOLD}▸ Workspace:{RESET}          {GREEN}.torusguard/{RESET} {DIM}(Already Initialized){RESET}
-  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '1.0.0')}{RESET}
+  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '1.3.0')}{RESET}
   {BOLD}▸ Severity Floor:{RESET}     {YELLOW}{cfg.get('severity_threshold', 'medium')}{RESET}
 
   {DIM}To refresh templates or re-scaffold, run:{RESET}
@@ -358,23 +421,39 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
 3. Follow the phase execution steps defined in the workflow.
 """
 
-    # Ensure .agent/workflows and .agents/workflows are created
+    # Ensure .agents/workflows, .agents/skills, .agent/workflows, and .agent/skills are created
     dest_workflow_dirs = []
-    if (target_root / ".agents").exists():
-        agents_wf = target_root / ".agents" / "workflows"
-        agents_wf.mkdir(parents=True, exist_ok=True)
-        (agents_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
-        dest_workflow_dirs.append(agents_wf)
-        registered_ides.append("Antigravity / Gemini     .agents/workflows/torusguard.md")
 
+    # 1. Antigravity / Gemini (.agents/)
+    agents_wf = target_root / ".agents" / "workflows"
+    agents_wf.mkdir(parents=True, exist_ok=True)
+    (agents_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
+    dest_workflow_dirs.append(agents_wf)
+    registered_ides.append("Antigravity / Gemini     .agents/workflows/torusguard.md")
+
+    # 2. Tribunal Agent Kit (.agent/)
     agent_wf = target_root / ".agent" / "workflows"
     agent_wf.mkdir(parents=True, exist_ok=True)
     (agent_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
     dest_workflow_dirs.append(agent_wf)
     registered_ides.append("Tribunal Agent Kit       .agent/workflows/torusguard.md")
 
+    # Unpack Skills into .agents/skills and .agent/skills for full IDE resolution
+    src_skills = torusguard_target / "skills"
+    if src_skills.is_dir():
+        for dest_base in [target_root / ".agents" / "skills", target_root / ".agent" / "skills"]:
+            dest_base.mkdir(parents=True, exist_ok=True)
+            for skill_dir in src_skills.iterdir():
+                if skill_dir.is_dir():
+                    target_skill_dir = dest_base / skill_dir.name
+                    if not target_skill_dir.exists():
+                        try:
+                            shutil.copytree(skill_dir, target_skill_dir)
+                        except Exception:
+                            pass
+
     # When full_commands is requested (e.g. via NPM package npx torusguard init),
-    # unlock and register all 11 individual slash commands
+    # unlock and register all individual slash commands
     if full_commands:
         src_wf = torusguard_target / "workflows"
         if src_wf.is_dir():

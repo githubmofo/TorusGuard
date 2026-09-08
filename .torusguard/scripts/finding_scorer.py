@@ -162,6 +162,8 @@ def compute_confidence_score(
 
 def main():
     parser = argparse.ArgumentParser(description="TorusGuard Confidence Scorer")
+    parser.add_argument("--dir", type=str, help="Target project root directory to scan and score")
+    parser.add_argument("--run", type=str, help="Path to run directory to evaluate/score")
     parser.add_argument("--eq", type=int, default=35, help="Evidence quality score (0-35)")
     parser.add_argument("--rs", type=int, default=0, help="Reproduction success score (0-25)")
     parser.add_argument("--ic", type=int, default=5, help="Independent confirmations score (0-15)")
@@ -172,6 +174,62 @@ def main():
     parser.add_argument("--file", type=str, help="File path for correlation matching")
     parser.add_argument("--json", action="store_true", help="Output JSON")
     args = parser.parse_args()
+
+    # Bridge: when --dir is provided, delegate to audit_runner
+    if args.dir:
+        scripts_dir = Path(__file__).resolve().parent
+        if str(scripts_dir) not in sys.path:
+            sys.path.insert(0, str(scripts_dir))
+        try:
+            import audit_runner
+            res = audit_runner.execute_audit(Path(args.dir), json_output=args.json)
+            sys.exit(0 if res.get("critical_count", 0) == 0 else 1)
+        except Exception as e:
+            print(f"[ERROR] Finding Scorer: Failed to run audit on {args.dir}: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    # Bridge: when --run is provided, score findings in run folder
+    if args.run:
+        run_p = Path(args.run).resolve()
+        f_file = run_p / "findings.json"
+        if not f_file.is_file():
+            print(f"[ERROR] Run findings not found at: {f_file}", file=sys.stderr)
+            sys.exit(1)
+        try:
+            with open(f_file, "r", encoding="utf-8") as f:
+                findings_data = json.load(f)
+        except Exception as e:
+            print(f"[ERROR] Malformed findings JSON: {e}", file=sys.stderr)
+            sys.exit(1)
+
+        total_score = 0
+        scored_items = []
+        for item in findings_data:
+            s, b, factors = compute_confidence_score(
+                evidence_quality=item.get("evidence_quality", 35),
+                reproduction_success=item.get("reproduction_success", 0),
+                independent_confirmations=item.get("independent_confirmations", 5),
+                environmental_clarity=item.get("environmental_clarity", 15),
+                manual_review_status=item.get("manual_review_status", 0),
+                rule_id=item.get("rule_id"),
+                file_path=item.get("file_path")
+            )
+            item["confidence_score"] = s
+            item["confidence_band"] = b
+            item["confidence_factors"] = factors
+            scored_items.append(item)
+            total_score += s
+
+        avg_score = int(total_score / max(1, len(scored_items)))
+        with open(f_file, "w", encoding="utf-8") as f:
+            json.dump(scored_items, f, indent=2)
+
+        if args.json:
+            print(json.dumps({"run": str(run_p), "findings_count": len(scored_items), "average_confidence": avg_score}, indent=2))
+        else:
+            print(f"[SUCCESS] Scored {len(scored_items)} findings in {run_p.name}")
+            print(f"Average Confidence: {avg_score}/100")
+        sys.exit(0)
 
     total, band, factors = compute_confidence_score(
         evidence_quality=args.eq,
