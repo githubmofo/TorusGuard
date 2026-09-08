@@ -19,13 +19,14 @@ Aggregate findings, verification traces, and recheck results into a signed execu
 ## Execution Steps
 
 1. **Aggregate Run Data:** Read findings, verified evidence, and recheck records from active run.
-2. **Export OASIS SARIF v2.1.0:**
+2. **Handle CLI Failures:** If `npx torusguard report --html` or SARIF export crashes, YOU must manually gather the metrics and format the report.
+3. **Export OASIS SARIF v2.1.0:**
    ```bash
    python .torusguard/scripts/sarif_exporter.py --run <run_dir> --output <run_dir>/results.sarif
    ```
-3. **Compile Executive Markdown Report:** Generate `report.md` with posture score, open/closed finding tables, and risk breakdown.
-4. **Update Run Manifest:** Finalize `manifest.json` status counts.
-5. **Archive Release Artifacts:** Ensure `report.md` and `results.sarif` are serialized to disk.
+4. **Compile Executive Markdown/HTML Report:** Generate `report.md` or `.html` with posture score, open/closed finding tables, and risk breakdown. Make sure the polyglot stack detected during audit is explicitly summarized.
+5. **Update Run Manifest:** Finalize `manifest.json` status counts.
+6. **Archive Release Artifacts:** Ensure `report.md` and `results.sarif` are serialized to disk.
 
 ---
 
@@ -46,7 +47,7 @@ Aggregate findings, verification traces, and recheck results into a signed execu
 
 ## Output Format
 ```markdown
-📊 [TorusGuard] Security Posture Report Emitted
+📊 [TorusGuard] Security Posture Report Emitted (AI Assisted)
 - Run ID: <Run ID> | Posture Score: <Score>/100
 - Findings: <Total> (<Fixed> Fixed · <Open> Open)
 - SARIF Export: `.torusguard/runs/<run_id>/results.sarif`

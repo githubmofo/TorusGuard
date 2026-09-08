@@ -19,11 +19,12 @@ Re-scan only files modified by remediation patches, confirming that targeted vul
 ## Execution Steps
 
 1. **Identify Modified Files:** Read `apply-log.json` from active run directory.
-2. **Execute Differential Scan:** Re-run active `TG-*` rules exclusively against modified files.
-3. **Evaluate Finding Status:** Transition finding state according to transition rules below.
-4. **Assert Regression-Free:** Ensure no new security warnings triggered on altered lines.
-5. **Update State & Memory:** Record status in `findings.json` and sync verified results to memory engine.
-6. **Emit Recheck Report:** Save summary in `.torusguard/runs/<run_id>/recheck-report.md`.
+2. **Handle CLI Failures:** If `npx torusguard recheck` crashes or reports a false negative, YOU must act as the manual arbiter.
+3. **Execute Differential Scan:** Re-run active `TG-*` rules exclusively against modified files. If doing this manually, use `view_file` to read the patched file and cross-reference with the active rules.
+4. **Evaluate Finding Status:** Transition finding state according to transition rules below.
+5. **Assert Regression-Free:** Ensure no new security warnings triggered on altered lines.
+6. **Update State & Memory:** Record status in `findings.json` and sync verified results to memory engine.
+7. **Emit Recheck Report:** Save summary in `.torusguard/runs/<run_id>/recheck-report.md`.
 
 ---
 
@@ -37,14 +38,14 @@ Re-scan only files modified by remediation patches, confirming that targeted vul
 
 ## Safety Constraints
 - Restrict AST scan strictly to modified files and direct callers.
-- If regression is detected, halt and recommend immediate rollback via `.bak` snapshot.
+- If regression is detected, halt and recommend immediate rollback via `.bak` snapshot. If CLI rollback fails, you MUST manually revert the file using your write tools.
 - Read-only differential analysis.
 
 ---
 
 ## Output Format
 ```markdown
-✅ [TorusGuard] Differential Recheck Completed
+✅ [TorusGuard] Differential Recheck Completed (AI Assisted)
 - Modified Files Scanned: <Count>
 - Target Finding: <Finding ID> ──► FIXED
 - Regressions Detected: 0

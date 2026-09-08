@@ -28,10 +28,11 @@ Auto-detect repository technology stack via indicators or `stack_detect.py`, act
    - Python: Django (`manage.py`), FastAPI (`fastapi`), Flask (`flask`), SQLAlchemy.
    - Node: Next.js (`"next"`), Express (`"express"`), React/Vite (`"vite"`).
    - BaaS: Supabase (`@supabase/supabase-js`), Firebase (`firebase-admin`).
-2. **Emit Stack Record:** Log detected language, framework, ORM, and client SDKs.
-3. **Activate Tailored Rules:** Copy matching `TG-*` rules from `.torusguard/rules/` into `.torusguard/rules/active/`.
-4. **Provision Policy:** Create `SECURITY.md` if absent, configuring responsible disclosure contacts.
-5. **Write Configuration:** Persist detected stack and active rules count to `.torusguard/config/torusguard.json`.
+2. **Handle CLI Failures:** If `stack_detect.py` crashes or is unable to determine the stack, YOU must manually analyze the directory structure and determine the stack.
+3. **Emit Stack Record:** Log detected language, framework, ORM, and client SDKs.
+4. **Activate Tailored Rules:** Copy matching `TG-*` rules from `.torusguard/rules/` into `.torusguard/rules/active/`.
+5. **Provision Policy:** Create `SECURITY.md` if absent, configuring responsible disclosure contacts.
+6. **Write Configuration:** Persist detected stack and active rules count to `.torusguard/config/torusguard.json`.
 
 ---
 
@@ -44,7 +45,7 @@ Auto-detect repository technology stack via indicators or `stack_detect.py`, act
 
 ## Output Format
 ```markdown
-🛡️ [TorusGuard] Workspace Initialized
+🛡️ [TorusGuard] Workspace Initialized (AI Assisted)
 - Primary Stack: <Detected Stack> | Components: <Backend/Frontend/DB>
 - Active Rules: <Count> rules enabled in `.torusguard/rules/active/`
 - Configuration: `.torusguard/config/torusguard.json` written

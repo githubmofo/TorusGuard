@@ -24,8 +24,9 @@ Define and validate legal runtime authorization boundaries, verify target owners
    ```bash
    python .torusguard/scripts/safety_gate.py check --url <target_url>
    ```
-5. **Write Scope Record:** Persist authorized targets, rate limits, and expiration timestamp into `.torusguard/config/scope.json`.
-6. **Validate Schema:** Confirm `scope.json` adheres to `auth-boundary.schema.json`.
+5. **Handle CLI Failures:** If `safety_gate.py` fails or is unavailable, YOU must manually verify the safety invariants and generate the JSON structure below.
+6. **Write Scope Record:** Persist authorized targets, rate limits, and expiration timestamp into `.torusguard/config/scope.json`.
+7. **Validate Schema:** Confirm `scope.json` adheres to `auth-boundary.schema.json`.
 
 ---
 
@@ -38,7 +39,7 @@ Define and validate legal runtime authorization boundaries, verify target owners
 
 ## Output Format
 ```markdown
-🔒 [TorusGuard] Target Scope Authorized
+🔒 [TorusGuard] Target Scope Authorized (AI Assisted)
 - Target Host: <Host URL> | Environment: <Local / Staging>
 - Allowed Paths: <Prefixes> | Rate Limit: <Max Req/sec>
 - Expiration TTL: <Timestamp>

@@ -118,11 +118,19 @@ def census_file_extensions(project_root: Path) -> dict[str, int]:
     return census
 
 
+
+def add_to_list(profile, key, value):
+    if value and value not in profile[key] and value != "Unknown" and value != "None":
+        profile[key].append(value)
+
 def detect_stack(project_root: Path) -> dict[str, Any]:
     """
     Universally detect programming language, framework, ORM, and dependency manifests.
     """
     profile: dict[str, Any] = {
+        "languages_found": [],
+        "frameworks_found": [],
+        "data_layers_found": [],
         "language": "Unknown",
         "framework": "None",
         "data_layer": "None",
@@ -163,10 +171,10 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     has_py_manifest = any(f in profile["dependency_files"] for f in ["pyproject.toml", "requirements.txt", "Pipfile", "poetry.lock"])
 
     if manage_py.is_file() or settings_py:
-        profile["language"] = "Python"
+        add_to_list(profile, "languages_found", "Python")
         profile["ecosystem_family"] = "python"
-        profile["framework"] = "Django"
-        profile["data_layer"] = "Django ORM"
+        add_to_list(profile, "frameworks_found", "Django")
+        add_to_list(profile, "data_layers_found", "Django ORM")
         profile["confidence"] = "Confirmed"
         evidence_file = "manage.py" if manage_py.is_file() else str(settings_py[0].relative_to(project_root))
         profile["detection_evidence"].append({
@@ -181,7 +189,7 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
             try:
                 content = py_file.read_text(encoding="utf-8", errors="ignore")
                 if "rest_framework" in content:
-                    profile["framework"] = "Django / DRF"
+                    add_to_list(profile, "frameworks_found", "Django / DRF")
                     profile["recommended_references"].append("drf-security.md")
                     break
             except Exception:
@@ -194,9 +202,9 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
             try:
                 content = py_file.read_text(encoding="utf-8", errors="ignore")
                 if "FastAPI(" in content or "from fastapi" in content:
-                    profile["language"] = "Python"
+                    add_to_list(profile, "languages_found", "Python")
                     profile["ecosystem_family"] = "python"
-                    profile["framework"] = "FastAPI"
+                    add_to_list(profile, "frameworks_found", "FastAPI")
                     profile["confidence"] = "Confirmed"
                     profile["detection_evidence"].append({
                         "file": str(py_file.relative_to(project_root)),
@@ -204,9 +212,9 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
                     })
                     profile["recommended_references"].append("fastapi-security.md")
                 elif "Flask(__name__)" in content or "from flask" in content:
-                    profile["language"] = "Python"
+                    add_to_list(profile, "languages_found", "Python")
                     profile["ecosystem_family"] = "python"
-                    profile["framework"] = "Flask"
+                    add_to_list(profile, "frameworks_found", "Flask")
                     profile["confidence"] = "Confirmed"
                     profile["detection_evidence"].append({
                         "file": str(py_file.relative_to(project_root)),
@@ -215,15 +223,15 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
                     profile["recommended_references"].append("flask-security.md")
 
                 if "sqlalchemy" in content:
-                    profile["data_layer"] = "SQLAlchemy"
+                    add_to_list(profile, "data_layers_found", "SQLAlchemy")
                     profile["recommended_references"].append("sqlalchemy-security.md")
                 elif "tortoise" in content:
-                    profile["data_layer"] = "Tortoise ORM"
+                    add_to_list(profile, "data_layers_found", "Tortoise ORM")
             except Exception:
                 continue
 
-        if profile["language"] == "Unknown" and has_py_manifest:
-            profile["language"] = "Python"
+        if has_py_manifest:
+            add_to_list(profile, "languages_found", "Python")
             profile["ecosystem_family"] = "python"
             profile["confidence"] = "High Confidence"
             profile["detection_evidence"].append({
@@ -240,9 +248,9 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
         "composer.json", "mix.exs", "Gemfile", "Cargo.toml", "go.mod", "pom.xml", "build.gradle", "build.gradle.kts"
     ]) or bool(csproj_files) or bool(sln_files)
 
-    if pkg_json_path.is_file() and profile["language"] == "Unknown" and not has_backend_manifest:
+    if pkg_json_path.is_file():
         is_ts = bool(list(project_root.glob("**/*.ts*")))
-        profile["language"] = "TypeScript" if is_ts else "JavaScript"
+        add_to_list(profile, "languages_found", "TypeScript" if is_ts else "JavaScript")
         profile["ecosystem_family"] = "javascript"
         try:
             with open(pkg_json_path, "r", encoding="utf-8") as f:
@@ -251,53 +259,53 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
 
             # Framework detection
             if "next" in deps:
-                profile["framework"] = "Next.js"
+                add_to_list(profile, "frameworks_found", "Next.js")
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "next dependency"})
                 profile["recommended_references"].append("nextjs-security.md")
                 profile["recommended_rules"].extend(["TG-CLIENT-*", "TG-PLATFORM-001"])
             elif "@nestjs/core" in deps:
-                profile["framework"] = "NestJS"
+                add_to_list(profile, "frameworks_found", "NestJS")
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "NestJS dependency"})
                 profile["recommended_references"].append("nestjs-security.md")
             elif "@sveltejs/kit" in deps:
-                profile["framework"] = "SvelteKit"
+                add_to_list(profile, "frameworks_found", "SvelteKit")
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "SvelteKit dependency"})
             elif "nuxt" in deps:
-                profile["framework"] = "Nuxt"
+                add_to_list(profile, "frameworks_found", "Nuxt")
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "Nuxt dependency"})
             elif "astro" in deps:
-                profile["framework"] = "Astro"
+                add_to_list(profile, "frameworks_found", "Astro")
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "Astro dependency"})
             elif "express" in deps:
-                profile["framework"] = "Express"
+                add_to_list(profile, "frameworks_found", "Express")
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "express dependency"})
                 profile["recommended_references"].append("express-security.md")
             elif "react" in deps:
-                profile["framework"] = "React / Vite"
+                add_to_list(profile, "frameworks_found", "React / Vite")
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "react dependency"})
                 profile["recommended_references"].append("react-vite-security.md")
 
             # ORM / Data layer detection
             if "@prisma/client" in deps or "prisma" in deps:
-                profile["data_layer"] = "Prisma ORM"
+                add_to_list(profile, "data_layers_found", "Prisma ORM")
             elif "drizzle-orm" in deps:
-                profile["data_layer"] = "Drizzle ORM"
+                add_to_list(profile, "data_layers_found", "Drizzle ORM")
             elif "typeorm" in deps:
-                profile["data_layer"] = "TypeORM"
+                add_to_list(profile, "data_layers_found", "TypeORM")
             elif "mongoose" in deps:
-                profile["data_layer"] = "Mongoose"
+                add_to_list(profile, "data_layers_found", "Mongoose")
             elif "@supabase/supabase-js" in deps:
-                profile["data_layer"] = "Supabase"
+                add_to_list(profile, "data_layers_found", "Supabase")
                 profile["recommended_references"].append("supabase-security.md")
             elif "firebase" in deps or "firebase-admin" in deps:
-                profile["data_layer"] = "Firebase"
+                add_to_list(profile, "data_layers_found", "Firebase")
                 profile["recommended_references"].append("firebase-security.md")
         except Exception:
             pass
@@ -307,7 +315,7 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     # -------------------------------------------------------------------------
     go_mod = project_root / "go.mod"
     if go_mod.is_file():
-        profile["language"] = "Go"
+        add_to_list(profile, "languages_found", "Go")
         profile["ecosystem_family"] = "go"
         profile["confidence"] = "Confirmed"
         profile["detection_evidence"].append({"file": "go.mod", "indicator": "Go module manifest"})
@@ -317,20 +325,20 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
         try:
             go_content = go_mod.read_text(encoding="utf-8", errors="ignore")
             if "github.com/gin-gonic/gin" in go_content:
-                profile["framework"] = "Gin"
+                add_to_list(profile, "frameworks_found", "Gin")
             elif "github.com/gofiber/fiber" in go_content:
-                profile["framework"] = "Fiber"
+                add_to_list(profile, "frameworks_found", "Fiber")
             elif "github.com/labstack/echo" in go_content:
-                profile["framework"] = "Echo"
+                add_to_list(profile, "frameworks_found", "Echo")
             elif "github.com/go-chi/chi" in go_content:
-                profile["framework"] = "Chi"
+                add_to_list(profile, "frameworks_found", "Chi")
 
             if "gorm.io/gorm" in go_content:
-                profile["data_layer"] = "GORM"
+                add_to_list(profile, "data_layers_found", "GORM")
             elif "github.com/jmoiron/sqlx" in go_content:
-                profile["data_layer"] = "SQLx"
+                add_to_list(profile, "data_layers_found", "SQLx")
             elif "database/sql" in go_content or "github.com/lib/pq" in go_content or "github.com/go-sql-driver/mysql" in go_content:
-                profile["data_layer"] = "database/sql"
+                add_to_list(profile, "data_layers_found", "database/sql")
         except Exception:
             pass
 
@@ -338,8 +346,8 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     # D. Rust Ecosystem
     # -------------------------------------------------------------------------
     cargo_toml = project_root / "Cargo.toml"
-    if cargo_toml.is_file() and profile["language"] == "Unknown":
-        profile["language"] = "Rust"
+    if cargo_toml.is_file():
+        add_to_list(profile, "languages_found", "Rust")
         profile["ecosystem_family"] = "rust"
         profile["confidence"] = "Confirmed"
         profile["detection_evidence"].append({"file": "Cargo.toml", "indicator": "Cargo package manifest"})
@@ -349,18 +357,18 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
         try:
             cargo_content = cargo_toml.read_text(encoding="utf-8", errors="ignore")
             if "actix-web" in cargo_content:
-                profile["framework"] = "Actix-web"
+                add_to_list(profile, "frameworks_found", "Actix-web")
             elif "axum" in cargo_content:
-                profile["framework"] = "Axum"
+                add_to_list(profile, "frameworks_found", "Axum")
             elif "rocket" in cargo_content:
-                profile["framework"] = "Rocket"
+                add_to_list(profile, "frameworks_found", "Rocket")
 
             if "diesel" in cargo_content:
-                profile["data_layer"] = "Diesel ORM"
+                add_to_list(profile, "data_layers_found", "Diesel ORM")
             elif "sqlx" in cargo_content:
-                profile["data_layer"] = "SQLx"
+                add_to_list(profile, "data_layers_found", "SQLx")
             elif "sea-orm" in cargo_content:
-                profile["data_layer"] = "SeaORM"
+                add_to_list(profile, "data_layers_found", "SeaORM")
         except Exception:
             pass
 
@@ -370,11 +378,11 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     pom_files = [project_root / "pom.xml"] + list(project_root.glob("*/pom.xml"))[:10]
     gradle_files = [project_root / "build.gradle", project_root / "build.gradle.kts"] + list(project_root.glob("*/build.gradle*"))[:10]
     has_jvm_manifest = any(f.is_file() for f in pom_files + gradle_files)
-    if has_jvm_manifest and profile["language"] == "Unknown":
+    if has_jvm_manifest:
         java_files = list(project_root.glob("**/*.java"))
         kt_files = list(project_root.glob("**/*.kt"))
         is_kotlin = (project_root / "build.gradle.kts").is_file() or (len(kt_files) > len(java_files) and len(kt_files) > 0)
-        profile["language"] = "Kotlin" if is_kotlin else "Java"
+        add_to_list(profile, "languages_found", "Kotlin" if is_kotlin else "Java")
         profile["ecosystem_family"] = "jvm"
         profile["confidence"] = "Confirmed"
         ev_file = "build.gradle.kts" if (project_root / "build.gradle.kts").is_file() else ("build.gradle" if (project_root / "build.gradle").is_file() else "pom.xml")
@@ -391,24 +399,24 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
                     pass
 
         if "quarkus" in check_content:
-            profile["framework"] = "Quarkus"
+            add_to_list(profile, "frameworks_found", "Quarkus")
         elif "spring-boot" in check_content or "springframework" in check_content:
-            profile["framework"] = "Spring Boot"
+            add_to_list(profile, "frameworks_found", "Spring Boot")
         elif "ktor" in check_content:
-            profile["framework"] = "Ktor"
+            add_to_list(profile, "frameworks_found", "Ktor")
         elif "micronaut" in check_content:
-            profile["framework"] = "Micronaut"
+            add_to_list(profile, "frameworks_found", "Micronaut")
 
         if "hibernate" in check_content or "spring-boot-starter-data-jpa" in check_content or "quarkus-hibernate" in check_content:
-            profile["data_layer"] = "Hibernate / JPA"
+            add_to_list(profile, "data_layers_found", "Hibernate / JPA")
         elif "jooq" in check_content:
-            profile["data_layer"] = "jOOQ"
+            add_to_list(profile, "data_layers_found", "jOOQ")
 
     # -------------------------------------------------------------------------
     # F. C# / .NET Ecosystem
     # -------------------------------------------------------------------------
-    if (csproj_files or sln_files) and profile["language"] == "Unknown":
-        profile["language"] = "C#"
+    if (csproj_files or sln_files):
+        add_to_list(profile, "languages_found", "C#")
         profile["ecosystem_family"] = "dotnet"
         profile["confidence"] = "Confirmed"
         ev_file = str(csproj_files[0].relative_to(project_root)) if csproj_files else str(sln_files[0].relative_to(project_root))
@@ -424,18 +432,18 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
                 pass
 
         if "Microsoft.NET.Sdk.Web" in csproj_content or "Microsoft.AspNetCore" in csproj_content or "Swashbuckle" in csproj_content:
-            profile["framework"] = "ASP.NET Core"
+            add_to_list(profile, "frameworks_found", "ASP.NET Core")
         if "Microsoft.EntityFrameworkCore" in csproj_content:
-            profile["data_layer"] = "Entity Framework Core"
+            add_to_list(profile, "data_layers_found", "Entity Framework Core")
         elif "Dapper" in csproj_content:
-            profile["data_layer"] = "Dapper"
+            add_to_list(profile, "data_layers_found", "Dapper")
 
     # -------------------------------------------------------------------------
     # G. PHP Ecosystem
     # -------------------------------------------------------------------------
     composer_json = project_root / "composer.json"
-    if composer_json.is_file() and profile["language"] == "Unknown":
-        profile["language"] = "PHP"
+    if composer_json.is_file():
+        add_to_list(profile, "languages_found", "PHP")
         profile["ecosystem_family"] = "php"
         profile["confidence"] = "Confirmed"
         profile["detection_evidence"].append({"file": "composer.json", "indicator": "PHP Composer manifest"})
@@ -447,11 +455,11 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
                 c_data = json.load(f)
             reqs = {**c_data.get("require", {}), **c_data.get("require-dev", {})}
             if "laravel/framework" in reqs:
-                profile["framework"] = "Laravel"
-                profile["data_layer"] = "Eloquent ORM"
+                add_to_list(profile, "frameworks_found", "Laravel")
+                add_to_list(profile, "data_layers_found", "Eloquent ORM")
             elif "symfony/framework-bundle" in reqs or any("symfony/" in k for k in reqs):
-                profile["framework"] = "Symfony"
-                profile["data_layer"] = "Doctrine ORM"
+                add_to_list(profile, "frameworks_found", "Symfony")
+                add_to_list(profile, "data_layers_found", "Doctrine ORM")
         except Exception:
             pass
 
@@ -459,8 +467,8 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     # H. Ruby Ecosystem
     # -------------------------------------------------------------------------
     gemfile = project_root / "Gemfile"
-    if gemfile.is_file() and profile["language"] == "Unknown":
-        profile["language"] = "Ruby"
+    if gemfile.is_file():
+        add_to_list(profile, "languages_found", "Ruby")
         profile["ecosystem_family"] = "ruby"
         profile["confidence"] = "Confirmed"
         profile["detection_evidence"].append({"file": "Gemfile", "indicator": "Ruby Bundler manifest"})
@@ -470,10 +478,10 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
         try:
             g_content = gemfile.read_text(encoding="utf-8", errors="ignore")
             if "rails" in g_content:
-                profile["framework"] = "Ruby on Rails"
-                profile["data_layer"] = "ActiveRecord"
+                add_to_list(profile, "frameworks_found", "Ruby on Rails")
+                add_to_list(profile, "data_layers_found", "ActiveRecord")
             elif "sinatra" in g_content:
-                profile["framework"] = "Sinatra"
+                add_to_list(profile, "frameworks_found", "Sinatra")
         except Exception:
             pass
 
@@ -481,8 +489,8 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     # I. Elixir Ecosystem
     # -------------------------------------------------------------------------
     mix_exs = project_root / "mix.exs"
-    if mix_exs.is_file() and profile["language"] == "Unknown":
-        profile["language"] = "Elixir"
+    if mix_exs.is_file():
+        add_to_list(profile, "languages_found", "Elixir")
         profile["ecosystem_family"] = "elixir"
         profile["confidence"] = "Confirmed"
         profile["detection_evidence"].append({"file": "mix.exs", "indicator": "Elixir Mix manifest"})
@@ -490,8 +498,8 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
         try:
             m_content = mix_exs.read_text(encoding="utf-8", errors="ignore")
             if "phoenix" in m_content:
-                profile["framework"] = "Phoenix"
-                profile["data_layer"] = "Ecto"
+                add_to_list(profile, "frameworks_found", "Phoenix")
+                add_to_list(profile, "data_layers_found", "Ecto")
         except Exception:
             pass
 
@@ -499,15 +507,15 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     # J. Dart / Flutter Ecosystem
     # -------------------------------------------------------------------------
     pubspec = project_root / "pubspec.yaml"
-    if pubspec.is_file() and profile["language"] == "Unknown":
-        profile["language"] = "Dart"
+    if pubspec.is_file():
+        add_to_list(profile, "languages_found", "Dart")
         profile["ecosystem_family"] = "dart"
         profile["confidence"] = "Confirmed"
         profile["detection_evidence"].append({"file": "pubspec.yaml", "indicator": "Dart pubspec manifest"})
         try:
             p_content = pubspec.read_text(encoding="utf-8", errors="ignore")
             if "flutter:" in p_content:
-                profile["framework"] = "Flutter"
+                add_to_list(profile, "frameworks_found", "Flutter")
         except Exception:
             pass
 
@@ -517,9 +525,9 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     census = census_file_extensions(project_root)
     profile["extension_census"] = census
 
-    if profile["language"] == "Unknown" and census:
+    if not profile.get("languages_found") and census:
         top_lang = max(census.items(), key=lambda x: x[1])[0]
-        profile["language"] = top_lang
+        add_to_list(profile, "languages_found", top_lang)
         profile["confidence"] = "Inferred from file census"
         profile["detection_evidence"].append({
             "file": "source files",
@@ -554,6 +562,22 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     except Exception:
         profile["is_monorepo"] = False
         profile["sub_stacks"] = []
+
+    # Compile final strings
+    if profile.get("languages_found"):
+        profile["language"] = " / ".join(profile["languages_found"])
+    else:
+        profile["language"] = "Unknown"
+        
+    if profile.get("frameworks_found"):
+        profile["framework"] = " / ".join(profile["frameworks_found"])
+    else:
+        profile["framework"] = "None"
+        
+    if profile.get("data_layers_found"):
+        profile["data_layer"] = " / ".join(profile["data_layers_found"])
+    else:
+        profile["data_layer"] = "None"
 
     return profile
 

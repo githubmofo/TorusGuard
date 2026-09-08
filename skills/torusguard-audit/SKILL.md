@@ -65,6 +65,11 @@ Execute static AST analysis, query memory context, compute 0–100 confidence sc
 ```markdown
 🛡️ [TorusGuard] Static Code Audit Completed
 - Run ID: run-YYYYMMDD-HHMMSS-audit | Files: <Count> | Findings: <Count>
+- Posture Score: <Score>/100 (100 = Perfect, 0 = Extremely Vulnerable)
 - Clusters: <Count> identified | Memory Patterns Applied: <Count>
+
+> [!IMPORTANT]
+> If the posture score is low (e.g. 10/100) and vulnerabilities exist, it is your responsibility as the AI Agent to proactively recommend and manually execute the patches if the automated CLI falls short.
+
 Next: Run `/torusguard harden` to formulate surgical fixes.
 ```

@@ -131,7 +131,12 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
         stack = [detected["language"]]
         if detected.get("framework") and detected["framework"] != "None":
             stack.append(detected["framework"])
-    stack_label = ", ".join(stack) if stack else "Universal Polyglot Application"
+    if stack:
+        stack_label = ", ".join(stack)
+    else:
+        # Avoid hardcoding "Universal Polyglot Application" if stack is empty
+        detected_lang = telemetry.get("detected_stack", {}).get("language", "Unknown")
+        stack_label = detected_lang if detected_lang != "Unknown" else "Polyglot Application"
 
     recipes = [p for p in patterns if p.get("pattern_type") == "golden_fix_recipe"]
     regressions = [p for p in patterns if p.get("pattern_type") == "regression_watch"]
@@ -208,7 +213,7 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
         regression_rows_html = "<tr><td colspan='3' class='empty-cell'>Zero active security regressions or suppressions. Posture clean.</td></tr>"
 
     stack_info = telemetry.get("detected_stack", {})
-    primary_lang = stack_info.get("language", "Universal")
+    primary_lang = stack_info.get("language", "Unknown")
     if primary_lang in ("Unknown", "None", "", None):
         root_path = Path(telemetry.get("root_dir", "."))
         if (root_path / "tsconfig.json").is_file() or list(root_path.glob("*.ts")) or list((root_path / "src").glob("*.ts*")):
@@ -220,7 +225,7 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
         elif (root_path / "go.mod").is_file():
             primary_lang = "Go"
         else:
-            primary_lang = "Universal Polyglot"
+            primary_lang = "Unknown"
 
     primary_fw = stack_info.get("framework", "None")
     primary_orm = stack_info.get("data_layer", "None")

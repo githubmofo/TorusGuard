@@ -5,6 +5,16 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] - 2026-09-08
+
+### Added
+- **Comprehensive AI Fallback & Remediation (`skills/`)**:
+  - Expanded all `.torusguard` AI Agent SKILL documents (`audit`, `harden`, `apply`, `init`, `status`, `recheck`, `verify`, `report`, `authorize`, `exploit-check`, `web-validate`) with explicit instructions to proactively take manual action if CLI execution fails, ensuring end-to-end reliability for complex architectures.
+
+### Fixed
+- **Polyglot Stack Detection Fallback (`stack_detect.py`)**:
+  - Removed hardcoded `"Universal Polyglot"` fallback, replacing it with accurate aggregated multi-stack detection (e.g., `TypeScript / Python`) if both frontend and backend configurations are present.
+
 ## [1.3.2] - 2026-09-08
 
 ### Added

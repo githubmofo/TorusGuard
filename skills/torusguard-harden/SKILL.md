@@ -36,17 +36,17 @@ Formulate minimal, surgical code fixes bound by the Ponytail Protocol ($\le 35$ 
 
 ## Execution Steps
 
-1. **Select Finding:** Choose prioritized verified flaw from active run's `findings.md`.
-2. **Read AST Context:** View target file surrounding lines (±15) using `view_file`.
-3. **Formulate Minimal Fix:** Consult `.torusguard/memory/context.json` for verified idioms; parameterize SQL, add tenant filters.
-4. **Validate Line Churn:** Assert additions $\le 35$ and deletions $\le 25$ via `diff_guard.py`.
-5. **Package Bundle:** Write 4 artifacts (`patch.diff`, `plan.md`, `verification.md`, `rollback.md`).
+1. **Evaluate Findings:** First, review the active run's `findings.md`. If the user has already run the CLI `npx torusguard harden` and it formulated `0` patches (or skipped complex findings), it is **YOUR RESPONSIBILITY** as the AI Agent to manually remediate the remaining findings.
+2. **Read AST Context:** View target file surrounding lines (±15) using `view_file` to deeply understand the vulnerability.
+3. **Formulate Minimal Fix:** Actively rewrite the code to fix the vulnerability (e.g. parameterize SQL, add tenant filters, use safe DOM APIs). Do NOT wait for the CLI to do it. You must generate the fix. Consult `.torusguard/memory/context.json` for verified idioms.
+4. **Validate Line Churn:** Assert additions $\le 35$ and deletions $\le 25$ via `diff_guard.py`. If it's too complex, partition into sequential sub-bundles.
+5. **Package Bundle Manually:** Write 4 artifacts (`patch.diff`, `plan.md`, `verification.md`, `rollback.md`) into `.torusguard/runs/<run_id>/remediation/<finding_id>/`.
 6. **Flag Sensitive Paths:** Mark changes touching auth or billing with `Requires Sensitive-Path Sign-Off`.
 
 ---
 
 ## Safety Constraints
-- Dry-run only; do NOT apply modifications to source code during harden.
+- Dry-run only; do NOT apply modifications directly to source code during harden. Only write to the `patch.diff` artifact.
 - Keep surrounding formatting and comments intact.
 - Never touch files outside the targeted vulnerable sink.
 
@@ -54,10 +54,14 @@ Formulate minimal, surgical code fixes bound by the Ponytail Protocol ($\le 35$ 
 
 ## Output Format
 ```markdown
-🛠️ [TorusGuard] Remediation Bundle Packaged
+🛠️ [TorusGuard] Remediation Bundle Packaged (AI Assisted)
 - Finding Target: <Finding ID> | File: <Path>
 - Line Churn: +<Additions> / -<Deletions> (Ponytail: PASS)
 - Sensitive Path: <Yes/No>
 - Bundle Path: `.torusguard/runs/<run_id>/remediation/<finding_id>/`
+
+> [!NOTE]
+> This patch was formulated manually by the TorusGuard AI Agent because it required architectural changes beyond the CLI's automated templates.
+
 Next: Run `/torusguard apply` to review diff and apply with rollback backup.
 ```
