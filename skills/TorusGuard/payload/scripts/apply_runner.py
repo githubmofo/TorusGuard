@@ -68,10 +68,7 @@ def find_latest_audit_run(runs_dir: Path) -> Optional[Path]:
     if not runs_dir.is_dir():
         return None
     runs = sorted(runs_dir.glob("run-*-audit"), key=lambda p: p.stat().st_mtime, reverse=True)
-    for r in runs:
-        if (r / "bundles").is_dir() and list((r / "bundles").iterdir()):
-            return r
-    return None
+    return runs[0] if runs else None
 
 
 def execute_rollback(target_root: Path, run_id_arg: Optional[str] = None) -> None:
@@ -102,7 +99,7 @@ def execute_rollback(target_root: Path, run_id_arg: Optional[str] = None) -> Non
         restored_files.append(orig_rel)
 
     print(f"\n  {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}")
-    print(format_box_line(f"{BOLD}🛡️  TORUSGUARD ROLLBACK RESTORATION                   v1.3.0{RESET}", border_color=CYAN))
+    print(format_box_line(f"{BOLD}🛡️  TORUSGUARD ROLLBACK RESTORATION                   v1.3.1{RESET}", border_color=CYAN))
     print(format_box_line(f"{DIM}Restored original files from pre-apply snapshot{RESET}", border_color=CYAN))
     print(f"  {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}\n")
 
@@ -123,18 +120,28 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
         run_folder = find_latest_audit_run(runs_dir)
 
     if not run_folder or not run_folder.is_dir():
-        print(f"\n  {RED}✖ No candidate remediation bundles found to apply.{RESET}")
-        print(f"  Run {CYAN}npx torusguard harden{RESET} first to formulate candidate patches.\n")
+        print(f"\n  {RED}✖ No audit runs found.{RESET}")
+        print(f"  Run {CYAN}npx torusguard audit{RESET} followed by {CYAN}npx torusguard harden{RESET} first.\n")
         sys.exit(1)
 
     bundles_dir = run_folder / "bundles"
-    if not bundles_dir.is_dir():
-        print(f"\n  {RED}✖ Missing bundles directory in run folder: {run_folder}{RESET}\n")
-        sys.exit(1)
-
-    bundle_meta_files = list(bundles_dir.glob("*/metadata.json"))
+    bundle_meta_files = list(bundles_dir.glob("*/metadata.json")) if bundles_dir.is_dir() else []
     if not bundle_meta_files:
-        print(f"\n  {YELLOW}ℹ Zero candidate bundles available in {run_folder.name}.{RESET}\n")
+        print(f"\n  {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}")
+        print(f"  {CYAN}│                                                                         │{RESET}")
+        print(format_box_line(f"{BOLD}🛡️  TORUSGUARD GOVERNED PATCH APPLIER               v1.3.1{RESET}", border_color=CYAN))
+        print(format_box_line(f"{DIM}Human-Gate Authorization, Snapshots & Golden Recipe Distillation{RESET}", border_color=CYAN))
+        print(f"  {CYAN}│                                                                         │{RESET}")
+        print(f"  {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}\n")
+
+        print(f"  {YELLOW}ℹ Zero candidate remediation bundles found in run: {run_folder.name}{RESET}")
+        print(f"  {GRAY}The findings in this run require manual review or AI-assisted remediation.{RESET}\n")
+        print(f"  {CYAN}┌─ Recommended Next Steps ────────────────────────────────────────────────┐{RESET}")
+        print(format_box_line("1. In AI Chat (Antigravity/Cursor/Claude): Run /torusguard-harden"))
+        print(format_box_line("   to formulate custom architectural patches with your AI agent."))
+        print(format_box_line(f"2. Inspect findings: .torusguard/runs/{run_folder.name}/findings.md"))
+        print(format_box_line("3. View visual posture report: npx torusguard report --html"))
+        print(f"  {CYAN}└─────────────────────────────────────────────────────────────────────────┘{RESET}\n")
         sys.exit(0)
 
     bundles = []

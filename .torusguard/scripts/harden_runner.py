@@ -132,7 +132,7 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
                 applied_rule = True
                 fix_explanation = f"Replaced hardcoded credential with os.environ.get('{env_key}')"
 
-    # Strategy 2: Dangerous React HTML rendering (TG-INPUT-003)
+    # Strategy 2: Dangerous React HTML rendering & DOM innerHTML (TG-INPUT-003)
     elif rule_id == "TG-INPUT-003":
         if "dangerouslySetInnerHTML" in target_line:
             # <div dangerouslySetInnerHTML={{ __html: bio }} /> -> <div>{bio}</div>
@@ -142,6 +142,21 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
             new_lines[line_number - 1] = replacement
             applied_rule = True
             fix_explanation = "Replaced raw dangerouslySetInnerHTML injection with safe React text interpolation"
+        elif ".innerHTML" in target_line:
+            # Pattern A: el.innerHTML = '' or "" -> el.textContent = ""
+            if re.search(r'\.innerHTML\s*=\s*["\']["\']', target_line):
+                fixed_line = re.sub(r'([a-zA-Z0-9_$]+)\.innerHTML\s*=\s*["\']["\']', r'\1.textContent = ""', target_line)
+                if fixed_line != target_line:
+                    new_lines[line_number - 1] = fixed_line
+                    applied_rule = True
+                    fix_explanation = "Replaced unsafe innerHTML DOM reset with safe textContent assignment"
+            # Pattern B: el.innerHTML = someVar -> el.textContent = someVar
+            elif re.search(r'([a-zA-Z0-9_$]+)\.innerHTML\s*=\s*([a-zA-Z0-9_$.]+)\s*;?$', target_line):
+                fixed_line = re.sub(r'([a-zA-Z0-9_$]+)\.innerHTML\s*=\s*([a-zA-Z0-9_$.]+)', r'\1.textContent = \2', target_line)
+                if fixed_line != target_line:
+                    new_lines[line_number - 1] = fixed_line
+                    applied_rule = True
+                    fix_explanation = "Replaced raw DOM innerHTML assignment with XSS-safe textContent"
 
     # Strategy 3: Raw SQL Concatenation (TG-INPUT-002)
     elif rule_id == "TG-INPUT-002":
@@ -298,7 +313,7 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
     # Print 75-column Terminal Card
     print(f"\n  {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}")
     print(f"  {CYAN}│                                                                         │{RESET}")
-    print(format_box_line(f"{BOLD}🛡️  TORUSGUARD GOVERNED REMEDIATION ENGINE         v1.3.0{RESET}", border_color=CYAN))
+    print(format_box_line(f"{BOLD}🛡️  TORUSGUARD GOVERNED REMEDIATION ENGINE         v1.3.1{RESET}", border_color=CYAN))
     print(format_box_line(f"{DIM}Autonomous Minimal Patch Formulation & Ponytail Packaging{RESET}", border_color=CYAN))
     print(f"  {CYAN}│                                                                         │{RESET}")
     print(f"  {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}\n")
@@ -318,14 +333,21 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
         if len(bundles) > 5:
             print(format_box_line(f"  ... and {len(bundles) - 5} more patches cataloged in remediation.md"))
         print(f"  {CYAN}└─────────────────────────────────────────────────────────────────────────┘{RESET}\n")
-    else:
-        print(f"  {YELLOW}ℹ No automatic patch templates matched current findings.{RESET}\n")
 
-    print(f"  {GREEN}╔═ Next Governed Action ═════════════════════════════════════════════════════╗{RESET}")
-    print(format_box_line(f"Review & Apply:   {BOLD}{WHITE}npx torusguard apply{RESET}  (CLI Human Gate)", border="║", border_color=GREEN))
-    print(format_box_line(f"Auto-Apply Flag:  {CYAN}npx torusguard apply --yes{RESET} (Automated mode)", border="║", border_color=GREEN))
-    print(format_box_line(f"AI IDE Chat:      Run {CYAN}/torusguard-apply{RESET} in your AI chat", border="║", border_color=GREEN))
-    print(f"  {GREEN}╚═════════════════════════════════════════════════════════════════════════════╝{RESET}\n")
+        print(f"  {GREEN}╔═ Next Governed Action ═════════════════════════════════════════════════════╗{RESET}")
+        print(format_box_line(f"Review & Apply:   {BOLD}{WHITE}npx torusguard apply{RESET}  (CLI Human Gate)", border="║", border_color=GREEN))
+        print(format_box_line(f"Auto-Apply Flag:  {CYAN}npx torusguard apply --yes{RESET} (Automated mode)", border="║", border_color=GREEN))
+        print(format_box_line(f"AI IDE Chat:      Run {CYAN}/torusguard-apply{RESET} in your AI chat", border="║", border_color=GREEN))
+        print(f"  {GREEN}╚═════════════════════════════════════════════════════════════════════════════╝{RESET}\n")
+    else:
+        print(f"  {YELLOW}ℹ No automatic patch templates matched current findings.{RESET}")
+        print(f"  {GRAY}Findings require architectural refactoring or AI-assisted guidance.{RESET}\n")
+        print(f"  {CYAN}┌─ Recommended Next Steps ────────────────────────────────────────────────┐{RESET}")
+        print(format_box_line("1. In AI Chat (Antigravity/Cursor/Claude): Run /torusguard-harden"))
+        print(format_box_line("   to synthesize custom architectural fixes with your AI agent."))
+        print(format_box_line("2. View visual posture report: npx torusguard report --html"))
+        print(format_box_line(f"3. Inspect finding details: .torusguard/runs/{run_folder.name}/findings.md"))
+        print(f"  {CYAN}└─────────────────────────────────────────────────────────────────────────┘{RESET}\n")
 
     return {
         "status": "success",

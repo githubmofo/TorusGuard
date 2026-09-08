@@ -5,6 +5,21 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2026-09-08
+
+### Added
+- **DOM innerHTML Surgical Remediation (`TG-INPUT-003`):**
+  - Added automated patch formulation in `harden_runner.py` for DOM container resets (`element.innerHTML = ''` / `""`) replacing them with safe `element.textContent = ""` adhering to Ponytail bounds (+1/-1).
+  - Added support for dynamic text assignments (`element.innerHTML = varName` $\rightarrow$ `element.textContent = varName`).
+
+### Fixed
+- **Governed Remediation & Apply Lifecycle Loop (`harden_runner.py`, `apply_runner.py`):**
+  - Fixed misleading `Next Governed Action: npx torusguard apply` displayed by `harden` when zero candidate patches were formulated. The apply action prompt is now conditionally displayed only when candidate bundles exist.
+  - Added clean remediation guidance in `harden` and `apply` when zero candidate patches are synthesized, directing developers to AI chat (`/torusguard-harden`) for architectural refactoring or `report --html`.
+  - Fixed `apply_runner.py` returning exit code 1 with circular `"Run npx torusguard harden first"` error when audit runs contain zero candidate patches. Now gracefully reports run status and exits cleanly (exit code 0).
+- **CLI Runner Resolution Priority (`bin/torusguard.js`):**
+  - Updated dispatcher to execute latest engine scripts from package root, ensuring npm package updates immediately take effect across all target workspaces.
+
 ## [1.3.1] - 2026-09-08
 
 ### Fixed

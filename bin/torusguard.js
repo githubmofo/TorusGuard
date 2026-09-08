@@ -49,7 +49,7 @@ function printHelp() {
   console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.3.1${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.3.2${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}   ${DIM}Autonomous Security Engine for AI-Built Applications${RESET}               ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
@@ -142,7 +142,7 @@ if (command === 'status') {
       console.log(`
   ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.3.1${RESET}   ${CYAN}│${RESET}
+  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.3.2${RESET}   ${CYAN}│${RESET}
   ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
   ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
 
@@ -292,7 +292,7 @@ if (command === 'memory') {
 if (command === 'diff-guard') {
   const diffScript = path.join(cwd, '.torusguard', 'scripts', 'diff_guard.py');
   const fallbackDiffScript = path.join(rootDir, '.torusguard', 'scripts', 'diff_guard.py');
-  const actualDiffScript = fs.existsSync(diffScript) ? diffScript : fallbackDiffScript;
+  const actualDiffScript = fs.existsSync(fallbackDiffScript) ? fallbackDiffScript : diffScript;
 
   const proc = spawnSync(pythonCmd, [actualDiffScript, ...args.slice(1)], { stdio: 'inherit', cwd });
   process.exit(proc.status !== null ? proc.status : 0);
@@ -303,7 +303,7 @@ if (command === 'rules') {
   const sub = args[1] || 'sync';
   const rulesScript = path.join(cwd, '.torusguard', 'scripts', 'rules_sync.py');
   const fallbackRulesScript = path.join(rootDir, '.torusguard', 'scripts', 'rules_sync.py');
-  const actualRulesScript = fs.existsSync(rulesScript) ? rulesScript : fallbackRulesScript;
+  const actualRulesScript = fs.existsSync(fallbackRulesScript) ? fallbackRulesScript : rulesScript;
 
   let pyArgs = [actualRulesScript];
   if (sub === 'sync') {
@@ -330,7 +330,7 @@ if (command === 'rules') {
 if (command === 'audit') {
   const auditScript = path.join(cwd, '.torusguard', 'scripts', 'audit_runner.py');
   const fallbackAuditScript = path.join(rootDir, '.torusguard', 'scripts', 'audit_runner.py');
-  const actualAuditScript = fs.existsSync(auditScript) ? auditScript : fallbackAuditScript;
+  const actualAuditScript = fs.existsSync(fallbackAuditScript) ? fallbackAuditScript : auditScript;
 
   const proc = spawnSync(pythonCmd, [actualAuditScript, ...args.slice(1)], { stdio: 'inherit', cwd });
   process.exit(proc.status !== null ? proc.status : 0);
@@ -341,7 +341,7 @@ if (command === 'report') {
   if (args.includes('--html') || args[1] === 'html') {
     const htmlScript = path.join(cwd, '.torusguard', 'scripts', 'html_reporter.py');
     const fallbackHtmlScript = path.join(rootDir, '.torusguard', 'scripts', 'html_reporter.py');
-    const actualHtmlScript = fs.existsSync(htmlScript) ? htmlScript : fallbackHtmlScript;
+    const actualHtmlScript = fs.existsSync(fallbackHtmlScript) ? fallbackHtmlScript : htmlScript;
 
     let pyArgs = [actualHtmlScript];
     const outIdx = args.indexOf('--out');
@@ -361,7 +361,7 @@ if (command === 'report') {
   } else {
     const sarifScript = path.join(cwd, '.torusguard', 'scripts', 'sarif_exporter.py');
     const fallbackSarifScript = path.join(rootDir, '.torusguard', 'scripts', 'sarif_exporter.py');
-    const actualSarifScript = fs.existsSync(sarifScript) ? sarifScript : fallbackSarifScript;
+    const actualSarifScript = fs.existsSync(fallbackSarifScript) ? fallbackSarifScript : sarifScript;
 
     const proc = spawnSync(pythonCmd, [actualSarifScript, ...args.slice(1)], { stdio: 'inherit', cwd });
     process.exit(proc.status !== null ? proc.status : 0);
@@ -372,7 +372,7 @@ if (command === 'report') {
 if (command === 'harden') {
   const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'harden_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'harden_runner.py');
-  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
+  const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
   const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
   process.exit(proc.status !== null ? proc.status : 0);
@@ -382,7 +382,7 @@ if (command === 'harden') {
 if (command === 'apply') {
   const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'apply_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'apply_runner.py');
-  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
+  const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
   const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
   process.exit(proc.status !== null ? proc.status : 0);
@@ -392,7 +392,7 @@ if (command === 'apply') {
 if (command === 'rollback') {
   const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'apply_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'apply_runner.py');
-  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
+  const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
   const proc = spawnSync(pythonCmd, [actualScript, '--rollback', ...args.slice(1)], { stdio: 'inherit', cwd });
   process.exit(proc.status !== null ? proc.status : 0);
@@ -402,7 +402,7 @@ if (command === 'rollback') {
 if (command === 'recheck' || command === 'verify') {
   const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'recheck_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'recheck_runner.py');
-  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
+  const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
   const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
   process.exit(proc.status !== null ? proc.status : 0);
@@ -412,7 +412,7 @@ if (command === 'recheck' || command === 'verify') {
 if (command === 'recipes') {
   const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'recipes_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'recipes_runner.py');
-  const actualScript = fs.existsSync(scriptPath) ? scriptPath : fallbackScript;
+  const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
   const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
   process.exit(proc.status !== null ? proc.status : 0);
