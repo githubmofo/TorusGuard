@@ -1,7 +1,7 @@
 ---
 name: torusguard-full
 description: Master 7-stage security pipeline orchestrator — coordinates discovery, authorization, static audit, runtime validation, governed remediation, recheck, and reporting.
-version: 0.9.2
+version: 1.3.4
 workflow: .torusguard/workflows/audit.md
 tools: Read, Grep, Glob, Bash, Edit, Write
 scripts-binding:

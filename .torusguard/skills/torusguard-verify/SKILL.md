@@ -1,7 +1,7 @@
 ---
 name: torusguard-verify
 description: Verify finding evidence sufficiency, audit live code line matches, and calibrate 0–100 confidence scores.
-version: 0.9.2
+version: 1.3.4
 workflow: .torusguard/workflows/verify.md
 tools: Read, Grep, Glob, Write
 scripts-binding:
@@ -18,14 +18,15 @@ Audit the evidence sufficiency of candidate findings by reading current disk lin
 ## Execution Steps
 
 1. **Locate Target Findings:** Load active findings from `.torusguard/runs/<latest-run>/findings.md`.
-2. **Live Disk Line Match:** Inspect exact cited lines using `view_file` to confirm code presence.
-3. **Audit Evidence Sufficiency:** Verify source-to-sink flow against criteria below.
-4. **Calibrate Confidence Score:**
+2. **Handle CLI Failures:** If `python .torusguard/scripts/finding_scorer.py` or the verify workflow fails, YOU must manually read the code and calibrate the score based on the evidence parameters.
+3. **Live Disk Line Match:** Inspect exact cited lines using `view_file` to confirm code presence.
+4. **Audit Evidence Sufficiency:** Verify source-to-sink flow against criteria below.
+5. **Calibrate Confidence Score:**
    ```bash
    python .torusguard/scripts/finding_scorer.py --run <run_dir> --verify
    ```
-5. **Update State:** Mark finding as `Confirmed`, `Needs Review`, or `False Positive`.
-6. **Emit Verified Evidence:** Save report in `.torusguard/runs/<run_id>/verified-evidence.md`.
+6. **Update State:** Mark finding as `Confirmed`, `Needs Review`, or `False Positive`.
+7. **Emit Verified Evidence:** Save report in `.torusguard/runs/<run_id>/verified-evidence.md`.
 
 ---
 
@@ -47,7 +48,7 @@ A finding is verified as sufficient when:
 
 ## Output Format
 ```markdown
-🧪 [TorusGuard] Finding Verification Complete
+🧪 [TorusGuard] Finding Verification Complete (AI Assisted)
 - Findings Audited: <Count> | Confirmed Real: <Count>
 - False Positives Filtered: <Count> | Refined Mean Score: <Score>/100
 - Artifact: `.torusguard/runs/<run_id>/verified-evidence.md`

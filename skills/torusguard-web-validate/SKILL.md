@@ -1,7 +1,7 @@
 ---
 name: torusguard-web-validate
 description: Execute authorized HTTP probing against local/staging web applications — session capture, transparent audit headers, and secret redaction.
-version: 0.9.2
+version: 1.3.4
 workflow: .torusguard/workflows/web-validate.md
 tools: Read, Grep, Glob, Bash, Write
 scripts-binding:

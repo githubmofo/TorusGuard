@@ -1,7 +1,7 @@
 ---
 name: torusguard-verify
 description: Verify finding evidence sufficiency, audit live code line matches, and calibrate 0–100 confidence scores.
-version: 0.9.2
+version: 1.3.4
 workflow: .torusguard/workflows/verify.md
 tools: Read, Grep, Glob, Write
 scripts-binding:

@@ -1,11 +1,12 @@
 ---
 name: torusguard-status
-description: Display current TorusGuard security posture, active configuration, rules catalog, and run history.
-version: 0.9.2
+description: Display current TorusGuard security posture, active configuration, rules catalog, and run history via CLI or AI Agent.
+version: 1.3.4
 workflow: .torusguard/workflows/status.md
-tools: Read, Grep, Glob
+tools: Read, Grep, Glob, run_command
 scripts-binding:
   - .torusguard/scripts/run_manager.py
+  - .torusguard/scripts/term_ui.py
 ---
 
 # TorusGuard Status — Workspace Security Posture & Diagnostic Overview
@@ -15,29 +16,43 @@ Provide an instant diagnostic summary of the repository's security state, active
 
 ---
 
-## Execution Steps
+## Two Execution Modes
 
-1. **Read Configuration:** Parse `.torusguard/config/torusguard.json` to verify initialization state and detected framework stack.
-2. **Handle CLI Failures:** If `npx torusguard status` throws an error, YOU must manually parse the local files (e.g. `torusguard.json`, `scope.json`) to deduce the status instead of just returning the CLI error.
-3. **Enumerate Active Rules:** Count rule files physically present in `.torusguard/rules/active/`.
-4. **Inspect Run History:** List historical run folders in `.torusguard/runs/` via `run_manager.py`.
-5. **Check Authorization Scope:** Check `.torusguard/config/scope.json` for active targets and TTL expiration.
-6. **Render Diagnostic Overview:** Output formatted status card.
+### Mode A: Automated CLI Execution
+Run the diagnostic overview from your terminal:
+```bash
+# Display 75-column status cards
+npx torusguard status
+
+# Check status of specific project directory
+npx torusguard status ./examples/vulnerable-react-express
+
+# Output machine-readable JSON
+npx torusguard status --json
+```
+**Under the Hood:**
+- Evaluates `.torusguard/config/torusguard.json` for initialized status and detected stack.
+- Enumerates active rules in `.torusguard/rules/active/` (or canonical 71 rules).
+- Scans `.torusguard/runs/` for run history, finding counts, and verified fixes.
+- Inspects `.torusguard/config/scope.json` for authorized runtime validation targets.
+- Displays mathematically aligned 75-column terminal cards.
+
+### Mode B: In-Session AI Chat Agent Status Check
+When checking workspace status in AI chat:
+1. **Verify Workspace Setup:** Check if `.torusguard/` exists on disk.
+2. **Inspect Active Config:** Read `.torusguard/config/torusguard.json` for detected stack, framework, and rules.
+3. **Inspect Latest Run:** Find the latest run directory under `.torusguard/runs/` and read `manifest.json`.
+4. **Inspect Memory Engine:** Check `.torusguard/memory/patterns.json` for captured Golden Fix Recipes.
+5. **Render Diagnostic Card:** Present an overview of posture, stack, and recommended next steps.
 
 ---
 
-## Safety Constraints
-- Read-only execution; zero file modifications.
-- Handle uninitialized workspaces gracefully with advice to run `/torusguard init` (or manual AI initialization).
-
----
-
-## Output Format
+## Output Card Format
 ```markdown
-🛡️ [TorusGuard] Workspace Status Overview (AI Assisted)
-- Version: v0.9.2 | Stack: <Detected Framework>
-- Active Rules: <Count> rules active in `.torusguard/rules/active/`
-- Historical Runs: <Count> runs recorded
-- Scope: <Authorized (TTL Active) / Expired / Unconfigured>
-- Posture: <SECURE / ACTION REQUIRED>
+### 🛡️ TorusGuard Workspace Status Overview
+- **Version:** v1.3.3 | **Stack:** Node.js / React / Express
+- **Active Rules:** 71 canonical security rules enabled
+- **Historical Runs:** 3 runs recorded
+- **Golden Recipes:** 4 distilled into persistent memory
+- **Overall Posture:** SECURE (All targeted vulnerabilities verified closed)
 ```

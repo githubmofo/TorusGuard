@@ -5,6 +5,28 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.4] - 2026-09-10
+
+### Added
+- **Standardized 75-Column Terminal Visual Width Engine (`term_ui.py`, `bin/torusguard.js`):**
+  - Unified mathematical 75-column terminal rendering across all CLI commands (`help`, `status`, `audit`, `harden`, `apply`, `recheck`, `recipes`, `rollback`).
+  - Strict ANSI escape sequence stripping before column padding calculation.
+  - Accurate Unicode visual width handling (2-column wide emojis `🛡️`, `✔`, `✖`, 0-column variation selectors `\ufe0f`, 1-column symbols `⚠`, `ℹ`).
+  - Visual truncation with ellipsis (`...`) preventing line-wrapping and border distortion.
+- **Expanded Autonomous Remediation & Multi-Patch Engine (`harden_runner.py`, `apply_runner.py`):**
+  - Added template literal SQL parameterization in JS/TS.
+  - Added automated wildcard CORS origin constraint with `process.env.ALLOWED_ORIGIN`.
+  - Added cookie security flag injection (`httpOnly: true, secure: true, sameSite: 'lax'`).
+  - Added path traversal sanitization with `path.basename` / `os.path.basename`.
+  - Added Prisma & Mongoose multi-tenant query isolation (`where: { tenantId }`).
+  - Added TLS verification restoration (`verify=True`, `rejectUnauthorized: true`).
+  - Introduced line-aware sequential patch application in `apply_runner.py`, preventing concurrent edit overwrites.
+- **Comprehensive Dual-Mode Skills & Antigravity IDE Discovery:**
+  - All 13 TorusGuard skills updated with explicit Mode A (CLI) and Mode B (AI Chat) workflows without hallucinations.
+  - Synchronized all skills to `.agent/skills/` and mapped under `security` and `torusguard` in `.agent/skill_topic_map.json`.
+- **Differential Recheck Status Enhancements (`recheck_runner.py`):**
+  - Unified status transitions with distinct visual indicators: `✔ [Confirmed Fixed]`, `✖ [Regressed]`, `⚠ [Unresolved]`.
+
 ## [1.3.3] - 2026-09-08
 
 ### Added

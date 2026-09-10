@@ -45,61 +45,171 @@ try {
   } catch (err) {}
 }
 
+const ANSI_REGEX = /\x1b\[[0-9;]*m/g;
+
+function getVisualWidth(text) {
+  const clean = text.replace(ANSI_REGEX, '');
+  let width = 0;
+  for (let i = 0; i < clean.length; i++) {
+    const cp = clean.codePointAt(i);
+    if (cp > 0xffff) i++;
+    if ((cp >= 0xfe00 && cp <= 0xfe0f) || (cp >= 0xe0100 && cp <= 0xe01ef)) continue;
+    if (cp === 0x200b || cp === 0x200c || cp === 0x200d || cp === 0x00ad) continue;
+    if (cp >= 0x1f300 || (cp >= 0x1100 && (
+      cp <= 0x115f || cp === 0x2329 || cp === 0x232a ||
+      (cp >= 0x2e80 && cp <= 0xa4cf && cp !== 0x303f) ||
+      (cp >= 0xac00 && cp <= 0xd7a3) ||
+      (cp >= 0xf900 && cp <= 0xfaff) ||
+      (cp >= 0xfe10 && cp <= 0xfe19) ||
+      (cp >= 0xfe30 && cp <= 0xfe6f) ||
+      (cp >= 0xff00 && cp <= 0xff60) ||
+      (cp >= 0xffe0 && cp <= 0xffe6)
+    ))) {
+      width += 2;
+    } else {
+      width += 1;
+    }
+  }
+  return width;
+}
+
+function truncateVisual(text, maxW = 67) {
+  if (getVisualWidth(text) <= maxW) return text;
+  let currW = 0;
+  let out = '';
+  let inAnsi = false;
+  let ansiBuf = '';
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '\x1b') {
+      inAnsi = true;
+      ansiBuf = ch;
+      continue;
+    }
+    if (inAnsi) {
+      ansiBuf += ch;
+      if (ch === 'm') {
+        inAnsi = false;
+        out += ansiBuf;
+      }
+      continue;
+    }
+    const cp = text.codePointAt(i);
+    if (cp > 0xffff) i++;
+    if ((cp >= 0xfe00 && cp <= 0xfe0f) || (cp >= 0xe0100 && cp <= 0xe01ef) || cp === 0x200b || cp === 0x200c || cp === 0x200d || cp === 0x00ad) {
+      out += String.fromCodePoint(cp);
+      continue;
+    }
+    const cw = cp >= 0x1f300 ? 2 : 1;
+    if (currW + cw > maxW - 3) {
+      out += '\x1b[0m...';
+      currW += 3;
+      break;
+    }
+    out += String.fromCodePoint(cp);
+    currW += cw;
+  }
+  out += '\x1b[0m';
+  return out;
+}
+
+function formatBoxLine(content, width = 67, border = '│', borderColor = CYAN) {
+  const trunc = truncateVisual(content, width);
+  const vis = getVisualWidth(trunc);
+  const pad = ' '.repeat(Math.max(0, width - vis));
+  return `  ${borderColor}${border}${RESET}  ${trunc}${pad}  ${borderColor}${border}${RESET}`;
+}
+
+function cardBorderTop(title = '', borderColor = CYAN, double = false) {
+  const left = double ? '╔' : '┌';
+  const right = double ? '╗' : '┐';
+  const h = double ? '═' : '─';
+  if (title) {
+    const vis = getVisualWidth(title);
+    const rem = Math.max(0, 68 - vis);
+    return `  ${borderColor}${left}${h} ${BOLD}${WHITE}${title}${RESET}${borderColor} ${h.repeat(rem)}${right}${RESET}`;
+  }
+  return `  ${borderColor}${left}${h.repeat(71)}${right}${RESET}`;
+}
+
+function cardBorderBottom(borderColor = CYAN, double = false) {
+  const left = double ? '╚' : '└';
+  const right = double ? '╝' : '┘';
+  const h = double ? '═' : '─';
+  return `  ${borderColor}${left}${h.repeat(71)}${right}${RESET}`;
+}
+
+function cardDivider(title = '', borderColor = CYAN, double = false) {
+  const left = double ? '╠' : '├';
+  const right = double ? '╣' : '┤';
+  const h = double ? '═' : '─';
+  if (title) {
+    const vis = getVisualWidth(title);
+    const rem = Math.max(0, 68 - vis);
+    return `  ${borderColor}${left}${h} ${BOLD}${WHITE}${title}${RESET}${borderColor} ${h.repeat(rem)}${right}${RESET}`;
+  }
+  return `  ${borderColor}${left}${h.repeat(71)}${right}${RESET}`;
+}
+
+function cardHeader(title, subtitle = '', version = 'v1.3.4', borderColor = CYAN) {
+  const top = `  ${borderColor}╭${'─'.repeat(71)}╮${RESET}`;
+  const bottom = `  ${borderColor}╰${'─'.repeat(71)}╯${RESET}`;
+  const empty = `  ${borderColor}│${' '.repeat(71)}│${RESET}`;
+  const titleVis = getVisualWidth(title);
+  const verVis = getVisualWidth(version);
+  const spaceCount = Math.max(1, 67 - titleVis - verVis);
+  const titleStr = `${BOLD}${WHITE}${title}${RESET}${' '.repeat(spaceCount)}${GRAY}${version}${RESET}`;
+  const lines = [top, empty, formatBoxLine(titleStr, 67, '│', borderColor)];
+  if (subtitle) {
+    lines.push(formatBoxLine(`${DIM}${subtitle}${RESET}`, 67, '│', borderColor));
+  }
+  lines.push(empty, bottom);
+  return lines.join('\n');
+}
+
 function printHelp() {
-  console.log(`
-  ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
-  ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  T O R U S G U A R D   C L I${RESET}                          ${GRAY}v1.3.2${RESET}   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${DIM}Autonomous Security Engine for AI-Built Applications${RESET}               ${CYAN}│${RESET}
-  ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
+  console.log();
+  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', 'v1.3.3'));
+  console.log(`\n  ${BOLD}Usage:${RESET}  ${GREEN}npx torusguard${RESET} ${WHITE}[command]${RESET} ${GRAY}[options]${RESET}\n`);
 
-  ${BOLD}Usage:${RESET}  ${GREEN}npx torusguard${RESET} ${WHITE}[command]${RESET} ${GRAY}[options]${RESET}
+  console.log(cardBorderTop('Commands'));
+  console.log(formatBoxLine(`${GREEN}init${RESET}        Scaffold ${BOLD}.torusguard/${RESET} workspace + unlock slash commands`));
+  console.log(formatBoxLine(`${GREEN}status${RESET}      Display active security posture, memory, rules, & stack`));
+  console.log(formatBoxLine(`${GREEN}rules${RESET}       Auto-sync memory to AI IDE rules (.cursorrules, CLAUDE.md)`));
+  console.log(formatBoxLine(`${GREEN}memory${RESET}      Manage persistent security memory (export, hook, learn)`));
+  console.log(formatBoxLine(`${GREEN}audit${RESET}       Run static AST security scan on target project`));
+  console.log(formatBoxLine(`${GREEN}harden${RESET}      Formulate minimal candidate patches (Ponytail bounded)`));
+  console.log(formatBoxLine(`${GREEN}apply${RESET}       Apply candidate patches with automatic .bak snapshots`));
+  console.log(formatBoxLine(`${GREEN}recheck${RESET}     Targeted differential verification of applied fixes`));
+  console.log(formatBoxLine(`${GREEN}recipes${RESET}     List & inspect distilled Golden Fix Recipes in memory`));
+  console.log(formatBoxLine(`${GREEN}rollback${RESET}    Instantly revert files from latest pre-apply snapshot`));
+  console.log(formatBoxLine(`${GREEN}report${RESET}      Export OASIS SARIF v2.1.0 or single-file visual HTML report`));
+  console.log(formatBoxLine(`${GREEN}diff-guard${RESET}  Scan diffs or wire pre-commit hook (--install-hook)`));
+  console.log(formatBoxLine(`${GREEN}help${RESET}        Show this interactive command guide`));
+  console.log(cardDivider('AI & Memory Subcommands'));
+  console.log(formatBoxLine(`${WHITE}rules sync${RESET}       ${DIM}[--format all|cursor|claude|agent|windsurf]${RESET}`));
+  console.log(formatBoxLine(`${WHITE}report --html${RESET}    ${DIM}[--out <path>] Self-contained visual HTML dashboard${RESET}`));
+  console.log(formatBoxLine(`${WHITE}memory context${RESET}   ${DIM}[--role auditor|remediator|reviewer] [--file <f>]${RESET}`));
+  console.log(formatBoxLine(`${WHITE}memory hook${RESET}      ${DIM}[install|uninstall] Git pre-commit regression hook${RESET}`));
+  console.log(formatBoxLine(`${WHITE}memory learn${RESET}     ${DIM}[--commits <range>] Ingest security commit fixes${RESET}`));
+  console.log(formatBoxLine(`${WHITE}memory export${RESET}    ${DIM}[--path <file>] [--sanitized] Safe team sharing${RESET}`));
+  console.log(cardDivider('Options'));
+  console.log(formatBoxLine(`${GRAY}--target <dir>${RESET}   Target directory to analyze or scaffold ${DIM}(default: .)${RESET}`));
+  console.log(formatBoxLine(`${GRAY}--force${RESET}          Overwrite existing workspace and re-scaffold`));
+  console.log(formatBoxLine(`${GRAY}--yes, -y${RESET}        Non-interactive auto-approval for patch application`));
+  console.log(cardBorderBottom());
 
-  ${CYAN}┌─────────────────────────────────────────────────────────────────────────┐${RESET}
-  ${CYAN}│${RESET}  ${BOLD}Commands${RESET}                                                              ${CYAN}│${RESET}
-  ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
-  ${CYAN}│${RESET}  ${GREEN}init${RESET}      Scaffold ${BOLD}.torusguard/${RESET} workspace + unlock 12 slash commands   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}status${RESET}    Display active security posture, memory, rules, and stack   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}rules${RESET}     Auto-sync memory to AI IDE rules (.cursorrules, CLAUDE.md)  ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}memory${RESET}    Manage persistent security memory (export, hook, learn)     ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}audit${RESET}     Run static AST security scan on the target project          ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}harden${RESET}    Formulate minimal candidate patches (Ponytail bounded)      ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}apply${RESET}     Apply candidate patches with automatic .bak snapshots       ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}recheck${RESET}   Targeted differential verification of applied fixes         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}recipes${RESET}   List & inspect distilled Golden Fix Recipes in memory       ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}rollback${RESET}  Instantly revert files from latest pre-apply snapshot       ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}report${RESET}    Export OASIS SARIF v2.1.0 or single-file visual HTML report ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}diff-guard${RESET} Scan diffs or wire pre-commit hook (--install-hook)        ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GREEN}help${RESET}      Show this interactive command guide                         ${CYAN}│${RESET}
-  ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
-  ${CYAN}│${RESET}  ${BOLD}AI & Memory Subcommands${RESET}                                               ${CYAN}│${RESET}
-  ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
-  ${CYAN}│${RESET}  ${WHITE}rules sync${RESET}       ${DIM}[--format all|cursor|claude|agent|windsurf]${RESET}        ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${WHITE}report --html${RESET}    ${DIM}[--out <path>] Self-contained visual HTML dashboard${RESET}   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${WHITE}memory context${RESET}   ${DIM}[--role auditor|remediator|reviewer] [--file <f>]${RESET}   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${WHITE}memory hook${RESET}      ${DIM}[install|uninstall] Git pre-commit regression hook${RESET}   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${WHITE}memory learn${RESET}     ${DIM}[--commits <range>] Ingest security commit fixes${RESET}     ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${WHITE}memory export${RESET}    ${DIM}[--path <file>] [--sanitized] Safe team sharing${RESET}      ${CYAN}│${RESET}
-  ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
-  ${CYAN}│${RESET}  ${BOLD}Options${RESET}                                                               ${CYAN}│${RESET}
-  ${CYAN}├─────────────────────────────────────────────────────────────────────────┤${RESET}
-  ${CYAN}│${RESET}  ${GRAY}--target <dir>${RESET}   Target directory to analyze or scaffold ${DIM}(default: .)${RESET}  ${CYAN}│${RESET}
-  ${CYAN}│${RESET}  ${GRAY}--force${RESET}          Overwrite existing workspace and re-scaffold          ${CYAN}│${RESET}
-  ${CYAN}└─────────────────────────────────────────────────────────────────────────┘${RESET}
-
-  ${BOLD}AI Chat Commands:${RESET}
-    ${DIM}In your AI IDE chat, use any of these slash commands:${RESET}
-    ${CYAN}/torusguard${RESET}          Main orchestrator (status, audit, harden, memory)
-    ${CYAN}/torusguard-audit${RESET}    Static AST security scan
-    ${CYAN}/torusguard-harden${RESET}   Generate governed fix patches
-    ${CYAN}/torusguard-apply${RESET}    Apply patches with rollback snapshots
-    ${CYAN}/torusguard-report${RESET}   Executive security posture report
-    ${CYAN}/torusguard-status${RESET}   Read-only workspace diagnostic
-
-  ${DIM}Documentation:${RESET}  ${CYAN}https://github.com/githubmofo/TorusGuard${RESET}
-  ${DIM}NPM Package:${RESET}   ${CYAN}https://npmjs.com/package/torusguard${RESET}
-`);
+  console.log(`\n  ${BOLD}AI Chat Commands:${RESET}`);
+  console.log(`    ${DIM}In your AI IDE chat, use any of these slash commands:${RESET}`);
+  console.log(`    ${CYAN}/torusguard${RESET}          Main orchestrator (status, audit, harden, memory)`);
+  console.log(`    ${CYAN}/torusguard-audit${RESET}    Static AST security scan`);
+  console.log(`    ${CYAN}/torusguard-harden${RESET}   Generate governed fix patches`);
+  console.log(`    ${CYAN}/torusguard-apply${RESET}    Apply patches with rollback snapshots`);
+  console.log(`    ${CYAN}/torusguard-recheck${RESET}  Differential AST fix closure verification`);
+  console.log(`    ${CYAN}/torusguard-report${RESET}   Executive security posture report`);
+  console.log(`    ${CYAN}/torusguard-status${RESET}   Read-only workspace diagnostic`);
+  console.log(`\n  ${DIM}Documentation:${RESET}  ${CYAN}https://github.com/githubmofo/TorusGuard${RESET}`);
+  console.log(`  ${DIM}NPM Package:${RESET}   ${CYAN}https://npmjs.com/package/torusguard${RESET}\n`);
 }
 
 if (command === 'help' || command === '--help' || command === '-h') {
@@ -139,48 +249,45 @@ if (command === 'status') {
         } catch (e) {}
       }
 
-      console.log(`
-  ${CYAN}╭─────────────────────────────────────────────────────────────────────────╮${RESET}
-  ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}│${RESET}   ${BOLD}${WHITE}🛡️  TORUSGUARD SECURITY POSTURE${RESET}                        ${GRAY}v1.3.2${RESET}   ${CYAN}│${RESET}
-  ${CYAN}│${RESET}                                                                         ${CYAN}│${RESET}
-  ${CYAN}╰─────────────────────────────────────────────────────────────────────────╯${RESET}
+      console.log();
+      console.log(cardHeader('🛡️  TORUSGUARD SECURITY POSTURE', '', 'v1.3.3'));
+      console.log(`\n  ${BOLD}▸ Workspace:${RESET}        ${GREEN}${cwd}${RESET}`);
+      console.log(`  ${BOLD}▸ Governance:${RESET}       ${GREEN}Full Local Governance (.torusguard/)${RESET}\n`);
 
-  ${BOLD}▸ Workspace:${RESET}        ${GREEN}${cwd}${RESET}
-  ${BOLD}▸ Governance:${RESET}       ${GREEN}Full Local Governance (.torusguard/)${RESET}
+      console.log(cardBorderTop('Environment & Stack'));
+      console.log(formatBoxLine(`Language:          ${BOLD}${stackLang}${RESET}`));
+      console.log(formatBoxLine(`Framework:         ${BOLD}${stackFw}${RESET}`));
+      console.log(formatBoxLine(`Data Layer:        ${BOLD}${stackDb}${RESET}`));
+      console.log(formatBoxLine(`Stack Detection:   ${stackStatus}`));
+      console.log(cardBorderBottom());
+      console.log();
 
-  ${CYAN}┌── Environment & Stack ──────────────────────────────────────────────────┐${RESET}
-  ${CYAN}│${RESET}  Language:          ${BOLD}${stackLang}${RESET}
-  ${CYAN}│${RESET}  Framework:         ${BOLD}${stackFw}${RESET}
-  ${CYAN}│${RESET}  Data Layer:        ${BOLD}${stackDb}${RESET}
-  ${CYAN}│${RESET}  Stack Detection:   ${stackStatus}
-  ${CYAN}└─────────────────────────────────────────────────────────────────────────┘${RESET}
+      console.log(cardBorderTop('Security Memory Engine'));
+      console.log(formatBoxLine(`Patterns Learned:  ${GREEN}${memPatterns} active patterns${RESET}`));
+      console.log(formatBoxLine(`Events Recorded:   ${WHITE}${memEvents} events (local-first log)${RESET}`));
+      console.log(formatBoxLine(`Context Window:    ${CYAN}${memTokens} / 2,000 tokens${RESET} (${Math.round((memTokens / 2000) * 100)}% utilized)`));
+      console.log(formatBoxLine(`Fix Velocity Rate: ${YELLOW}${memFixRate}${RESET}`));
+      console.log(cardBorderBottom());
+      console.log();
 
-  ${CYAN}┌── Security Memory Engine ───────────────────────────────────────────────┐${RESET}
-  ${CYAN}│${RESET}  Patterns Learned:  ${GREEN}${memPatterns} active patterns${RESET}
-  ${CYAN}│${RESET}  Events Recorded:   ${WHITE}${memEvents} events (local-first log)${RESET}
-  ${CYAN}│${RESET}  Context Window:    ${CYAN}${memTokens} / 2,000 tokens${RESET} (${Math.round((memTokens / 2000) * 100)}% utilized)
-  ${CYAN}│${RESET}  Fix Velocity Rate: ${YELLOW}${memFixRate}${RESET}
-  ${CYAN}└─────────────────────────────────────────────────────────────────────────┘${RESET}
+      console.log(cardBorderTop('Governance Telemetry'));
+      console.log(formatBoxLine(`Rules Catalog:     ${GREEN}71 Canonical Security Rules${RESET} (11 families)`));
+      console.log(formatBoxLine(`Severity Floor:    ${YELLOW}${cfg.severity_threshold || 'medium'}${RESET}`));
+      console.log(formatBoxLine(`Runs Directory:    ${DIM}${cfg.runs_dir || '.torusguard/runs'}${RESET}`));
+      console.log(formatBoxLine(`Ponytail Bounds:   ${GREEN}<= 35 additions, <= 25 deletions${RESET}`));
+      console.log(cardBorderBottom());
+      console.log();
 
-  ${CYAN}┌── Governance Telemetry ─────────────────────────────────────────────────┐${RESET}
-  ${CYAN}│${RESET}  Rules Catalog:     ${GREEN}71 Canonical Security Rules${RESET} (11 families)
-  ${CYAN}│${RESET}  Severity Floor:    ${YELLOW}${cfg.severity_threshold || 'medium'}${RESET}
-  ${CYAN}│${RESET}  Runs Directory:    ${DIM}${cfg.runs_dir || '.torusguard/runs'}${RESET}
-  ${CYAN}│${RESET}  Ponytail Bounds:   ${GREEN}<= 35 additions, <= 25 deletions${RESET}
-  ${CYAN}└─────────────────────────────────────────────────────────────────────────┘${RESET}
+      console.log(cardBorderTop('Rule Families'));
+      console.log(formatBoxLine(`${YELLOW}TG-SEC${RESET}     Secrets & Credentials    ${YELLOW}TG-DB${RESET}      Database Safety`));
+      console.log(formatBoxLine(`${YELLOW}TG-INPUT${RESET}   Input Validation         ${YELLOW}TG-AUTH${RESET}    Authentication`));
+      console.log(formatBoxLine(`${YELLOW}TG-CLIENT${RESET}  Client Bundle Leaks      ${YELLOW}TG-DIFF${RESET}    Diff Inspection`));
+      console.log(formatBoxLine(`${YELLOW}TG-AGENT${RESET}   AI Agent Security        ${YELLOW}TG-EDGE${RESET}    Serverless`));
+      console.log(formatBoxLine(`${YELLOW}TG-SUPPLY${RESET}  Supply Chain & CI/CD     ${YELLOW}TG-SSRF${RESET}    Outbound Net`));
+      console.log(formatBoxLine(`${YELLOW}TG-BIZ${RESET}     Business Logic`));
+      console.log(cardBorderBottom());
 
-  ${CYAN}┌── Rule Families ────────────────────────────────────────────────────────┐${RESET}
-  ${CYAN}│${RESET}  ${YELLOW}TG-SEC${RESET}     Secrets & Credentials    ${YELLOW}TG-DB${RESET}      Database Safety
-  ${CYAN}│${RESET}  ${YELLOW}TG-INPUT${RESET}   Input Validation         ${YELLOW}TG-AUTH${RESET}    Authentication
-  ${CYAN}│${RESET}  ${YELLOW}TG-CLIENT${RESET}  Client Bundle Leaks      ${YELLOW}TG-DIFF${RESET}    Diff Inspection
-  ${CYAN}│${RESET}  ${YELLOW}TG-AGENT${RESET}   AI Agent Security        ${YELLOW}TG-EDGE${RESET}    Serverless
-  ${CYAN}│${RESET}  ${YELLOW}TG-SUPPLY${RESET}  Supply Chain & CI/CD     ${YELLOW}TG-SSRF${RESET}    Outbound Net
-  ${CYAN}│${RESET}  ${YELLOW}TG-BIZ${RESET}     Business Logic
-  ${CYAN}└─────────────────────────────────────────────────────────────────────────┘${RESET}
-
-  ${DIM}Quick Action:${RESET} In your AI chat, run ${CYAN}/torusguard-audit${RESET} to scan.
-`);
+      console.log(`\n  ${DIM}Quick Action:${RESET} In your AI chat, run ${CYAN}/torusguard-audit${RESET} to scan.\n`);
       process.exit(0);
     } catch (e) {
       // Fallback to python runner

@@ -1,67 +1,94 @@
 ---
 name: torusguard-harden
-description: Package surgical remediation bundles conforming to the Ponytail Protocol (<= 35 additions, <= 25 deletions).
-version: 1.0.0
+description: Package surgical remediation bundles conforming to the Ponytail Protocol (<= 35 additions, <= 25 deletions) via CLI or AI Agent.
+version: 1.3.4
 workflow: .torusguard/workflows/harden.md
-tools: Read, Grep, Glob, Write
+tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
-  - .torusguard/scripts/run_manager.py
+  - .torusguard/scripts/harden_runner.py
   - .torusguard/scripts/diff_guard.py
+  - .torusguard/scripts/term_ui.py
 ---
 
 # TorusGuard Harden — Governed Remediation & Bundle Packaging
 
 ## Objective
-Formulate minimal, surgical code fixes bound by the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions), packaging unified diffs into auditable 4-artifact remediation bundles ready for review.
+Formulate minimal, surgical code fixes bound by the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions), packaging unified diffs into auditable remediation bundles ready for review.
 
 ---
 
-## The Ponytail Protocol
-- **Limits:** Additions $\le 35$, Deletions $\le 25$ lines per bundle.
-- **Invariants:** Zero full-file rewrites; preserve public APIs and tests.
-- **Overflow:** Partition into sequential sub-bundles.
+## Two Execution Modes
 
----
+### Mode A: Automated CLI Execution (Recommended First Step)
+Run the autonomous remediation engine via the terminal:
+```bash
+# Harden latest audit run
+npx torusguard harden
 
-## Bundle Directory Structure
+# Harden specific project directory
+npx torusguard harden ./my-project
+
+# Harden specific run ID
+npx torusguard harden --run run-20260910-121618-audit
+
+# Machine-readable JSON output
+npx torusguard harden --json
 ```
-.torusguard/runs/<run_id>/remediation/<finding_id>/
-├── patch.diff       # Standard unified diff with line numbers
-├── plan.md          # Rationale and root-cause breakdown
-├── verification.md  # Test instructions proving fix works
-└── rollback.md      # Command or steps to revert patch
+**Under the Hood:** Executes `python .torusguard/scripts/harden_runner.py`.
+- Discovers findings in `.torusguard/runs/<run_id>/findings.json`.
+- Matches findings against canonical AST patch templates (`TG-SEC-*`, `TG-INPUT-*`, `TG-DB-*`, `TG-PLATFORM-*`, `TG-AUTH-*`, `TG-DIFF-*`).
+- Validates that every candidate patch strictly satisfies Ponytail bounds ($\le 35$ additions, $\le 25$ deletions).
+- Packages candidate bundles into `.torusguard/runs/<run_id>/bundles/<bundle_id>/` containing `patch.diff`, `minimal_patch_plan.md`, and `metadata.json`.
+- Emits run-level summary `remediation.md`.
+- Renders pixel-perfect 75-column terminal cards.
+
+### Mode B: In-Session AI Chat Agent Remediation
+When findings require complex architectural changes, or when the automated CLI cannot formulate a template match:
+1. **Locate Target Finding:** Inspect `.torusguard/runs/<run_id>/findings.md` or `findings.json`.
+2. **Inspect AST Context:** Read surrounding lines ($\pm 15$) of the vulnerable sink using `view_file`.
+3. **Formulate Minimal Fix:** Craft a surgical code modification:
+   - Parameterize SQL queries (replace concatenation with `?` or `$1` or `%s`).
+   - Add tenant isolation (`where: { tenantId }`, `organization_id=...`).
+   - Replace unsafe HTML injection (`dangerouslySetInnerHTML`, `.innerHTML = ...`) with safe text rendering (`textContent`, React elements).
+   - Sanitize path traversal using `path.basename()` or `os.path.basename()`.
+   - Constrain wildcard CORS headers to verified origin environment variables.
+   - Restore TLS verification flags (`verify=True`, `rejectUnauthorized: true`).
+4. **Validate Ponytail Bounds:** Count additions ($\le 35$) and deletions ($\le 25$). Never perform full-file rewrites.
+5. **Package Bundle Artifacts:** Write bundle under `.torusguard/runs/<run_id>/bundles/<bundle_id>/`:
+   - `patch.diff`: Standard unified diff.
+   - `minimal_patch_plan.md`: Context, rationale, and diff preview.
+   - `metadata.json`: Bundle metadata.
+6. **Report to Operator:** Present proposed diff card and recommend running `/torusguard apply` or `npx torusguard apply`.
+
+---
+
+## Remediation Bundle Structure
+```
+.torusguard/runs/<run_id>/
+├── remediation.md                         # Run-level catalog of formulated candidate patches
+└── bundles/
+    └── bnd-<rule_id>-<line>-<hash>/
+        ├── patch.diff                    # Unified diff preview
+        ├── minimal_patch_plan.md         # Detailed explanation, rationale, and churn stats
+        └── metadata.json                 # Machine-readable bundle metadata
 ```
 
 ---
 
-## Execution Steps
-
-1. **Evaluate Findings:** First, review the active run's `findings.md`. If the user has already run the CLI `npx torusguard harden` and it formulated `0` patches (or skipped complex findings), it is **YOUR RESPONSIBILITY** as the AI Agent to manually remediate the remaining findings.
-2. **Read AST Context:** View target file surrounding lines (±15) using `view_file` to deeply understand the vulnerability.
-3. **Formulate Minimal Fix:** Actively rewrite the code to fix the vulnerability (e.g. parameterize SQL, add tenant filters, use safe DOM APIs). Do NOT wait for the CLI to do it. You must generate the fix. Consult `.torusguard/memory/context.json` for verified idioms.
-4. **Validate Line Churn:** Assert additions $\le 35$ and deletions $\le 25$ via `diff_guard.py`. If it's too complex, partition into sequential sub-bundles.
-5. **Package Bundle Manually:** Write 4 artifacts (`patch.diff`, `plan.md`, `verification.md`, `rollback.md`) into `.torusguard/runs/<run_id>/remediation/<finding_id>/`.
-6. **Flag Sensitive Paths:** Mark changes touching auth or billing with `Requires Sensitive-Path Sign-Off`.
+## Non-Negotiable Invariants
+- **Ponytail Limit:** Strict upper bound of $\le 35$ additions and $\le 25$ deletions per bundle.
+- **Dry-Run Rule:** Never modify target source code during `harden`. All edits must be reviewed before application in Phase 5 (`apply`).
+- **No Unrelated Churn:** Do not reformat unrelated code, reorder imports, or change styles.
+- **Zero Security Bypasses:** Never insert `# nosec`, `verify=False`, `[AllowAnonymous]`, or `csrf().disable()`.
 
 ---
 
-## Safety Constraints
-- Dry-run only; do NOT apply modifications directly to source code during harden. Only write to the `patch.diff` artifact.
-- Keep surrounding formatting and comments intact.
-- Never touch files outside the targeted vulnerable sink.
-
----
-
-## Output Format
+## Output Card Format
 ```markdown
-🛠️ [TorusGuard] Remediation Bundle Packaged (AI Assisted)
-- Finding Target: <Finding ID> | File: <Path>
-- Line Churn: +<Additions> / -<Deletions> (Ponytail: PASS)
-- Sensitive Path: <Yes/No>
-- Bundle Path: `.torusguard/runs/<run_id>/remediation/<finding_id>/`
-
-> [!NOTE]
-> This patch was formulated manually by the TorusGuard AI Agent because it required architectural changes beyond the CLI's automated templates.
-
-Next: Run `/torusguard apply` to review diff and apply with rollback backup.
+### 🛠️ TorusGuard Remediation Bundle Formulated
+- **Target Finding:** `[TG-SEC-001]` at `server/index.js:9`
+- **Ponytail Churn:** +1 / -1 (Compliant <= 35 add, <= 25 del)
+- **Strategy:** Migrated hardcoded JWT secret to environment variable process.env.JWT_SECRET
+- **Bundle Directory:** `.torusguard/runs/<run_id>/bundles/bnd-tg-sec-001-9-a8310c/`
+- **Next Step:** Run `npx torusguard apply` or `/torusguard apply` to review and apply
 ```

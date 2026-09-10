@@ -1,7 +1,7 @@
 ---
 name: torusguard
 description: "Universal autonomous security engine: 71 rules across 11 families, polyglot stack detection across 16+ languages, governed remediation (Ponytail Protocol <=35 add, <=25 del), SARIF v2.1.0 exports, single-file HTML dashboards, and persistent security memory context for modern web applications."
-version: 1.3.2
+version: 1.3.4
 ---
 
 # TorusGuard Master Security Router

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-TorusGuard Golden Fix Recipe Explorer (v1.3.0)
+TorusGuard Golden Fix Recipe Explorer (v1.3.3)
 Inspect, list, and export reusable, verified AST remediation code snippets
 distilled from passing security patches and persistent memory patterns.
+Standardized 75-column terminal UI formatting.
 
 Pure Python 3.10+ standard library (zero external dependencies).
 """
@@ -10,10 +11,18 @@ Pure Python 3.10+ standard library (zero external dependencies).
 import sys
 import json
 import argparse
-import unicodedata
-import re
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+
+# Ensure scripts dir is in sys.path for term_ui import
+scripts_dir = Path(__file__).resolve().parent
+if str(scripts_dir) not in sys.path:
+    sys.path.insert(0, str(scripts_dir))
+
+try:
+    import term_ui
+except ImportError:
+    term_ui = None
 
 # Windows console UTF-8 support
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
@@ -22,7 +31,7 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-# ─── ANSI Colors & Formatter ───────────────────────────────────────────────────
+# ─── Formatting Helpers ────────────────────────────────────────────────────────
 BOLD = "\033[1m"
 DIM = "\033[2m"
 RESET = "\033[0m"
@@ -33,25 +42,25 @@ WHITE = "\033[97m"
 GRAY = "\033[90m"
 RED = "\033[31m"
 
-ANSI_REGEX = re.compile(r'\033\[[0-9;]*m')
+def box_line(content: str, width: int = 67, border: str = "│", border_color: str = CYAN) -> str:
+    if term_ui:
+        return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
+    return f"  {border_color}{border}{RESET}  {content}"
 
-def get_visual_width(text: str) -> int:
-    clean = ANSI_REGEX.sub('', text)
-    width = 0
-    for ch in clean:
-        ea = unicodedata.east_asian_width(ch)
-        if ea in ('W', 'F'):
-            width += 2
-        elif ord(ch) >= 0x1F300:
-            width += 2
-        else:
-            width += 1
-    return width
+def box_header(title: str, subtitle: str = "", version: str = "v1.3.3", border_color: str = CYAN) -> str:
+    if term_ui:
+        return term_ui.card_header(title, subtitle, version, border_color)
+    return f"=== {title} ({version}) ==="
 
-def format_box_line(content: str, width: int = 71, border: str = "│", border_color: str = CYAN) -> str:
-    vis = get_visual_width(content)
-    pad = " " * max(0, width - vis)
-    return f"  {border_color}{border}{RESET}  {content}{pad}{border_color}{border}{RESET}"
+def border_top(title: str = "", border_color: str = CYAN, double: bool = False) -> str:
+    if term_ui:
+        return term_ui.card_border_top(title, border_color=border_color, double=double)
+    return "┌" + "─" * 71 + "┐"
+
+def border_bottom(border_color: str = CYAN, double: bool = False) -> str:
+    if term_ui:
+        return term_ui.card_border_bottom(border_color=border_color, double=double)
+    return "└" + "─" * 71 + "┘"
 
 
 def list_recipes(target_root: Path, detail_id: Optional[str] = None, json_output: bool = False) -> None:
@@ -70,19 +79,16 @@ def list_recipes(target_root: Path, detail_id: Optional[str] = None, json_output
         return
 
     # Header Card
-    print(f"\n  {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}")
-    print(f"  {CYAN}│                                                                         │{RESET}")
-    print(format_box_line(f"{BOLD}🛡️  TORUSGUARD GOLDEN FIX RECIPES                   v1.3.0{RESET}", border_color=CYAN))
-    print(format_box_line(f"{DIM}Distilled Ponytail Fixes (<= 35 add, <= 25 del) in Persistent Memory{RESET}", border_color=CYAN))
-    print(f"  {CYAN}│                                                                         │{RESET}")
-    print(f"  {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}\n")
+    print()
+    print(box_header("🛡️  TORUSGUARD GOLDEN FIX RECIPES", "Distilled Ponytail Fixes (<= 35 add, <= 25 del) in Persistent Memory", "v1.3.3"))
+    print()
 
     if not recipes:
         print(f"  {YELLOW}ℹ No golden fix recipes captured yet.{RESET}")
         print(f"  Run {CYAN}npx torusguard harden{RESET} followed by {CYAN}npx torusguard apply{RESET} to distill verified recipes.\n")
         return
 
-    print(f"  {CYAN}┌─ Active Distilled Recipes ({len(recipes)}) ─────────────────────────────────────┐{RESET}")
+    print(border_top(f"Active Distilled Recipes ({len(recipes)})"))
     for idx, r in enumerate(recipes, 1):
         rule_id = r.get("rule_id", "TG-SEC")
         rec_id = r.get("recipe_id", f"recipe-{idx}")
@@ -93,9 +99,10 @@ def list_recipes(target_root: Path, detail_id: Optional[str] = None, json_output
         adds = metrics.get("additions", 0)
         dels = metrics.get("deletions", 0)
 
-        print(format_box_line(f"{GREEN}[{rule_id}]{RESET} {WHITE}{rec_id}{RESET} (Verified {verified}x · +{adds}/-{dels} Ponytail)"))
-        print(format_box_line(f"  └─ {DIM}{desc}{RESET}"))
-    print(f"  {CYAN}└─────────────────────────────────────────────────────────────────────────┘{RESET}\n")
+        print(box_line(f"{GREEN}[{rule_id}]{RESET} {WHITE}{rec_id}{RESET} (Verified {verified}x · +{adds}/-{dels} Ponytail)"))
+        print(box_line(f"  └─ {DIM}{desc}{RESET}"))
+    print(border_bottom())
+    print()
 
     if detail_id:
         target_rec = next((r for r in recipes if r.get("recipe_id") == detail_id), None)

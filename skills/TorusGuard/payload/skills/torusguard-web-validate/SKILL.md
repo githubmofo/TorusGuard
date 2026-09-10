@@ -1,7 +1,7 @@
 ---
 name: torusguard-web-validate
 description: Execute authorized HTTP probing against local/staging web applications — session capture, transparent audit headers, and secret redaction.
-version: 0.9.2
+version: 1.3.4
 workflow: .torusguard/workflows/web-validate.md
 tools: Read, Grep, Glob, Bash, Write
 scripts-binding:
@@ -34,11 +34,12 @@ All requests pass through `.torusguard/scripts/safety_gate.py`:
 ## Execution Steps
 
 1. **Gate Check:** Validate scope in `scope.json` and query `safety_gate.py`.
-2. **Inject Audit Header:** Attach `X-TorusGuard-AuthID: <auth_id>` to all outbound requests.
-3. **Dispatch Bounded Probe:** Send single non-destructive HTTP request.
-4. **Validate Security Headers:** Check for CSP, HSTS, X-Content-Type-Options, and CORS configurations.
-5. **Audit Cookie Flags:** Verify `HttpOnly`, `Secure`, and `SameSite` on session cookies.
-6. **Capture Replay Trace:** Save sanitized trace in `.torusguard/runs/<run_id>/requests.json`.
+2. **Handle Automation Failure:** If automated web validation scripts fail, YOU must manually construct the HTTP requests (using `curl` or `fetch`) and inspect the responses.
+3. **Inject Audit Header:** Attach `X-TorusGuard-AuthID: <auth_id>` to all outbound requests.
+4. **Dispatch Bounded Probe:** Send single non-destructive HTTP request.
+5. **Validate Security Headers:** Check for CSP, HSTS, X-Content-Type-Options, and CORS configurations.
+6. **Audit Cookie Flags:** Verify `HttpOnly`, `Secure`, and `SameSite` on session cookies.
+7. **Capture Replay Trace:** Save sanitized trace in `.torusguard/runs/<run_id>/requests.json`.
 
 ---
 
@@ -56,7 +57,7 @@ All Bearer tokens, cookies, passwords, and API keys are redacted prior to disk s
 
 ## Output Format
 ```markdown
-🌐 [TorusGuard] Web Validation Completed
+🌐 [TorusGuard] Web Validation Completed (AI Assisted)
 - Target: <Host URL> | Endpoints Tested: <Count>
 - Header Posture: <CSP/HSTS Status> | Cookies: <Flags Status>
 - Replay Trace: `.torusguard/runs/<run_id>/requests.json`

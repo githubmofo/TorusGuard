@@ -1,53 +1,77 @@
 ---
 name: torusguard-recheck
-description: Execute targeted differential AST re-scan against modified files, verify fix closure, and assert zero regressions.
-version: 1.0.0
+description: Execute targeted differential AST re-scan against modified files, verify fix closure, and assert zero regressions via CLI or AI Agent.
+version: 1.3.4
 workflow: .torusguard/workflows/recheck.md
-tools: Read, Grep, Glob, Write
+tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
-  - .torusguard/scripts/run_manager.py
-  - .torusguard/scripts/finding_scorer.py
+  - .torusguard/scripts/recheck_runner.py
+  - .torusguard/scripts/audit_runner.py
+  - .torusguard/scripts/memory_engine.py
+  - .torusguard/scripts/term_ui.py
 ---
 
-# TorusGuard Recheck — Targeted Differential Audit & Regression Verification
+# TorusGuard Recheck — Targeted Differential Audit & Fix Closure
 
 ## Objective
-Re-scan only files modified by remediation patches, confirming that targeted vulnerability sinks have been neutralized and verifying that no new security regressions were introduced.
+Execute differential security re-scans strictly scoped to modified files and adjacent boundaries, verifying that targeted vulnerability patterns have been eliminated and asserting zero security regressions.
 
 ---
 
-## Execution Steps
+## Two Execution Modes
 
-1. **Identify Modified Files:** Read `apply-log.json` from active run directory.
-2. **Execute Differential Scan:** Re-run active `TG-*` rules exclusively against modified files.
-3. **Evaluate Finding Status:** Transition finding state according to transition rules below.
-4. **Assert Regression-Free:** Ensure no new security warnings triggered on altered lines.
-5. **Update State & Memory:** Record status in `findings.json` and sync verified results to memory engine.
-6. **Emit Recheck Report:** Save summary in `.torusguard/runs/<run_id>/recheck-report.md`.
+### Mode A: Automated CLI Execution
+Run the differential recheck engine from the terminal:
+```bash
+# Recheck the latest applied run
+npx torusguard recheck
+
+# Recheck a specific project directory
+npx torusguard recheck ./my-project
+
+# Recheck a specific run ID
+npx torusguard recheck --run run-20260910-121618-audit
+
+# Machine-readable JSON output
+npx torusguard recheck --json
+```
+**Under the Hood:** Executes `python .torusguard/scripts/recheck_runner.py`.
+- Evaluates applied candidate bundles from `.torusguard/runs/<run_id>/bundles/`.
+- Executes single-file targeted differential AST scans via `audit_runner.scan_file()`.
+- Calculates formal status transitions:
+  - `✔ [Confirmed Fixed]`: Vulnerable pattern absent, zero regressions.
+  - `✖ [Regressed]`: New security finding introduced by patch.
+  - `⚠ [Unresolved]`: Vulnerable sink still present.
+- Emits run-level transition artifact: `.torusguard/runs/<run_id>/recheck.md`.
+- Synchronizes verification telemetry to `.torusguard/memory/events.json`.
+- Displays 75-column terminal cards.
+
+### Mode B: In-Session AI Chat Agent Differential Scan
+When evaluating patches directly in AI chat:
+1. **Identify Modified Files:** Read `diff_summary.md` or git status for files modified in the active run.
+2. **Re-Scan Sinks:** View the target file and verify that the specific rule violation (e.g. `TG-INPUT-003`, `TG-PLATFORM-001`) is no longer triggered.
+3. **Assert Zero Regressions:** Verify that no new vulnerabilities (like raw concatenation or unvalidated input) were introduced by the fix.
+4. **Update Status:** Log outcome in `.torusguard/runs/<run_id>/recheck.md`.
+5. **Memory Telemetry:** Record verification event with `memory_engine.record_event("fix_verified", ...)`.
 
 ---
 
-## State Transition Rules
-- **`Fixed`:** Targeted vulnerable AST pattern is absent and no new issues appear on modified lines.
-- **`Partially Fixed`:** Vulnerability surface was reduced but sanitization remains incomplete.
-- **`Not Fixed`:** Vulnerable AST sink remains present in patched file.
-- **`Regression`:** Patch introduced a new security rule violation on modified lines.
+## Recheck Status Transitions
+| Outcome | Visual Indicator | Meaning | Required Action |
+| :--- | :--- | :--- | :--- |
+| **Confirmed Fixed** | `✔ [Confirmed Fixed]` | Sink eliminated, zero regressions | Proceed to Posture Report |
+| **Unresolved** | `⚠ [Unresolved]` | Flaw still present in file | Re-harden with alternative pattern |
+| **Regressed** | `✖ [Regressed]` | New security flaw introduced | Instant `npx torusguard rollback` |
 
 ---
 
-## Safety Constraints
-- Restrict AST scan strictly to modified files and direct callers.
-- If regression is detected, halt and recommend immediate rollback via `.bak` snapshot.
-- Read-only differential analysis.
-
----
-
-## Output Format
+## Output Card Format
 ```markdown
-✅ [TorusGuard] Differential Recheck Completed
-- Modified Files Scanned: <Count>
-- Target Finding: <Finding ID> ──► FIXED
-- Regressions Detected: 0
-- Report: `.torusguard/runs/<run_id>/recheck-report.md`
-Next: Run `/torusguard report` to export final SARIF and release summary.
+### ✅ TorusGuard Differential Recheck Completed
+- **Run ID:** `run-20260910-121618-audit`
+- **Confirmed Fixed:** 2 vulnerabilities verified closed
+- **Regressions:** 0 detected
+- **Unresolved:** 0
+- **Artifact:** `.torusguard/runs/<run_id>/recheck.md`
+- **Next Step:** Run `npx torusguard report --html` for visual dashboard
 ```

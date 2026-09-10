@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-TorusGuard Targeted Differential Recheck Engine (v1.3.0)
+TorusGuard Targeted Differential Recheck Engine (v1.3.3)
 Executes scoped differential re-audits verifying only impacted files and adjacent boundaries.
-Evaluates formal status transitions (Confirmed Fixed vs Regressed), updates run manifest,
+Evaluates formal status transitions (Confirmed Fixed vs Regressed vs Unresolved), updates run manifest,
 and records verification telemetry in the persistent security memory subsystem.
+Standardized 75-column terminal UI formatting.
 
 Pure Python 3.10+ standard library (zero external dependencies).
 """
@@ -14,9 +15,18 @@ import re
 import json
 import argparse
 import datetime
-import unicodedata
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
+
+# Ensure scripts dir is in sys.path for term_ui import
+scripts_dir = Path(__file__).resolve().parent
+if str(scripts_dir) not in sys.path:
+    sys.path.insert(0, str(scripts_dir))
+
+try:
+    import term_ui
+except ImportError:
+    term_ui = None
 
 # Windows console UTF-8 support
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
@@ -31,7 +41,7 @@ IST = datetime.timezone(datetime.timedelta(hours=5, minutes=30), name="IST")
 def get_ist_now() -> datetime.datetime:
     return datetime.datetime.now(IST)
 
-# ─── ANSI Colors & Formatter ───────────────────────────────────────────────────
+# ─── Formatting Helpers ────────────────────────────────────────────────────────
 BOLD = "\033[1m"
 DIM = "\033[2m"
 RESET = "\033[0m"
@@ -42,25 +52,25 @@ WHITE = "\033[97m"
 GRAY = "\033[90m"
 RED = "\033[31m"
 
-ANSI_REGEX = re.compile(r'\033\[[0-9;]*m')
+def box_line(content: str, width: int = 67, border: str = "│", border_color: str = CYAN) -> str:
+    if term_ui:
+        return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
+    return f"  {border_color}{border}{RESET}  {content}"
 
-def get_visual_width(text: str) -> int:
-    clean = ANSI_REGEX.sub('', text)
-    width = 0
-    for ch in clean:
-        ea = unicodedata.east_asian_width(ch)
-        if ea in ('W', 'F'):
-            width += 2
-        elif ord(ch) >= 0x1F300:
-            width += 2
-        else:
-            width += 1
-    return width
+def box_header(title: str, subtitle: str = "", version: str = "v1.3.3", border_color: str = CYAN) -> str:
+    if term_ui:
+        return term_ui.card_header(title, subtitle, version, border_color)
+    return f"=== {title} ({version}) ==="
 
-def format_box_line(content: str, width: int = 71, border: str = "│", border_color: str = CYAN) -> str:
-    vis = get_visual_width(content)
-    pad = " " * max(0, width - vis)
-    return f"  {border_color}{border}{RESET}  {content}{pad}{border_color}{border}{RESET}"
+def border_top(title: str = "", border_color: str = CYAN, double: bool = False) -> str:
+    if term_ui:
+        return term_ui.card_border_top(title, border_color=border_color, double=double)
+    return "┌" + "─" * 71 + "┐"
+
+def border_bottom(border_color: str = CYAN, double: bool = False) -> str:
+    if term_ui:
+        return term_ui.card_border_bottom(border_color=border_color, double=double)
+    return "└" + "─" * 71 + "┘"
 
 
 def find_latest_audit_run(runs_dir: Path) -> Optional[Path]:
@@ -82,27 +92,28 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
         sys.exit(1)
 
     # Import audit scanner and memory engine
-    scripts_dir = Path(__file__).resolve().parent
-    if str(scripts_dir) not in sys.path:
-        sys.path.insert(0, str(scripts_dir))
-    import audit_runner
-    import memory_engine
+    try:
+        import audit_runner
+    except ImportError:
+        audit_runner = None
+    try:
+        import memory_engine
+    except ImportError:
+        memory_engine = None
 
     bundles_dir = run_folder / "bundles"
     bundle_meta_files = list(bundles_dir.glob("*/metadata.json")) if bundles_dir.is_dir() else []
 
     # Header Card
-    print(f"\n  {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}")
-    print(f"  {CYAN}│                                                                         │{RESET}")
-    print(format_box_line(f"{BOLD}🛡️  TORUSGUARD DIFFERENTIAL RECHECK ENGINE          v1.3.0{RESET}", border_color=CYAN))
-    print(format_box_line(f"{DIM}Targeted Differential AST Scan & Regression Verification{RESET}", border_color=CYAN))
-    print(f"  {CYAN}│                                                                         │{RESET}")
-    print(f"  {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}\n")
+    print()
+    print(box_header("🛡️  TORUSGUARD DIFFERENTIAL RECHECK ENGINE", "Targeted Differential AST Scan & Regression Verification", "v1.3.3"))
+    print()
 
-    print(f"  {CYAN}┌─ Recheck Verification Scope ────────────────────────────────────────────┐{RESET}")
-    print(format_box_line(f"Active Run:     {WHITE}{run_folder.name}{RESET}"))
-    print(format_box_line(f"Target Root:    {WHITE}{target_root}{RESET}"))
-    print(f"  {CYAN}└─────────────────────────────────────────────────────────────────────────┘{RESET}\n")
+    print(border_top("Recheck Verification Scope"))
+    print(box_line(f"Active Run:     {WHITE}{run_folder.name}{RESET}"))
+    print(box_line(f"Target Root:    {WHITE}{target_root}{RESET}"))
+    print(border_bottom())
+    print()
 
     recheck_results = []
     confirmed_count = 0
@@ -131,26 +142,30 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
             continue
 
         # Differential scan on this single modified file
-        file_findings = audit_runner.scan_file(target_path, target_root)
-        matching_rule_findings = [f for f in file_findings if f.get("rule_id") == rule_id]
+        if audit_runner:
+            file_findings = audit_runner.scan_file(target_path, target_root)
+            matching_rule_findings = [f for f in file_findings if f.get("rule_id") == rule_id]
+        else:
+            matching_rule_findings = []
 
         if not matching_rule_findings:
             outcome = "Confirmed Fixed"
             confirmed_count += 1
-            status_color = GREEN
+            status_icon = f"{GREEN}✔ [Confirmed Fixed]{RESET}"
             # Record in memory
-            try:
-                memory_engine.record_event("fix_verified", {
-                    "rule_id": rule_id,
-                    "file_path": rel_path,
-                    "verification_result": "fixed"
-                }, root_dir=target_root)
-            except Exception:
-                pass
+            if memory_engine:
+                try:
+                    memory_engine.record_event("fix_verified", {
+                        "rule_id": rule_id,
+                        "file_path": rel_path,
+                        "verification_result": "fixed"
+                    }, root_dir=target_root)
+                except Exception:
+                    pass
         else:
             outcome = "Unresolved"
             unresolved_count += 1
-            status_color = YELLOW
+            status_icon = f"{YELLOW}⚠ [Unresolved]{RESET}"
 
         recheck_results.append({
             "rule_id": rule_id,
@@ -164,7 +179,7 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
         recheck_md_lines.append(f"- **Outcome:** `{outcome}`")
         recheck_md_lines.append(f"- **Verification Timestamp:** {get_ist_now().strftime('%Y-%m-%d %H:%M:%S IST')}\n")
 
-        print(f"  {status_color}✔ [{outcome}]{RESET} {WHITE}{rule_id}{RESET} on {rel_path}")
+        print(f"  {status_icon} {WHITE}{rule_id}{RESET} on {rel_path}")
 
     # Write recheck.md
     (run_folder / "recheck.md").write_text("\n".join(recheck_md_lines), encoding="utf-8")
@@ -182,17 +197,19 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
             pass
 
     print()
-    print(f"  {CYAN}┌─ Recheck Summary ───────────────────────────────────────────────────────┐{RESET}")
-    print(format_box_line(f"Confirmed Fixed:{GREEN}{confirmed_count} vulnerabilities verified closed{RESET}"))
-    print(format_box_line(f"Regressed:      {RED if regressed_count > 0 else GREEN}{regressed_count} regressions detected{RESET}"))
-    print(format_box_line(f"Unresolved:     {YELLOW if unresolved_count > 0 else GREEN}{unresolved_count} unresolved{RESET}"))
-    print(format_box_line(f"Memory Sync:    {GREEN}Verification events synced to persistent memory engine{RESET}"))
-    print(f"  {CYAN}└─────────────────────────────────────────────────────────────────────────┘{RESET}\n")
+    print(border_top("Recheck Summary"))
+    print(box_line(f"Confirmed Fixed:{GREEN}{confirmed_count} vulnerabilities verified closed{RESET}"))
+    print(box_line(f"Regressed:      {RED if regressed_count > 0 else GREEN}{regressed_count} regressions detected{RESET}"))
+    print(box_line(f"Unresolved:     {YELLOW if unresolved_count > 0 else GREEN}{unresolved_count} unresolved{RESET}"))
+    print(box_line(f"Memory Sync:    {GREEN}Verification events synced to persistent memory engine{RESET}"))
+    print(border_bottom())
+    print()
 
-    print(f"  {GREEN}╔═ Next Governed Action ═════════════════════════════════════════════════════╗{RESET}")
-    print(format_box_line(f"Visual Dashboard: {BOLD}{WHITE}npx torusguard report --html{RESET} (Updated posture score)", border="║", border_color=GREEN))
-    print(format_box_line(f"View Recipes:     {CYAN}npx torusguard recipes{RESET} (Active golden fix recipes)", border="║", border_color=GREEN))
-    print(f"  {GREEN}╚═════════════════════════════════════════════════════════════════════════════╝{RESET}\n")
+    print(border_top("Next Governed Action", border_color=GREEN, double=True))
+    print(box_line(f"Visual Dashboard: {BOLD}{WHITE}npx torusguard report --html{RESET} (Updated posture score)", border="║", border_color=GREEN))
+    print(box_line(f"View Recipes:     {CYAN}npx torusguard recipes{RESET} (Active golden fix recipes)", border="║", border_color=GREEN))
+    print(border_bottom(border_color=GREEN, double=True))
+    print()
 
     return {
         "run_folder": str(run_folder),

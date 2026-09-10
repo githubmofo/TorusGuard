@@ -1,54 +1,72 @@
 ---
 name: torusguard-report
-description: Generate unified security posture reports and export OASIS SARIF v2.1.0 logs for CI/CD integration.
-version: 0.9.2
+description: Generate executive posture reports, export OASIS SARIF v2.1.0 logs, and render dark-mode HTML dashboards via CLI or AI Agent.
+version: 1.3.4
 workflow: .torusguard/workflows/report.md
-tools: Read, Grep, Glob, Write
+tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/html_reporter.py
   - .torusguard/scripts/sarif_exporter.py
   - .torusguard/scripts/run_manager.py
+  - .torusguard/scripts/term_ui.py
 ---
 
-# TorusGuard Report — Unified Security Posture Report & SARIF Export
+# TorusGuard Report — Posture Reporting & SARIF / HTML Export
 
 ## Objective
-Aggregate findings, verification traces, and recheck results into a signed executive security summary and export schema-compliant OASIS SARIF v2.1.0 logs for CI/CD pipelines.
+Aggregate findings, verification traces, and recheck results into an auditable executive security report, export schema-compliant OASIS SARIF v2.1.0 logs for CI/CD pipelines, and render zero-dependency single-file visual HTML posture reports.
 
 ---
 
-## Execution Steps
+## Two Execution Modes
 
-1. **Aggregate Run Data:** Read findings, verified evidence, and recheck records from active run.
-2. **Export OASIS SARIF v2.1.0:**
-   ```bash
-   python .torusguard/scripts/sarif_exporter.py --run <run_dir> --output <run_dir>/results.sarif
-   ```
-3. **Compile Executive Markdown Report:** Generate `report.md` with posture score, open/closed finding tables, and risk breakdown.
-4. **Update Run Manifest:** Finalize `manifest.json` status counts.
-5. **Archive Release Artifacts:** Ensure `report.md` and `results.sarif` are serialized to disk.
+### Mode A: Automated CLI Execution
+Run the report engine from your terminal:
+```bash
+# Generate visual dark-mode HTML dashboard
+npx torusguard report --html
+
+# Export OASIS SARIF v2.1.0 for GitHub Code Scanning / CI
+npx torusguard report --sarif
+
+# Generate both HTML and SARIF for latest run
+npx torusguard report --html --sarif
+
+# Generate report for a specific project directory
+npx torusguard report ./examples/vulnerable-react-express --html
+
+# Target a specific run ID
+npx torusguard report --run run-20260910-121618-audit --html
+```
+**Under the Hood:**
+- Invokes `python .torusguard/scripts/html_reporter.py` to compile self-contained, offline-ready HTML reports with dynamic filtering, posture gauge, and cluster summaries at `.torusguard/runs/<run_id>/report.html`.
+- Invokes `python .torusguard/scripts/sarif_exporter.py` to produce OASIS SARIF v2.1.0 logs at `.torusguard/runs/<run_id>/results.sarif`.
+- Finalizes `manifest.json` metrics and updates historical posture scoring.
+- Displays 75-column terminal cards.
+
+### Mode B: In-Session AI Chat Agent Reporting
+When generating security posture summaries in AI chat:
+1. **Aggregate Run Data:** Inspect `findings.json`, `remediation.md`, and `recheck.md` from the active run.
+2. **Calculate Posture Score:** Compute posture score ($0$–$100$) based on severity weighting (Critical: 25, High: 15, Medium: 5, Low: 2).
+3. **Format Executive Card:** Present finding counts, closed vulnerabilities, remaining risks, and compliance posture.
+4. **Export Artifacts:** Verify that `report.html` and `results.sarif` are serialized to disk.
 
 ---
 
-## SARIF v2.1.0 Output Specification
-- **Version:** `$schema: https://docs.oasis-open.org/sarif/sarif/v2.1.0/cos02/schemas/sarif-schema-2.1.0.json`, `version: 2.1.0`.
-- **Tool Driver:** `name: TorusGuard`, `semanticVersion: 0.9.2`, full rules catalog in `driver.rules`.
-- **Category Hygiene:** Set `automationDetails.id: "torusguard/static"` to avoid collisions in multi-analysis CI.
-- **Fingerprinting:** Populate `partialFingerprints.primaryLocationLineHash` with SHA-256 context hash.
+## SARIF v2.1.0 Specification
+- **Schema:** `https://docs.oasis-open.org/sarif/sarif/v2.1.0/cos02/schemas/sarif-schema-2.1.0.json`
+- **Tool Driver:** `name: TorusGuard`, `semanticVersion: 1.3.3`, full rules catalog in `driver.rules`.
+- **Automation Details:** `automationDetails.id: "torusguard/static"` to avoid collisions in multi-scanner CI/CD pipelines.
+- **Fingerprints:** `partialFingerprints.primaryLocationLineHash` with SHA-256 context hash.
 
 ---
 
-## Safety Constraints
-- Redact all tokens, passwords, and API keys before saving report.
-- Strictly read-only reporting; no source code modifications.
-- Ensure SARIF passes JSON schema validation.
-
----
-
-## Output Format
+## Output Card Format
 ```markdown
-📊 [TorusGuard] Security Posture Report Emitted
-- Run ID: <Run ID> | Posture Score: <Score>/100
-- Findings: <Total> (<Fixed> Fixed · <Open> Open)
-- SARIF Export: `.torusguard/runs/<run_id>/results.sarif`
-- Executive Report: `.torusguard/runs/<run_id>/report.md`
+### 📊 TorusGuard Security Posture Report Emitted
+- **Run ID:** `run-20260910-121618-audit`
+- **Posture Score:** 85 / 100 (HIGH SECURITY)
+- **Findings Summary:** 3 Evaluated · 2 Confirmed Fixed · 1 Unresolved
+- **HTML Dashboard:** `.torusguard/runs/<run_id>/report.html` (View in browser)
+- **SARIF v2.1.0 Export:** `.torusguard/runs/<run_id>/results.sarif` (Ready for CI)
 ```
