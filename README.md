@@ -26,13 +26,34 @@
 
 ---
 
-> ### 🛡️ The Architecture Behind the Emblem
-> In the emblem above, the **central golden keyhole shield** represents unbreakable secret protection and authentication integrity. It is enveloped by a continuous, interlocking **torus ring**—symbolizing TorusGuard's closed-loop autonomous security lifecycle:
->
-> $$\mathbf{Detect} \;\longrightarrow\; \mathbf{Verify} \;\longrightarrow\; \mathbf{Harden} \;\longrightarrow\; \mathbf{Apply} \;\longrightarrow\; \mathbf{Recheck} \;\longrightarrow\; \mathbf{Memory}$$
->
-> AI coding assistants (Cursor, Claude Code, Copilot, Windsurf) build software at superhuman speed, but routinely leak private keys into client bundles, drop tenant partition filters, or inject raw user input into LLM system prompts.
-> 
+## 🛡️ The Architecture Behind the Emblem
+
+In the emblem above, the **central golden keyhole shield** represents unbreakable secret protection, authentication integrity, and tenant isolation. It is enveloped by a continuous, interlocking **torus ring**—symbolizing TorusGuard's closed-loop autonomous security lifecycle:
+
+```mermaid
+flowchart LR
+    subgraph Torus ["🔄 360° Closed-Loop Torus Lifecycle"]
+        direction LR
+        Detect["1. Detect (74 AST Rules)"] --> Verify["2. Verify (Evidence & Fingerprints)"]
+        Verify --> Harden["3. Harden (Ponytail Protocol)"]
+        Harden --> Apply["4. Apply (Human Gate & Snapshots)"]
+        Apply --> Recheck["5. Recheck (Differential Closure)"]
+        Recheck --> Memory["6. Memory (Golden Fix Recipes)"]
+        Memory -.->|Continuous Guardrail| Detect
+    end
+
+    subgraph Shield ["🛡️ Central Golden Keyhole Shield"]
+        direction TB
+        Inv1["Browser-Code Truth: Zero Client Secrets"]
+        Inv2["Tenant Partitioning: Scoped Lookups"]
+        Inv3["Zero Bypasses: No verify=False"]
+        Inv4["Living Source of Truth: security_report.md"]
+    end
+
+    Torus === Shield
+```
+
+> **The Developer Reality:** AI coding assistants (Cursor, Claude Code, Copilot, Windsurf) build software at superhuman speed, but routinely leak private keys into client bundles, drop tenant partition filters, or inject raw user input into LLM system prompts.  
 > **TorusGuard forms an unbroken local guardrail around your codebase.** It audits static ASTs, runtime-verifies exploitability with inert canaries, synthesizes minimal surgical diffs adhering to the **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions), and eliminates hallucinations by maintaining a verifiable single source of truth in `security_report.md`.
 
 ---
@@ -40,19 +61,20 @@
 ## 📑 Table of Contents
 
 1. [Developer Overview & Value Proposition](#-developer-overview--value-proposition)
-2. [Why TorusGuard? (Traditional SAST vs. AI Coding vs. TorusGuard)](#-why-torusguard)
-3. [Installation & Setup Guide (npm & CLI)](#-installation--setup-guide-npm--cli)
-4. [Quickstart: The 5-Step Core Lifecycle](#-quickstart-the-5-step-core-lifecycle)
-5. [Dual-Strategy Command Matrix (CLI & AI Chat Parity)](#-dual-strategy-command-matrix-cli--ai-chat-parity)
-6. [74 Canonical Security Rules Catalog (18 Families Across 6 Pillars)](#-74-canonical-security-rules-catalog-18-families-across-6-pillars)
-7. [Ponytail Remediation Protocol & Rollback Safety](#-ponytail-remediation-protocol--rollback-safety)
-8. [Living Security Report Ground Truth (`security_report.md`)](#-living-security-report-ground-truth-security_reportmd)
-9. [Visual HTML Dashboard & SARIF v2.1.0 Export](#-visual-html-dashboard--sarif-v210-export)
-10. [AI Editor Guardrails Auto-Sync](#-ai-editor-guardrails-auto-sync)
-11. [Monorepo Fleet Support & Git Pre-Commit Diff Guard](#-monorepo-fleet-support--git-pre-commit-diff-guard)
-12. [Verification & Test Harness (81/81 Passing Harness Explained)](#-verification--test-harness)
-13. [Security Policy & Responsible Disclosure](#-security-policy--responsible-disclosure)
-14. [License](#-license)
+2. [End-to-End Autonomous Architecture](#-end-to-end-autonomous-architecture)
+3. [Why TorusGuard? (Traditional SAST vs. AI Coding vs. TorusGuard)](#-why-torusguard)
+4. [Installation & Setup Guide (npm & CLI)](#-installation--setup-guide-npm--cli)
+5. [Quickstart: The 5-Step Core Lifecycle](#-quickstart-the-5-step-core-lifecycle)
+6. [Dual-Strategy Command Matrix (CLI & AI Chat Parity)](#-dual-strategy-command-matrix-cli--ai-chat-parity)
+7. [74 Canonical Security Rules Catalog (18 Families Across 6 Pillars)](#-74-canonical-security-rules-catalog-18-families-across-6-pillars)
+8. [Ponytail Remediation Protocol & Rollback Safety](#-ponytail-remediation-protocol--rollback-safety)
+9. [Living Security Report Ground Truth (`security_report.md`)](#-living-security-report-ground-truth-security_reportmd)
+10. [Visual HTML Dashboard & SARIF v2.1.0 Export](#-visual-html-dashboard--sarif-v210-export)
+11. [AI Editor Guardrails Auto-Sync](#-ai-editor-guardrails-auto-sync)
+12. [Monorepo Fleet Support & Git Pre-Commit Diff Guard](#-monorepo-fleet-support--git-pre-commit-diff-guard)
+13. [Verification & Test Harness (81/81 Passing Harness Explained)](#-verification--test-harness)
+14. [Security Policy & Responsible Disclosure](#-security-policy--responsible-disclosure)
+15. [License](#-license)
 
 ---
 
@@ -73,6 +95,42 @@ When developers use AI coding agents to write features, models optimize for *get
 ### 🌐 The Browser-Code Truth Invariant
 > **"If the browser receives it, users can inspect it via DevTools."**  
 > Frontend environment variables, client JavaScript bundles, and React Server Action payloads cannot conceal secrets. TorusGuard strictly enforces that database credentials, service role keys, private API secrets, and tenant boundaries remain exclusively on trusted server runtimes.
+
+---
+
+## 📐 End-to-End Autonomous Architecture
+
+The following flowchart illustrates how TorusGuard safeguards your repository from initial developer input to verified, regression-free output:
+
+```mermaid
+flowchart TD
+    subgraph In ["1. Workspace & AI Context"]
+        A1["Polyglot Source Tree (16+ Languages)"]
+        A2["AI Coding Assistant (Cursor / Claude / Antigravity)"]
+        A3["Git Staged Diffs / Pre-Commit Hook"]
+    end
+
+    subgraph Core ["2. TorusGuard Engine (100% Local-First & Zero-Egress)"]
+        direction TB
+        B1["Static AST Engine: 74 Canonical Rules Across 18 Families"]
+        B2["Living Ledger Sync: security_report.md (0-100 Score)"]
+        B3["Ponytail Synthesizer: Minimal Surgical Diffs (&le;35 Add / &le;25 Del)"]
+        B4["Pre-Apply Snapshot Engine: Byte-for-Byte .bak Backups"]
+        B5["Human Gate: Interactive Syntax-Highlighted Approval"]
+        B6["Targeted Differential Re-Scan: Confirmed Fixed State"]
+
+        B1 --> B2 --> B3 --> B4 --> B5 --> B6
+    end
+
+    subgraph Out ["3. Verified Deliverables & Artifacts"]
+        C1["Hardened Production Code (Zero Regressions)"]
+        C2["Self-Contained Dark-Mode HTML Dashboard"]
+        C3["OASIS SARIF v2.1.0 for CI/CD Pipeline"]
+        C4["Auto-Synced AI Rules (.cursorrules, CLAUDE.md, etc.)"]
+    end
+
+    In --> Core --> Out
+```
 
 ---
 
