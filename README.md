@@ -1,5 +1,7 @@
 <div align="center">
-  # 🛡️ TorusGuard
+  <img src="TorusGuard.png" alt="TorusGuard Autonomous Security Engine Banner" width="560" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+
+  # TorusGuard
 
   ### Autonomous Security Guardrails, Governed Remediation & Living Verification for AI-Built Applications
 
@@ -26,7 +28,7 @@
 
 ## 🛡️ The Architecture Behind the Emblem
 
-In the TorusGuard architectural emblem, the **central golden keyhole shield** represents unbreakable secret protection, authentication integrity, and tenant isolation. It is enveloped by a continuous, interlocking **torus ring**—symbolizing TorusGuard's closed-loop autonomous security lifecycle:
+In the emblem above, the **central golden keyhole shield** represents unbreakable secret protection, authentication integrity, and tenant isolation. It is enveloped by a continuous, interlocking **torus ring**—symbolizing TorusGuard's closed-loop autonomous security lifecycle:
 
 ```mermaid
 flowchart LR

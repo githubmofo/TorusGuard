@@ -57,9 +57,9 @@ test_output/
 *.sqlite
 *.sqlite3
 
-# Non-essential media & images
+# Non-essential media & images (preserving official repository banner)
 *.png
-TorusGuard.png
+!TorusGuard.png
 *.jpg
 *.jpeg
 *.gif
