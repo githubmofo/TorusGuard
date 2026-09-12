@@ -136,19 +136,25 @@ Computes auditable 0–100 scores across 5 dimensions:
 Automated regex-based redactor that replaces Stripe secret keys, GitHub PATs, JWTs, AWS credentials, and generic passwords with masked placeholders before writing evidence to disk.
 
 ### 6.4. Rule Catalog (`rules/`)
-70+ modular security rules organized by vulnerability taxonomy:
-- `TG-AUTH-*`: Authentication, Session, and RBAC security
-- `TG-DB-*`: Database query isolation and credential separation
-- `TG-INPUT-*`: Input sanitization, SQLi, SSTI, and path traversal
-- `TG-SEC-*`: Secrets, environment variables, and log hygiene
-- `TG-PLATFORM-*`: CORS, security headers, error handling
-- `TG-RATE-*`: Rate limits and unbounded resource consumption
-- `TG-SSRF-*`: Outbound request validation and network boundaries
-- `TG-WEBHOOK-*`: Signature validation and replay mitigation
-- `TG-GQL-*`: GraphQL depth, complexity, and authorization
-- `TG-WS-*`: WebSocket handshakes, channel auth, and message limits
-- `TG-EDGE-*`: Cloudflare Workers, Edge Isolates, and Lambda cold-start security
-- `TG-AGENT-*`: Agentic AI prompt injection, MCP tool scoping, and memory leakage
+74 modular security rules organized across 18 architectural families:
+- `TG-SEC-*`: Secrets, environment variables, and log hygiene (7 rules)
+- `TG-AUTH-*`: Authentication, Session, and RBAC security (8 rules)
+- `TG-DB-*`: Database query isolation and tenant scoping (4 rules)
+- `TG-INPUT-*`: Input sanitization, SQLi, command escaping, and path traversal (6 rules)
+- `TG-RATE-*`: Rate limits and unbounded resource consumption (3 rules)
+- `TG-AGENT-*`: Agentic AI prompt injection, MCP tool scoping, and memory leakage (4 rules)
+- `TG-SSRF-*`: Outbound request validation and network boundaries (4 rules)
+- `TG-WEBHOOK-*`: Signature validation and replay mitigation (4 rules)
+- `TG-WS-*`: WebSocket handshakes, origin checks, and frame limits (4 rules)
+- `TG-CSRF-*`: Cross-site request forgery and SameSite attributes (2 rules)
+- `TG-GQL-*`: GraphQL depth, complexity, and authorization (4 rules)
+- `TG-SUPPLY-*`: Supply-chain dependencies and lockfile integrity (6 rules)
+- `TG-BIZ-*`: Business logic, negative quantity, and discount abuse (4 rules)
+- `TG-CACHE-*`: Cache poisoning and sensitive cache control (3 rules)
+- `TG-CLIENT-*`: Client bundle secrets and frontend key leakage (2 rules)
+- `TG-PLATFORM-*`: Server platform hardening and security headers (4 rules)
+- `TG-DIFF-*`: Polyglot bypass interception and Ponytail churn bounds (3 rules)
+- `TG-EDGE-*`: Cloudflare Workers, Edge Isolates, and Lambda cold-start security (2 rules)
 
 ### 6.5. Specialist Agent Roles (`.torusguard/agents/`)
 Formal separation of responsibilities to eliminate AI confirmation bias:
@@ -183,6 +189,18 @@ Persistent local intelligence layer maintaining:
 
 ### 6.11. Visual Single-File HTML Reporter (`scripts/html_reporter.py`)
 - Self-contained, zero-external-CDN dark-mode dashboard (`.torusguard/runs/report-latest.html`) featuring animated SVG posture gauges, 7-stage lifecycle status, dynamic polyglot ecosystem badges, and interactive diff viewers.
+
+### 6.12. Living Security Report Ground-Truth Engine (`report_sync.py`, `security_report.md`)
+- Single source of truth ledger maintained at workspace root, synchronizing findings across CLI and AI chat sessions.
+- Enforces closed-loop lifecycle transitions: `OPEN 🔴` $\rightarrow$ `VERIFIED 🟠` $\rightarrow$ `CANDIDATE 🟡` $\rightarrow$ `APPLIED 🔵` $\rightarrow$ `RESOLVED 🟢`.
+- Provides dynamic posture health scoring (0–100) and auditable event tracking.
+
+### 6.13. Standardized 75-Column Terminal Visual Width Engine (`term_ui.py`)
+- Mathematical visual width engine guaranteeing strict 75 visual columns across all terminal outputs.
+- ANSI escape stripping and accurate Unicode visual width calculations (emojis, variation selectors, boxed borders).
+
+### 6.14. Autonomous Ponytail Remediation Engine (`harden_runner.py`)
+- Surgical patch synthesizer generating candidate diffs bounded by $\le 35$ additions and $\le 25$ deletions across 19 vulnerability classes with pre-apply rollback backups (`.torusguard/snapshots/<run_id>/`).
 
 ---
 

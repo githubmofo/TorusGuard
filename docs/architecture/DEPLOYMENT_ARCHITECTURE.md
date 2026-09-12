@@ -17,18 +17,19 @@ TorusGuard is engineered with a **zero-daemon, local-first architecture**. It op
 ┌─────────────────────────┐       ┌─────────────────────────┐       ┌─────────────────────────┐
 │   AI Agent IDE Runtime  │       │   CI/CD Automated Gate  │       │  Air-Gapped Workstation │
 │ (Cursor, Claude Code,   │       │ (GitHub Actions, GitLab,│       │ (Local Enterprise Repo, │
-│  Antigravity, Cline)    │       │  Jenkins Pipeline)      │       │  Zero External Network) │
+│  Antigravity, Windsurf) │       │  Jenkins Pipeline)      │       │  Zero External Network) │
 └─────────────────────────┘       └─────────────────────────┘       └─────────────────────────┘
 ```
 
-### 2.1. Topology A: AI Agent Skill & Workspace Integration
-- **Mechanism:** Installed via standard skill package managers (`npx skills add ...`) or direct Python installer (`python install.py`).
-- **Autonomous Bootstrapping:** Automatically creates `.torusguard/`, activates rules in `.torusguard/rules/active/`, and configures the 5 specialist agents.
-- **Triggering:** Invoked conversationally or via slash commands (`/torusguard audit`, `verify`, `harden`, `apply`, `recheck`, `report`).
-- **Context Handling:** Reads active workspace AST directly from the IDE's local file system with zero context bloat.
+### 2.1. Topology A: Terminal CLI & AI Agent Workspace Integration
+- **Mechanism:** Installed via standard NPM package (`npm install -g torusguard` or run via `npx torusguard <cmd>`).
+- **Autonomous Bootstrapping:** Automatically creates `.torusguard/`, activates 74 rules across 18 families, and synchronizes rules into `.cursorrules`, `CLAUDE.md`, and `.windsurfrules`.
+- **Triggering:** Dual invocation via terminal CLI (`npx torusguard audit`) and chat slash commands (`/torusguard audit`).
+- **Local Pre-Commit Hook:** Installed via `npx torusguard diff-guard --install-hook` to intercept security bypasses before `git commit`.
 
 ### 2.2. Topology B: CI/CD Pipeline Enforcement
-- **Mechanism:** Executed as a standalone step in automated build pipelines.
+- **Mechanism:** Executed as a zero-dependency automated gate in CI/CD runners.
+- **Living Report Ground Truth:** Audit runs maintain `security_report.md` at repository root, preventing regressions and tracking health score (0–100).
 - **Example GitHub Actions Workflow:**
 ```yaml
 name: TorusGuard Security Gate
@@ -39,31 +40,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Node & Python
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
+          node-version: '20'
       - name: Run Core Test Harnesses
-        run: |
-          python harness/runner.py
-          python harness/validate_v0_9_2_workflows_and_skills.py
-      - name: Export SARIF Security Results
-        run: python .torusguard/scripts/sarif_exporter.py --output results.sarif
-      - name: Upload SARIF to GitHub Code Scanning
+        run: npm test
+      - name: Run Static Security Audit
+        run: npx torusguard audit
+      - name: Generate Visual HTML Report
+        run: npx torusguard report --html
+      - name: Upload SARIF Security Results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: results.sarif
+          sarif_file: .torusguard/runs/results.sarif
           category: torusguard/static
 ```
 
 ### 2.3. Topology C: Air-Gapped / High-Security Environments
-- **Zero Egress Guarantee:** TorusGuard contains no telemetry, analytics, or outbound HTTP requests.
-- **Offline Operation:** All rules, schemas, and verification logic are bundled locally within the repository.
+- **Zero Egress Guarantee:** TorusGuard contains zero analytics, tracking, or outbound HTTP requests.
+- **Offline Operation:** All 74 rules, schemas, and verification logic are bundled locally within the repository with 0-byte external network footprint.
 
 ---
 
 ## 3. Resource Requirements & Operational Footprint
-- **CPU:** 1 vCPU (scales linearly with multiple cores for large repos).
-- **RAM:** $< 250\text{ MB}$ base memory usage.
-- **Disk:** $< 15\text{ MB}$ installation footprint + $< 2\text{ MB}$ per audit run folder.
-- **OS Compatibility:** Linux (Ubuntu/Debian, Alpine, RHEL), macOS (ARM64, x86_64), Windows (PowerShell/CMD).
+- **CPU:** 1 vCPU (sub-second execution on standard codebases).
+- **RAM:** $< 150\text{ MB}$ base memory usage.
+- **Disk:** $< 20\text{ MB}$ installation footprint + $< 2\text{ MB}$ per audit run folder.
+- **OS Compatibility:** Linux (Ubuntu/Debian, Alpine, RHEL), macOS (Apple Silicon & Intel), Windows (PowerShell/CMD).
+- **Zero External Python Dependencies:** Pure standard library execution (Python 3.10+).

@@ -1,37 +1,42 @@
 # TG-SEC-007: Secret in Test or Example Fixture
 
 ## Severity
-High by default. Raise to Critical when applicable.
+Medium. Committing real production or staging credentials into test fixtures, mocks, or example configuration files leaks secrets under the assumption that test directories are unmonitored.
 
 ## Applies To
-- Relevant endpoints and services
+- Test Suites, Mock Fixtures, Example Configs
+- All Languages & Frameworks
 
 ## Why It Matters
-Explaining the risk of this vulnerability.
+Developers often copy live payload captures from production to create integration tests or seed fixtures. If these fixtures contain real API keys or customer JWT tokens, they are exposed in source control.
 
 ## What TorusGuard Looks For
-- Specific code patterns or configurations
+- High-entropy tokens, Stripe live keys (`sk_live_`), or valid JWT signatures present in `tests/`, `fixtures/`, or `examples/` directories.
 
 ## Unsafe Example
 ```javascript
-// Unsafe code example
+// UNSAFE: Real active production API key used in test fixture
+const mockAuth = {
+  apiKey: "sk_live_51M0...REAL_STRIPE_LIVE_KEY_12345"
+};
 ```
 
 ## Safe Example
 ```javascript
-// Safe code example
+// SAFE: Explicit synthetic mock sentinel string
+const mockAuth = {
+  apiKey: "sk_test_fake_mock_token_for_unit_tests_only"
+};
 ```
 
+## Ponytail Remediation Budget
+- Additions: <= 2 lines
+- Deletions: <= 2 lines
+
 ## Remediation
-1. Step one
-2. Step two
-
-## Verification
-- Test case 1
-- Test case 2
-
-## False Positives and Exceptions
-An exception requires documented review.
+1. Replace all real credentials in test directories with synthetic, inert mock sentinels (`test_token_dummy`).
+2. Rotate any credentials that were copied from production to test files.
 
 ## Related Rules
-- TG-OTHER-001
+- `TG-SEC-001`: Hardcoded Secret or API Key in Tracked Source
+- `TG-SEC-004`: Sensitive Information in Logs

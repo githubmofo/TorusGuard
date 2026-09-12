@@ -1,10 +1,11 @@
 ---
 name: torusguard-verify
 description: Verify finding evidence sufficiency, audit live code line matches, and calibrate 0–100 confidence scores.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/verify.md
-tools: Read, Grep, Glob, Write
+tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/finding_scorer.py
 ---
 
@@ -38,6 +39,10 @@ A finding is verified as sufficient when:
 - **Taint Integrity:** Untrusted request data flows into the sink without structural validation.
 
 ---
+
+## Living Report Ground Truth
+- Always inspect `security_report.md` at workspace root before acting.
+- Update finding statuses after completion to eliminate hallucination.
 
 ## Safety Constraints
 - Read-only analysis; no files are modified.

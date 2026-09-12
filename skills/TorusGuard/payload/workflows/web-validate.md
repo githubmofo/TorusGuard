@@ -1,12 +1,13 @@
 ---
 description: Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
 tools: Read, Grep, Glob, Bash, Write
-version: 0.9.2
+version: 1.3.5
 agent: validator
 lifecycle-phase: Phase 3b (Runtime Web Validation)
 required-skills:
   - torusguard-web-validate
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/safety_gate.py
 ---
 

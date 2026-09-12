@@ -1,10 +1,11 @@
 ---
 name: torusguard-status
 description: Display current TorusGuard security posture, active configuration, rules catalog, and run history via CLI or AI Agent.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/status.md
-tools: Read, Grep, Glob, run_command
+tools: Read, Grep, Glob, run_command, Write
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/run_manager.py
   - .torusguard/scripts/term_ui.py
 ---
@@ -32,7 +33,7 @@ npx torusguard status --json
 ```
 **Under the Hood:**
 - Evaluates `.torusguard/config/torusguard.json` for initialized status and detected stack.
-- Enumerates active rules in `.torusguard/rules/active/` (or canonical 71 rules).
+- Enumerates active rules in `.torusguard/rules/active/` (or canonical 74 rules).
 - Scans `.torusguard/runs/` for run history, finding counts, and verified fixes.
 - Inspects `.torusguard/config/scope.json` for authorized runtime validation targets.
 - Displays mathematically aligned 75-column terminal cards.
@@ -51,8 +52,11 @@ When checking workspace status in AI chat:
 ```markdown
 ### 🛡️ TorusGuard Workspace Status Overview
 - **Version:** v1.3.3 | **Stack:** Node.js / React / Express
-- **Active Rules:** 71 canonical security rules enabled
+- **Active Rules:** 74 canonical security rules enabled
 - **Historical Runs:** 3 runs recorded
 - **Golden Recipes:** 4 distilled into persistent memory
 - **Overall Posture:** SECURE (All targeted vulnerabilities verified closed)
 ```
+
+## Living Report Ground Truth
+- Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.

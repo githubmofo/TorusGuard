@@ -8,6 +8,9 @@
 
 ---
 
+> 🛡️ **TorusGuard Validation Heritage:** This document preserves empirical validation records for this framework and milestone. For the current v1.3.5 active release line, 74-rule AST engine, living security report ground truth (`security_report.md`), and automated test suite (81/81 passing via `npm test`), refer to the [Validation Suite Overview](README.md) and root [README](../../README.md).
+
+
 ## 1. 📋 Executive Summary
 
 This master audit certifies the full evolution of TorusGuard from its initial v0.1 portable skill foundation through the mature v0.5.4 actionable security workflow release. Every historical milestone was re-evaluated for promise delivery, backward compatibility, and functional integrity.

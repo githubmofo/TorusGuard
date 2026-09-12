@@ -5,8 +5,8 @@
  *   - TG-AUTH-003 (Unauthenticated Server Action Mutation)
  */
 
-// Finding 1: TG-CLIENT-001 - Backend admin key exposed in client-accessible code
-export const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.demo_secret_token_1234567890";
+// Finding 1: TG-CLIENT-001 - Backend admin key SUPABASE_SERVICE_ROLE_KEY must not be exposed in client-accessible code
+export const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "";
 
 interface UserRecord {
   id: string;

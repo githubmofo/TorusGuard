@@ -63,9 +63,9 @@ When runtime validation probes are executed (`/torusguard verify`, `web-validate
 ## 4. Governed Remediation & The Ponytail Protocol
 
 To prevent AI coding assistants from introducing catastrophic code modifications:
-- Hard line churn bounds: additions $\le 35$ lines, deletions $\le 25$ lines per bundle.
+- Hard line churn bounds: additions $\le 35$ lines, deletions $\le 25$ lines per bundle across 19 vulnerability templates.
 - Full-file rewrites strictly prohibited.
-- Pre-apply rollback snapshots saved to `pre_apply/<file>.bak` before disk modification.
+- Pre-apply rollback snapshots saved to `.torusguard/snapshots/<run_id>/` before disk modification.
 
 ---
 
@@ -86,5 +86,14 @@ TorusGuard enforces local pre-commit verification via `.git/hooks/pre-commit`:
 
 ---
 
-## 7. Responsible Disclosure & Vulnerability Handling
+## 7. Living Security Report Ground Truth (`security_report.md`)
+
+To eliminate AI model hallucination and ensure audit state integrity:
+- All static detections across 74 rules in 18 families, patch formulation bundles, human gate applications, and differential rechecks write to `security_report.md` at workspace root.
+- The report serves as an immutable state ledger shared across CLI commands (`npx torusguard ...`) and AI Chat slash commands (`/torusguard ...`).
+- Provides dynamic posture health scoring (0–100) and lifecycle event auditing.
+
+---
+
+## 8. Responsible Disclosure & Vulnerability Handling
 Please refer to [SECURITY.md](../../SECURITY.md) for responsible disclosure guidelines. Security reports regarding the TorusGuard engine or skill manifest should be reported via private maintainer channels rather than public issue trackers.

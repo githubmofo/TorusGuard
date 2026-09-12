@@ -1,10 +1,11 @@
 ---
 name: torusguard-recheck
 description: Execute targeted differential AST re-scan against modified files, verify fix closure, and assert zero regressions via CLI or AI Agent.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/recheck.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/recheck_runner.py
   - .torusguard/scripts/audit_runner.py
   - .torusguard/scripts/memory_engine.py
@@ -75,3 +76,6 @@ When evaluating patches directly in AI chat:
 - **Artifact:** `.torusguard/runs/<run_id>/recheck.md`
 - **Next Step:** Run `npx torusguard report --html` for visual dashboard
 ```
+
+## Living Report Ground Truth
+- Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.

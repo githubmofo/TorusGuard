@@ -1,10 +1,11 @@
 ---
 name: torusguard-authorize
 description: Register and validate runtime target authorization boundaries — scope boundaries, ownership proofs, TTL expiration, and Safety Gate enforcement.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/authorize.md
-tools: Read, Grep, Glob, Write
+tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/safety_gate.py
 ---
 
@@ -29,6 +30,10 @@ Define and validate legal runtime authorization boundaries, verify target owners
 7. **Validate Schema:** Confirm `scope.json` adheres to `auth-boundary.schema.json`.
 
 ---
+
+## Living Report Ground Truth
+- Always inspect `security_report.md` at workspace root before acting.
+- Update finding statuses after completion to eliminate hallucination.
 
 ## Safety Constraints
 - Never authorize wildcard hosts (`*`) or third-party domains.

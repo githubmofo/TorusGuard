@@ -1,10 +1,11 @@
 ---
 name: torusguard-harden
 description: Package surgical remediation bundles conforming to the Ponytail Protocol (<= 35 additions, <= 25 deletions) via CLI or AI Agent.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/harden.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/harden_runner.py
   - .torusguard/scripts/diff_guard.py
   - .torusguard/scripts/term_ui.py
@@ -92,3 +93,6 @@ When findings require complex architectural changes, or when the automated CLI c
 - **Bundle Directory:** `.torusguard/runs/<run_id>/bundles/bnd-tg-sec-001-9-a8310c/`
 - **Next Step:** Run `npx torusguard apply` or `/torusguard apply` to review and apply
 ```
+
+## Living Report Ground Truth
+- Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.

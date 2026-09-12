@@ -1,12 +1,14 @@
 ---
 description: Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
 tools: Read, Grep, Glob, Bash, Write
-version: 0.9.2
+version: 1.3.5
 agent: reviewer
 lifecycle-phase: Phase 6 (Targeted Recheck & Verification)
 required-skills:
   - torusguard-recheck
 scripts-binding:
+  - .torusguard/scripts/recheck_runner.py
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/run_manager.py
   - .torusguard/scripts/finding_scorer.py
 ---
@@ -45,6 +47,10 @@ Inspect applied patch history and target file scope before re-checking:
 | Generating final signed release report | Run `/torusguard report` |
 
 ---
+
+## Living Report Invariant
+- Verified fix closures transition findings in `security_report.md` to `RESOLVED 🟢`.
+- Regressions transition findings to `REGRESSED ❌`.
 
 ## Execution Steps
 

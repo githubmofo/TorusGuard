@@ -3,90 +3,84 @@
 ## 1. Storage Philosophy
 TorusGuard employs an **immutable, flat-file JSON and Markdown storage architecture**. To maintain zero external dependencies, portability across air-gapped systems, and native version control integration, TorusGuard does not require an external database server (such as PostgreSQL or SQLite).
 
-All persistence occurs in the local repository workspace under `.torusguard/runs/`.
+All persistence occurs in the local repository workspace across three storage tiers:
+1. **Living Security Report Ground Truth:** `security_report.md` at workspace root.
+2. **Adaptive Security Memory Engine:** `.torusguard/memory/` (persistent patterns, events, context).
+3. **Execution Run Isolation & Snapshots:** `.torusguard/runs/<run_id>/` and `.torusguard/snapshots/<run_id>/`.
 
 ---
 
 ## 2. Directory & Run Folder Hierarchy
 
-Every execution generates a hermetically isolated, timestamped run directory:
+Every execution generates an isolated, timestamped run directory and updates the living report:
 
 ```text
-.torusguard/
-└── runs/
-    └── run-20260902-120000-audit/
-        ├── manifest.json              # Run profile, timestamp, tool version, commit hash
-        ├── findings.md                # Primary Human-First audit report
-        ├── summary.md                 # Executive summary and exploitability matrix
-        ├── results.sarif              # OASIS SARIF v2.1.0 structured export
-        ├── requests.json              # Redacted HTTP request log (runtime mode)
-        ├── responses.json             # Redacted HTTP response log (runtime mode)
-        ├── replay.json                # Deterministic replay trace (runtime mode)
-        ├── remediation_bundles/       # 4-artifact remediation packages
-        │   └── RB-001/
-        │       ├── finding.md
-        │       ├── remediation.md
-        │       ├── minimal_patch_plan.md
-        │       └── verify-after-change.md
-        ├── pre_apply/                 # Byte-for-byte rollback backups
-        │   └── target_file.py.bak
-        └── recheck/                   # Differential recheck validation log
-            └── recheck-log.json
+TorusGuard/
+├── security_report.md                 # Single source of truth for findings & health score
+├── .torusguard/
+│   ├── memory/                        # Adaptive persistent memory
+│   │   ├── events/                    # Append-only ledger of audit/apply/recheck events
+│   │   ├── patterns.json              # Distilled Golden Fix Recipes and confirmed patterns
+│   │   ├── context.json               # Fast prompt context card
+│   │   └── profile.json               # Workspace security DNA
+│   ├── snapshots/                     # Pre-apply rollback backups
+│   │   └── run-20260912-221500/
+│   │       └── target_file.ts.bak     # Byte-for-byte pre-apply backup
+│   └── runs/                          # Execution history folders
+│       └── run-20260912-221500-audit/
+│           ├── manifest.json          # Run profile, timestamp, version, commit hash
+│           ├── findings.json          # Raw structured finding objects
+│           ├── summary.md             # Executive summary
+│           ├── results.sarif          # OASIS SARIF v2.1.0 structured export
+│           ├── report-latest.html     # Standalone visual dark-mode HTML report
+│           └── bundles/               # Formulated Ponytail candidate patch bundles
+│               └── TG-CSRF-001/
+│                   ├── patch.diff
+│                   └── minimal_patch_plan.md
 ```
 
 ---
 
 ## 3. Entity Data Models
 
-### 3.1. Metadata Schema (`metadata.json`)
-| Field | Type | Description |
-|---|---|---|
-| `run_id` | String | Canonical UUID or timestamped identifier (`run-YYYYMMDD-HHMMSS-<target>`) |
-| `version` | String | TorusGuard core engine release version (`v0.5.6`) |
-| `timestamp` | ISO-8601 | Exact scan start timestamp |
-| `project_id` | String | Target repository identifier from `manifest.yaml` |
-| `git_commit` | String | Current HEAD commit SHA-1 of the scanned repository |
-| `files_analyzed`| Integer | Total relevant source files scanned |
-| `active_rules` | Array[String]| List of enabled Rule IDs |
-
-### 3.2. Finding Entity Structure
+### 3.1. Living Report Finding Entity Structure
 ```text
 Finding
-├── finding_id: UUID
-├── rule_id: String (e.g. TG-DB-004)
+├── finding_id: String (e.g. TG-CSRF-001)
+├── rule_id: String (e.g. TG-CSRF-001)
 ├── title: String
-├── severity: Enum [Critical, High, Medium, Low, Info]
+├── severity: Enum [Critical, High, Medium, Low, Informational]
 ├── priority: Enum [Immediate P0, Near-Term P1, Backlog P2]
-├── confidence:
-│   ├── score: Integer (0-100)
-│   └── band: Enum [Confirmed, High, Needs Review, Informational]
-├── provenance:
-│   ├── discovery_engine: String
-│   ├── decision_path: Array[String]
-│   └── raw_evidence_hash: SHA-256 String
+├── status: Enum [OPEN 🔴, VERIFIED 🟠, CANDIDATE 🟡, APPLIED 🔵, RESOLVED 🟢, REGRESSED ❌, FALSE POSITIVE ⚪]
+├── confidence_score: Integer (0-100)
+├── fingerprint: String (line-shift invariant hash)
 ├── target:
 │   ├── file_path: String
-│   ├── start_line: Integer
-│   └── end_line: Integer
-└── lifecycle:
-    ├── current_stage: Enum [Detect, Classify, Verify, Remediate, Recheck, Archive]
-    └── history: Array[LifecycleTransition]
+│   ├── line_number: Integer
+│   └── line_content: String
+└── history: Array[LifecycleEvent]
+    ├── event_id: String
+    ├── timestamp: ISO-8601 (IST)
+    ├── transition: String
+    └── run_id: String
 ```
 
-### 3.3. Retest Record Structure
+### 3.2. Golden Fix Recipe Structure (`patterns.json`)
 ```text
-RetestRecord
-├── retest_id: UUID
-├── finding_id: UUID
-├── timestamp: ISO-8601
-├── status: Enum [Verified Fixed, Still Present, Partially Fixed, New Risk]
-├── diff_applied: String (Path to diff)
-├── test_suite_result: Enum [Passed, Failed, Unavailable]
-└── verified_evidence_hash: SHA-256 String
+GoldenRecipe
+├── recipe_id: String
+├── rule_id: String
+├── framework: String
+├── patch_diff: Unified Diff String
+├── additions: Integer (<= 35)
+├── deletions: Integer (<= 25)
+├── verified_at: ISO-8601 (IST)
+└── confidence_multiplier: Float
 ```
 
 ---
 
 ## 4. Integrity & Retention Policies
-- **Immutability:** Run folders are strictly append-only. Subsequent audits or rechecks create new timestamped run folders without overwriting historical records.
-- **Git Tracking:** Developers may optionally commit `.torusguard/runs/` to track historical security progress directly in Git version history.
+- **Immutability:** Run folders and event ledgers are strictly append-only.
+- **Rollback Guarantee:** Snapshots in `.torusguard/snapshots/<run_id>/` guarantee 100% byte-for-byte restoration via `npx torusguard rollback`.
+- **TTL Decay:** Stale memory advice automatically decays after 90 days.

@@ -1,5 +1,8 @@
 # TorusGuard v1.3.0 Multi-Repository Portfolio Evaluation & Diagnostic Report
 
+
+> 🛡️ **TorusGuard Validation Heritage:** This document preserves empirical validation records for this framework and milestone. For the current v1.3.5 active release line, 74-rule AST engine, living security report ground truth (`security_report.md`), and automated test suite (81/81 passing via `npm test`), refer to the [Validation Suite Overview](README.md) and root [README](../../README.md).
+
 **Evaluation Date:** 2026-09-07 12:39:16 UTC  
 **Version Evaluated:** TorusGuard v1.3.0 (Universal Polyglot Security Engine)  
 **Total Target Repositories:** 26  

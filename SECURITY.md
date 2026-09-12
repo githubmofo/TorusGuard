@@ -52,7 +52,7 @@ Security updates and patches are actively maintained for the following release l
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v1.3.x` (`v1.3.0`) | ✅ Yes | **Current active release line** (Universal Polyglot Engine, Fleets, Pre-Commit Hooks, HTML Dashboard) |
+| `v1.3.x` (`v1.3.5`) | ✅ Yes | **Current active release line** (Universal Polyglot Engine, 74 Rules / 18 Families, Living Security Report Ground Truth, HTML Dashboard) |
 | `v1.2.x` | ✅ Yes | AI IDE Rules Auto-Sync & Visual HTML Posture Reporting |
 | `v1.1.x` | ✅ Yes | Advanced Security Memory Engine, Proximity Scoring & Golden Fix Recipes |
 | `v1.0.x` | ✅ Yes | Core Adaptive Security Memory Engine & Context Window Generation |
@@ -118,6 +118,12 @@ To prevent AI coding assistants from introducing subtle bugs, breaking architect
 - **Zero Full-File Rewrites**: Only the exact vulnerable function is patched.
 - **Rollback Guarantee**: A byte-for-byte backup is archived in `pre_apply/<file>.bak` before any code edit is written to disk.
 
+### 5. Living Security Report Ground Truth (`security_report.md`)
+To eliminate AI hallucination and maintain provable security state across both human terminal CLI workflows and AI assistant chat sessions:
+- All static finding discoveries, patch formulation states, human gate applications, and recheck closures automatically synchronize into `security_report.md` at workspace root.
+- Findings adhere to a formal lifecycle: `OPEN 🔴` $\rightarrow$ `VERIFIED 🟠` $\rightarrow$ `CANDIDATE 🟡` $\rightarrow$ `APPLIED 🔵` $\rightarrow$ `RESOLVED 🟢`.
+- Provides deterministic posture health scoring (0-100) verifiable locally without external dependencies.
+
 ---
 
 ## Continuous Validation & Release Gate Policy
@@ -147,7 +153,7 @@ To guarantee that code changes never compromise security, safety, or backward co
 11. **Runtime Validation & Safety Suite (`harness/validate_v0_7_0_runtime.py`):**
     - Asserts legal scope gating, TTL expiration, safety gate tiers, token redaction, and role handoffs.
 12. **Core Validation Harness (`harness/runner.py`):**
-    - Verifies 10 JSON schemas, 71 rule definitions, 5-factor confidence scoring, and 3-pass deterministic replay.
+    - Verifies 10 JSON schemas, 74 rule definitions across 18 families, 5-factor confidence scoring, and 3-pass deterministic replay.
 13. **Workspace Foundation Suites (`harness/validate_v0_8_0_part1.py`, `part2.py`, `part3.py`):**
     - Asserts template structures, reference guides, and script execution sanity.
 

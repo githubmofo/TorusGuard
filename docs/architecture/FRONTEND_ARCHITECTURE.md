@@ -1,9 +1,9 @@
 # TorusGuard Frontend Security & Presentation Architecture
 
 ## 1. Overview
-The Frontend Architecture document defines TorusGuard's dual relationship with client-side code:
-1. **Frontend Security Rules:** Guardrails governing client-side web application architectures (React, Next.js, Vite, Vue, Svelte).
-2. **Human-First Presentation Standards:** Presentation architecture used by TorusGuard to render clean, readable, and actionable security reports in Markdown and CLI terminals.
+The Frontend Architecture document defines TorusGuard's dual relationship with client-side code and user presentation:
+1. **Frontend Security Rules:** Guardrails governing client-side web application architectures (React, Next.js, Vite, Vue, Svelte, Angular).
+2. **Visual & Terminal Presentation Standards:** Presentation architecture used by TorusGuard to render clean, readable, and actionable security reports in Markdown, 75-column CLI terminals, and standalone HTML dashboards.
 
 ---
 
@@ -13,48 +13,35 @@ The Frontend Architecture document defines TorusGuard's dual relationship with c
 
 TorusGuard enforces strict frontend boundary rules:
 - **`TG-CLIENT-001` (Production Source Maps):** Prevents deployment of unminified `.map` files that expose private business logic and backend route schemas to the public internet.
-- **`TG-CLIENT-002` (Sensitive Bundle Content):** Audits frontend build bundles (Vite `dist/`, Next.js `.next/`) to ensure private API keys, payment secret tokens, or internal database URLs are never bundled into client bundles.
+- **`TG-CLIENT-002` (Sensitive Bundle Content):** Audits frontend build bundles (Vite `dist/`, Next.js `.next/`) to ensure private API keys, payment secret tokens, or internal database URLs (`SUPABASE_SERVICE_ROLE`) are never bundled into client bundles.
 - **`TG-DB-001` (Direct Client Database Access):** Forbids client-side JavaScript from executing direct database queries with privileged database credentials.
+- **`TG-INPUT-003` (DOM TextContent Reset):** Ensures DOM container clearing uses `.textContent = ''` rather than vulnerable `.innerHTML = ''`.
 
 ---
 
-## 3. Human-First Report Presentation Architecture
+## 3. Standardized 75-Column Terminal Visual Width Engine (`term_ui.py`)
 
-TorusGuard formats all outputs into standardized, highly structured Markdown cards designed for seamless collaboration between non-technical stakeholders and security engineers.
-
-### 3.1. Standard Finding Card Layout
-```markdown
-### 🚨 [TG-AUTH-008] Untrusted Role or Tenant Header Injection
-
-| Attribute | Value |
-|---|---|
-| **Severity** | Critical |
-| **Priority** | Immediate (P0) |
-| **Confidence** | 92/100 (Confirmed) |
-| **Target File** | `backend/api/auth.py:L42-48` |
-
-#### 💼 Business Impact
-Attackers can elevate privileges to administrator by crafting custom `X-User-Role` headers, leading to total tenant data compromise.
-
-#### 🔧 Technical Mechanics
-The endpoint reads `request.headers.get("X-User-Role")` directly without cryptographic signature or gateway verification.
-
-#### 📝 Evidence
-```python
-# backend/api/auth.py:42
-user_role = request.headers.get("X-User-Role", "user")
-```
-
-#### 🛠️ Recommended Remediation (FastAPI)
-```python
-# Extract role from cryptographically verified token claims
-async def get_current_user_roles(token: str = Depends(oauth2_scheme)):
-    payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
-    return payload.get("roles", [])
-```
-```
+All TorusGuard terminal outputs adhere to a strict visual width of **75 columns**:
+- **ANSI Stripping:** Cleans color escape sequences before calculating padding.
+- **Unicode Width Math:** Correctly measures double-width emojis (`🛡️`, `✔`, `✖`), zero-width variation selectors (`\ufe0f`), and single-width symbols (`⚠`).
+- **Visual Truncation:** Gracefully truncates long file paths and messages with ellipsis (`...`) to preserve rigid box framing.
 
 ---
 
-## 4. Ticket-Ready Issue Tracker Payloads
-Every finding card includes an expandable `<details>` section containing pre-formatted Markdown ready to copy-paste directly into Jira, GitHub Issues, or Linear tickets.
+## 4. Visual Single-File HTML Posture Dashboard (`html_reporter.py`)
+
+For executive presentations and compliance sign-offs, `npx torusguard report --html` generates a self-contained, zero-external-CDN dark-mode dashboard:
+- **SVG Circular Posture Gauge:** Dynamically animated security health score (0–100).
+- **Interactive Closed-Loop Governance Pipeline:** Visual status cards for all 7 lifecycle stages.
+- **Unified Diff Viewer:** Syntax-highlighted Before/After comparisons with Ponytail line metrics.
+- **Polyglot Ecosystem Badges:** Real-time stack identification cards.
+
+---
+
+## 5. Living Security Report Presentation (`security_report.md`)
+
+The root `security_report.md` provides an immutable ground-truth presentation layer:
+- Formatted with standardized 75-column header cards.
+- Executive summary table mapping severity to root-cause clusters.
+- Real-time Health Score (0–100) reflecting closed and active findings.
+- Detailed finding cards with reproducible issue tracker payloads for GitHub, Jira, and Linear.

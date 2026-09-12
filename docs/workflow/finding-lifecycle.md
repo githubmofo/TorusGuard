@@ -1,79 +1,81 @@
 # TorusGuard Finding Lifecycle Guide
 
-This guide explains how security findings are tracked, classified, verified, remediated, applied, and re-checked using the **TorusGuard Workflow Engine**.
+This guide explains how security findings are tracked, classified, verified, remediated, applied, and re-checked using the **TorusGuard Workflow Engine** and synchronized with the **Living Security Report (`security_report.md`)**.
 
 ---
 
-## 🔄 Finding Lifecycle Overview
+## 🔄 Finding Lifecycle Overview & State Machine
 
-TorusGuard findings follow a strict 7-stage closed-loop state machine:
+TorusGuard findings follow a strict closed-loop state machine synchronized across both Terminal CLI runs and AI Agent chat sessions:
 
 ```text
-Detect ──► Classify ──► Verify ──► Remediate ──► Apply ──► Re-check ──► Archive
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     TORUSGUARD FINDING LIFECYCLE STATE MACHINE              │
+└─────────────────────────────────────────────────────────────────────────────┘
+  [ OPEN 🔴 ] ──(verify)──► [ VERIFIED 🟠 ] ──(harden)──► [ CANDIDATE 🟡 ]
+                                                                 │
+                                                               (apply)
+                                                                 │
+                                                                 ▼
+  [ RESOLVED 🟢 ] ◄──(recheck: confirmed)── [ APPLIED 🔵 ]
+         │
+         └──(recheck: failed)──► [ REGRESSED ❌ ]
 ```
 
 ---
 
-## 1. 🔍 Stage 1: Detect
-- **Trigger:** When `/torusguard audit` is executed across a repository.
-- **Action:** The engine inspects files matching the detected stack (e.g. `settings.py`, `views.py`, `serializers.py`, `schemas.py`, `main.py`, `pyproject.toml`, `requirements.txt`).
-- **Initial Output:** Code fragments and coordinates suspected of containing security weaknesses.
+## 1. 🔍 Stage 1: Discovery (`OPEN 🔴`)
+- **CLI:** `npx torusguard audit`
+- **Chat:** `/torusguard audit`
+- **Action:** Scans repository source files against all 74 AST rules across 18 families.
+- **Ledger Sync:** Finding is added to `security_report.md` with status `OPEN 🔴` and initial confidence score (0–100).
+- **Artifacts:** `security_report.md`, `.torusguard/runs/<run_id>/findings.json`.
 
 ---
 
-## 2. 🏷️ Stage 2: Classify
-- **Action:** The candidate is normalized into the TorusGuard finding schema:
-  - **Rule ID:** Canonical identifier (e.g. `TG-AUTH-007`).
-  - **Taxonomy Category:** One of 12 normalized categories (e.g. `authentication-authorization`, `agent`, `edge`).
-  - **Severity:** `Critical`, `High`, `Medium`, `Low`, or `Informational`.
-  - **Initial Confidence:** `Confirmed`, `High Confidence`, or `Needs Review`.
-- **Status:** Transitioned to `In Verification`.
+## 2. 🛡️ Stage 2: Evidence Verification (`VERIFIED 🟠`)
+- **CLI:** `npx torusguard verify` (or `npx torusguard web-validate`)
+- **Chat:** `/torusguard verify` (or `/torusguard web-validate`)
+- **Action:** Evaluates source code line matches, confirms line-shift invariant fingerprints (`FindingFingerprint`), and audits evidence sufficiency.
+- **Ledger Sync:** Validated findings transition to `VERIFIED 🟠`. If protected by external gateways or absent on disk, status is set to `FALSE POSITIVE ⚪`.
 
 ---
 
-## 3. 🛡️ Stage 3: Verify
-- **Objective:** Establish whether the finding is a genuine, reachable vulnerability via static scoring or authorized runtime probing (`/torusguard verify`, `web-validate`, `exploit-check`).
-- **Evidence Evaluation Standard:**
-  - **`Confirmed`:** Requires direct source evidence or runtime canary confirmation proving that an attacker-controlled parameter reaches an unmitigated sensitive sink.
-  - **`Needs Review`:** Assigned whenever the code delegates protection to an external layer:
-    - *Service Layer Delegation:* Controller calls `OrderService.get_order(id, user)` (must inspect service layer).
-    - *Upstream Reverse Proxy:* Missing CSRF middleware on an internal API guarded by an API Gateway.
-    - *Cloud IAM:* Database credentials managed via instance metadata or AWS IAM roles.
-- **Rule:** A finding **cannot** be classified as `Confirmed` on assumptions alone.
+## 3. 🛠️ Stage 3: Patch Formulation (`CANDIDATE 🟡`)
+- **CLI:** `npx torusguard harden`
+- **Chat:** `/torusguard harden`
+- **Action:** Formulates minimal surgical candidate patches adhering strictly to the **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions per bundle).
+- **Ledger Sync:** Transitioned to `CANDIDATE 🟡` with patch diff referenced in candidate bundle directory.
 
 ---
 
-## 4. 🛠️ Stage 4: Remediate
-- **Formulation (`/torusguard harden`):** Generates 4-artifact remediation packages adhering to the Ponytail Protocol:
-  - **`finding.md`:** Finding card and line coordinates.
-  - **`remediation.md`:** Technical mechanics and Before/After examples.
-  - **`minimal_patch_plan.md`:** Surgical patch bounded by $\le 35$ additions and $\le 25$ deletions.
-  - **`verify-after-change.md`:** Concrete validation recipe.
+## 4. ⚡ Stage 4: Governed Application (`APPLIED 🔵`)
+- **CLI:** `npx torusguard apply [--yes]`
+- **Chat:** `/torusguard apply`
+- **Action:** Human Gate presents interactive diffs (`[y/N/all/quit]`). Automatically creates byte-for-byte rollback backups in `.torusguard/snapshots/<run_id>/` before modifying target files on disk.
+- **Ledger Sync:** Status transitions to `APPLIED 🔵`.
 
 ---
 
-## 5. ⚡ Stage 5: Apply
-- **Execution (`/torusguard apply`):** Employs the Ponytail engine to apply surgical, minimal patches directly to repository source files.
-- **Rollback Safety:** Automatically writes byte-for-byte rollback copies to `pre_apply/<file>.bak` before modifying any target file.
+## 5. 🔁 Stage 5: Differential Recheck (`RESOLVED 🟢` / `REGRESSED ❌`)
+- **CLI:** `npx torusguard recheck`
+- **Chat:** `/torusguard recheck`
+- **Action:** Scopes AST re-scan strictly to modified files and trust boundaries.
+- **Transitions:**
+  - `✔ [Confirmed Fixed]` $\rightarrow$ transitions finding to `RESOLVED 🟢`.
+  - `✖ [Regressed]` $\rightarrow$ transitions finding to `REGRESSED ❌` and alerts operator.
+- **Memory Distillation:** Verified fixes are distilled into Golden Fix Recipes in `.torusguard/memory/patterns.json`.
 
 ---
 
-## 6. 🔁 Stage 6: Re-check
-- **Verification (`/torusguard recheck`):** Scopes differential re-audits strictly to modified files, asserting `Confirmed Fixed` or detecting regressions.
+## 📊 Summary of Lifecycle Statuses
 
----
-
-## 7. 📦 Stage 7: Archive
-- **Reporting (`/torusguard report`):** Emits signed executive markdown reports and exports OASIS SARIF v2.1.0 scan results for CI/CD integration.
----
-
-## 📊 Summary of Status Values
-
-| Status | Meaning | Permitted Next Actions |
-|---|---|---|
-| **`Open`** | Validated vulnerability awaiting remediation | Generate fix via `/torusguard harden` |
-| **`In Verification`** | Under evidence review or manual inspection | Verify reachability; resolve `Needs Review` questions |
-| **`Remediation Proposed`** | Hardened code snippet generated | Apply patch via `/torusguard apply` |
-| **`Remediated` / `Verified Safe`** | Post-fix re-check confirmed resolution | Advance to archive |
-| **`Suppressed`** | Accepted risk with documented business justification | Record architectural rationale |
-| **`Archived`** | Preserved in historical compliance record | Stored |
+| Lifecycle Status | Symbol | Operational Meaning | Permitted Next Action |
+| :--- | :---: | :--- | :--- |
+| **`OPEN`** | 🔴 | Newly discovered candidate finding awaiting review | Run `verify` or `harden` |
+| **`VERIFIED`** | 🟠 | Evidence confirmed and line coordinates validated | Run `harden` |
+| **`CANDIDATE`** | 🟡 | Surgical Ponytail patch formulated in bundle | Run `apply` |
+| **`APPLIED`** | 🔵 | Patch applied to disk; backup saved in snapshots | Run `recheck` |
+| **`RESOLVED`** | 🟢 | Recheck confirmed fix closure with 0 regressions | Distill Golden Recipe |
+| **`REGRESSED`** | ❌ | Recheck detected secondary vulnerability or incomplete fix | Run `rollback` or re-harden |
+| **`FALSE POSITIVE`**| ⚪ | Insufficient evidence, mock fixture, or protected route | Closed with explanation |

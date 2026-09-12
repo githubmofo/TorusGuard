@@ -1,10 +1,11 @@
 ---
 name: torusguard-full
 description: Master 7-stage security pipeline orchestrator — coordinates discovery, authorization, static audit, runtime validation, governed remediation, recheck, and reporting.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/audit.md
-tools: Read, Grep, Glob, Bash, Edit, Write
+tools: Read, Grep, Glob, Bash, Edit, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/stack_detect.py
   - .torusguard/scripts/safety_gate.py
   - .torusguard/scripts/finding_scorer.py
@@ -52,6 +53,10 @@ Execute the full, closed-loop TorusGuard security lifecycle from stack discovery
 Evaluates Evidence (35 pts), Reproduction (25 pts), Corroboration (15 pts), Environment (15 pts), and Review Status (10 pts) into 4 bands: Confirmed (90–100), High (70–89), Medium (50–69), Needs Review (<50).
 
 ---
+
+## Living Report Ground Truth
+- Always inspect `security_report.md` at workspace root before acting.
+- Update finding statuses after completion to eliminate hallucination.
 
 ## Safety & Governance
 - Human Gate mandatory before code modifications in Phase 5.

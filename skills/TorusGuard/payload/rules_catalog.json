@@ -1,0 +1,520 @@
+{
+  "TG-AUTH-001": {
+    "id": "TG-AUTH-001",
+    "title": "Weak Password Storage",
+    "severity": "Critical",
+    "category": "auth",
+    "file": "TG-AUTH-001-weak-password-storage.md"
+  },
+  "TG-AUTH-002": {
+    "id": "TG-AUTH-002",
+    "title": "Client-Only Authorization",
+    "severity": "High",
+    "category": "auth",
+    "file": "TG-AUTH-002-client-only-authorization.md"
+  },
+  "TG-AUTH-003": {
+    "id": "TG-AUTH-003",
+    "title": "Missing Object-Level Authorization (IDOR)",
+    "severity": "High",
+    "category": "auth",
+    "file": "TG-AUTH-003-missing-object-authorization.md"
+  },
+  "TG-AUTH-004": {
+    "id": "TG-AUTH-004",
+    "title": "Insecure Session Cookie Configuration",
+    "severity": "High",
+    "category": "auth",
+    "file": "TG-AUTH-004-insecure-session-cookie.md"
+  },
+  "TG-AUTH-005": {
+    "id": "TG-AUTH-005",
+    "title": "Unsafe Password Reset Flow",
+    "severity": "High",
+    "category": "auth",
+    "file": "TG-AUTH-005-unsafe-password-reset.md"
+  },
+  "TG-CLIENT-001": {
+    "id": "TG-CLIENT-001",
+    "title": "Public Production Source Maps",
+    "severity": "Medium",
+    "category": "client",
+    "file": "TG-CLIENT-001-public-production-source-maps.md"
+  },
+  "TG-CLIENT-002": {
+    "id": "TG-CLIENT-002",
+    "title": "Sensitive Client Bundle Content",
+    "severity": "High",
+    "category": "client",
+    "file": "TG-CLIENT-002-sensitive-client-bundle-content.md"
+  },
+  "TG-DB-001": {
+    "id": "TG-DB-001",
+    "title": "Frontend Database Query Logic",
+    "severity": "High",
+    "category": "db",
+    "file": "TG-DB-001-frontend-database-query.md"
+  },
+  "TG-DB-002": {
+    "id": "TG-DB-002",
+    "title": "Privileged Database Credential in Browser Context",
+    "severity": "Critical",
+    "category": "db",
+    "file": "TG-DB-002-privileged-database-credential.md"
+  },
+  "TG-DB-003": {
+    "id": "TG-DB-003",
+    "title": "Frontend Use of Admin or Server-Only Database SDKs",
+    "severity": "Critical",
+    "category": "db",
+    "file": "TG-DB-003-frontend-admin-sdk.md"
+  },
+  "TG-DB-004": {
+    "id": "TG-DB-004",
+    "title": "Missing Tenant Query Isolation in Multi-Tenant Models",
+    "severity": "Critical",
+    "category": "db",
+    "file": "TG-DB-004-missing-tenant-query-isolation.md"
+  },
+  "TG-DIFF-001": {
+    "id": "TG-DIFF-001",
+    "title": "Accidental Security Check Bypass in Patch Additions",
+    "severity": "Critical",
+    "category": "diff",
+    "file": "TG-DIFF-001.md"
+  },
+  "TG-DIFF-002": {
+    "id": "TG-DIFF-002",
+    "title": "Secret and Token Ingestion in Patch Additions",
+    "severity": "Critical",
+    "category": "diff",
+    "file": "TG-DIFF-002.md"
+  },
+  "TG-DIFF-003": {
+    "id": "TG-DIFF-003",
+    "title": "Unintentional Removal of Tenant Filter in Patch Deletions",
+    "severity": "High",
+    "category": "diff",
+    "file": "TG-DIFF-003.md"
+  },
+  "TG-INPUT-001": {
+    "id": "TG-INPUT-001",
+    "title": "Missing Server-Side Validation",
+    "severity": "High",
+    "category": "input",
+    "file": "TG-INPUT-001-missing-server-validation.md"
+  },
+  "TG-INPUT-002": {
+    "id": "TG-INPUT-002",
+    "title": "Raw SQL Concatenation",
+    "severity": "Critical",
+    "category": "input",
+    "file": "TG-INPUT-002-raw-sql-concatenation.md"
+  },
+  "TG-INPUT-003": {
+    "id": "TG-INPUT-003",
+    "title": "Unsafe HTML Rendering or Code Execution",
+    "severity": "High",
+    "category": "input",
+    "file": "TG-INPUT-003-unsafe-html-or-code-execution.md"
+  },
+  "TG-INPUT-004": {
+    "id": "TG-INPUT-004",
+    "title": "Unrestricted File Upload",
+    "severity": "High",
+    "category": "input",
+    "file": "TG-INPUT-004-unrestricted-file-upload.md"
+  },
+  "TG-INPUT-005": {
+    "id": "TG-INPUT-005",
+    "title": "Unsafe Template Rendering & Disabled Autoescaping",
+    "severity": "High",
+    "category": "input",
+    "file": "TG-INPUT-005-unsafe-template-rendering-and-escaping.md"
+  },
+  "TG-INPUT-006": {
+    "id": "TG-INPUT-006",
+    "title": "Path Traversal and Unsafe Upload Storage",
+    "severity": "Critical",
+    "category": "input",
+    "file": "TG-INPUT-006-unsafe-file-path-traversal.md"
+  },
+  "TG-PLATFORM-001": {
+    "id": "TG-PLATFORM-001",
+    "title": "Wildcard CORS With Credentials",
+    "severity": "High",
+    "category": "platform",
+    "file": "TG-PLATFORM-001-wildcard-cors-with-credentials.md"
+  },
+  "TG-PLATFORM-002": {
+    "id": "TG-PLATFORM-002",
+    "title": "Missing Security Headers",
+    "severity": "Medium",
+    "category": "platform",
+    "file": "TG-PLATFORM-002-missing-security-headers.md"
+  },
+  "TG-PLATFORM-003": {
+    "id": "TG-PLATFORM-003",
+    "title": "Production Stack Trace Exposure",
+    "severity": "Medium",
+    "category": "platform",
+    "file": "TG-PLATFORM-003-production-stack-trace-exposure.md"
+  },
+  "TG-PLATFORM-004": {
+    "id": "TG-PLATFORM-004",
+    "title": "Missing Request Size Limits",
+    "severity": "Medium",
+    "category": "platform",
+    "file": "TG-PLATFORM-004-missing-request-size-limits.md"
+  },
+  "TG-RATE-001": {
+    "id": "TG-RATE-001",
+    "title": "Unlimited Authentication Endpoint",
+    "severity": "High",
+    "category": "rate",
+    "file": "TG-RATE-001-unlimited-auth-endpoint.md"
+  },
+  "TG-RATE-002": {
+    "id": "TG-RATE-002",
+    "title": "Unlimited Public Write Endpoint",
+    "severity": "Medium",
+    "category": "rate",
+    "file": "TG-RATE-002-unlimited-public-write-endpoint.md"
+  },
+  "TG-RATE-003": {
+    "id": "TG-RATE-003",
+    "title": "Unbounded Resource Consumption",
+    "severity": "High",
+    "category": "rate",
+    "file": "TG-RATE-003-unbounded-resource-consumption.md"
+  },
+  "TG-SEC-001": {
+    "id": "TG-SEC-001",
+    "title": "Hardcoded Secrets in Tracked Source",
+    "severity": "Critical",
+    "category": "sec",
+    "file": "TG-SEC-001-hardcoded-secrets.md"
+  },
+  "TG-SEC-002": {
+    "id": "TG-SEC-002",
+    "title": "Secrets in Public Environment Variables",
+    "severity": "Critical",
+    "category": "sec",
+    "file": "TG-SEC-002-public-environment-secrets.md"
+  },
+  "TG-SEC-003": {
+    "id": "TG-SEC-003",
+    "title": "Tracked Environment File",
+    "severity": "High",
+    "category": "sec",
+    "file": "TG-SEC-003-tracked-env-file.md"
+  },
+  "TG-SEC-004": {
+    "id": "TG-SEC-004",
+    "title": "Sensitive Information in Logs",
+    "severity": "Medium",
+    "category": "sec",
+    "file": "TG-SEC-004-sensitive-logging.md"
+  },
+  "TG-AGENT-001": {
+    "id": "TG-AGENT-001",
+    "title": "Prompt Injection in System Context Files",
+    "severity": "Critical",
+    "category": "agent",
+    "file": "TG-AGENT-001-prompt-injection-system-context.md"
+  },
+  "TG-AGENT-002": {
+    "id": "TG-AGENT-002",
+    "title": "Unsafe Tool Dispatch & Shell Execution without Sandboxing",
+    "severity": "Critical",
+    "category": "agent",
+    "file": "TG-AGENT-002-unsafe-tool-dispatch-unsandboxed-execution.md"
+  },
+  "TG-AGENT-003": {
+    "id": "TG-AGENT-003",
+    "title": "Overly Broad MCP Tool Scoping & Credential Access",
+    "severity": "High",
+    "category": "agent",
+    "file": "TG-AGENT-003-broad-mcp-tool-scoping.md"
+  },
+  "TG-AGENT-004": {
+    "id": "TG-AGENT-004",
+    "title": "Persistent Memory & Cross-Session Information Leakage",
+    "severity": "High",
+    "category": "agent",
+    "file": "TG-AGENT-004-persistent-memory-cross-session-leakage.md"
+  },
+  "TG-AUTH-006": {
+    "id": "TG-AUTH-006",
+    "title": "Mass Assignment & Privilege Escalation via Payloads",
+    "severity": "Critical",
+    "category": "auth",
+    "file": "TG-AUTH-006-mass-assignment.md"
+  },
+  "TG-AUTH-007": {
+    "id": "TG-AUTH-007",
+    "title": "Missing Object-Level and Property-Level Authorization (IDOR)",
+    "severity": "Critical",
+    "category": "auth",
+    "file": "TG-AUTH-007-missing-property-level-authorization.md"
+  },
+  "TG-AUTH-008": {
+    "id": "TG-AUTH-008",
+    "title": "Untrusted Role or Tenant Header Injection",
+    "severity": "Critical",
+    "category": "auth",
+    "file": "TG-AUTH-008-untrusted-role-header-injection.md"
+  },
+  "TG-BIZ-001": {
+    "id": "TG-BIZ-001",
+    "title": "Client-Controlled Sensitive Business Value",
+    "severity": "Critical",
+    "category": "biz",
+    "file": "TG-BIZ-001-client-controlled-sensitive-business-value.md"
+  },
+  "TG-BIZ-002": {
+    "id": "TG-BIZ-002",
+    "title": "Replayable One-Time Operation",
+    "severity": "Critical",
+    "category": "biz",
+    "file": "TG-BIZ-002-replayable-one-time-operation.md"
+  },
+  "TG-BIZ-003": {
+    "id": "TG-BIZ-003",
+    "title": "Missing Workflow-State Validation",
+    "severity": "Critical",
+    "category": "biz",
+    "file": "TG-BIZ-003-missing-workflow-state-validation.md"
+  },
+  "TG-BIZ-004": {
+    "id": "TG-BIZ-004",
+    "title": "Unrestricted Sensitive Business Flow",
+    "severity": "Critical",
+    "category": "biz",
+    "file": "TG-BIZ-004-unrestricted-sensitive-business-flow.md"
+  },
+  "TG-CACHE-001": {
+    "id": "TG-CACHE-001",
+    "title": "Sensitive Response Publicly Cacheable",
+    "severity": "Critical",
+    "category": "cache",
+    "file": "TG-CACHE-001-sensitive-response-publicly-cacheable.md"
+  },
+  "TG-CACHE-002": {
+    "id": "TG-CACHE-002",
+    "title": "Missing User Cache Isolation",
+    "severity": "Critical",
+    "category": "cache",
+    "file": "TG-CACHE-002-missing-user-cache-isolation.md"
+  },
+  "TG-CACHE-003": {
+    "id": "TG-CACHE-003",
+    "title": "Sensitive Data in URL",
+    "severity": "Critical",
+    "category": "cache",
+    "file": "TG-CACHE-003-sensitive-data-in-url.md"
+  },
+  "TG-CSRF-001": {
+    "id": "TG-CSRF-001",
+    "title": "Missing CSRF Protection",
+    "severity": "Critical",
+    "category": "csrf",
+    "file": "TG-CSRF-001-missing-csrf-protection.md"
+  },
+  "TG-CSRF-002": {
+    "id": "TG-CSRF-002",
+    "title": "Unsafe Credentialed Cross-Origin Request",
+    "severity": "Critical",
+    "category": "csrf",
+    "file": "TG-CSRF-002-unsafe-credentialed-cross-origin-request.md"
+  },
+  "TG-EDGE-001": {
+    "id": "TG-EDGE-001",
+    "title": "Serverless & Edge Global State Memory Leakage",
+    "severity": "High",
+    "category": "edge",
+    "file": "TG-EDGE-001-serverless-global-state-leak.md"
+  },
+  "TG-EDGE-003": {
+    "id": "TG-EDGE-003",
+    "title": "AWS Lambda Ephemeral Execution & Cold Start Security",
+    "severity": "High",
+    "category": "edge",
+    "file": "TG-EDGE-003-aws-lambda-ephemeral-cold-start.md"
+  },
+  "TG-GQL-001": {
+    "id": "TG-GQL-001",
+    "title": "Missing Query Depth or Complexity Limits",
+    "severity": "High",
+    "category": "gql",
+    "file": "TG-GQL-001-missing-query-depth-or-complexity-limits.md"
+  },
+  "TG-GQL-002": {
+    "id": "TG-GQL-002",
+    "title": "Resolver Missing Authorization",
+    "severity": "Critical",
+    "category": "gql",
+    "file": "TG-GQL-002-resolver-missing-authorization.md"
+  },
+  "TG-GQL-003": {
+    "id": "TG-GQL-003",
+    "title": "Unbounded GraphQL Pagination or Batching",
+    "severity": "Critical",
+    "category": "gql",
+    "file": "TG-GQL-003-unbounded-graphql-pagination-or-batching.md"
+  },
+  "TG-GQL-004": {
+    "id": "TG-GQL-004",
+    "title": "Unnecessary Production Introspection",
+    "severity": "Critical",
+    "category": "gql",
+    "file": "TG-GQL-004-unnecessary-production-introspection.md"
+  },
+  "TG-SEC-005": {
+    "id": "TG-SEC-005",
+    "title": "Secret in Git History",
+    "severity": "Critical",
+    "category": "sec",
+    "file": "TG-SEC-005-secret-in-git-history.md"
+  },
+  "TG-SEC-006": {
+    "id": "TG-SEC-006",
+    "title": "Secret in Build Artifact",
+    "severity": "Critical",
+    "category": "sec",
+    "file": "TG-SEC-006-secret-in-build-artifact.md"
+  },
+  "TG-SEC-007": {
+    "id": "TG-SEC-007",
+    "title": "Secret in Test or Example Fixture",
+    "severity": "Critical",
+    "category": "sec",
+    "file": "TG-SEC-007-secret-in-test-or-example-fixture.md"
+  },
+  "TG-SSRF-001": {
+    "id": "TG-SSRF-001",
+    "title": "User-Controlled Server-Side URL Fetch",
+    "severity": "Critical",
+    "category": "ssrf",
+    "file": "TG-SSRF-001-user-controlled-server-side-url-fetch.md"
+  },
+  "TG-SSRF-002": {
+    "id": "TG-SSRF-002",
+    "title": "Missing Internal Network Protection",
+    "severity": "Critical",
+    "category": "ssrf",
+    "file": "TG-SSRF-002-missing-internal-network-protection.md"
+  },
+  "TG-SSRF-003": {
+    "id": "TG-SSRF-003",
+    "title": "Unsafe Redirect Following",
+    "severity": "Critical",
+    "category": "ssrf",
+    "file": "TG-SSRF-003-unsafe-redirect-following.md"
+  },
+  "TG-SSRF-004": {
+    "id": "TG-SSRF-004",
+    "title": "Unbounded Outbound Request",
+    "severity": "Critical",
+    "category": "ssrf",
+    "file": "TG-SSRF-004-unbounded-outbound-request.md"
+  },
+  "TG-SUPPLY-001": {
+    "id": "TG-SUPPLY-001",
+    "title": "Missing or Ignored Dependency Lockfile",
+    "severity": "Critical",
+    "category": "supply",
+    "file": "TG-SUPPLY-001-missing-or-ignored-dependency-lockfile.md"
+  },
+  "TG-SUPPLY-002": {
+    "id": "TG-SUPPLY-002",
+    "title": "Vulnerable Dependency Review Missing",
+    "severity": "Critical",
+    "category": "supply",
+    "file": "TG-SUPPLY-002-vulnerable-dependency-review-missing.md"
+  },
+  "TG-SUPPLY-003": {
+    "id": "TG-SUPPLY-003",
+    "title": "Unsafe CI/CD Secret Exposure",
+    "severity": "Critical",
+    "category": "supply",
+    "file": "TG-SUPPLY-003-unsafe-ci-cd-secret-exposure.md"
+  },
+  "TG-SUPPLY-004": {
+    "id": "TG-SUPPLY-004",
+    "title": "Unpinned CI Action",
+    "severity": "Critical",
+    "category": "supply",
+    "file": "TG-SUPPLY-004-unpinned-ci-action.md"
+  },
+  "TG-SUPPLY-005": {
+    "id": "TG-SUPPLY-005",
+    "title": "Unsafe Dependency Install Script",
+    "severity": "Critical",
+    "category": "supply",
+    "file": "TG-SUPPLY-005-unsafe-dependency-install-script.md"
+  },
+  "TG-SUPPLY-006": {
+    "id": "TG-SUPPLY-006",
+    "title": "Container Build Secret Persistence",
+    "severity": "High",
+    "category": "supply",
+    "file": "TG-SUPPLY-006-container-build-secret-persistence.md"
+  },
+  "TG-WEBHOOK-001": {
+    "id": "TG-WEBHOOK-001",
+    "title": "Missing Webhook Signature Verification",
+    "severity": "Critical",
+    "category": "webhook",
+    "file": "TG-WEBHOOK-001-missing-webhook-signature-verification.md"
+  },
+  "TG-WEBHOOK-002": {
+    "id": "TG-WEBHOOK-002",
+    "title": "Replayable Webhook",
+    "severity": "Critical",
+    "category": "webhook",
+    "file": "TG-WEBHOOK-002-replayable-webhook.md"
+  },
+  "TG-WEBHOOK-003": {
+    "id": "TG-WEBHOOK-003",
+    "title": "Missing Webhook Idempotency",
+    "severity": "Critical",
+    "category": "webhook",
+    "file": "TG-WEBHOOK-003-missing-webhook-idempotency.md"
+  },
+  "TG-WEBHOOK-004": {
+    "id": "TG-WEBHOOK-004",
+    "title": "Unvalidated Webhook Event Type",
+    "severity": "Critical",
+    "category": "webhook",
+    "file": "TG-WEBHOOK-004-unvalidated-webhook-event-type.md"
+  },
+  "TG-WS-001": {
+    "id": "TG-WS-001",
+    "title": "Unauthenticated WebSocket Handshake",
+    "severity": "High",
+    "category": "ws",
+    "file": "TG-WS-001-unauthenticated-websocket-handshake.md"
+  },
+  "TG-WS-002": {
+    "id": "TG-WS-002",
+    "title": "Missing Channel-Level Authorization",
+    "severity": "Critical",
+    "category": "ws",
+    "file": "TG-WS-002-missing-channel-level-authorization.md"
+  },
+  "TG-WS-003": {
+    "id": "TG-WS-003",
+    "title": "Unvalidated WebSocket Message",
+    "severity": "Critical",
+    "category": "ws",
+    "file": "TG-WS-003-unvalidated-websocket-message.md"
+  },
+  "TG-WS-004": {
+    "id": "TG-WS-004",
+    "title": "Unbounded WebSocket Connections",
+    "severity": "Critical",
+    "category": "ws",
+    "file": "TG-WS-004-unbounded-websocket-connections.md"
+  }
+}

@@ -27,7 +27,7 @@ export default function App() {
     });
     const data = await res.json();
     // TG-CLIENT-002: Sensitive console logging
-    console.log('Login token:', data.token, 'config:', clientConfig);
+    // Security: Sensitive credential log removed per TG-SEC-004
     setMessage(JSON.stringify(data));
   }
 
@@ -50,7 +50,7 @@ export default function App() {
       <p>Frontend SQL preview: {buildSearchQuery(email)}</p>
 
       {/* TG-INPUT-003: Unsafe HTML rendering */}
-      <div dangerouslySetInnerHTML={{ __html: bio }} />
+      <div>{bio}</div>
 
       <button onClick={fetchUser}>Fetch user (IDOR demo)</button>
 

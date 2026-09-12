@@ -2,13 +2,13 @@
 
 ## 🎯 Purpose
 
-This guide explains how engineering teams, security reviewers, and AI coding agents can use TorusGuard reports to triage vulnerabilities, convert findings into issue tickets, apply code patches, and verify closure.
+This guide explains how engineering teams, security reviewers, and AI coding agents can use TorusGuard reports to triage vulnerabilities, convert findings into issue tickets, apply code patches, and verify closure using both Terminal CLI commands and AI Agent Chat slash commands.
 
 ---
 
 ## 🚦 1. Triage Workflow by Priority
 
-When reviewing findings in a TorusGuard report, follow this triage order:
+When reviewing findings in `security_report.md` or an audit report, follow this triage order:
 
 ```text
 ┌────────────────────────────────────────┐
@@ -24,11 +24,10 @@ When reviewing findings in a TorusGuard report, follow this triage order:
 
 ## 🎫 2. Creating Issue Tracker Tickets (GitHub / Jira / Linear)
 
-Every finding card includes a pre-formatted payload:
+Every finding card in `security_report.md` and audit run manifests includes an issue tracker payload:
 
-1. Click on the expandable `<details>` section: **🎫 Copy-Paste Issue Tracker Payload**.
-2. Copy the markdown content.
-3. Paste directly into your team's issue tracker (GitHub Issue, Jira Story, or Linear Issue).
+1. Copy the markdown content from the finding card.
+2. Paste directly into your team's issue tracker (GitHub Issue, Jira Story, or Linear Issue).
 
 ### Example Issue Payload
 ```markdown
@@ -46,17 +45,21 @@ Unauthorized users can access financial records and private customer invoices ac
 Filter querysets by authenticated user ownership: `Invoice.objects.filter(owner=request.user)`.
 
 #### Verification
-Run `/torusguard recheck` to verify resolution.
+Run `npx torusguard recheck` or `/torusguard recheck` to verify resolution.
 ```
 
 ---
 
 ## 🔁 3. Remediation & Closure Verification
 
-1. **Formulate Bounded Patch:** Run `/torusguard harden` to generate 4-artifact remediation packages strictly adhering to the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions).
-2. **Apply the Patch:** Run `/torusguard apply` to apply the surgical diff directly to repository files with automated rollback backup in `pre_apply/<file>.bak`.
+1. **Formulate Bounded Patch:** Run `npx torusguard harden` (or `/torusguard harden`) to generate surgical remediation packages strictly adhering to the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions).
+2. **Apply the Patch:** Run `npx torusguard apply [--yes]` (or `/torusguard apply`) to apply surgical diffs with automated pre-apply rollback backups in `.torusguard/snapshots/<run_id>/`.
 3. **Execute Targeted Recheck:**
    ```bash
+   # Terminal CLI
+   npx torusguard recheck
+
+   # AI Agent Chat
    /torusguard recheck
    ```
-4. **Assert State:** Verify the finding transitions to **`🟢 Verified Fixed`**, records the post-fix SHA-256 evidence checksum in the audit trail, and exports the updated SARIF report via `/torusguard report`.
+4. **Living Security Report Closure:** Once `recheck` confirms resolution, `security_report.md` marks the finding as `RESOLVED 🟢` and updates the workspace Health Score (0–100). The fix is distilled into a Golden Fix Recipe in `.torusguard/memory/patterns.json`.

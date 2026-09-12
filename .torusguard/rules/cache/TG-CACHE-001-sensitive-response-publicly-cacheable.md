@@ -1,37 +1,45 @@
 # TG-CACHE-001: Sensitive Response Publicly Cacheable
 
 ## Severity
-High by default. Raise to Critical when applicable.
+High. Serving authenticated personal data, financial records, or credentials without private `Cache-Control` headers allows shared intermediary proxy servers and CDNs to cache and leak sensitive records to other users.
 
 ## Applies To
-- Relevant endpoints and services
+- Authenticated Endpoints, User Profiles, Billing Dashboards
+- Express, Next.js, FastAPI, Django, Flask, Rails, Spring
 
 ## Why It Matters
-Explaining the risk of this vulnerability.
+When endpoints returning PII omit cache control directives, shared corporate proxies or public edge CDNs may cache the response. Subsequent requests from other users on the same proxy can receive the cached personal data of the initial requester.
 
 ## What TorusGuard Looks For
-- Specific code patterns or configurations
+- Routes returning user profiles, tokens, or private data with `Cache-Control: public` or missing `Cache-Control` entirely.
 
 ## Unsafe Example
 ```javascript
-// Unsafe code example
+// UNSAFE: Missing cache control or explicitly public caching on private data
+app.get('/api/user/profile', authMiddleware, (req, res) => {
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.json(req.user);
+});
 ```
 
 ## Safe Example
 ```javascript
-// Safe code example
+// SAFE: Explicit private no-store cache control on sensitive responses
+app.get('/api/user/profile', authMiddleware, (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.json(req.user);
+});
 ```
 
+## Ponytail Remediation Budget
+- Additions: <= 4 lines
+- Deletions: <= 2 lines
+
 ## Remediation
-1. Step one
-2. Step two
-
-## Verification
-- Test case 1
-- Test case 2
-
-## False Positives and Exceptions
-An exception requires documented review.
+1. Inject global middleware setting `Cache-Control: no-store, private` on all authenticated API responses.
+2. Verify reverse proxies and CDNs do not cache responses containing `Authorization` or `Cookie` headers.
 
 ## Related Rules
-- TG-OTHER-001
+- `TG-CACHE-002`: Missing User Cache Isolation
+- `TG-PLATFORM-002`: Missing Security Headers

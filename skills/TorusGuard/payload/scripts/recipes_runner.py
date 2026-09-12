@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Golden Fix Recipe Explorer (v1.3.3)
+TorusGuard Golden Fix Recipe Explorer (v1.3.5)
 Inspect, list, and export reusable, verified AST remediation code snippets
 distilled from passing security patches and persistent memory patterns.
 Standardized 75-column terminal UI formatting.
@@ -47,7 +47,7 @@ def box_line(content: str, width: int = 67, border: str = "│", border_color: s
         return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
     return f"  {border_color}{border}{RESET}  {content}"
 
-def box_header(title: str, subtitle: str = "", version: str = "v1.3.3", border_color: str = CYAN) -> str:
+def box_header(title: str, subtitle: str = "", version: str = "v1.3.5", border_color: str = CYAN) -> str:
     if term_ui:
         return term_ui.card_header(title, subtitle, version, border_color)
     return f"=== {title} ({version}) ==="
@@ -80,7 +80,7 @@ def list_recipes(target_root: Path, detail_id: Optional[str] = None, json_output
 
     # Header Card
     print()
-    print(box_header("🛡️  TORUSGUARD GOLDEN FIX RECIPES", "Distilled Ponytail Fixes (<= 35 add, <= 25 del) in Persistent Memory", "v1.3.3"))
+    print(box_header("🛡️  TORUSGUARD GOLDEN FIX RECIPES", "Distilled Ponytail Fixes (<= 35 add, <= 25 del) in Persistent Memory", "v1.3.5"))
     print()
 
     if not recipes:

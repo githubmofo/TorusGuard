@@ -1,10 +1,11 @@
 ---
 name: torusguard-apply
 description: Apply governed remediation patches to disk with pre-apply rollback snapshots and Human Gate validation via CLI or AI Agent.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/apply.md
 tools: Read, Grep, Glob, Write, replace_file_content, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/apply_runner.py
   - .torusguard/scripts/term_ui.py
   - .torusguard/scripts/memory_engine.py
@@ -78,3 +79,6 @@ All affected files are restored byte-for-byte from `.torusguard/snapshots/<run_i
 - **Golden Recipe:** Distilled into persistent memory
 - **Next Step:** Run `npx torusguard recheck` or `/torusguard recheck` to verify closure
 ```
+
+## Living Report Ground Truth
+- Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.

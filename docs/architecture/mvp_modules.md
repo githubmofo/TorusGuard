@@ -28,7 +28,7 @@ This document specifies the core Minimum Viable Product (MVP) modules comprising
 - **Interface:** `detect_stack(workspace_path: Path) -> StackProfile`
 
 ### Module 2: Rule Matcher (`core/rule_matcher.py`)
-- **Responsibility:** Evaluates the active 64+ `TG-*` rule definitions against target files, filtering out exclusions (`.venv`, `node_modules`, `migrations`).
+- **Responsibility:** Evaluates the active 74 `TG-*` rule definitions across 18 families against target files, filtering out exclusions (`.venv`, `node_modules`, `migrations`).
 - **Interface:** `evaluate_rules(stack: StackProfile, files: list[Path]) -> list[RawSignal]`
 
 ### Module 3: Confidence Calculator (`core/confidence.py`)
@@ -75,9 +75,21 @@ This document specifies the core Minimum Viable Product (MVP) modules comprising
 - **Responsibility:** Generates and verifies SHA-256 integrity digests across all 112 distribution files in `.torusguard/` and `skills/torusguard/payload/`.
 - **Interface:** `generate_manifest(dir: Path) -> ManifestRecord`, `verify_manifest(dir: Path) -> bool`
 
+### Module 14: Living Security Report Ground-Truth Engine (`scripts/report_sync.py`)
+- **Responsibility:** Maintains `security_report.md` at workspace root as the single source of truth across CLI commands and AI chat sessions. Manages lifecycle transitions (`OPEN 🔴` $\rightarrow$ `VERIFIED 🟠` $\rightarrow$ `CANDIDATE 🟡` $\rightarrow$ `APPLIED 🔵` $\rightarrow$ `RESOLVED 🟢`) and dynamic 0–100 health scoring.
+- **Interface:** `sync_audit_findings(findings)`, `transition_finding(id, status, metadata)`
+
+### Module 15: Standardized 75-Column Terminal Visual Width Engine (`scripts/term_ui.py`)
+- **Responsibility:** Mathematical terminal rendering engine guaranteeing strict 75 visual columns across all commands (`audit`, `harden`, `apply`, `recheck`, `status`). Strips ANSI escape sequences and accounts for wide emojis and zero-width variation selectors.
+- **Interface:** `render_card(title, fields, width=75)`, `render_box(lines, width=75)`
+
+### Module 16: Autonomous Ponytail Remediation Engine (`scripts/harden_runner.py`, `scripts/apply_runner.py`)
+- **Responsibility:** Synthesizes surgical diffs bounded by $\le 35$ additions and $\le 25$ deletions across 19 vulnerability classes with byte-for-byte pre-apply snapshots in `.torusguard/snapshots/<run_id>/`.
+- **Interface:** `formulate_candidate_patches(findings)`, `apply_patches_with_human_gate(bundles)`
+
 ---
 
-## 3. Evolutionary Roadmap to v1.3.0
+## 3. Evolutionary Roadmap to v1.3.5
 - **v0.5.x - v0.6.x (Completed):** File-level static analysis, Markdown reports, 64 rules, Ponytail governed remediation, line churn governance ($\le 35$ additions, $\le 25$ deletions), and multi-tenant clustering.
 - **v0.7.0 (Completed):** Authorized runtime validation, bounded HTTP/browser probes, deterministic replay traces, and dual-category SARIF export.
 - **v0.8.0 (Completed):** AI-agent security skill kit, 5 specialist agent roles (`profiler`, `auditor`, `validator`, `remediator`, `reviewer`), and 11 slash commands.
@@ -86,5 +98,6 @@ This document specifies the core Minimum Viable Product (MVP) modules comprising
 - **v1.0.0 (Completed):** Adaptive Security Memory Engine (`.torusguard/memory/`), 4-tier memory hierarchy, 90-day TTL decay, and memory-augmented confidence scoring.
 - **v1.1.0 (Completed):** File/rule proximity scoring, Golden Fix Recipe learning, role-tailored context windows, and Git pre-commit hooks.
 - **v1.2.0 (Completed):** AI IDE Rules Auto-Sync Engine (`rules_sync.py`) for Cursor, Claude Code, Antigravity, and Windsurf ($\le 400$ token ceiling) and visual single-file HTML posture report (`html_reporter.py`).
-- **v1.3.0 (Current):** Universal Polyglot Security Engine supporting 16+ languages, 30+ frameworks, 20+ ORMs, monorepo fleet discovery (`monorepo_detector.py`), test-path false positive suppression (`is_test_path()`), 1-command git hook installer (`diff_guard.py --install-hook`), multi-stack IDE rules deduplication ($\le 300$ tokens), polyglot HTML dashboard, and 26-repository enterprise portfolio evaluation (100.0% pass rate, 0-byte residual footprint).
+- **v1.3.0 (Completed):** Universal Polyglot Security Engine supporting 16+ languages, 30+ frameworks, 20+ ORMs, monorepo fleet discovery (`monorepo_detector.py`), test-path false positive suppression (`is_test_path()`), 1-command git hook installer (`diff_guard.py --install-hook`), multi-stack IDE rules deduplication ($\le 300$ tokens), polyglot HTML dashboard, and 26-repository enterprise portfolio evaluation (100.0% pass rate, 0-byte residual footprint).
+- **v1.3.5 (Current Active Release Line):** Full 74-rule AST security coverage across all 18 families, Living Security Report ground truth engine (`security_report.md`) with zero hallucination, 19 Ponytail remediation patch templates, 75-column terminal visual width standard, 100/100 verified health score, and 81/81 passing harness tests.
 

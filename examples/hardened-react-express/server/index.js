@@ -14,7 +14,9 @@ if (!process.env.JWT_SECRET) {
   process.exit(1);
 }
 
+const helmet = require("helmet");
 const app = express();
+app.use(helmet());
 const PORT = 3001;
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -46,7 +48,7 @@ function auth(req, res, next) {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
     next();
   } catch {
     return res.status(401).json({ error: 'Unauthorized' });

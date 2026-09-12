@@ -151,7 +151,7 @@ function cardDivider(title = '', borderColor = CYAN, double = false) {
   return `  ${borderColor}${left}${h.repeat(71)}${right}${RESET}`;
 }
 
-function cardHeader(title, subtitle = '', version = 'v1.3.4', borderColor = CYAN) {
+function cardHeader(title, subtitle = '', version = 'v1.3.5', borderColor = CYAN) {
   const top = `  ${borderColor}╭${'─'.repeat(71)}╮${RESET}`;
   const bottom = `  ${borderColor}╰${'─'.repeat(71)}╯${RESET}`;
   const empty = `  ${borderColor}│${' '.repeat(71)}│${RESET}`;
@@ -169,7 +169,7 @@ function cardHeader(title, subtitle = '', version = 'v1.3.4', borderColor = CYAN
 
 function printHelp() {
   console.log();
-  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', 'v1.3.3'));
+  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', 'v1.3.5'));
   console.log(`\n  ${BOLD}Usage:${RESET}  ${GREEN}npx torusguard${RESET} ${WHITE}[command]${RESET} ${GRAY}[options]${RESET}\n`);
 
   console.log(cardBorderTop('Commands'));
@@ -250,9 +250,10 @@ if (command === 'status') {
       }
 
       console.log();
-      console.log(cardHeader('🛡️  TORUSGUARD SECURITY POSTURE', '', 'v1.3.3'));
+      console.log(cardHeader('🛡️  TORUSGUARD SECURITY POSTURE', '', 'v1.3.5'));
       console.log(`\n  ${BOLD}▸ Workspace:${RESET}        ${GREEN}${cwd}${RESET}`);
-      console.log(`  ${BOLD}▸ Governance:${RESET}       ${GREEN}Full Local Governance (.torusguard/)${RESET}\n`);
+      console.log(`  ${BOLD}▸ Governance:${RESET}       ${GREEN}Full Local Governance (.torusguard/)${RESET}`);
+      console.log(`  ${BOLD}▸ Living Report:${RESET}    ${CYAN}security_report.md${RESET}\n`);
 
       console.log(cardBorderTop('Environment & Stack'));
       console.log(formatBoxLine(`Language:          ${BOLD}${stackLang}${RESET}`));
@@ -271,20 +272,24 @@ if (command === 'status') {
       console.log();
 
       console.log(cardBorderTop('Governance Telemetry'));
-      console.log(formatBoxLine(`Rules Catalog:     ${GREEN}71 Canonical Security Rules${RESET} (11 families)`));
+      console.log(formatBoxLine(`Rules Catalog:     ${GREEN}74 Canonical Security Rules${RESET} (18 families)`));
       console.log(formatBoxLine(`Severity Floor:    ${YELLOW}${cfg.severity_threshold || 'medium'}${RESET}`));
       console.log(formatBoxLine(`Runs Directory:    ${DIM}${cfg.runs_dir || '.torusguard/runs'}${RESET}`));
       console.log(formatBoxLine(`Ponytail Bounds:   ${GREEN}<= 35 additions, <= 25 deletions${RESET}`));
+      console.log(formatBoxLine(`Living Report:     ${CYAN}security_report.md (ground truth)${RESET}`));
       console.log(cardBorderBottom());
       console.log();
 
-      console.log(cardBorderTop('Rule Families'));
-      console.log(formatBoxLine(`${YELLOW}TG-SEC${RESET}     Secrets & Credentials    ${YELLOW}TG-DB${RESET}      Database Safety`));
-      console.log(formatBoxLine(`${YELLOW}TG-INPUT${RESET}   Input Validation         ${YELLOW}TG-AUTH${RESET}    Authentication`));
-      console.log(formatBoxLine(`${YELLOW}TG-CLIENT${RESET}  Client Bundle Leaks      ${YELLOW}TG-DIFF${RESET}    Diff Inspection`));
-      console.log(formatBoxLine(`${YELLOW}TG-AGENT${RESET}   AI Agent Security        ${YELLOW}TG-EDGE${RESET}    Serverless`));
-      console.log(formatBoxLine(`${YELLOW}TG-SUPPLY${RESET}  Supply Chain & CI/CD     ${YELLOW}TG-SSRF${RESET}    Outbound Net`));
-      console.log(formatBoxLine(`${YELLOW}TG-BIZ${RESET}     Business Logic`));
+      console.log(cardBorderTop('Rule Families (18 Families / 74 Rules)'));
+      console.log(formatBoxLine(`${YELLOW}TG-SEC${RESET}     Secrets (7)              ${YELLOW}TG-DB${RESET}      Database Safety (4)`));
+      console.log(formatBoxLine(`${YELLOW}TG-INPUT${RESET}   Input Validation (6)     ${YELLOW}TG-AUTH${RESET}    Authentication (8)`));
+      console.log(formatBoxLine(`${YELLOW}TG-RATE${RESET}    Rate Limiting (3)        ${YELLOW}TG-AGENT${RESET}   AI Agent Security (4)`));
+      console.log(formatBoxLine(`${YELLOW}TG-SSRF${RESET}    Server Request (4)       ${YELLOW}TG-WEBHOOK${RESET} Webhook Trust (4)`));
+      console.log(formatBoxLine(`${YELLOW}TG-WS${RESET}      WebSocket (4)            ${YELLOW}TG-CSRF${RESET}    Cross-Site Request (2)`));
+      console.log(formatBoxLine(`${YELLOW}TG-GQL${RESET}     GraphQL Security (4)     ${YELLOW}TG-SUPPLY${RESET}  Supply Chain (6)`));
+      console.log(formatBoxLine(`${YELLOW}TG-BIZ${RESET}     Business Logic (4)       ${YELLOW}TG-CACHE${RESET}   Cache Isolation (3)`));
+      console.log(formatBoxLine(`${YELLOW}TG-CLIENT${RESET}  Client Bundles (2)       ${YELLOW}TG-PLATFORM${RESET}Platform Config (4)`));
+      console.log(formatBoxLine(`${YELLOW}TG-DIFF${RESET}    Diff Inspection (3)      ${YELLOW}TG-EDGE${RESET}    Serverless / Edge (2)`));
       console.log(cardBorderBottom());
 
       console.log(`\n  ${DIM}Quick Action:${RESET} In your AI chat, run ${CYAN}/torusguard-audit${RESET} to scan.\n`);

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Targeted Differential Recheck Engine (v1.3.3)
+TorusGuard Targeted Differential Recheck Engine (v1.3.5)
 Executes scoped differential re-audits verifying only impacted files and adjacent boundaries.
 Evaluates formal status transitions (Confirmed Fixed vs Regressed vs Unresolved), updates run manifest,
 and records verification telemetry in the persistent security memory subsystem.
@@ -57,7 +57,7 @@ def box_line(content: str, width: int = 67, border: str = "│", border_color: s
         return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
     return f"  {border_color}{border}{RESET}  {content}"
 
-def box_header(title: str, subtitle: str = "", version: str = "v1.3.3", border_color: str = CYAN) -> str:
+def box_header(title: str, subtitle: str = "", version: str = "v1.3.5", border_color: str = CYAN) -> str:
     if term_ui:
         return term_ui.card_header(title, subtitle, version, border_color)
     return f"=== {title} ({version}) ==="
@@ -106,7 +106,7 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
 
     # Header Card
     print()
-    print(box_header("🛡️  TORUSGUARD DIFFERENTIAL RECHECK ENGINE", "Targeted Differential AST Scan & Regression Verification", "v1.3.3"))
+    print(box_header("🛡️  TORUSGUARD DIFFERENTIAL RECHECK ENGINE", "Targeted Differential AST Scan & Regression Verification", "v1.3.5"))
     print()
 
     print(border_top("Recheck Verification Scope"))
@@ -183,6 +183,15 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
 
     # Write recheck.md
     (run_folder / "recheck.md").write_text("\n".join(recheck_md_lines), encoding="utf-8")
+    try:
+        import report_sync
+        report_sync.record_recheck_results(target_root, {
+            "fixed": [r for r in recheck_results if r.get("outcome") == "Confirmed Fixed"],
+            "regressed": [r for r in recheck_results if r.get("outcome") == "Regressed"],
+            "remaining": [r for r in recheck_results if r.get("outcome") == "Unresolved"]
+        }, run_folder.name)
+    except Exception:
+        pass
 
     # Update manifest
     manifest_file = run_folder / "manifest.json"
@@ -206,6 +215,7 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
     print()
 
     print(border_top("Next Governed Action", border_color=GREEN, double=True))
+    print(box_line(f"Living Report:    {CYAN}security_report.md (verified closures recorded){RESET}", border="║", border_color=GREEN))
     print(box_line(f"Visual Dashboard: {BOLD}{WHITE}npx torusguard report --html{RESET} (Updated posture score)", border="║", border_color=GREEN))
     print(box_line(f"View Recipes:     {CYAN}npx torusguard recipes{RESET} (Active golden fix recipes)", border="║", border_color=GREEN))
     print(border_bottom(border_color=GREEN, double=True))

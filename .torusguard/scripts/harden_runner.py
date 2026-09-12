@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Autonomous Remediation Engine (v1.3.3)
+TorusGuard Autonomous Remediation Engine (v1.3.5)
 Evaluates audit findings against canonical patch templates, enforces Ponytail bounds
 (<= 35 additions, <= 25 deletions), packages structured candidate remediation bundles,
 and renders unified patch diffs with standardized 75-column terminal UI.
@@ -58,7 +58,7 @@ def box_line(content: str, width: int = 67, border: str = "│", border_color: s
         return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
     return f"  {border_color}{border}{RESET}  {content}"
 
-def box_header(title: str, subtitle: str = "", version: str = "v1.3.3", border_color: str = CYAN) -> str:
+def box_header(title: str, subtitle: str = "", version: str = "v1.3.5", border_color: str = CYAN) -> str:
     if term_ui:
         return term_ui.card_header(title, subtitle, version, border_color)
     return f"=== {title} ({version}) ==="
@@ -132,6 +132,12 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
                 new_lines[line_number - 1] = replacement
                 applied_rule = True
                 fix_explanation = f"Replaced hardcoded credential with process.env.{env_key}"
+            elif "password:" in target_line or "password :" in target_line:
+                fixed_line = re.sub(r'password:\s*["\'][^"\']+["\']', 'password: process.env.DEMO_USER_PASSWORD || "REDACTED_PASSWORD"', target_line)
+                if fixed_line != target_line:
+                    new_lines[line_number - 1] = fixed_line
+                    applied_rule = True
+                    fix_explanation = "Replaced hardcoded password with environment variable process.env.DEMO_USER_PASSWORD"
         elif file_path.endswith(".py"):
             if re.search(r'(:=|=)\s*["\'][A-Za-z0-9_\-]{8,}["\']', target_line):
                 var_match = re.search(r'([A-Za-z0-9_]+)\s*=', target_line)
@@ -259,6 +265,167 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
             applied_rule = True
             fix_explanation = "Restored mandatory TLS certificate validation (InsecureSkipVerify: false)"
 
+
+    # Strategy 9: Hardcoded Database / Service Credential in Config (TG-SEC-003)
+    elif rule_id == "TG-SEC-003":
+        if "=" in target_line:
+            var_match = re.match(r'^\s*([A-Za-z0-9_]+)\s*=', target_line)
+            if var_match:
+                vname = var_match.group(1)
+                fixed_line = f'{indent}{vname} = os.environ.get("{vname}", "")' if file_path.endswith('.py') else f'{indent}const {vname} = process.env.{vname} || "";'
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = f"Extracted sensitive config variable {vname} to environment variable"
+
+    # Strategy 10: Weak Password Hashing (TG-AUTH-001)
+    elif rule_id == "TG-AUTH-001":
+        if "hashlib.md5" in target_line:
+            fixed_line = target_line.replace("hashlib.md5(", "hashlib.sha256(")
+            new_lines[line_number - 1] = fixed_line
+            applied_rule = True
+            fix_explanation = "Replaced broken MD5 hashing with SHA-256 (or bcrypt/argon2)"
+        elif "createHash('md5')" in target_line:
+            fixed_line = target_line.replace("createHash('md5')", "createHash('sha256')")
+            new_lines[line_number - 1] = fixed_line
+            applied_rule = True
+            fix_explanation = "Replaced broken MD5 hashing with SHA-256"
+
+    # Strategy 11: JWT Missing Algorithm Restriction (TG-AUTH-003)
+    elif rule_id == "TG-AUTH-003":
+        if "jwt.verify(" in target_line and "algorithms" not in target_line:
+            fixed_line = re.sub(r'jwt\.verify\(\s*([^,\)]+)\s*,\s*([^,\)]+)\s*\)', r"jwt.verify(\1, \2, { algorithms: ['HS256'] })", target_line)
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Restricted JWT verification to explicit algorithm list ['HS256']"
+
+    # Strategy 12: Untrusted Role/Tenant Header Injection (TG-AUTH-008)
+    elif rule_id == "TG-AUTH-008":
+        if "req.headers[" in target_line or "request.headers.get(" in target_line:
+            if file_path.endswith((".js", ".ts")):
+                fixed_line = f'{indent}const role = req.user ? req.user.role : "user"; // Derived securely from authenticated session'
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Replaced unverified client HTTP header with verified session-derived identity"
+            elif file_path.endswith(".py"):
+                fixed_line = f'{indent}role = getattr(request.user, "role", "user") # Derived securely from authenticated session'
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Replaced unverified client HTTP header with verified session-derived identity"
+
+    # Strategy 13: Rate Limiting Injection (TG-RATE-001)
+    elif rule_id == "TG-RATE-001":
+        if re.search(r'\.(?:post|all)\s*\(\s*[\'"][^\'"]+[\'"]\s*,\s*(?:async\s*)?\(', target_line):
+            fixed_line = re.sub(
+                r'(\.(?:post|all)\s*\(\s*[\'"][^\'"]+[\'"]\s*),\s*((?:async\s*)?\()',
+                r'\1, authLimiter, \2',
+                target_line
+            )
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Injected authLimiter rate-limiting middleware to protect authentication endpoint from brute force"
+
+    # Strategy 14: Prompt Injection System Context Isolation (TG-AGENT-001)
+    elif rule_id == "TG-AGENT-001":
+        if 'role": "system"' in target_line or "role': 'system'" in target_line:
+            fixed_line = target_line.replace('"role": "system"', '"role": "user"')
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Demoted untrusted user input from system prompt into role: 'user' message container"
+
+    # Strategy 15: Outbound URL Fetch Validation (TG-SSRF-001)
+    elif rule_id == "TG-SSRF-001":
+        if "fetch(" in target_line and "validateUrl(" not in target_line:
+            fixed_line = re.sub(r'fetch\(\s*([^,\)]+)', r'fetch(validateSafeUrl(\1)', target_line)
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Wrapped outbound URL in validateSafeUrl domain whitelist guard"
+        elif "requests.get(" in target_line and "validate_url(" not in target_line:
+            fixed_line = re.sub(r'requests\.get\(\s*([^,\)]+)', r'requests.get(validate_safe_url(\1)', target_line)
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Wrapped outbound URL in validate_safe_url domain whitelist guard"
+
+    # Strategy 16: Outbound Request Timeout (TG-SSRF-004)
+    elif rule_id == "TG-SSRF-004":
+        if "requests.get(" in target_line and "timeout=" not in target_line:
+            fixed_line = target_line.replace(")", ", timeout=10)")
+            new_lines[line_number - 1] = fixed_line
+            applied_rule = True
+            fix_explanation = "Injected explicit 10-second request timeout to prevent resource exhaustion"
+
+    # Strategy 17: Production Debug Mode Disablement (TG-PLATFORM-003)
+    elif rule_id == "TG-PLATFORM-003":
+        if "DEBUG = True" in target_line:
+            fixed_line = f'{indent}DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ("true", "1")'
+            new_lines[line_number - 1] = fixed_line
+            applied_rule = True
+            fix_explanation = "Guard DEBUG mode behind DJANGO_DEBUG environment variable"
+
+    # Strategy 18: Production Introspection Disablement (TG-GQL-004)
+    elif rule_id == "TG-GQL-004":
+        if "introspection: true" in target_line or "introspection: True" in target_line:
+            fixed_line = re.sub(r'introspection\s*:\s*(?:true|True)', 'introspection: process.env.NODE_ENV !== "production"', target_line)
+            new_lines[line_number - 1] = fixed_line
+    # Strategy 19: Privileged Database Credential in Frontend (TG-DB-002)
+    elif rule_id == "TG-DB-002":
+        if "SUPABASE_SERVICE_ROLE_KEY" in target_line:
+            var_match = re.search(r'(export\s+const|const)\s+([A-Za-z0-9_]+)\s*=', target_line)
+            var_name = var_match.group(2) if var_match else "SUPABASE_SERVICE_ROLE_KEY"
+            replacement = f'{indent}export const {var_name} = process.env.{var_name} || "";'
+            new_lines[line_number - 1] = replacement
+            applied_rule = True
+            fix_explanation = f"Replaced hardcoded privileged database credential with process.env.{var_name}"
+
+    # Strategy 20: Public Source Maps in Production (TG-CLIENT-001)
+    elif rule_id == "TG-CLIENT-001":
+        if "sourcemap: true" in target_line:
+            fixed_line = target_line.replace("sourcemap: true", "sourcemap: false")
+            new_lines[line_number - 1] = fixed_line
+            applied_rule = True
+            fix_explanation = "Disabled public production source map emission"
+
+    # Strategy 21: Sensitive Information in Logs (TG-SEC-004)
+    elif rule_id == "TG-SEC-004":
+        if "console.log" in target_line:
+            fixed_line = f"{indent}// Security: Sensitive credential log removed per TG-SEC-004"
+            new_lines[line_number - 1] = fixed_line
+            applied_rule = True
+            fix_explanation = "Redacted console logging of sensitive token or credential"
+
+    # Strategy 22: Unlimited Public Write Endpoint (TG-RATE-002)
+    elif rule_id == "TG-RATE-002":
+        if re.search(r'\.(?:post|put|patch)\s*\(\s*[\'"][^\'"]+[\'"]\s*,\s*(?:async\s*)?\(', target_line):
+            fixed_line = re.sub(
+                r'(\.(?:post|put|patch)\s*\(\s*[\'"][^\'"]+[\'"]\s*),\s*((?:async\s*)?\()',
+                r'\1, writeLimiter, \2',
+                target_line
+            )
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Injected writeLimiter rate-limiting middleware to public write endpoint"
+
+    # Strategy 23: Missing Security Headers (TG-PLATFORM-002)
+    elif rule_id == "TG-PLATFORM-002":
+        if "const app = express();" in target_line:
+            replacement = f'{indent}const helmet = require("helmet");\n{indent}const app = express();\n{indent}app.use(helmet());'
+            new_lines[line_number - 1] = replacement
+            applied_rule = True
+            fix_explanation = "Injected helmet security headers middleware into Express application"
+
+    # Strategy 24: Missing Request Body Validation (TG-INPUT-001)
+    elif rule_id == "TG-INPUT-001":
+        if "req.body" in target_line and ("const {" in target_line or "let {" in target_line):
+            replacement = f'{indent}if (!req.body || typeof req.body !== "object") return res.status(400).json({{ error: "Invalid payload" }});\n{target_line}'
+            new_lines[line_number - 1] = replacement
+            applied_rule = True
+            fix_explanation = "Added defensive request body payload validation before destructuring"
+
     if not applied_rule:
         return None
 
@@ -379,6 +546,11 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
         remediation_lines.append("```\n")
 
     (run_folder / "remediation.md").write_text("\n".join(remediation_lines), encoding="utf-8")
+    try:
+        import report_sync
+        report_sync.record_harden_bundles(target_root, bundles, run_folder.name)
+    except Exception:
+        pass
 
     # Update manifest
     manifest_file = run_folder / "manifest.json"
@@ -392,7 +564,7 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
 
     # Print 75-column Terminal Cards
     print()
-    print(box_header("🛡️  TORUSGUARD GOVERNED REMEDIATION ENGINE", "Autonomous Minimal Patch Formulation & Ponytail Packaging", "v1.3.3"))
+    print(box_header("🛡️  TORUSGUARD GOVERNED REMEDIATION ENGINE", "Autonomous Minimal Patch Formulation & Ponytail Packaging", "v1.3.5"))
     print()
 
     print(border_top("Remediation Scope"))
@@ -414,6 +586,7 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
         print()
 
         print(border_top("Next Governed Action", border_color=GREEN, double=True))
+        print(box_line(f"Living Report:    {CYAN}security_report.md (patch previews attached){RESET}", border="║", border_color=GREEN))
         print(box_line(f"Review & Apply:   {BOLD}{WHITE}npx torusguard apply{RESET}  (CLI Human Gate)", border="║", border_color=GREEN))
         print(box_line(f"Auto-Apply Flag:  {CYAN}npx torusguard apply --yes{RESET} (Automated mode)", border="║", border_color=GREEN))
         print(box_line(f"AI IDE Chat:      Run {CYAN}/torusguard-apply{RESET} in your AI chat", border="║", border_color=GREEN))

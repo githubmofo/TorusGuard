@@ -1,37 +1,54 @@
-# TG-SEC-006: Secret in Build Artifact
+# TG-SEC-006: Secret in Build Artifact or Container Image
 
 ## Severity
-High by default. Raise to Critical when applicable.
+Critical. Copying `.env` files, build-time secrets, or SSH keys into Docker build layers persists secrets in image layers, allowing anyone with pull access to extract credentials via `docker history` or container inspection.
 
 ## Applies To
-- Relevant endpoints and services
+- Dockerfiles, Container Builds, Serverless Bundle Artifacts
+- Docker, Containerd, Podman, Webpack, Vite
 
 ## Why It Matters
-Explaining the risk of this vulnerability.
+Docker image layers are cached and stored individually. Running `COPY .env .` followed by `RUN rm .env` still retains the `.env` file in the preceding layer blob, allowing trivial credential recovery.
 
 ## What TorusGuard Looks For
-- Specific code patterns or configurations
+- Dockerfile instructions containing `COPY .env` or `ARG SECRET_KEY` without BuildKit secret mount protection.
 
 ## Unsafe Example
-```javascript
-// Unsafe code example
+```dockerfile
+# UNSAFE: Copying local .env into container layer
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY .env .
+COPY . .
+RUN npm run build
 ```
 
 ## Safe Example
-```javascript
-// Safe code example
+```dockerfile
+# SAFE: Using BuildKit secret mounts or multi-stage build without persisting secrets
+# syntax=docker/dockerfile:1.4
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN --mount=type=secret,id=build_secrets npm run build
+
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
 ```
 
+## Ponytail Remediation Budget
+- Additions: <= 5 lines
+- Deletions: <= 2 lines
+
 ## Remediation
-1. Step one
-2. Step two
-
-## Verification
-- Test case 1
-- Test case 2
-
-## False Positives and Exceptions
-An exception requires documented review.
+1. Use Docker BuildKit secret mounts (`--mount=type=secret`) for credentials needed during build.
+2. Use multi-stage Docker builds to ensure final runtime images only contain compiled frontend assets.
 
 ## Related Rules
-- TG-OTHER-001
+- `TG-SUPPLY-006`: Container Build Secret Persistence
+- `TG-SEC-001`: Hardcoded Secret or API Key in Tracked Source

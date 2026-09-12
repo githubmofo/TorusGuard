@@ -1,12 +1,14 @@
 ---
 description: Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
 tools: Read, Grep, Glob, Bash, Write
-version: 0.9.2
+version: 1.3.5
 agent: remediator
 lifecycle-phase: Phase 4 (Remediation Formulation)
 required-skills:
   - torusguard-harden
 scripts-binding:
+  - .torusguard/scripts/harden_runner.py
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/run_manager.py
   - .torusguard/scripts/diff_guard.py
 ---
@@ -45,6 +47,10 @@ Inspect finding targets and patch constraints before generating diffs:
 | Discovering new vulnerabilities | Run `/torusguard audit` |
 
 ---
+
+## Living Report Invariant
+- Candidate patches transition findings in `security_report.md` into `CANDIDATE 🟡` status.
+- Every patch strictly conforms to Ponytail bounds (<= 35 additions, <= 25 deletions).
 
 ## Execution Steps
 

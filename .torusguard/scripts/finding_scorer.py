@@ -95,6 +95,14 @@ def is_test_path(file_path: Optional[str]) -> bool:
     return any(marker in clean for marker in test_markers) or clean.endswith(("_test.go", "test.java", "test.py", ".spec.ts", ".test.ts", ".spec.js", ".test.js"))
 
 
+def is_doc_path(file_path: Optional[str]) -> bool:
+    """Check if file belongs to documentation, markdown tutorials, or design specs."""
+    if not file_path:
+        return False
+    clean = file_path.replace("\\", "/").lower()
+    return clean.endswith((".md", ".txt", ".rst", ".adoc")) or "/docs/" in clean or "/doc/" in clean
+
+
 def compute_confidence_score(
     evidence_quality: int = 35,
     reproduction_success: int = 0,
@@ -116,6 +124,7 @@ def compute_confidence_score(
     - manual_review_status: 10
     - memory_boost: -30 to +20 (modifier from persistent memory)
     - test_deduction: -30 if file is located in a test/mock path
+    - doc_deduction: -25 if file is located in documentation
     Total is clamped to [0, 100].
     """
     eq = min(max(evidence_quality, 0), 35)
@@ -129,11 +138,14 @@ def compute_confidence_score(
     if rule_id and eff_mem_boost == 0:
         eff_mem_boost = compute_memory_boost(rule_id, file_path=file_path, root_dir=root_dir)
 
-    # Test path noise suppression: -30 deduction for test mocks/fixtures
+    # Test and Doc path noise suppression
     is_test = is_test_path(file_path)
     test_deduction = -30 if is_test else 0
 
-    raw_total = eq + rs + ic + ec + mr + eff_mem_boost + test_deduction
+    is_doc = is_doc_path(file_path)
+    doc_deduction = -25 if is_doc else 0
+
+    raw_total = eq + rs + ic + ec + mr + eff_mem_boost + test_deduction + doc_deduction
     total = min(max(raw_total, 0), 100)
 
     if total >= 90:

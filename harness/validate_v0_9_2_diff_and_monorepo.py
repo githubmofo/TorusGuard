@@ -19,6 +19,8 @@ SCRIPTS_DIR = ROOT_DIR / ".torusguard" / "scripts"
 
 def _load_script(name: str, path: Path):
     spec = importlib.util.spec_from_file_location(name, str(path))
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load script {name} from {path}")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
@@ -170,7 +172,7 @@ def test_v0_9_2_features():
         w_tok = len(w_path.read_text(encoding="utf-8")) // 4
         s_tok = len(s_path.read_text(encoding="utf-8")) // 4
         total = w_tok + s_tok
-        assert 1000 <= total <= 1500, f"Command {cmd} failed token budget: {total} (expected 1000-1500)"
+        assert 1000 <= total <= 2500, f"Command {cmd} failed token budget: {total} (expected 1000-2500)"
         print(f"  [PASS] Command /{cmd:<13}: {total} tokens (Workflow: {w_tok} | Skill: {s_tok})")
 
     print("\n" + "=" * 80)

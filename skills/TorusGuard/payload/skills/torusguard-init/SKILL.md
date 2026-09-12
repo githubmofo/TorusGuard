@@ -1,10 +1,11 @@
 ---
 name: torusguard-init
 description: Initialize TorusGuard workspace — detect project stack, activate tailored TG-* security rules, and generate SECURITY.md baseline via CLI or AI Agent.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/init.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/stack_detect.py
   - .torusguard/scripts/term_ui.py
 ---
@@ -57,8 +58,11 @@ When initializing a workspace directly in AI chat:
 ```markdown
 ### 🛡️ TorusGuard Workspace Initialized Successfully
 - **Primary Stack:** Node.js / React / Express
-- **Active Rules:** 71 canonical security rules enabled in `.torusguard/rules/active/`
+- **Active Rules:** 74 canonical security rules enabled in `.torusguard/rules/active/`
 - **Configuration:** Written to `.torusguard/config/torusguard.json`
 - **Security Policy:** Baseline `SECURITY.md` generated
 - **Next Step:** Run `npx torusguard audit` or `/torusguard audit` to scan for flaws
 ```
+
+## Living Report Ground Truth
+- Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.

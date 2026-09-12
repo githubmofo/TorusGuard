@@ -1,107 +1,77 @@
 # TorusGuard API & Skill Interface Specification
 
 ## 1. Overview
-This document specifies the formal application programming interfaces, CLI command dispatchers, skill contracts, and schema payloads utilized by TorusGuard.
+This document specifies the formal application programming interfaces, CLI command dispatchers, skill contracts, and schema payloads utilized by TorusGuard as of **v1.3.5**.
 
 ---
 
-## 2. Skill Commands Interface
+## 2. Command & Dispatch Interface (14 Operations)
 
-TorusGuard exposes 11 canonical workflow commands via the open `skills` specification (`skills/torusguard/SKILL.md`):
+TorusGuard enforces 100% functional parity between **Mode A (Terminal CLI: `npx torusguard <cmd>`)** and **Mode B (AI Chat: `/torusguard <cmd>`)**:
 
-### 2.1. `/torusguard init`
-- **Purpose:** Initializes `.torusguard/` workspace, detects technology stack, and activates tailored security rules.
-- **Bound Script:** `python .torusguard/scripts/stack_detect.py`
-
-### 2.2. `/torusguard authorize`
-- **Purpose:** Creates and cryptographically manages the target authorization manifest (`scope.json` and `authorization.md`).
-- **Bound Script:** `python .torusguard/scripts/safety_gate.py --check-scope`
-
-### 2.3. `/torusguard audit`
-- **Purpose:** Executes full static AST analysis, clusters by root cause, and assigns line-shift invariant fingerprints.
-- **Bound Script:** `python .torusguard/scripts/finding_scorer.py --audit`
-
-### 2.4. `/torusguard verify`
-- **Purpose:** Performs deep evidence verification, validates AST reachability, and computes 0–100 confidence rubric.
-- **Bound Script:** `python .torusguard/scripts/finding_scorer.py --score 90`
-
-### 2.5. `/torusguard web-validate`
-- **Purpose:** Executes authorized, non-destructive HTTP endpoint probing within allowed scope.
-- **Bound Script:** `python .torusguard/scripts/safety_gate.py --method GET`
-
-### 2.6. `/torusguard exploit-check`
-- **Purpose:** Executes bounded, non-destructive proof-of-concept canary checks (e.g. CSRF/IDOR reachability).
-- **Bound Script:** `python .torusguard/scripts/safety_gate.py --method POST`
-
-### 2.7. `/torusguard harden`
-- **Purpose:** Formulates self-contained 4-artifact remediation packages adhering to the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions).
-- **Artifacts:** `finding.md`, `remediation.md`, `minimal_patch_plan.md`, `verify-after-change.md`
-
-### 2.8. `/torusguard apply`
-- **Purpose:** Backs up pre-apply snapshots to `pre_apply/<file>.bak` and applies surgical, minimal patches to disk.
-- **Exit Codes:** `0` (Applied), `1` (Pre-flight rejected).
-
-### 2.9. `/torusguard recheck`
-- **Purpose:** Re-evaluates post-fix code to assert vulnerability resolution (`Confirmed Fixed`) and detect secondary regressions.
-- **Bound Script:** `python .torusguard/scripts/sarif_exporter.py`
-
-### 2.10. `/torusguard report`
-- **Purpose:** Generates executive Markdown summaries and exports OASIS SARIF v2.1.0 scan results.
-- **Bound Script:** `python .torusguard/scripts/sarif_exporter.py --output results.sarif`
-
-### 2.11. `/torusguard status`
-- **Purpose:** Read-only inspection of active workspace posture, unexpired authorization TTLs, and run history.
-- **Bound Script:** `python .torusguard/scripts/run_manager.py --status`
-  - `New Risk`: Patch introduced a secondary vulnerability.
+| Operation | Mode A (CLI) | Mode B (Chat) | Bound Implementation | Artifacts Generated |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Init** | `npx torusguard init` | `/torusguard init` | `stack_detect.py`, `bootstrap.py` | `.torusguard/config/torusguard.json`, `SECURITY.md` |
+| **2. Status** | `npx torusguard status` | `/torusguard status` | `bin/torusguard.js status` | 75-column diagnostic posture card |
+| **3. Audit** | `npx torusguard audit` | `/torusguard audit` | `audit_runner.py`, `report_sync.py` | `security_report.md`, `findings.json` |
+| **4. Verify** | `npx torusguard verify` | `/torusguard verify` | `finding_scorer.py --verify` | Evidence verification & calibrated scores |
+| **5. Harden** | `npx torusguard harden` | `/torusguard harden` | `harden_runner.py` | `.torusguard/runs/<run_id>/bundles/` |
+| **6. Apply** | `npx torusguard apply [--yes]` | `/torusguard apply` | `apply_runner.py` | Pre-apply snapshots in `.torusguard/snapshots/` |
+| **7. Rollback** | `npx torusguard rollback` | `/torusguard rollback`| `apply_runner.py --rollback` | Source restoration from `.torusguard/snapshots/` |
+| **8. Recheck** | `npx torusguard recheck` | `/torusguard recheck` | `recheck_runner.py`, `report_sync.py`| Closed findings, updated `security_report.md` |
+| **9. Recipes** | `npx torusguard recipes` | `/torusguard recipes` | `recipes_runner.py` | Distilled patterns in `memory/patterns.json` |
+| **10. Report** | `npx torusguard report --html`| `/torusguard report` | `html_reporter.py`, `sarif_exporter.py`| `report-latest.html`, `results.sarif` |
+| **11. Authorize**| `npx torusguard authorize` | `/torusguard authorize` | `safety_gate.py --authorize` | `.torusguard/config/scope.json` |
+| **12. Validate** | `npx torusguard web-validate` | `/torusguard web-validate`| `safety_gate.py --validate` | Bounded HTTP trace logs with scrubbed secrets |
+| **13. Exploit** | `npx torusguard exploit-check`| `/torusguard exploit-check`| `safety_gate.py --exploit` | Exploitability confirmation matrix |
+| **14. Rules Sync**| `npx torusguard rules sync` | `/torusguard rules sync` | `rules_sync.py` | `.cursorrules`, `CLAUDE.md`, `.windsurfrules` |
 
 ---
 
 ## 3. Schema Contracts & Data Models
 
-### 3.1. Finding Object Model (`schemas/finding.schema.json`)
+TorusGuard enforces JSON Schema Draft-07 contracts for all structured interchange payloads:
+
+### 3.1. Finding Contract (`schemas/finding.schema.json`)
 ```json
 {
-  "finding_id": "TG-2026-0827-001",
-  "rule_id": "TG-AUTH-008",
-  "title": "Untrusted Role Header Injection",
-  "category": "authentication-authorization",
-  "severity": "Critical",
-  "confidence_score": 92,
-  "confidence_band": "Confirmed",
-  "lifecycle_stage": "Remediated",
-  "target": {
-    "file_path": "backend/api/auth.py",
-    "line_start": 42,
-    "line_end": 48
-  },
-  "evidence": {
-    "code_snippet": "role = request.headers.get('X-User-Role')",
-    "sha256_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "masked": false
-  },
-  "remediation": {
-    "priority": "Immediate P0",
-    "suggested_diff_path": ".torusguard/runs/run-01/patches/patch-001.diff"
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["finding_id", "rule_id", "file_path", "line_number", "severity", "confidence_score", "status"],
+  "properties": {
+    "finding_id": { "type": "string" },
+    "rule_id": { "type": "string", "pattern": "^TG-[A-Z]+-[0-9]{3}$" },
+    "file_path": { "type": "string" },
+    "line_number": { "type": "integer", "minimum": 1 },
+    "fingerprint": { "type": "string" },
+    "severity": { "enum": ["Critical", "High", "Medium", "Low", "Informational"] },
+    "confidence_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "status": { "enum": ["OPEN", "VERIFIED", "CANDIDATE", "APPLIED", "RESOLVED", "REGRESSED", "FALSE POSITIVE"] }
   }
 }
 ```
 
-### 3.2. Retest Record Model (`schemas/retest.schema.json`)
+### 3.2. Golden Recipe Contract (`schemas/golden-recipe.schema.json`)
 ```json
 {
-  "retest_id": "RET-2026-0827-001",
-  "finding_id": "TG-2026-0827-001",
-  "timestamp": "2026-08-27T11:00:00Z",
-  "recheck_status": "Verified Fixed",
-  "verified_by": "TorusGuard Recheck Engine v0.5.6",
-  "post_fix_evidence_hash": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["recipe_id", "rule_id", "framework", "patch_diff", "additions", "deletions", "verified_at"],
+  "properties": {
+    "recipe_id": { "type": "string" },
+    "rule_id": { "type": "string" },
+    "framework": { "type": "string" },
+    "patch_diff": { "type": "string" },
+    "additions": { "type": "integer", "maximum": 35 },
+    "deletions": { "type": "integer", "maximum": 25 },
+    "verified_at": { "type": "string" }
+  }
 }
 ```
 
 ---
 
-## 4. Integration & Return Codes
-- `0`: Scan clean / All findings remediated and verified safe.
-- `1`: Syntax or runtime execution error in target repository.
-- `2`: P0 / Critical security findings detected (CI blocking gate).
-- `3`: Recheck failed / Regression detected.
+## 4. Exit Codes & Programmatic Invariants
+- `0`: Success (audit completed, patches applied, or recheck clean).
+- `1`: Security regression detected, diff guard blocked commit, or out-of-scope authorization violation.
+- `2`: Syntax or schema validation failure.

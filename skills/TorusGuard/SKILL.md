@@ -1,7 +1,7 @@
 ---
 name: torusguard
-description: Universal autonomous security engine: 71 canonical rules across 11 families, polyglot stack detection across 16+ languages, Ponytail remediation bounds (<=35 add, <=25 del), standardized 75-column terminal UI, SARIF v2.1.0 exports, and persistent security memory context.
-version: 1.3.4
+description: Universal autonomous security engine: 74 canonical rules across 18 families, polyglot stack detection across 16+ languages, Ponytail remediation bounds (<=35 add, <=25 del), standardized 75-column terminal UI, living security_report.md ground-truth ledger, SARIF v2.1.0 exports, and persistent security memory context.
+version: 1.3.5
 ---
 
 # TorusGuard Master Security Engine & Command Router
@@ -42,6 +42,7 @@ TorusGuard operates with 100% feature parity across both the terminal CLI and AI
 4. **Standardized 75-Column Terminal:** All CLI terminal output is strictly normalized to 75 visual columns with Unicode emoji width calculation, ANSI escape handling, and visual truncation with ellipsis (`...`).
 5. **Zero Security Bypasses:** Never insert `# nosec`, `verify=False`, `InsecureSkipVerify: true`, `[AllowAnonymous]`, or `csrf().disable()`.
 6. **Snapshots Before Edits:** Every code modification must capture a byte-for-byte pre-apply backup in `.torusguard/snapshots/<run_id>/` before touching disk code.
+7. **Living Security Report Ground Truth:** All finding discoveries, patch formulations, applications, and recheck verifications must synchronize with `security_report.md` at the workspace root to maintain verifiable finding state and eliminate hallucination.
 
 ---
 

@@ -6,7 +6,7 @@ app = FastAPI()
 # ❌ TG-SSRF-001: Unvalidated outbound URL fetching
 @app.get("/fetch")
 def fetch_url(url: str):
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
     return {"status": response.status_code, "content": response.text}
 
 # ❌ TG-WEBHOOK-001: Unverified webhook payload

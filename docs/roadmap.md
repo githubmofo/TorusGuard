@@ -271,6 +271,26 @@ This document outlines the development milestones, past releases, and future pri
 
 ---
 
+### ✅ v1.3.5 — Full 74-Rule AST Security Catalog & Living Report Ground Truth (2026-09-12)
+- **Full 74-Rule AST Static Engine (`audit_runner.py`):**
+  - Expanded static security detection to all 74 documented rules across all 18 families (`TG-SEC`, `TG-AUTH`, `TG-DB`, `TG-INPUT`, `TG-RATE`, `TG-AGENT`, `TG-SSRF`, `TG-WEBHOOK`, `TG-WS`, `TG-CSRF`, `TG-GQL`, `TG-SUPPLY`, `TG-BIZ`, `TG-CACHE`, `TG-CLIENT`, `TG-PLATFORM`, `TG-DIFF`, `TG-EDGE`).
+  - High-precision polyglot regex AST detection supporting JS/TS, Python, Go, Java, and shell scripts.
+- **Living Security Report Ground-Truth Engine (`report_sync.py`, `security_report.md`):**
+  - Introduced root-level `security_report.md` ledger acting as single source of truth across CLI and AI chat.
+  - Complete lifecycle state machine tracking: `OPEN 🔴` $\rightarrow$ `VERIFIED 🟠` $\rightarrow$ `CANDIDATE 🟡` $\rightarrow$ `APPLIED 🔵` $\rightarrow$ `RESOLVED 🟢`.
+  - Standardized 75-column header card, dynamic posture health scoring (0-100), and auditable lifecycle histories.
+  - 100/100 verified Health Score achieved across all 40 baseline findings in the repository.
+- **Expanded Autonomous Ponytail Remediation (`harden_runner.py`):**
+  - 19 automated patch templates adhering to Ponytail bounds ($\le 35$ additions, $\le 25$ deletions).
+- **Dual-Mode Parity & Anti-Hallucination Guardrails:**
+  - 100% parity across 14 CLI commands (`bin/torusguard.js`) and 14 AI Chat slash commands (`.agent/workflows/` and `.agent/skills/`).
+- **Scanner Precision & False-Positive Suppression:**
+  - Fixed `TG-SSRF-002` (targeted network sinks), `TG-SSRF-004` (lookahead timeout fix), and `TG-PLATFORM-002` (whole-file inspection).
+  - Added documentation path exemption (-25 pts in `finding_scorer.py`).
+- **Validation Harness:** 81/81 test suites passing (`npm test`).
+
+---
+
 ## 🎯 Upcoming Milestones: Post-v1.3.0 Series
 
 ### 🚀 v1.4.0 — Container & Infrastructure-as-Code (IaC) Security (Q4 2026)

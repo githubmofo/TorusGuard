@@ -1,37 +1,44 @@
-# TG-CACHE-003: Sensitive Data in URL
+# TG-CACHE-003: Sensitive Data in URL Query Parameters
 
 ## Severity
-High by default. Raise to Critical when applicable.
+Medium. Passing API keys, session tokens, passwords, or PII in URL query parameters causes secrets to be persisted in browser histories, web server access logs, and HTTP `Referer` headers.
 
 ## Applies To
-- Relevant endpoints and services
+- Authentication Flows, Invitation Links, Reset Handlers
+- Frontend JS, Express, Django, FastAPI, Go, PHP
 
 ## Why It Matters
-Explaining the risk of this vulnerability.
+URLs are routinely logged in plaintext by reverse proxies, load balancers, CDN providers, and browser histories. If tokens are in query strings (`/login?token=xyz`), any external asset loaded on the page receives the token in the `Referer` header.
 
 ## What TorusGuard Looks For
-- Specific code patterns or configurations
+- Query parameter patterns matching `api_key=`, `token=`, `secret=`, or `password=` in GET routes.
 
 ## Unsafe Example
 ```javascript
-// Unsafe code example
+// UNSAFE: Accepting credentials or tokens in URL query string
+app.get('/api/auth/callback', (req, res) => {
+  const { apiKey, password } = req.query;
+  authenticate(apiKey, password);
+});
 ```
 
 ## Safe Example
 ```javascript
-// Safe code example
+// SAFE: Passing credentials in Authorization header or POST request body
+app.post('/api/auth/token', (req, res) => {
+  const { apiKey, password } = req.body;
+  authenticate(apiKey, password);
+});
 ```
 
+## Ponytail Remediation Budget
+- Additions: <= 6 lines
+- Deletions: <= 3 lines
+
 ## Remediation
-1. Step one
-2. Step two
-
-## Verification
-- Test case 1
-- Test case 2
-
-## False Positives and Exceptions
-An exception requires documented review.
+1. Migrate authentication parameters to `Authorization: Bearer` headers or JSON request bodies via POST.
+2. Strip sensitive query parameters from URLs using history replace state before page render.
 
 ## Related Rules
-- TG-OTHER-001
+- `TG-SEC-001`: Hardcoded Secret or API Key in Tracked Source
+- `TG-SEC-004`: Sensitive Information in Logs

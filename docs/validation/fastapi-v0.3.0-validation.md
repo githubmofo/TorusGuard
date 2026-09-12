@@ -1,5 +1,8 @@
 # TorusGuard v0.3.0 External Repository Validation Report
 Target: FastAPI Vulnerable App
+
+> 🛡️ **TorusGuard Validation Heritage:** This document preserves empirical validation records for this framework and milestone. For the current v1.3.5 active release line, 74-rule AST engine, living security report ground truth (`security_report.md`), and automated test suite (81/81 passing via `npm test`), refer to the [Validation Suite Overview](README.md) and root [README](../../README.md).
+
 Test type: Local, authorized repository review
 Status: Validation completed
 

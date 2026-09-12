@@ -1,10 +1,11 @@
 ---
 name: torusguard-audit
 description: Static AST security scanning, line-shift invariant fingerprinting, root-cause clustering, and 0-100 confidence scoring via CLI or AI Agent.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/audit.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/audit_runner.py
   - .torusguard/scripts/term_ui.py
   - .torusguard/scripts/finding_scorer.py
@@ -13,7 +14,7 @@ scripts-binding:
 # TorusGuard Audit — Static Code Security Analysis
 
 ## Objective
-Execute static AST analysis across polyglot project files, evaluate code against 71 canonical security rules across 11 families, assign stable line-shift invariant fingerprints, cluster architectural root causes, and score findings with auditable 0–100 confidence ratings.
+Execute static AST analysis across polyglot project files, evaluate code against 74 canonical security rules across 11 families, assign stable line-shift invariant fingerprints, cluster architectural root causes, and score findings with auditable 0–100 confidence ratings.
 
 ---
 
@@ -36,7 +37,7 @@ npx torusguard audit --json
 ```
 **Under the Hood:** Executes `python .torusguard/scripts/audit_runner.py`.
 - Auto-detects repository stack and skips build/cache directories (`node_modules`, `.git`, `.venv`, `dist`, `build`).
-- Evaluates files across 11 canonical security families:
+- Evaluates files across 18 canonical security families:
   - `TG-SEC-*`: Hardcoded credentials, private keys, JWT secrets, client env leaks.
   - `TG-INPUT-*`: SQL injection, command injection, path traversal, unsafe HTML rendering.
   - `TG-DB-*`: Missing tenant isolation, service role keys in client code.
@@ -81,3 +82,6 @@ When auditing files directly in AI chat:
 - **Artifacts:** `.torusguard/runs/<run_id>/findings.json`
 - **Next Action:** Run `npx torusguard harden` or `/torusguard harden`
 ```
+
+## Living Report Ground Truth
+- Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.

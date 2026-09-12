@@ -7,6 +7,9 @@
 
 ---
 
+> 🛡️ **TorusGuard Validation Heritage:** This document preserves empirical validation records for this framework and milestone. For the current v1.3.5 active release line, 74-rule AST engine, living security report ground truth (`security_report.md`), and automated test suite (81/81 passing via `npm test`), refer to the [Validation Suite Overview](README.md) and root [README](../../README.md).
+
+
 ## 🎯 1. Test Scope & Purpose
 Validate TorusGuard rules for Flask applications, checking secret key initialization, route ownership, file upload handling, and CSRF token defenses.
 

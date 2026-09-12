@@ -1,37 +1,51 @@
 # TG-WEBHOOK-003: Missing Webhook Idempotency
 
 ## Severity
-High by default. Raise to Critical when applicable.
+High. Processing incoming webhook events without recording event IDs allows duplicate webhook delivery to trigger duplicate fulfillments, charges, or database entries.
 
 ## Applies To
-- Relevant endpoints and services
+- Webhook Event Handlers
+- Node.js, Python, Go, Java, C#
 
 ## Why It Matters
-Explaining the risk of this vulnerability.
+Webhook providers (Stripe, GitHub, PayPal) employ retry mechanisms and guarantee *at-least-once* delivery. If a network blip causes your server to respond slowly, the provider resends the webhook. Without idempotency checks, actions execute multiple times.
 
 ## What TorusGuard Looks For
-- Specific code patterns or configurations
+- Event handlers executing side-effects immediately without checking if `event.id` was already processed.
 
 ## Unsafe Example
 ```javascript
-// Unsafe code example
+// UNSAFE: Handling event without deduplicating by event ID
+app.post('/api/webhook', async (req, res) => {
+  const event = req.event;
+  await creditUserAccount(event.userId, event.amount); // Executed on every retry
+  res.sendStatus(200);
+});
 ```
 
 ## Safe Example
 ```javascript
-// Safe code example
+// SAFE: Recording processed event IDs to guarantee idempotency
+app.post('/api/webhook', async (req, res) => {
+  const event = req.event;
+  const exists = await db.processedEvent.findUnique({ where: { id: event.id } });
+  if (exists) return res.status(200).json({ status: 'already_processed' });
+  await db.$transaction([
+    db.processedEvent.create({ data: { id: event.id } }),
+    creditUserAccount(event.userId, event.amount)
+  ]);
+  res.sendStatus(200);
+});
 ```
 
+## Ponytail Remediation Budget
+- Additions: <= 8 lines
+- Deletions: <= 3 lines
+
 ## Remediation
-1. Step one
-2. Step two
-
-## Verification
-- Test case 1
-- Test case 2
-
-## False Positives and Exceptions
-An exception requires documented review.
+1. Store processed event IDs in a persistent table with unique constraints.
+2. Return 200 OK immediately if an event ID has already been recorded.
 
 ## Related Rules
-- TG-OTHER-001
+- `TG-BIZ-002`: Replayable One-Time Operation
+- `TG-WEBHOOK-001`: Missing Webhook Signature Verification

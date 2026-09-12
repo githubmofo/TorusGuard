@@ -1,5 +1,8 @@
 # Real-World Validation Record: Mixed Polyglot Platform
 
+
+> 🛡️ **TorusGuard Validation Heritage:** This document preserves empirical validation records for this framework and milestone. For the current v1.3.5 active release line, 74-rule AST engine, living security report ground truth (`security_report.md`), and automated test suite (81/81 passing via `npm test`), refer to the [Validation Suite Overview](../README.md) and root [README](../../../README.md).
+
 - **Repository:** Anonymized Polyglot Web & API Monorepo
 - **Authorization:** Maintainer-permitted code review evaluation
 - **Repository Version / Commit SHA:** `6e2a8c0f14b7d39a5e8c1f9a2b4d7e6c9f1a3b58`

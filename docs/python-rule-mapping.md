@@ -1,6 +1,6 @@
-# TorusGuard Python Security Rule Mapping (v0.5.3)
+# TorusGuard Python Security Rule Mapping (v1.3.5)
 
-> **Purpose:** Demonstrates how universal TorusGuard security rule IDs map across Python web frameworks (Django, Django REST Framework, FastAPI, Flask, and SQLAlchemy) without inventing redundant language-specific rule IDs.
+> **Purpose:** Demonstrates how universal TorusGuard security rule IDs map across Python web frameworks (Django, Django REST Framework, FastAPI, Flask, and SQLAlchemy) without inventing redundant language-specific rule IDs, unified under the 74-rule AST engine with dual CLI (`npx torusguard`) and AI Chat (`/torusguard`) execution.
 
 ---
 

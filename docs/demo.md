@@ -1,108 +1,180 @@
 # TorusGuard Workflow Demo & Sample Output
 
-This document illustrates how TorusGuard operates in practice, showing the exact expected flow from command execution to audit report generation, runtime validation, and governed remediation.
+This document illustrates how TorusGuard operates in practice, showing the exact flow from command execution to audit report generation, runtime validation, governed remediation, and living report synchronization.
+
+TorusGuard supports **100% functional parity** between **Mode A (Terminal CLI)** and **Mode B (AI Agent Chat)**.
 
 ---
 
-## 🛠️ Step 1: Initializing the Workspace (`/torusguard init`)
+## 🛠️ Step 1: Initializing the Workspace
 
-When you run `/torusguard init` in your AI chat:
+Initialize the workspace using either terminal CLI or AI chat:
+
+```bash
+# Mode A: Terminal CLI
+npx torusguard init
+
+# Mode B: AI Chat Slash Command
+/torusguard init
+```
+
+### What Happens:
 1. The autonomous bootstrapper unpacks the `.torusguard/` directory into your project root.
-2. It scans project manifests (`package.json`, `pyproject.toml`, `requirements.txt`) and auto-detects your stack (e.g., FastAPI + SQLAlchemy or Next.js 14 + Express).
-3. It activates framework-tailored security rules in `.torusguard/rules/active/`.
-4. It sets up the 5 specialist agent roles (`profiler`, `auditor`, `validator`, `remediator`, `reviewer`) and interactive playbooks in `.torusguard/workflows/`.
+2. It scans project manifests (`package.json`, `pyproject.toml`, `requirements.txt`, `go.mod`, `pom.xml`, `Cargo.toml`) and auto-detects your polyglot stack.
+3. It activates framework-tailored security rules across 74 rules in 18 families.
+4. It sets up `.torusguard/config/torusguard.json` and creates the initial `SECURITY.md` baseline.
 
 ---
 
-## 🔍 Step 2: Running a Static Security Audit (`/torusguard audit`)
+## 🔍 Step 2: Running a Static Security Audit
 
-When you prompt your AI assistant with `/torusguard audit`, the `auditor` agent reads your codebase against active security rules and generates an immutable run folder in `.torusguard/runs/<run-id>/`:
+Run an AST static security scan across all 74 rules:
 
-### Sample Generated `findings.md`:
+```bash
+# Mode A: Terminal CLI
+npx torusguard audit
+
+# Mode B: AI Chat Slash Command
+/torusguard audit
+```
+
+### Terminal CLI Output (Standardized 75-Column Terminal):
+```text
+===========================================================================
+               🛡️ TORUSGUARD STATIC AST AUDIT REPORT 🛡️                    
+===========================================================================
+ Target Path : .                                                           
+ Timestamp   : 2026-09-12 22:15:00 IST                                     
+ Stack       : Express + MongoDB + React                                   
+ Rules Active: 74 rules across 18 architectural families                   
+ Status      : 🔴 ACTION REQUIRED (1 Critical, 1 High)                     
+---------------------------------------------------------------------------
+ Findings Summary:
+   🔴 Critical : 1 finding
+   🟠 High     : 1 finding
+   🟡 Medium   : 0 findings
+   🔍 Review   : 1 finding
+---------------------------------------------------------------------------
+ Living Report : Synchronized to security_report.md                        
+ Run Artifacts : .torusguard/runs/run-20260912-221500-audit/               
+ Next Action   : Run 'npx torusguard harden' or '/torusguard-harden'       
+===========================================================================
+```
+
+### Living Security Report Synchronization (`security_report.md`):
+The audit automatically logs finding cards into `security_report.md` at workspace root:
 
 ```markdown
-# 🛡️ TorusGuard Audit: EcoStore API
-
-> **Run ID:** `run-20260902-120000-audit`  
-> **Detected Stack:** Express + MongoDB + React  
-> **Overall Posture:** 🔴 **Action Required (1 Critical, 1 High)**  
-> **Confidence Model:** 5-Factor Mathematical Rubric (0–100)
-
----
-
-## 📊 Executive Summary
-The application is built on Express and MongoDB. While basic authentication is in place, the audit identified an unauthenticated state-changing route and an unvalidated mass assignment flaw in profile management.
-
-| Severity | Rule ID | Title | Confidence | Root Cause Cluster |
-|---|---|---|:---:|---|
-| 🔴 **Critical** | `TG-CSRF-001` | Missing CSRF Protection on State-Changing Routes | **90 (Confirmed)** | `auth-session-boundary` |
-| 🟠 **High** | `TG-AUTH-006` | Mass Assignment in User Profile Updates | **85 (High)** | `input-model-binding` |
-| 🔍 **Review** | `TG-DB-004` | Tenant Isolation Scoping on Shared Collections | **55 (Needs Review)** | `tenant-scoping` |
-
----
-
-## 🚨 Priority Finding Cards
-
 ### 🔴 Finding TG-CSRF-001: Missing CSRF Protection on Session Routes
 * **Location:** `src/server.ts:45`
 * **Fingerprint:** `lineHash:a7b8c9d0...` (line-shift invariant)
+* **Status:** `OPEN 🔴`
 * **Score:** **90 / 100 (Confirmed)**
-* **The Risk in Plain English:** When a user is logged in, a malicious third-party site can trick their browser into submitting unauthorized POST requests (e.g. changing passwords or transferring funds) using their active session cookie.
+* **The Risk in Plain English:** When a user is logged in, an attacker site can trick their browser into submitting unauthorized POST requests using their active session cookie.
 * **Evidence:**
   ```typescript
   // src/server.ts:45 - CSRF middleware missing on session-authenticated router:
   app.post("/api/user/email", authenticateSession, updateEmailHandler);
   ```
-* **Remediation Diff:**
-  ```diff
-  + import { doubleCsrfProtection } from "./security/csrf";
-  - app.post("/api/user/email", authenticateSession, updateEmailHandler);
-  + app.post("/api/user/email", authenticateSession, doubleCsrfProtection, updateEmailHandler);
-  ```
-* **How to Verify:** Dispatch a POST request without the CSRF header and assert that the server returns HTTP `403 Forbidden`.
-
----
-
-### 🟠 Finding TG-AUTH-006: Mass Assignment in User Profile Updates
-* **Location:** `src/routes/profile.ts:32`
-* **Score:** **85 / 100 (High Confidence)**
-* **The Risk in Plain English:** An attacker can include `{ "isAdmin": true, "role": "superuser" }` in their profile update JSON payload and gain administrative privileges because input fields are passed unfiltered to the database.
-* **Evidence:**
-  ```typescript
-  // src/routes/profile.ts:32 - Passing raw req.body to model:
-  await User.findByIdAndUpdate(req.user.id, req.body);
-  ```
-* **Remediation Diff:**
-  ```diff
-  - await User.findByIdAndUpdate(req.user.id, req.body);
-  + const { displayName, bio } = req.body;
-  + await User.findByIdAndUpdate(req.user.id, { displayName, bio });
-  ```
-* **How to Verify:** Submit a PUT request containing `{ "isAdmin": true }` and confirm the user role remains unchanged in database state.
 ```
 
 ---
 
-## 🧪 Step 3: Runtime Verification (`/torusguard verify` & `web-validate`)
+## 🧪 Step 3: Evidence & Runtime Verification
 
-Before applying code changes, the `validator` agent can confirm whether findings are live and exploitable:
-1. **Scope Check:** Enforces target host allowlisting via `.torusguard/config/scope.json`.
-2. **Safety Gate:** Bounded HTTP probes run through `safety_gate.py` (`Auto-Allowed` GETs, `Approval Required` state-changes, `Manual Only` destructive verbs).
-3. **Secret Masking:** All captured tokens, cookies, and passwords are automatically redacted in `requests.json` and `responses.json`.
-4. **Deterministic Replay:** Emits `replay.json` containing exact test sequences for regression tracking.
+Verify finding evidence sufficiency and probe target endpoints non-destructively:
+
+```bash
+# Mode A: Terminal CLI
+npx torusguard verify
+npx torusguard web-validate
+
+# Mode B: AI Chat Slash Command
+/torusguard verify
+/torusguard web-validate
+```
+
+1. **Evidence Verification:** Evaluates source code line matches, confirms line-shift invariant fingerprints, and recalibrates confidence scores.
+2. **Scope Check:** Enforces target host allowlisting via `.torusguard/config/scope.json`.
+3. **Safety Gate:** Bounded HTTP probes run through `safety_gate.py` (`Auto-Allowed` GETs, `Approval Required` state-changes, `Manual Only` destructive verbs).
+4. **Secret Masking:** All captured tokens, cookies, and passwords are automatically redacted in `requests.json` and `responses.json`.
 
 ---
 
-## 🛠️ Step 4: Governed Remediation (`/torusguard harden` & `apply`)
+## 🛠️ Step 4: Governed Remediation & Ponytail Patches
 
-Once candidate fixes are reviewed:
-1. **Formulate the Remediation Bundle:** Run `/torusguard harden` to generate 4-artifact remediation packages strictly adhering to the **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions per bundle).
-2. **Pre-Apply Snapshot:** Run `/torusguard apply`. TorusGuard automatically saves a byte-for-byte rollback backup in `pre_apply/<file>.bak` before modifying any code.
-3. **Targeted Recheck:** Run `/torusguard recheck` to differentially re-audit the modified lines. The finding transitions to `Confirmed Fixed` and a verified SARIF v2.1.0 report is exported to `.torusguard/runs/<run-id>/results.sarif`.
+Formulate and apply minimal surgical fixes strictly bounded by the **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions per bundle):
+
+```bash
+# Mode A: Terminal CLI
+npx torusguard harden
+npx torusguard apply [--yes]
+
+# Mode B: AI Chat Slash Command
+/torusguard harden
+/torusguard apply
+```
+
+### Interactive Human Gate (`npx torusguard apply`):
+```text
+===========================================================================
+               🛡️ TORUSGUARD GOVERNED REMEDIATION GATE 🛡️                   
+===========================================================================
+ Candidate Bundles: 2 formulated patches                                    
+ Target Files     : src/server.ts, src/routes/profile.ts                   
+ Churn Bounds     : <= 35 additions, <= 25 deletions per bundle            
+ Pre-Apply Backup : .torusguard/snapshots/run-20260912-221500/             
+---------------------------------------------------------------------------
+ Inspect Patch: [1/2] TG-CSRF-001 in src/server.ts
+ @@ -44,3 +44,4 @@
+ + import { doubleCsrfProtection } from "./security/csrf";
+ - app.post("/api/user/email", authenticateSession, updateEmailHandler);
+ + app.post("/api/user/email", authenticateSession, doubleCsrfProtection, updateEmailHandler);
+---------------------------------------------------------------------------
+ Apply this patch to disk? [y/N/all/quit]: y
+   ✔ Applied patch to src/server.ts (Backup saved)
+===========================================================================
+```
 
 ---
 
-## 🔒 Step 5: Git Pre-Commit Diff Guard (`npx torusguard diff-guard`)
+## 🔄 Step 5: Differential Recheck & State Machine Closure
+
+Verify that applied patches eliminate vulnerabilities without introducing regressions:
+
+```bash
+# Mode A: Terminal CLI
+npx torusguard recheck
+
+# Mode B: AI Chat Slash Command
+/torusguard recheck
+```
+
+### Terminal CLI Output:
+```text
+===========================================================================
+               🛡️ TORUSGUARD DIFFERENTIAL RECHECK 🛡️                       
+===========================================================================
+ Scanned Scope : Modified files (src/server.ts, src/routes/profile.ts)      
+ Status        : 🟢 FIXES VERIFIED & CLOSED                                
+---------------------------------------------------------------------------
+ Results:
+   ✔ [Confirmed Fixed] TG-CSRF-001 in src/server.ts:45
+   ✔ [Confirmed Fixed] TG-AUTH-006 in src/routes/profile.ts:32
+---------------------------------------------------------------------------
+ Living Report : Updated security_report.md (Health Score: 100/100 🟢)      
+ Golden Fixes  : 2 new patterns saved to .torusguard/memory/patterns.json  
+===========================================================================
+```
+
+If an error or regression occurs, roll back instantly:
+```bash
+npx torusguard rollback
+```
+
+---
+
+## 🔒 Step 6: Git Pre-Commit Diff Guard
 
 Install the local pre-commit hook in one command:
 ```bash
@@ -116,76 +188,36 @@ git commit -m "feat: bypass ssl check for dev"
 
 TorusGuard instantly blocks the commit:
 ```text
-🚨 TorusGuard Diff Guard: BLOCKED (Exit 1)
---------------------------------------------------
-File: internal/client/transport.go
-Line: +42: InsecureSkipVerify: true
-Violation: [TG-DIFF-001] Dangerous security bypass detected in staged diff.
-Remediation: Remove InsecureSkipVerify: true and configure proper CA certificates.
+===========================================================================
+ 🚨 TORUSGUARD DIFF GUARD: BLOCKED (Exit 1)                                
+===========================================================================
+ File     : internal/client/transport.go                                   
+ Line     : +42: InsecureSkipVerify: true                                  
+ Violation: [TG-DIFF-001] Dangerous security bypass detected in diff.      
+ Remedy   : Remove InsecureSkipVerify: true and configure trusted CAs.     
+===========================================================================
 ```
 
 ---
 
-## 🔄 Step 6: AI IDE Rules Auto-Sync (`npx torusguard rules sync`)
+## 🔄 Step 7: AI IDE Rules Auto-Sync
 
-Compile project security invariants into prompt-optimized rules for your AI editor:
+Compile project security invariants into prompt-optimized rules for Cursor, Claude Code, Antigravity, and Windsurf:
 ```bash
 npx torusguard rules sync --format all
 ```
 
-Output:
-```text
-🛡️  TorusGuard AI IDE Rules Sync Engine v1.3.0
-============================================================
-Detected Stack: Express, React, TypeScript (ORM: Prisma)
-Compiling security rules with max overhead <= 300 tokens...
-
-  ✓ Updated .cursorrules (245 prompt tokens)
-  ✓ Updated CLAUDE.md (260 prompt tokens)
-  ✓ Updated .agent/rules/torusguard.md (230 prompt tokens)
-  ✓ Updated .windsurfrules (245 prompt tokens)
-
-✨ Successfully synced 4 AI IDE rule files.
-```
-
 ---
 
-## 📊 Step 7: Single-File Visual HTML Posture Dashboard (`npx torusguard report --html`)
+## 📊 Step 8: Visual Single-File HTML Posture Dashboard
 
-Generate a standalone, zero-external-CDN dark-mode dashboard:
+Generate an interactive, dark-mode, zero-external-CDN dashboard:
 ```bash
 npx torusguard report --html
 ```
 
-Output:
-```text
-📊 Visual HTML Security Posture Report generated:
-   --> .torusguard/runs/report-latest.html
-   Size: 34.2 KB (100% self-contained, offline-ready, dark-mode)
-```
-
-The report renders:
+The report provides:
 - Circular animated SVG Security Posture Score gauge (0–100).
 - 7-Stage closed-loop governance pipeline timeline.
-- Dynamic polyglot ecosystem badges.
-- Golden Fix Recipes card grid with before/after diffs.
-
----
-
-## 🧠 Step 8: Adaptive Security Memory (`npx torusguard memory`)
-
-Inspect project security intelligence accumulated across audit runs:
-```bash
-npx torusguard memory status
-```
-
-Output:
-```text
-🧠 TorusGuard Security Memory Status
-============================================================
-Events Recorded:      14 events (Ledger: memory/events/)
-Distilled Patterns:   3 active patterns (memory/patterns.json)
-Golden Fix Recipes:   2 recipes (memory/golden_recipes/)
-Active Context Card:  ~210 tokens (memory/context.json)
-TTL Decay:            90 days active (0 expired events)
-```
+- Golden Fix Recipes card grid with interactive unified diff viewer.
+- Full SARIF v2.1.0 and JSON export options.

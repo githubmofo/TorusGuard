@@ -1,12 +1,14 @@
 ---
 description: Static security AST scanning, stable line-shift invariant fingerprinting, root-cause clustering, and 0-100 confidence scoring.
 tools: Read, Grep, Glob, Bash, Write
-version: 0.9.2
+version: 1.3.5
 agent: auditor
 lifecycle-phase: Phase 2 (Static Audit & Clustering)
 required-skills:
   - torusguard-audit
 scripts-binding:
+  - .torusguard/scripts/audit_runner.py
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/run_manager.py
   - .torusguard/scripts/finding_scorer.py
 ---
@@ -44,6 +46,10 @@ Inspect workspace prerequisites before launching static audit:
 | Differential check after patch | Run `/torusguard recheck` |
 
 ---
+
+## Living Report Invariant
+- Audit discoveries automatically synchronize to `security_report.md` at workspace root.
+- Findings transition into `OPEN 🔴` status with stable invariant fingerprints.
 
 ## Execution Steps
 

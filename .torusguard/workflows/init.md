@@ -1,12 +1,13 @@
 ---
 description: Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
 tools: Read, Grep, Glob, Bash, Write
-version: 0.9.2
+version: 1.3.5
 agent: profiler
 lifecycle-phase: Phase 0 (Baseline Setup)
 required-skills:
   - torusguard-init
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/stack_detect.py
 ---
 
@@ -43,6 +44,10 @@ Inspect workspace state before running initialization:
 | Testing legal boundaries | Run `/torusguard authorize` |
 
 ---
+
+## Living Report Invariant
+- Provisions baseline `security_report.md` single-source-of-truth ledger.
+- Activates tailored rules across 18 families based on detected stack.
 
 ## Execution Steps
 

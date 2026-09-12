@@ -76,7 +76,7 @@ def generate_sarif(findings: List[Dict[str, Any]], run_id: str = "default", cate
                 "tool": {
                     "driver": {
                         "name": "TorusGuard",
-                        "semanticVersion": "0.8.0",
+                        "semanticVersion": "1.3.5",
                         "informationUri": "https://github.com/githubmofo/TorusGuard",
                         "rules": list(rules_map.values())
                     }

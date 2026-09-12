@@ -1,37 +1,46 @@
 # TG-GQL-004: Unnecessary Production Introspection
 
 ## Severity
-High by default. Raise to Critical when applicable.
+Medium. Enabling GraphQL schema introspection in production environments reveals full schema types, queries, mutations, and deprecated fields to external attackers.
 
 ## Applies To
-- Relevant endpoints and services
+- GraphQL Servers (Apollo, Yoga, Mercurius, Helix)
+- Production Node.js, Python, Go deployments
 
 ## Why It Matters
-Explaining the risk of this vulnerability.
+While introspection powers developer tools like Apollo Studio and GraphiQL, in production it provides attackers with an automated blueprint of the internal API surface, administrative fields, and hidden parameters.
 
 ## What TorusGuard Looks For
-- Specific code patterns or configurations
+- GraphQL server initialization setting `introspection: true` or failing to disable introspection when `NODE_ENV === 'production'`.
 
 ## Unsafe Example
 ```javascript
-// Unsafe code example
+// UNSAFE: Introspection unconditionally enabled
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  introspection: true
+});
 ```
 
 ## Safe Example
 ```javascript
-// Safe code example
+// SAFE: Introspection restricted to non-production environments
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  introspection: process.env.NODE_ENV !== 'production'
+});
 ```
 
+## Ponytail Remediation Budget
+- Additions: <= 2 lines
+- Deletions: <= 2 lines
+
 ## Remediation
-1. Step one
-2. Step two
-
-## Verification
-- Test case 1
-- Test case 2
-
-## False Positives and Exceptions
-An exception requires documented review.
+1. Bind `introspection` to environment checks (`process.env.NODE_ENV !== 'production'`).
+2. Disable GraphQL Playground and Apollo Sandbox in production.
 
 ## Related Rules
-- TG-OTHER-001
+- `TG-PLATFORM-003`: Production Stack Trace Exposure
+- `TG-CLIENT-001`: Public Production Source Maps

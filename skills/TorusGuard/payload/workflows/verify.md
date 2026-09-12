@@ -1,12 +1,13 @@
 ---
 description: Evidence sufficiency verification, live disk line match audit, and finding score refinement.
 tools: Read, Grep, Glob, Bash, Write
-version: 0.9.2
+version: 1.3.5
 agent: validator
 lifecycle-phase: Phase 3a (Evidence Verification)
 required-skills:
   - torusguard-verify
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/finding_scorer.py
 ---
 
@@ -43,6 +44,10 @@ Inspect finding records and evidence integrity before verification:
 | Generating patch after verification | Run `/torusguard harden` |
 
 ---
+
+## Living Report Invariant
+- Confirmed evidence sufficiency transitions findings in `security_report.md` to `VERIFIED 🟠`.
+- False positives transition to `FALSE POSITIVE ⚪`.
 
 ## Execution Steps
 

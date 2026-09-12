@@ -1,10 +1,11 @@
 ---
 name: torusguard-web-validate
 description: Execute authorized HTTP probing against local/staging web applications — session capture, transparent audit headers, and secret redaction.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/web-validate.md
-tools: Read, Grep, Glob, Bash, Write
+tools: Read, Grep, Glob, Bash, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/safety_gate.py
 ---
 
@@ -47,6 +48,10 @@ All requests pass through `.torusguard/scripts/safety_gate.py`:
 All Bearer tokens, cookies, passwords, and API keys are redacted prior to disk serialization (`Bearer [REDACTED]`).
 
 ---
+
+## Living Report Ground Truth
+- Always inspect `security_report.md` at workspace root before acting.
+- Update finding statuses after completion to eliminate hallucination.
 
 ## Safety Constraints
 - Max 50 requests per validation session.

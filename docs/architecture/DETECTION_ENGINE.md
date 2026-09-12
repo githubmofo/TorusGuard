@@ -87,7 +87,21 @@ Intercepts risky modifications in unified diffs before code is merged:
 - **Pre-Commit Enforcement (`diff_guard.py --install-hook`):**
   - Installs a native `.git/hooks/pre-commit` script to block commits that violate `TG-DIFF-001` through `TG-DIFF-004` locally before pushing to upstream remotes.
 
+### Stage 6: Living Security Report Synchronization (`report_sync.py`)
+Synchronizes all AST discoveries, candidate patches, and recheck closures into `security_report.md` at workspace root:
+- Single source of truth guaranteeing zero hallucination across CLI tools and AI agent chat sessions.
+- Dynamic calculation of repository Health Score (0–100).
+- State transitions adhere strictly to the finding lifecycle: `OPEN 🔴` $\rightarrow$ `VERIFIED 🟠` $\rightarrow$ `CANDIDATE 🟡` $\rightarrow$ `APPLIED 🔵` $\rightarrow$ `RESOLVED 🟢`.
+
 ---
 
-## 3. Seeded-Case Recall Benchmarking
+## 3. High-Precision Scanner Refinements & Noise Suppression
+- **Active Network Sinks (`TG-SSRF-002`):** Constrains regex scanning strictly to active HTTP network dispatch functions (`fetch`, `axios`, `requests.get`) rather than flagging benign configuration references or request URL variables (`req.url`, `config.url`).
+- **Catastrophic Backtracking Mitigation (`TG-SSRF-004`):** Optimizes lookahead assertions against AWS metadata IPs (`169.254.169.254`) and cloud endpoints to prevent regex engine stalls.
+- **Whole-File AST Analysis (`TG-PLATFORM-002`):** Evaluates server source files globally for the mounting of security header middleware (`helmet()`, `secure-headers`), eliminating false positive findings on individual sub-route definitions.
+- **Documentation & Mock Exemptions:** Scans automatically discount markdown files (-25 pts in `finding_scorer.py`), test payloads in `tests/fixtures/payload/`, and internal framework tooling in `.torusguard/scripts/`.
+
+---
+
+## 4. Seeded-Case Recall Benchmarking
 The engine incorporates a formal recall benchmarking suite (`projects/manifest.yaml`). Known non-production vulnerability seeds are injected into target repositories to ensure rule tuning does not introduce false negatives or degrade true detection capability.

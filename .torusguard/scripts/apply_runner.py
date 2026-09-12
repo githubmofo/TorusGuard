@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Governed Patch Application & Snapshot Engine (v1.3.3)
+TorusGuard Governed Patch Application & Snapshot Engine (v1.3.5)
 Interactive Human Gate authorization, pre-apply .bak rollback snapshots,
 atomic patch application, and Golden Fix Recipe distillation into persistent memory.
 Strict 75-column terminal UI formatting.
@@ -58,7 +58,7 @@ def box_line(content: str, width: int = 67, border: str = "│", border_color: s
         return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
     return f"  {border_color}{border}{RESET}  {content}"
 
-def box_header(title: str, subtitle: str = "", version: str = "v1.3.3", border_color: str = CYAN) -> str:
+def box_header(title: str, subtitle: str = "", version: str = "v1.3.5", border_color: str = CYAN) -> str:
     if term_ui:
         return term_ui.card_header(title, subtitle, version, border_color)
     return f"=== {title} ({version}) ==="
@@ -109,7 +109,7 @@ def execute_rollback(target_root: Path, run_id_arg: Optional[str] = None) -> Non
         restored_files.append(orig_rel)
 
     print()
-    print(box_header("🛡️  TORUSGUARD ROLLBACK RESTORATION", "Restored original files from pre-apply snapshot", "v1.3.3"))
+    print(box_header("🛡️  TORUSGUARD ROLLBACK RESTORATION", "Restored original files from pre-apply snapshot", "v1.3.5"))
     print()
 
     print(border_top("Rollback Snapshot Restored"))
@@ -138,7 +138,7 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
     bundle_meta_files = list(bundles_dir.glob("*/metadata.json")) if bundles_dir.is_dir() else []
     if not bundle_meta_files:
         print()
-        print(box_header("🛡️  TORUSGUARD GOVERNED PATCH APPLIER", "Human-Gate Authorization, Snapshots & Golden Recipe Distillation", "v1.3.3"))
+        print(box_header("🛡️  TORUSGUARD GOVERNED PATCH APPLIER", "Human-Gate Authorization, Snapshots & Golden Recipe Distillation", "v1.3.5"))
         print()
         print(f"  {YELLOW}ℹ Zero candidate remediation bundles found in run: {run_folder.name}{RESET}")
         print(f"  {GRAY}The findings in this run require manual review or AI-assisted remediation.{RESET}\n")
@@ -163,7 +163,7 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
 
     # Header Card
     print()
-    print(box_header("🛡️  TORUSGUARD GOVERNED PATCH APPLIER", "Human-Gate Authorization, Snapshots & Golden Recipe Distillation", "v1.3.3"))
+    print(box_header("🛡️  TORUSGUARD GOVERNED PATCH APPLIER", "Human-Gate Authorization, Snapshots & Golden Recipe Distillation", "v1.3.5"))
     print()
 
     print(border_top("Candidate Bundles Ready for Application"))
@@ -317,6 +317,11 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
         f"- **Rollback Directory:** `.torusguard/snapshots/{run_folder.name}`"
     ]
     (run_folder / "apply_plan.md").write_text("\n".join(apply_plan_lines), encoding="utf-8")
+    try:
+        import report_sync
+        report_sync.record_applied_patches(target_root, applied_bundles, snapshot_dir, run_folder.name)
+    except Exception:
+        pass
 
     # Update manifest
     manifest_file = run_folder / "manifest.json"
@@ -339,6 +344,7 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
     print()
 
     print(border_top("Next Governed Action", border_color=GREEN, double=True))
+    print(box_line(f"Living Report:        {CYAN}security_report.md (applied state recorded){RESET}", border="║", border_color=GREEN))
     print(box_line(f"Differential Recheck: {BOLD}{WHITE}npx torusguard recheck{RESET} (Verify fix closure)", border="║", border_color=GREEN))
     print(box_line(f"View Golden Recipes:  {CYAN}npx torusguard recipes{RESET} (Inspect memory)", border="║", border_color=GREEN))
     print(box_line(f"Emergency Rollback:   {YELLOW}npx torusguard rollback{RESET} (Instant revert)", border="║", border_color=GREEN))

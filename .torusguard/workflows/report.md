@@ -1,12 +1,14 @@
 ---
 description: Executive posture reporting, cluster analysis, signed compliance audit, and OASIS SARIF v2.1.0 structured export.
 tools: Read, Grep, Glob, Bash, Write
-version: 0.9.2
+version: 1.3.5
 agent: reviewer
 lifecycle-phase: Phase 7 (Reporting & SARIF Export)
 required-skills:
   - torusguard-report
 scripts-binding:
+  - .torusguard/scripts/html_reporter.py
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/sarif_exporter.py
   - .torusguard/scripts/run_manager.py
 ---
@@ -44,6 +46,10 @@ Inspect run records and reporting parameters before generating release artifacts
 | Re-checking modified files | Run `/torusguard recheck` |
 
 ---
+
+## Living Report Invariant
+- Executive posture reports incorporate health scoring and metrics from `security_report.md`.
+- Emits visual dark-mode HTML (`--html`) and OASIS SARIF v2.1.0 (`--sarif`).
 
 ## Execution Steps
 

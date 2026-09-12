@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Unified Terminal UI Engine (v1.3.3)
+TorusGuard Unified Terminal UI Engine (v1.3.5)
 Provides mathematically exact 75-column card formatting, ANSI-stripping,
 Unicode/emoji visual width calculation, and visual truncation with ellipsis.
 Pure Python 3.10+ standard library (zero external dependencies).

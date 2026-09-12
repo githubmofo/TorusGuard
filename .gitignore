@@ -39,6 +39,7 @@ examples/*/*.db
 examples/*/*/*.db
 
 # Local agent copies & system generation
+.gemini/
 .cursor/
 .agents/
 .system_generated/

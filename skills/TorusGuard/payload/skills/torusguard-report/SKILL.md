@@ -1,10 +1,11 @@
 ---
 name: torusguard-report
 description: Generate executive posture reports, export OASIS SARIF v2.1.0 logs, and render dark-mode HTML dashboards via CLI or AI Agent.
-version: 1.3.4
+version: 1.3.5
 workflow: .torusguard/workflows/report.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/html_reporter.py
   - .torusguard/scripts/sarif_exporter.py
   - .torusguard/scripts/run_manager.py
@@ -55,7 +56,7 @@ When generating security posture summaries in AI chat:
 
 ## SARIF v2.1.0 Specification
 - **Schema:** `https://docs.oasis-open.org/sarif/sarif/v2.1.0/cos02/schemas/sarif-schema-2.1.0.json`
-- **Tool Driver:** `name: TorusGuard`, `semanticVersion: 1.3.3`, full rules catalog in `driver.rules`.
+- **Tool Driver:** `name: TorusGuard`, `semanticVersion: 1.3.5`, full rules catalog in `driver.rules`.
 - **Automation Details:** `automationDetails.id: "torusguard/static"` to avoid collisions in multi-scanner CI/CD pipelines.
 - **Fingerprints:** `partialFingerprints.primaryLocationLineHash` with SHA-256 context hash.
 
@@ -70,3 +71,6 @@ When generating security posture summaries in AI chat:
 - **HTML Dashboard:** `.torusguard/runs/<run_id>/report.html` (View in browser)
 - **SARIF v2.1.0 Export:** `.torusguard/runs/<run_id>/results.sarif` (Ready for CI)
 ```
+
+## Living Report Ground Truth
+- Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.

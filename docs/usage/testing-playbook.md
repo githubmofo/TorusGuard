@@ -28,33 +28,49 @@ We recommend testing against two classes of targets:
 #### Step 0: Autonomous Workspace Initialization
 Initialize `.torusguard/` in your project root:
 ```bash
+# Terminal CLI
+npx torusguard init
+
+# AI Agent Chat
 /torusguard init
 ```
-- **Output:** Auto-detects framework stack (Django, DRF, FastAPI, Flask, SQLAlchemy, Next.js, Express, React), activates tailored security rules in `.torusguard/rules/active/`, and configures the 5 specialist agents.
+- **Output:** Auto-detects polyglot stack across 16+ languages and 30+ frameworks, activates tailored security rules across 74 rules in 18 families, and configures `.torusguard/config/torusguard.json`.
 
-#### Step 1: Static Code Audit & Root-Cause Clustering
+#### Step 1: Static Code Audit & Living Report Synchronization
 Scan repository source files and configuration manifests:
 ```bash
+# Terminal CLI
+npx torusguard audit
+
+# AI Agent Chat
 /torusguard audit
 ```
-- **Output:** Discovers framework stack, computes line-shift invariant fingerprints, and groups candidate vulnerabilities into systemic root-cause clusters (e.g., `cluster-tenant-isolation`, `cluster-idor-scoping`).
-- **Artifacts:** `.torusguard/runs/<run-id>/findings.md`, `.torusguard/runs/<run-id>/manifest.json`.
+- **Output:** Discovers framework stack, evaluates 74 AST rules, computes line-shift invariant fingerprints, groups findings into systemic root-cause clusters, and synchronizes `security_report.md` at workspace root.
+- **Artifacts:** `security_report.md`, `.torusguard/runs/<run-id>/findings.json`, `.torusguard/runs/<run-id>/manifest.json`.
 
 #### Step 2: Governed Remediation Planning
 Generate minimal, self-contained remediation bundles for identified issues:
 ```bash
+# Terminal CLI
+npx torusguard harden
+
+# AI Agent Chat
 /torusguard harden
 ```
-- **Output:** Produces 4-artifact remediation packages (`finding.md`, `remediation.md`, `minimal_patch_plan.md`, `verify-after-change.md`).
-- **Patch Policy Enforcement:** Evaluates candidate diffs against strict churn limits ($\le 35$ additions, $\le 25$ deletions). Escalates sensitive auth/tenancy diffs to `Mandatory Security Sign-Off`.
+- **Output:** Produces surgical candidate patch bundles adhering to the **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions per bundle) with minimal patch plans.
 
 #### Step 3: Surgical Patch Application & Targeted Recheck
-Apply bounded fixes using the Ponytail engine and immediately verify:
+Apply bounded fixes using the Human Gate and verify:
 ```bash
+# Terminal CLI
+npx torusguard apply [--yes]
+npx torusguard recheck
+
+# AI Agent Chat
 /torusguard apply
 /torusguard recheck
 ```
-- **Output:** Automatically backs up pre-apply snapshots to `pre_apply/<file>.bak`, applies minimal patch, and re-runs AST sink evaluations solely over modified scopes. Classifies outcomes into `Confirmed Fixed`, `Partially Fixed`, `Needs Manual Review`, or `Regressed`.
+- **Output:** Automatically saves pre-apply snapshots to `.torusguard/snapshots/<run_id>/`, applies minimal patches, and differentially re-audits modified files. Transitions findings in `security_report.md` from `APPLIED 🔵` to `RESOLVED 🟢` (or `REGRESSED ❌`). Automatically distills Golden Fix Recipes into `.torusguard/memory/patterns.json`.
 
 #### Step 4: Authorized Runtime Validation (`verify`, `web-validate`, `exploit-check`)
 For authorized local or staging instances, validate exploitability in runtime:

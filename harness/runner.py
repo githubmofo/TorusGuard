@@ -9,6 +9,7 @@ import json
 import re
 import glob
 import shutil
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 
@@ -98,6 +99,7 @@ class ValidationHarnessRunner:
         self.test_report_formatting()
         self.test_run_context_and_ponytail()
         self.test_v6_governed_remediation_suite()
+        self.test_v74_rule_coverage_and_living_report()
 
         print("-" * 80)
         print(f"SUMMARY: {self.passed_tests} Passed | {self.failed_tests} Failed")
@@ -540,6 +542,75 @@ class ValidationHarnessRunner:
             wf = V6Workflow(target_root=temp_dir, output_base=temp_dir / "runs")
             run_wf = wf.execute_audit(raw_f, target_name="e2e-demo", export_sarif=True)
             self.log_test("v0.6.0 End-to-End Workflow Execution", run_wf.manifest_file.exists() and run_wf.sarif_file.exists())
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_v74_rule_coverage_and_living_report(self):
+        print("\n15. Testing TorusGuard v1.3.5 74-Rule Catalog Coverage & Living Report Engine...")
+        temp_dir = Path(tempfile.mkdtemp(prefix="tg-v74-test-"))
+        try:
+            # 1. Test 74 Rule Coverage in audit_runner.py
+            sys.path.insert(0, str(self.root_dir / ".torusguard" / "scripts"))
+            import audit_runner
+            rule_ids = [r["rule_id"] for r in audit_runner.RULE_PATTERNS]
+            unique_ids = set(rule_ids)
+            self.log_test("v1.3.5 AST Engine Rule Count (74 Rules)", len(unique_ids) == 74 and len(rule_ids) == 74)
+
+            # 2. Test 18 Rule Families Coverage
+            families = set(r.split("-")[1] for r in unique_ids)
+            expected_families = {"SEC", "AUTH", "DB", "INPUT", "RATE", "AGENT", "SSRF", "WEBHOOK", "WS", "CSRF", "GQL", "SUPPLY", "BIZ", "CACHE", "CLIENT", "PLATFORM", "DIFF", "EDGE"}
+            self.log_test("v1.3.5 Complete Rule Family Representation (18 Families)", families == expected_families)
+
+            # 3. Test Living Report Sync Lifecycle (Discovery -> Candidate -> Applied -> Resolved)
+            import report_sync
+            dummy_f = [{
+                "finding_id": "TG-RATE-001-f1",
+                "rule_id": "TG-RATE-001",
+                "title": "Unlimited Authentication Endpoint",
+                "severity": "High",
+                "file_path": "server/auth.js",
+                "line_number": 25,
+                "description": "Unprotected auth route lacking rate limiting.",
+                "snippet": "app.post('/login', async (req, res) => {})",
+                "confidence_score": 85,
+                "confidence_band": "High Confidence"
+            }]
+
+            # Discovery
+            rep_path = report_sync.record_audit_findings(temp_dir, dummy_f, "run-audit-1")
+            content1 = rep_path.read_text(encoding="utf-8")
+            self.log_test("v1.3.5 Living Report Discovery State (OPEN 🔴)", "🔴 OPEN" in content1 and "TG-RATE-001" in content1)
+
+            # Harden
+            dummy_b = [{
+                "finding_id": "TG-RATE-001-f1",
+                "rule_id": "TG-RATE-001",
+                "target_file": "server/auth.js",
+                "line_number": 25,
+                "bundle_id": "bnd-rate-001",
+                "what_should_change": "Injected authLimiter",
+                "proposed_diff": "+ app.post('/login', authLimiter, ...)",
+                "additions": 1,
+                "deletions": 0
+            }]
+            report_sync.record_harden_bundles(temp_dir, dummy_b, "run-harden-1")
+            content2 = rep_path.read_text(encoding="utf-8")
+            self.log_test("v1.3.5 Living Report Candidate State (CANDIDATE 🟡)", "🟡 CANDIDATE" in content2 and "Injected authLimiter" in content2)
+
+            # Apply
+            report_sync.record_applied_patches(temp_dir, dummy_b, temp_dir / "snapshots" / "snap1", "run-apply-1")
+            content3 = rep_path.read_text(encoding="utf-8")
+            self.log_test("v1.3.5 Living Report Applied State (APPLIED 🔵)", "🔵 APPLIED" in content3)
+
+            # Recheck Fixed
+            report_sync.record_recheck_results(temp_dir, {
+                "fixed": [{"finding_id": "TG-RATE-001-f1"}],
+                "regressed": [],
+                "remaining": []
+            }, "run-recheck-1")
+            content4 = rep_path.read_text(encoding="utf-8")
+            self.log_test("v1.3.5 Living Report Verified Closure (RESOLVED 🟢)", "🟢 RESOLVED" in content4 and "Closure Verified" in content4)
 
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)

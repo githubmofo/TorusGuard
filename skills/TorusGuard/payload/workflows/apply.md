@@ -1,12 +1,14 @@
 ---
 description: Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
 tools: Read, Grep, Glob, Bash, Edit, Write
-version: 0.9.2
+version: 1.3.5
 agent: remediator
 lifecycle-phase: Phase 5 (Patch Application)
 required-skills:
   - torusguard-apply
 scripts-binding:
+  - .torusguard/scripts/apply_runner.py
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/run_manager.py
   - .torusguard/scripts/diff_guard.py
 ---
@@ -26,7 +28,7 @@ Governed patch application with pre-apply rollback snapshots and Human Gate auth
 
 Inspect bundle validity and file safety before modifying disk code:
 1. **Bundle Verification:** Assert `patch.diff` exists in active run's remediation folder.
-2. **Pre-Apply Snapshot:** Save a byte-for-byte backup copy (`.bak` or `pre_apply/`) prior to editing.
+2. **Pre-Apply Snapshot:** Save a byte-for-byte backup copy (`.bak` or `.torusguard/snapshots/<run_id>/`) prior to editing.
 3. **Uncommitted Changes:** Check git status; ensure target file has clean baseline.
 4. **Ponytail Check:** Re-verify that patch additions $\le 35$ and deletions $\le 25$.
 5. **Human Gate:** Confirm operator approval before committing edits to disk.
@@ -47,11 +49,16 @@ Inspect bundle validity and file safety before modifying disk code:
 
 ---
 
+## Living Report Invariant
+- Applied patches create pre-apply `.bak` snapshots in `.torusguard/snapshots/<run_id>/`.
+- Finding statuses transition in `security_report.md` to `APPLIED 🔵`.
+- Instant rollback available via `npx torusguard rollback`.
+
 ## Execution Steps
 
 1. **Load Remediation Bundle:** Read `patch.diff` and metadata from active run directory.
 2. **Audit Patch Invariants:** Run `python .torusguard/scripts/diff_guard.py <patch.diff>`.
-3. **Create Rollback Backup:** Copy target file to `.torusguard/runs/<run_id>/pre_apply/<filename>.bak`.
+3. **Create Rollback Backup:** Copy target file to `.torusguard/runs/<run_id>/.torusguard/snapshots/<run_id>/<filename>.bak`.
 4. **Apply Minimal Diff:** Execute precise surgical edit using `replace_file_content` or `patch`.
 5. **Assert Syntax & Integrity:** Check that modified file compiles cleanly without syntax errors.
 6. **Log Application Ledger:** Record timestamp, original SHA-256, and patched SHA-256 in `apply-log.json`.
@@ -81,7 +88,7 @@ Inspect bundle validity and file safety before modifying disk code:
 ### 🚀 TorusGuard Patch Application
 - **Finding Addressed:** `TG-XXX-HASH`
 - **File Patched:** `src/path/to/file.py`
-- **Rollback Backup:** `.torusguard/runs/<run_id>/pre_apply/<file>.bak`
+- **Rollback Backup:** `.torusguard/runs/<run_id>/.torusguard/snapshots/<run_id>/<file>.bak`
 - **Churn Applied:** +[Additions] / -[Deletions] lines
 - **Syntax Check:** PASSED (clean compile)
 - **Status:** APPLIED — run `/torusguard recheck` to verify fix

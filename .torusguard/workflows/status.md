@@ -1,12 +1,13 @@
 ---
 description: Read-only diagnostic overview of workspace security posture, active configuration, rules catalog, and run history.
 tools: Read, Grep, Glob, Bash
-version: 0.9.2
+version: 1.3.5
 agent: reviewer
 lifecycle-phase: System / Diagnostics
 required-skills:
   - torusguard-status
 scripts-binding:
+  - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/run_manager.py
 ---
 
@@ -43,6 +44,10 @@ Inspect workspace state and configuration records prior to status display:
 | Executing full security scan | Run `/torusguard audit` |
 
 ---
+
+## Living Report Invariant
+- Reads current health score and status breakdown directly from `security_report.md`.
+- Displays 18 rule families and 74 rules in standardized 75-column terminal cards.
 
 ## Execution Steps
 
