@@ -170,6 +170,8 @@ class ValidationHarnessRunner:
         print("\n3. Testing Skill Definition & References...")
         skill_file = self.root_dir / "skills" / "TorusGuard" / "SKILL.md"
         if not skill_file.exists():
+            skill_file = self.root_dir / "skills" / "torusguard" / "SKILL.md"
+        if not skill_file.exists():
             self.log_test("SKILL.md exists", False, "Missing skills/TorusGuard/SKILL.md")
             return
 
@@ -183,6 +185,8 @@ class ValidationHarnessRunner:
         self.log_test("SKILL.md Core Commands Documented (including apply & recheck)", has_commands)
 
         refs_dir = self.root_dir / "skills" / "TorusGuard" / "references"
+        if not refs_dir.exists():
+            refs_dir = self.root_dir / "skills" / "torusguard" / "references"
         ref_files = list(refs_dir.glob("*.md"))
         self.log_test(f"Skill Reference Modules ({len(ref_files)})", len(ref_files) >= 7)
 
@@ -864,6 +868,8 @@ class ValidationHarnessRunner:
 
             # 2. Cryptographic Manifest Check on skills/torusguard/payload
             payload_dir = self.root_dir / "skills" / "torusguard" / "payload"
+            if not payload_dir.exists():
+                payload_dir = self.root_dir / "skills" / "TorusGuard" / "payload"
             m_payload_pass = manifest_builder.check_manifest(payload_dir)
             self.log_test("Wave 5: Distributed Skill Payload Manifest Cryptographic Parity", m_payload_pass)
 
