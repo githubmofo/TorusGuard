@@ -1,31 +1,38 @@
 import os
 import sys
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None
 import json
 import time
 import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 class ValidationHarness:
     def __init__(self, manifest_path, output_root="."):
         self.manifest_path = Path(manifest_path)
         self.output_root = Path(output_root)
-        self.projects = []
-        self.results = []
-        self.all_findings = []
-        self.all_patches = []
+        self.projects: list[dict[str, Any]] = []
+        self.results: list[dict[str, Any]] = []
+        self.all_findings: list[dict[str, Any]] = []
+        self.all_patches: list[dict[str, Any]] = []
         
     def load_manifest(self):
-        with open(self.manifest_path, "r") as f:
-            data = yaml.safe_load(f)
+        with open(self.manifest_path, "r", encoding="utf-8") as f:
+            if yaml is not None:
+                data = yaml.safe_load(f) or {}
+            else:
+                data = json.load(f)
             self.projects = data.get("projects", [])
             
     def run_all(self):
         self.load_manifest()
         
-        portfolio = {
+        portfolio: dict[str, int] = {
             "completed": 0,
             "passed": 0,
             "failed": 0,
@@ -41,18 +48,18 @@ class ValidationHarness:
         
         for project in self.projects:
             print(f"=== Validating Project: {project['id']} ===")
-            result = self.validate_project(project)
+            result: dict[str, Any] = self.validate_project(project)
             self.results.append(result)
             
             portfolio["completed"] += 1
-            portfolio["total_files"] += result.get("files_analyzed", 0)
-            portfolio["total_findings"] += result.get("total_findings", 0)
-            portfolio["confirmed_findings"] += result.get("confirmed_findings", 0)
-            portfolio["false_positives"] += result.get("false_positives", 0)
-            portfolio["needs_review"] += result.get("needs_review", 0)
-            portfolio["total_seeded_cases"] += result.get("seeded_cases", 0)
-            portfolio["detected_seeds"] += result.get("detected_seeds", 0)
-            portfolio["false_negatives"] += result.get("false_negatives", 0)
+            portfolio["total_files"] += int(result.get("files_analyzed") or 0)
+            portfolio["total_findings"] += int(result.get("total_findings") or 0)
+            portfolio["confirmed_findings"] += int(result.get("confirmed_findings") or 0)
+            portfolio["false_positives"] += int(result.get("false_positives") or 0)
+            portfolio["needs_review"] += int(result.get("needs_review") or 0)
+            portfolio["total_seeded_cases"] += int(result.get("seeded_cases") or 0)
+            portfolio["detected_seeds"] += int(result.get("detected_seeds") or 0)
+            portfolio["false_negatives"] += int(result.get("false_negatives") or 0)
             if result.get("verdict") == "Passed":
                 portfolio["passed"] += 1
             else:
