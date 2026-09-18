@@ -26,7 +26,20 @@ import html
 import datetime
 import argparse
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
+
+
+class ComplianceControl(TypedDict):
+    code: str
+    families: str
+    rules: list[str]
+
+
+class ComplianceFramework(TypedDict):
+    name: str
+    subtitle: str
+    controls: list[ComplianceControl]
+
 
 # Windows console UTF-8 support
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
@@ -830,7 +843,7 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
         </div>"""
 
     # ── Enterprise Compliance Framework Matrix ──
-    compliance_frameworks = [
+    compliance_frameworks: list[ComplianceFramework] = [
         {
             "name": "SOC 2 Type II",
             "subtitle": "AICPA Trust Services Criteria (Security & Boundary)",
@@ -865,13 +878,14 @@ def generate_html_dashboard(telemetry: dict[str, Any]) -> str:
     for fw in compliance_frameworks:
         fw_name = fw["name"]
         fw_sub = fw["subtitle"]
-        all_fw_rules = [rid for c in fw["controls"] for rid in c["rules"]]
+        controls = fw["controls"]
+        all_fw_rules = [rid for c in controls for rid in c["rules"]]
         fw_violated = [rid for rid in all_fw_rules if rid in violated_ids]
         fw_pct = int(((len(all_fw_rules) - len(fw_violated)) / len(all_fw_rules)) * 100) if all_fw_rules else 100
         badge_cls = "badge-success" if fw_pct == 100 else ("badge-medium" if fw_pct >= 80 else "badge-critical")
 
         ctrl_rows_html = ""
-        for ctrl in fw["controls"]:
+        for ctrl in controls:
             c_code = ctrl["code"]
             c_fams = ctrl["families"]
             c_rules = ctrl["rules"]

@@ -147,7 +147,7 @@
   "scripts/diff_guard.py": "0dc178cdde1ac0ae1a1ea4b2eb2ce1756b2126f6156909cf55d85249f115fcbd",
   "scripts/finding_scorer.py": "a5315be6ee256c01c4539da3d1905ebc8d0840a356b83c55f9f6f2654a9f0c60",
   "scripts/harden_runner.py": "f6f6922f2ade98b40f3de3e211459c62483e8aa274cbe4515dbd0d308956e6b4",
-  "scripts/html_reporter.py": "b4f75e9172aadfb822f62a20f3206fba477506344d4e047c5bd820a284e48b79",
+  "scripts/html_reporter.py": "e9901a1dbeddd7b1dccd04afc9005d64954ccc1f14ba6ec4bdb4aa0ea8c2c66c",
   "scripts/manifest_builder.py": "c0137927789a9e40a08243e630ac3c6990beb1b87807934e98906c8ad0b99a97",
   "scripts/memory_engine.py": "b715d0ca030e95eb06ad6eda99027535df8a7e37d64897c023be6a291cf13dc6",
   "scripts/monorepo_detector.py": "5603674136a5294ebfff89efeca0a546dd4a7deb1d184a2592ff21aff2131f73",
