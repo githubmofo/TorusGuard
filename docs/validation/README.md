@@ -1,6 +1,6 @@
 # TorusGuard Validation Suite
 
-This directory contains formal, reproducible validation records documenting how TorusGuard rules perform across diverse application architectures, frameworks, and programming languages as of **v1.3.5**.
+This directory contains formal, reproducible validation records documenting how TorusGuard rules perform across diverse application architectures, frameworks, and programming languages as of **v1.3.6**.
 
 ---
 
@@ -24,7 +24,7 @@ TorusGuard is a security guidance framework, autonomous remediation engine, and 
 ## 📁 Validation Reports Index
 
 ### 🧪 1. Comprehensive Master & Release Validation Reports
-- **Master Automated Test Battery:** `npm test` (`python harness/runner.py`) — **81/81 Test Suites Passing**
+- **Master Automated Test Battery:** `npm test` (`python harness/runner.py`) — **120/120 Test Checks Passing**
 - **v1.3.0 Polyglot Engine Suite:** `harness/validate_v1_3_0_polyglot.py` (10 assertions, 100% pass)
 - **v1.2.0 AI IDE Rules & HTML Reporter Suite:** `harness/validate_v1_2_0_rules_and_html.py` (8 assertions, 100% pass)
 - **v1.1.0 Advanced Memory & Governance Suite:** `harness/validate_v1_1_0_advanced_memory.py` (9 assertions, 100% pass)

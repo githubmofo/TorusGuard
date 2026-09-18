@@ -348,13 +348,18 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
             "cards": []
         }, indent=2), encoding="utf-8")
 
-    # Ensure target project root .gitignore excludes .torusguard/memory/
+    # Ensure target project root .gitignore excludes .torusguard/memory/ and report.html
     root_gitignore = target_root / ".gitignore"
     if root_gitignore.exists():
         try:
             gi_content = root_gitignore.read_text(encoding="utf-8")
+            to_add = []
             if ".torusguard/memory" not in gi_content:
-                root_gitignore.write_text(gi_content.rstrip() + "\n\n# TorusGuard security memory (local only)\n.torusguard/memory/\n", encoding="utf-8")
+                to_add.append(".torusguard/memory/")
+            if "report.html" not in gi_content:
+                to_add.append("report.html")
+            if to_add:
+                root_gitignore.write_text(gi_content.rstrip() + "\n\n# TorusGuard local artifacts\n" + "\n".join(to_add) + "\n", encoding="utf-8")
         except Exception:
             pass
 

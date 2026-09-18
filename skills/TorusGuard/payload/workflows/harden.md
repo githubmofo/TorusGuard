@@ -1,7 +1,7 @@
 ---
 description: Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
 tools: Read, Grep, Glob, Bash, Write
-version: 1.3.5
+version: 1.3.6
 agent: remediator
 lifecycle-phase: Phase 4 (Remediation Formulation)
 required-skills:

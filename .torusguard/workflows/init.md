@@ -1,7 +1,7 @@
 ---
 description: Baseline project discovery, workspace scaffolding, stack detection, and framework-tailored security rule activation.
 tools: Read, Grep, Glob, Bash, Write
-version: 1.3.5
+version: 1.3.6
 agent: profiler
 lifecycle-phase: Phase 0 (Baseline Setup)
 required-skills:

@@ -5,6 +5,44 @@ All notable changes to TorusGuard are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.6] - 2026-09-18
+
+### Added
+- **Interactive Enterprise Remediation Hub (`html_reporter.py`, `report.html`):**
+  - Interactive Filter Tabs by rule family (`All Families`, `TG-SEC`, `TG-AUTH`, `TG-DB`, `TG-INPUT`, `TG-RATE`, `TG-AGENT`, etc.) with dynamic result counts.
+  - Real-time instant Search Bar filtering Golden Recipes by rule ID, title, CWE code, and family category.
+  - Interactive Golden Recipe Drawers with Monokai Dark syntax highlighting and One-Click "Copy Golden Fix" button with copy confirmation animations.
+  - Surgical Diff View rendering lines adhering to Ponytail Protocol bounds ($\le 35$ additions in green `+`, $\le 25$ deletions in red `-`).
+  - Safe Exploit Simulation Canary cards detailing inert validation tokens, target endpoints, and non-destructive proof steps.
+  - Direct Action CLI Pills providing instant copy-pasteable terminal commands (`npx torusguard harden --rule <RULE_ID>`).
+  - Active learning pattern distillation connecting directly to `.torusguard/memory/patterns.json`.
+- **5-Layer Defended Invariant & Active Defenses Matrix:**
+  - Layer 1: Secret Zero Exposure (`TG-SEC`, `TG-CLIENT`) — Zero private tokens or service role keys in client bundles.
+  - Layer 2: Multi-Tenant Cryptographic Isolation (`TG-DB`) — Scoped database queries by tenant ID and user ownership.
+  - Layer 3: Ponytail Churn Bound (`TG-DIFF`) — Bounded surgical modifications preventing destructive full-file rewrites.
+  - Layer 4: Sinks Sanitization & Injection Defense (`TG-INPUT`, `TG-AGENT`) — Delimiter-wrapped user prompts and strict path escaping.
+  - Layer 5: Network Boundary & SSRF Containment (`TG-SSRF`, `TG-WEBHOOK`) — Private IP range blocking and HMAC-SHA256 signature verification.
+  - Live enforcement status, active defense mechanisms, test validation status, and rule bindings.
+- **Enterprise Regulatory & Compliance Framework Mapping:**
+  - Automated control mapping to SOC 2 Type II (CC6.1, CC6.6, CC6.8), ISO/IEC 27001:2022 (A.8.20, A.8.24, A.8.28), HIPAA Security Rule (164.312(a)(1), 164.312(c)(1), 164.312(e)(1)), and OWASP Top 10:2025.
+  - Real-time audit-ready control verification checklists and compliance posture scoring.
+- **Interactive "What-If" Posture Simulator:**
+  - Dynamic client-side slider enabling SecOps and engineers to model health score impact before applying candidate patches.
+  - Real-time calculation of risk reduction, projected health score, and estimated remediation time.
+- **Zero-CDN Accessible Dark / Light Theme Switcher:**
+  - Fluid theme toggle switch in report header supporting high-contrast Dark and Light modes.
+  - Zero external CDN dependencies (100% offline-first and self-contained).
+  - Remembers user theme preference via local storage with smooth CSS variable transitions.
+- **Test Harness Expansion to 120 Checks Across 20 Test Suites (`harness/runner.py`):**
+  - Expanded test coverage across all new compliance, remediation, invariant, and reporting features.
+  - 100% pass rate: 120/120 tests passing with 0 failures.
+
+### Changed
+- **Streamlined Report Architecture & AI Prompt Cleanup:**
+  - Removed redundant AI prompt template blocks from HTML report and documentation, focusing attention on actionable code, CLI recipes, and verifiable AST artifacts.
+- **Version Bump & Metadata Synchronization:**
+  - Updated npm package version to `1.3.6` and CLI banner outputs across all runners.
+
 ## [1.3.5] - 2026-09-12
 
 ### Added

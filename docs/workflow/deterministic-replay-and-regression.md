@@ -1,8 +1,8 @@
-# TorusGuard Deterministic Replay & Regression Workflow Guide (v1.3.5)
+# TorusGuard Deterministic Replay & Regression Workflow Guide (v1.3.6)
 
 ## 🎯 Purpose
 
-This guide details how to add, replay, and validate security fixtures and assert regression invariance across the 74-rule polyglot catalog using the **TorusGuard Validation Engine** (`harness/runner.py` and `harness/engine/`) under the **v1.3.5** release line.
+This guide details how to add, replay, and validate security fixtures and assert regression invariance across the 74-rule polyglot catalog using the **TorusGuard Validation Engine** (`harness/runner.py` and `harness/engine/`) under the **v1.3.6** release line.
 
 ---
 

@@ -89,7 +89,7 @@ This document specifies the core Minimum Viable Product (MVP) modules comprising
 
 ---
 
-## 3. Evolutionary Roadmap to v1.3.5
+## 3. Evolutionary Roadmap to v1.3.6
 - **v0.5.x - v0.6.x (Completed):** File-level static analysis, Markdown reports, 64 rules, Ponytail governed remediation, line churn governance ($\le 35$ additions, $\le 25$ deletions), and multi-tenant clustering.
 - **v0.7.0 (Completed):** Authorized runtime validation, bounded HTTP/browser probes, deterministic replay traces, and dual-category SARIF export.
 - **v0.8.0 (Completed):** AI-agent security skill kit, 5 specialist agent roles (`profiler`, `auditor`, `validator`, `remediator`, `reviewer`), and 11 slash commands.
@@ -99,5 +99,6 @@ This document specifies the core Minimum Viable Product (MVP) modules comprising
 - **v1.1.0 (Completed):** File/rule proximity scoring, Golden Fix Recipe learning, role-tailored context windows, and Git pre-commit hooks.
 - **v1.2.0 (Completed):** AI IDE Rules Auto-Sync Engine (`rules_sync.py`) for Cursor, Claude Code, Antigravity, and Windsurf ($\le 400$ token ceiling) and visual single-file HTML posture report (`html_reporter.py`).
 - **v1.3.0 (Completed):** Universal Polyglot Security Engine supporting 16+ languages, 30+ frameworks, 20+ ORMs, monorepo fleet discovery (`monorepo_detector.py`), test-path false positive suppression (`is_test_path()`), 1-command git hook installer (`diff_guard.py --install-hook`), multi-stack IDE rules deduplication ($\le 300$ tokens), polyglot HTML dashboard, and 26-repository enterprise portfolio evaluation (100.0% pass rate, 0-byte residual footprint).
-- **v1.3.5 (Current Active Release Line):** Full 74-rule AST security coverage across all 18 families, Living Security Report ground truth engine (`security_report.md`) with zero hallucination, 19 Ponytail remediation patch templates, 75-column terminal visual width standard, 100/100 verified health score, and 81/81 passing harness tests.
+- **v1.3.5 (Completed):** Full 74-rule AST security coverage across all 18 families, Living Security Report ground truth engine (`security_report.md`) with zero hallucination, 19 Ponytail remediation patch templates, 75-column terminal visual width standard, 100/100 verified health score, and 81/81 passing harness tests.
+- **v1.3.6 (Current Active Release Line):** Interactive Enterprise Remediation Hub with instant family filtering and Monokai syntax drawers, 5-layer defended invariant matrix, enterprise regulatory compliance mapping (SOC 2, ISO 27001, HIPAA, OWASP Top 10), dynamic What-If posture simulator, Zero-CDN Dark/Light theme toggle, and 120/120 passing harness tests.
 

@@ -1,10 +1,10 @@
-# TorusGuard Validation Suite Index (v1.3.5)
+# TorusGuard Validation Suite Index (v1.3.6)
 
-Please see the main [Validation Suite Overview](README.md) for complete details on all test suites, reports, findings, and cross-platform parity analyses under the **v1.3.5** active release line.
+Please see the main [Validation Suite Overview](README.md) for complete details on all test suites, reports, findings, and cross-platform parity analyses under the **v1.3.6** active release line.
 
 ## Quick Links
-- **Master Test Runner (81 test suites):** `npm test` (`python harness/runner.py`)
-- **v1.3.5 Validation Baseline:** 74 rules / 18 families, Living Security Report (`security_report.md`), Health Score 100/100 🟢
+- **Master Test Runner (120 test checks):** `npm test` (`python harness/runner.py`)
+- **v1.3.6 Validation Baseline:** 74 rules / 18 families, Living Security Report (`security_report.md`), Health Score 100/100 🟢
 - **v1.3.0 Polyglot Engine Suite:** `harness/validate_v1_3_0_polyglot.py` (10 assertions)
 - **v1.2.0 AI IDE Rules & HTML Reporter Suite:** `harness/validate_v1_2_0_rules_and_html.py` (8 assertions)
 - **v1.1.0 Advanced Memory Suite:** `harness/validate_v1_1_0_advanced_memory.py` (9 assertions)

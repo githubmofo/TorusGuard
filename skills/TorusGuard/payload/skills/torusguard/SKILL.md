@@ -1,7 +1,7 @@
 ---
 name: torusguard
 description: Universal autonomous security engine: 74 canonical rules across 18 families, polyglot stack detection across 16+ languages, Ponytail remediation bounds (<=35 add, <=25 del), standardized 75-column terminal UI, SARIF v2.1.0 exports, and persistent security memory context.
-version: 1.3.5
+version: 1.3.6
 ---
 
 # TorusGuard Master Security Engine & Command Router

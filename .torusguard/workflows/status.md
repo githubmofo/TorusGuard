@@ -1,7 +1,7 @@
 ---
 description: Read-only diagnostic overview of workspace security posture, active configuration, rules catalog, and run history.
 tools: Read, Grep, Glob, Bash
-version: 1.3.5
+version: 1.3.6
 agent: reviewer
 lifecycle-phase: System / Diagnostics
 required-skills:

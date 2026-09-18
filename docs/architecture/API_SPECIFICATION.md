@@ -1,7 +1,7 @@
 # TorusGuard API & Skill Interface Specification
 
 ## 1. Overview
-This document specifies the formal application programming interfaces, CLI command dispatchers, skill contracts, and schema payloads utilized by TorusGuard as of **v1.3.5**.
+This document specifies the formal application programming interfaces, CLI command dispatchers, skill contracts, and schema payloads utilized by TorusGuard as of **v1.3.6**.
 
 ---
 

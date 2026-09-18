@@ -9,6 +9,7 @@ import sys
 import json
 import hashlib
 import argparse
+from pathlib import Path
 from typing import List, Dict, Any
 
 def generate_sarif(findings: List[Dict[str, Any]], run_id: str = "default", category: str = "torusguard/static") -> Dict[str, Any]:
@@ -76,7 +77,7 @@ def generate_sarif(findings: List[Dict[str, Any]], run_id: str = "default", cate
                 "tool": {
                     "driver": {
                         "name": "TorusGuard",
-                        "semanticVersion": "1.3.5",
+                        "semanticVersion": "1.3.6",
                         "informationUri": "https://github.com/githubmofo/TorusGuard",
                         "rules": list(rules_map.values())
                     }
@@ -95,22 +96,61 @@ def main():
     parser = argparse.ArgumentParser(description="TorusGuard SARIF v2.1.0 Exporter")
     parser.add_argument("--input", "-i", help="Path to findings JSON file")
     parser.add_argument("--output", "-o", help="Output path for sarif.json")
-    parser.add_argument("--run-id", default="run-default", help="Unique execution Run ID")
+    parser.add_argument("--root", "-r", help="Project root override")
+    parser.add_argument("--run-id", default=None, help="Unique execution Run ID")
+    parser.add_argument("--stdout", action="store_true", help="Print SARIF JSON to stdout")
     args = parser.parse_args()
 
+    root = Path(args.root).resolve() if args.root else Path.cwd().resolve()
     findings = []
-    if args.input:
-        with open(args.input, "r", encoding="utf-8") as f:
-            findings = json.load(f)
+    run_id = args.run_id or "run-default"
 
-    sarif = generate_sarif(findings, run_id=args.run_id)
+    if args.input:
+        in_path = Path(args.input)
+        if not in_path.is_absolute():
+            in_path = (root / in_path).resolve()
+        if in_path.is_file():
+            with open(in_path, "r", encoding="utf-8") as f:
+                findings = json.load(f)
+    else:
+        # Auto-discover latest audit run findings
+        runs_dir = root / ".torusguard" / "runs"
+        if runs_dir.is_dir():
+            run_folders = sorted(
+                [d for d in runs_dir.iterdir() if d.is_dir() and (d / "findings.json").is_file()],
+                key=lambda p: p.stat().st_mtime,
+                reverse=True
+            )
+            if run_folders:
+                latest_run = run_folders[0]
+                run_id = args.run_id or latest_run.name
+                findings_file = latest_run / "findings.json"
+                try:
+                    with open(findings_file, "r", encoding="utf-8") as f:
+                        findings = json.load(f)
+                except Exception:
+                    findings = []
+
+    sarif = generate_sarif(findings, run_id=run_id)
 
     if args.output:
-        with open(args.output, "w", encoding="utf-8") as f:
+        out_path = Path(args.output)
+        if not out_path.is_absolute():
+            out_path = (root / out_path).resolve()
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
             json.dump(sarif, f, indent=2)
-        print(f"SARIF log written to: {args.output}")
-    else:
+        print(f"[SUCCESS] SARIF log written to: {out_path}")
+    elif args.stdout:
         print(json.dumps(sarif, indent=2))
+    else:
+        # Default to writing in .torusguard/runs/results-latest.sarif
+        default_sarif = root / ".torusguard" / "runs" / "results-latest.sarif"
+        default_sarif.parent.mkdir(parents=True, exist_ok=True)
+        with open(default_sarif, "w", encoding="utf-8") as f:
+            json.dump(sarif, f, indent=2)
+        print(f"[SUCCESS] SARIF log written to: {default_sarif}")
+
 
 if __name__ == "__main__":
     main()

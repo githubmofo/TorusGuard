@@ -1,7 +1,7 @@
 ---
 description: Evidence sufficiency verification, live disk line match audit, and finding score refinement.
 tools: Read, Grep, Glob, Bash, Write
-version: 1.3.5
+version: 1.3.6
 agent: validator
 lifecycle-phase: Phase 3a (Evidence Verification)
 required-skills:

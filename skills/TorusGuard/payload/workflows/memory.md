@@ -1,7 +1,7 @@
 ---
 description: TorusGuard Adaptive Security Memory Engine — view memory stats, export/import intelligence, apply TTL decay, and manage false positives.
 tools: Read, Grep, Glob, Bash
-version: 1.3.5
+version: 1.3.6
 agent: reviewer
 lifecycle-phase: Intelligence / Memory
 required-skills:

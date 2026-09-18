@@ -9,10 +9,10 @@
     <strong>Zero Telemetry · Zero External Python Dependencies · Pure Standard-Library Architecture · 100% Local-First</strong>
   </p>
 
-  [![npm version](https://img.shields.io/badge/npm-v1.3.5-cb3837.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/torusguard)
-  [![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-v1.3.5-181717.svg?style=flat-square&logo=github)](https://github.com/githubmofo/TorusGuard/pkgs/npm/torusguard)
-  [![Release](https://img.shields.io/badge/Release-v1.3.5-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
-  [![Tests](https://img.shields.io/badge/Tests-81%2F81%20Passing-brightgreen.svg?style=flat-square)](harness/runner.py)
+  [![npm version](https://img.shields.io/badge/npm-v1.3.6-cb3837.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/torusguard)
+  [![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-v1.3.6-181717.svg?style=flat-square&logo=github)](https://github.com/githubmofo/TorusGuard/pkgs/npm/torusguard)
+  [![Release](https://img.shields.io/badge/Release-v1.3.6-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
+  [![Tests](https://img.shields.io/badge/Tests-120%2F120%20Passing-brightgreen.svg?style=flat-square)](harness/runner.py)
   [![Security Health](https://img.shields.io/badge/Health%20Score-100%2F100%20Hardened-brightgreen.svg?style=flat-square)](security_report.md)
   [![Rules Catalog](https://img.shields.io/badge/Rules%20Catalog-74%20Rules%20%7C%2018%20Families-indigo.svg?style=flat-square)](rules/)
   [![Terminal Standard](https://img.shields.io/badge/Terminal-75--col%20Standard-informational.svg?style=flat-square)](.torusguard/scripts/term_ui.py)
@@ -72,7 +72,7 @@ flowchart LR
 10. [Visual HTML Dashboard & SARIF v2.1.0 Export](#-visual-html-dashboard--sarif-v210-export)
 11. [AI Editor Guardrails Auto-Sync](#-ai-editor-guardrails-auto-sync)
 12. [Monorepo Fleet Support & Git Pre-Commit Diff Guard](#-monorepo-fleet-support--git-pre-commit-diff-guard)
-13. [Verification & Test Harness (81/81 Passing Harness Explained)](#-verification--test-harness)
+13. [Verification & Test Harness (120/120 Passing Harness Explained)](#-verification--test-harness)
 14. [Security Policy & Responsible Disclosure](#-security-policy--responsible-disclosure)
 15. [License](#-license)
 
@@ -136,7 +136,7 @@ flowchart TD
 
 ## ⚔️ Why TorusGuard?
 
-| Security Dimension | Traditional SAST (SonarQube, Snyk) | Raw AI Coding Agents | TorusGuard v1.3.5 Engine |
+| Security Dimension | Traditional SAST (SonarQube, Snyk) | Raw AI Coding Agents | TorusGuard v1.3.6 Engine |
 |:---|:---:|:---:|:---:|
 | **Target Architecture** | Human-written legacy codebases | High-churn AI code generation | **AI-built full-stack applications** |
 | **Remediation Model** | PDF reports & Jira tickets | Destructive full-file rewrites | **Ponytail Protocol** ($\le 35$ add, $\le 25$ del) |
@@ -426,7 +426,13 @@ TorusGuard automatically discovers and profiles multi-package workspaces:
 ## 🧪 Verification & Test Harness
 
 ### What Happens When You Run `npm test`?
-TorusGuard enforces a strict **100% pass requirement across 81 test suites** before every release.
+TorusGuard enforces a strict **100% pass requirement across 120 test suites** before every release.
+The test harness runs with **zero third-party dependencies** via standard Python 3:
+
+```bash
+npm test
+# Equivalent to: python harness/runner.py
+```
 
 When a developer runs:
 ```bash
@@ -447,7 +453,7 @@ npm test
 
 # Expected Output:
 # ================================================================================
-# SUMMARY: 81 Passed | 0 Failed
+# SUMMARY: 120 Passed | 0 Failed
 # ================================================================================
 ```
 

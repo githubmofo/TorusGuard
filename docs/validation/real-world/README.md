@@ -1,6 +1,6 @@
 # TorusGuard Real-World Repository Validation Program
 
-> 🛡️ **TorusGuard Validation Heritage:** This document preserves real-world empirical validation protocols and repository evaluations. For the current v1.3.5 active release line, 74-rule AST engine, living security report ground truth (`security_report.md`), and automated test suite (81/81 passing via `npm test`), refer to the [Validation Suite Overview](../README.md) and root [README](../../../README.md).
+> 🛡️ **TorusGuard Validation Heritage:** This document preserves real-world empirical validation protocols and repository evaluations. For the current v1.3.6 active release line, 74-rule AST engine, living security report ground truth (`security_report.md`), and automated test suite (120/120 passing via `npm test`), refer to the [Validation Suite Overview](../README.md) and root [README](../../../README.md).
 
 > **Protocol & Scope:** In accordance with responsible disclosure standards (OWASP, NIST), TorusGuard real-world testing is strictly conducted on maintainer-authorized repositories, local open-source evaluations, and internal architectures without scanning or probing live production endpoints.
 
@@ -25,7 +25,7 @@
 
 ---
 
-## 📊 Summary Quality Metrics (v1.3.5 Baseline)
+## 📊 Summary Quality Metrics (v1.3.6 Baseline)
 
 | Metric | Target Standard | Observed Result | Status |
 |---|---|:---:|:---:|

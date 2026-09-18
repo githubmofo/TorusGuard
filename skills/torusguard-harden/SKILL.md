@@ -1,7 +1,7 @@
 ---
 name: torusguard-harden
 description: Package surgical remediation bundles conforming to the Ponytail Protocol (<= 35 additions, <= 25 deletions) via CLI or AI Agent.
-version: 1.3.5
+version: 1.3.6
 workflow: .torusguard/workflows/harden.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:

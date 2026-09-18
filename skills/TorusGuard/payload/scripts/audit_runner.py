@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Autonomous Static Security Audit Engine (v1.3.5)
+TorusGuard Autonomous Static Security Audit Engine (v1.3.6)
 Multi-language static pattern & AST security scanner.
 Evaluates source trees against canonical TorusGuard rule families,
 augments confidence via the persistent security memory subsystem,
@@ -117,7 +117,7 @@ except Exception:
             rem = max(0, 68 - vis)
             return f"  {border_color}{left}{h} {BOLD}{WHITE}{title}{RESET}{border_color} {h * rem}{right}{RESET}"
         return f"  {border_color}{left}{h * 71}{right}{RESET}"
-    def card_header(title: str, subtitle: str = "", version: str = "v1.3.5", border_color: str = CYAN) -> str:
+    def card_header(title: str, subtitle: str = "", version: str = "v1.3.6", border_color: str = CYAN) -> str:
         top = f"  {border_color}╭{'─' * 71}╮{RESET}"
         bottom = f"  {border_color}╰{'─' * 71}╯{RESET}"
         empty = f"  {border_color}│{' ' * 71}│{RESET}"
@@ -948,6 +948,153 @@ RULE_PATTERNS: List[RulePattern] = [
     }
 ]
 
+# ─── Rule Precision Map ───────────────────────────────────────────────────────
+# Calibrates how precise each rule's regex is (0.0 = very broad, 1.0 = definitive)
+# Used to adjust confidence scores: broad rules get lower base evidence quality.
+RULE_PRECISION: Dict[str, float] = {
+    "TG-SEC-001": 0.90, "TG-SEC-002": 0.85, "TG-SEC-003": 0.70,
+    "TG-SEC-004": 0.55, "TG-SEC-005": 0.80, "TG-SEC-006": 0.75,
+    "TG-SEC-007": 0.95,
+    "TG-AUTH-001": 0.85, "TG-AUTH-002": 0.50, "TG-AUTH-003": 0.70,
+    "TG-AUTH-004": 0.80, "TG-AUTH-005": 0.75, "TG-AUTH-006": 0.65,
+    "TG-AUTH-007": 0.60, "TG-AUTH-008": 0.70,
+    "TG-DB-001": 0.75, "TG-DB-002": 0.90, "TG-DB-003": 0.80, "TG-DB-004": 0.55,
+    "TG-INPUT-001": 0.40, "TG-INPUT-002": 0.85, "TG-INPUT-003": 0.35,
+    "TG-INPUT-004": 0.80, "TG-INPUT-005": 0.75, "TG-INPUT-006": 0.70,
+    "TG-RATE-001": 0.45, "TG-RATE-002": 0.45, "TG-RATE-003": 0.50,
+    "TG-AGENT-001": 0.80, "TG-AGENT-002": 0.85, "TG-AGENT-003": 0.60,
+    "TG-AGENT-004": 0.55,
+    "TG-SSRF-001": 0.75, "TG-SSRF-002": 0.90, "TG-SSRF-003": 0.50,
+    "TG-SSRF-004": 0.65,
+    "TG-WEBHOOK-001": 0.55, "TG-WEBHOOK-002": 0.50, "TG-WEBHOOK-003": 0.45,
+    "TG-WEBHOOK-004": 0.60,
+    "TG-WS-001": 0.50, "TG-WS-002": 0.55, "TG-WS-003": 0.50, "TG-WS-004": 0.55,
+    "TG-CSRF-001": 0.60, "TG-CSRF-002": 0.80,
+    "TG-GQL-001": 0.55, "TG-GQL-002": 0.50, "TG-GQL-003": 0.50, "TG-GQL-004": 0.85,
+    "TG-SUPPLY-001": 0.90, "TG-SUPPLY-002": 0.80, "TG-SUPPLY-003": 0.85,
+    "TG-SUPPLY-004": 0.60, "TG-SUPPLY-005": 0.80, "TG-SUPPLY-006": 0.85,
+    "TG-BIZ-001": 0.60, "TG-BIZ-002": 0.55, "TG-BIZ-003": 0.65, "TG-BIZ-004": 0.70,
+    "TG-CACHE-001": 0.65, "TG-CACHE-002": 0.50, "TG-CACHE-003": 0.55,
+    "TG-CLIENT-001": 0.80, "TG-CLIENT-002": 0.75,
+    "TG-PLATFORM-001": 0.70, "TG-PLATFORM-002": 0.50, "TG-PLATFORM-003": 0.75,
+    "TG-PLATFORM-004": 0.60,
+    "TG-DIFF-001": 0.90, "TG-DIFF-002": 0.85, "TG-DIFF-003": 0.80,
+    "TG-EDGE-001": 0.55, "TG-EDGE-003": 0.60,
+}
+
+# ─── File-Type Discrimination ─────────────────────────────────────────────────
+# Maps file path patterns to sets of rule families that should be SUPPRESSED
+FILE_TYPE_SUPPRESSIONS: List[Tuple[re.Pattern, set]] = [
+    # Config & build tool files — suppress injection rules for eval/exec
+    (re.compile(r'(?:webpack|vite|rollup|esbuild|jest|vitest|babel|eslint|prettier|postcss|tailwind)\.config', re.IGNORECASE),
+     {"TG-INPUT-003"}),
+    # Type declaration files — no runtime code
+    (re.compile(r'\.d\.ts$'),
+     {"TG-INPUT-001", "TG-INPUT-002", "TG-INPUT-003", "TG-INPUT-004", "TG-INPUT-005",
+      "TG-RATE-001", "TG-RATE-002", "TG-RATE-003", "TG-DB-001", "TG-DB-004"}),
+    # .env.example / .env.sample — template files, not real credentials
+    (re.compile(r'\.env\.(?:example|sample|template|defaults)$', re.IGNORECASE),
+     {"TG-SEC-003", "TG-SEC-001"}),
+    # Lock files — suppress secret scanning
+    (re.compile(r'(?:package-lock|yarn\.lock|pnpm-lock|Pipfile\.lock|poetry\.lock)'),
+     {"TG-SEC-001", "TG-SEC-005"}),
+    # Migration files — suppress input validation rules (generated SQL)
+    (re.compile(r'/migrations?/', re.IGNORECASE),
+     {"TG-INPUT-001", "TG-INPUT-002", "TG-RATE-001"}),
+    # Dockerfiles — suppress frontend-only rules, keep container-specific rules
+    (re.compile(r'Dockerfile', re.IGNORECASE),
+     {"TG-INPUT-003", "TG-RATE-001", "TG-RATE-002", "TG-DB-001", "TG-GQL-001"}),
+]
+
+def get_suppressed_rules_for_file(file_path: str) -> set:
+    """Return the set of rule IDs that should be suppressed for this file type."""
+    suppressed: set = set()
+    for pattern, rules in FILE_TYPE_SUPPRESSIONS:
+        if pattern.search(file_path):
+            suppressed.update(rules)
+    return suppressed
+
+
+# ─── Context-Aware Validation Engine ──────────────────────────────────────────
+def validate_finding_context(
+    rule_id: str, line_idx: int, lines: List[str],
+    file_path: str, full_content: str
+) -> bool:
+    """
+    Post-match context validation. Returns False if the finding is a known
+    false-positive pattern based on surrounding code context.
+    """
+    # Compute lookahead (next 5 lines) and lookbehind (prev 5 lines)
+    lookahead = "\n".join(lines[line_idx:min(line_idx + 6, len(lines))])
+    lookbehind = "\n".join(lines[max(0, line_idx - 5):line_idx])
+
+    # ── TG-INPUT-001: req.body destructuring followed by schema validation ────
+    if rule_id == "TG-INPUT-001":
+        if re.search(r'\.(parse|validate|safeParse|check|verify|sanitize)\s*\(', lookahead):
+            return False
+        # Zod/Joi/Yup schema declared before destructuring
+        if re.search(r'(?:z\.|Joi\.|yup\.|schema\.).*\.(parse|validate)', lookbehind + lookahead):
+            return False
+
+    # ── TG-INPUT-003: eval/exec in sandboxed or build-tool context ────────────
+    if rule_id == "TG-INPUT-003":
+        current_line = lines[line_idx].strip() if line_idx < len(lines) else ""
+        # Suppress if it's a JSON.parse (not dangerous)
+        if "JSON.parse" in current_line or "json.loads" in current_line:
+            return False
+        # Suppress eval in CSS-in-JS tagged templates
+        if re.search(r'styled|css`|keyframes', lookbehind):
+            return False
+
+    # ── TG-RATE-001/002: Rate limiter already applied earlier in file ─────────
+    if rule_id in ("TG-RATE-001", "TG-RATE-002"):
+        if re.search(r'(?:rateLimit|rateLimiter|slowDown|throttle|express-rate-limit)\s*\(', full_content):
+            return False
+        # Check if middleware is applied on the same router
+        if re.search(r'app\.use\s*\([^)]*(?:rateLimit|limiter|throttle)', full_content):
+            return False
+
+    # ── TG-PLATFORM-002: Helmet used anywhere in the file or app setup ────────
+    if rule_id == "TG-PLATFORM-002":
+        if "helmet" in full_content and re.search(r'(?:app|server)\.use\s*\(\s*helmet', full_content):
+            return False
+
+    # ── TG-SSRF-004: requests.get with timeout in kwargs or session defaults ──
+    if rule_id == "TG-SSRF-004":
+        # Check if a session with default timeout is set earlier
+        if re.search(r'session\.(?:request\.)?timeout|DEFAULT_TIMEOUT', full_content):
+            return False
+
+    # ── TG-AUTH-003: JWT verify with algorithms in options object ──────────────
+    if rule_id == "TG-AUTH-003":
+        if re.search(r'algorithms\s*:', lookahead):
+            return False
+
+    # ── TG-GQL-001: ApolloServer with plugins/validation rules elsewhere ──────
+    if rule_id == "TG-GQL-001":
+        if re.search(r'(?:depthLimit|costAnalysis|complexityLimit|validationRules)', full_content):
+            return False
+
+    # ── TG-SEC-004: Logging that redacts sensitive fields ──────────────────────
+    if rule_id == "TG-SEC-004":
+        if re.search(r'(?:redact|mask|sanitize|\*{3,}|\[REDACTED\])', lookahead):
+            return False
+
+    # ── TG-DB-004: findById with ownership check in next few lines ────────────
+    if rule_id == "TG-DB-004":
+        if re.search(r'(?:tenantId|tenant_id|organization_id|user\.id|userId|ownerId)', lookahead):
+            return False
+
+    # ── TG-WEBHOOK-001: Signature verification in handler body ────────────────
+    if rule_id == "TG-WEBHOOK-001":
+        # Check if HMAC/signature verification happens in the function body
+        func_body = "\n".join(lines[line_idx:min(line_idx + 20, len(lines))])
+        if re.search(r'(?:verifySignature|hmac|createHmac|verify_webhook|constructEvent)', func_body):
+            return False
+
+    return True  # Keep the finding
+
+
 # File extensions to scan
 SOURCE_EXTENSIONS = {
     ".py", ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs",
@@ -962,11 +1109,16 @@ SKIP_DIRS = {
 }
 
 def is_test_file(path_str: str) -> bool:
-    """Check if file belongs to tests, fixtures, or test harnesses."""
-    clean = path_str.replace("\\", "/").lower()
-    markers = ["/test/", "/tests/", "/spec/", "/specs/", "/fixtures/", "/mock/", "/mocks/",
-               "/harness/", "__tests__", "test_", "_test.", ".test.", ".spec."]
-    return any(m in clean for m in markers)
+    """Check if file belongs to tests, fixtures, or test harnesses across any language."""
+    clean = "/" + path_str.replace("\\", "/").strip("/").lower() + "/"
+    markers = [
+        "/test/", "/tests/", "/spec/", "/specs/", "/fixtures/", "/mock/", "/mocks/",
+        "/harness/", "/qa-runs/", "/test_repos/", "/__tests__/"
+    ]
+    if any(m in clean for m in markers):
+        return True
+    filename = Path(path_str).name.lower()
+    return filename.startswith("test_") or "_test." in filename or ".test." in filename or ".spec." in filename
 
 
 def find_files_to_scan(target_root: Path, include_tests: bool = False) -> List[Path]:
@@ -987,7 +1139,10 @@ def find_files_to_scan(target_root: Path, include_tests: bool = False) -> List[P
 
 
 def scan_file(file_path: Path, target_root: Path) -> List[Dict[str, Any]]:
-    """Scan a single source file against the TorusGuard rule families."""
+    """Scan a single source file against the TorusGuard rule families.
+    Enhanced with context-aware validation, file-type discrimination,
+    developer suppression comments, canary tags, and multi-finding support.
+    """
     findings = []
     try:
         content = file_path.read_text(encoding="utf-8", errors="replace")
@@ -998,13 +1153,24 @@ def scan_file(file_path: Path, target_root: Path) -> List[Dict[str, Any]]:
     rel_path = str(file_path.relative_to(target_root)).replace("\\", "/")
     is_test = is_test_file(rel_path)
 
+    # Phase 1c: File-type discrimination — get suppressed rules for this file
+    suppressed_rules = get_suppressed_rules_for_file(rel_path)
+
     for rule in RULE_PATTERNS:
         rule_id = rule["rule_id"]
-        if rule_id == "TG-PLATFORM-002" and "helmet" in content and "app.use(helmet" in content:
+
+        # Skip rules suppressed by file-type discrimination
+        if rule_id in suppressed_rules:
             continue
+
         patterns: List[Tuple[Pattern[str], str]] = rule["patterns"]
+        found_lines: set = set()  # Track matched lines to avoid duplicates
+
         for regex, desc in patterns:
             for idx, line in enumerate(lines):
+                if idx in found_lines:
+                    continue  # Already reported a finding on this line for this rule
+
                 stripped = line.strip()
                 if stripped.startswith(("#", "//", "/*", "*")):
                     if "bypass" not in stripped.lower() and "todo" not in stripped.lower():
@@ -1012,6 +1178,27 @@ def scan_file(file_path: Path, target_root: Path) -> List[Dict[str, Any]]:
 
                 match = regex.search(line)
                 if match:
+                    line_lower = line.lower()
+                    prev_line = lines[idx - 1].lower() if idx > 0 else ""
+
+                    # Developer suppression annotations (e.g. # torusguard: ignore, // tg-ignore)
+                    if "torusguard: ignore" in line_lower or "torusguard: ignore" in prev_line or \
+                       "tg-ignore" in line_lower or "tg-ignore" in prev_line:
+                        if rule_id != "TG-DIFF-001":
+                            continue
+
+                    # Developer test canary annotations (# torusguard: test-canary)
+                    is_canary = (
+                        "torusguard: test-canary" in line_lower or "torusguard: test-canary" in prev_line or
+                        "tg-canary" in line_lower or "tg-canary" in prev_line or
+                        "test-canary" in line_lower or "test-canary" in prev_line or
+                        is_test
+                    )
+
+                    # Phase 1a: Context-aware false positive suppression
+                    if not validate_finding_context(rule_id, idx, lines, rel_path, content):
+                        continue  # Suppressed by context validation
+
                     line_num = idx + 1
                     seed = f"{rule_id}:{rel_path}:{line_num}:{stripped}"
                     fp = f"{rule_id}-{hashlib.sha256(seed.encode('utf-8')).hexdigest()[:8]}"
@@ -1025,7 +1212,7 @@ def scan_file(file_path: Path, target_root: Path) -> List[Dict[str, Any]]:
                         "rule_id": rule_id,
                         "title": rule["title"],
                         "description": desc,
-                        "severity": "Low" if is_test else rule["severity"],
+                        "severity": "Low" if (is_test or is_canary) else rule["severity"],
                         "category": rule["category"],
                         "cluster": rule["cluster"],
                         "file_path": rel_path,
@@ -1033,13 +1220,15 @@ def scan_file(file_path: Path, target_root: Path) -> List[Dict[str, Any]]:
                         "matched_text": match.group(0)[:80],
                         "snippet": snippet,
                         "is_test": is_test,
+                        "is_canary": is_canary,
+                        "rule_precision": RULE_PRECISION.get(rule_id, 0.60),
                         "target": {
                             "file_path": rel_path,
                             "start_line": line_num,
                             "end_line": line_num
                         }
                     })
-                    break
+                    found_lines.add(idx)
     return findings
 
 
@@ -1056,6 +1245,15 @@ def score_and_cluster_findings(findings: List[Dict[str, Any]], target_root: Path
     scored = []
     clusters: Dict[str, List[Dict[str, Any]]] = {}
 
+    # Phase 1d: Pre-compute cross-file corroboration bonus
+    # If multiple rule families flag the same file, each finding gets +5 confidence
+    file_rule_families: Dict[str, set] = {}
+    for f in findings:
+        fp = f["file_path"]
+        if fp not in file_rule_families:
+            file_rule_families[fp] = set()
+        file_rule_families[fp].add(f["category"])
+
     for f in findings:
         score = 70
         band = "High Confidence"
@@ -1063,10 +1261,19 @@ def score_and_cluster_findings(findings: List[Dict[str, Any]], target_root: Path
 
         if finding_scorer:
             try:
-                eq = 35
+                # Phase 1d: Dynamic evidence quality based on rule precision
+                precision = f.get("rule_precision", RULE_PRECISION.get(f["rule_id"], 0.60))
+                eq = max(10, int(35 * precision))  # Scale evidence quality by precision
                 rs = 0
-                ic = 5
-                ec = 15
+
+                # Corroboration bonus: multiple rule families in same file
+                families_in_file = len(file_rule_families.get(f["file_path"], set()))
+                ic = min(15, 5 + (families_in_file - 1) * 3) if families_in_file > 1 else 5
+
+                # Environmental clarity: production files score higher
+                is_prod = not f.get("is_test", False)
+                ec = 15 if is_prod else 5
+
                 mr = 0
                 s, b, facts = finding_scorer.compute_confidence_score(
                     evidence_quality=eq,
@@ -1166,7 +1373,7 @@ def print_audit_dashboard(target_root: Path, file_count: int, scored_findings: L
         stack_str = f"{detected_stack.get('framework')} ({detected_stack.get('language')})"
 
     print()
-    print(card_header("🛡️  TORUSGUARD STATIC SECURITY AUDIT", "Autonomous AST & Invariant Security Scanner", "v1.3.5"))
+    print(card_header("🛡️  TORUSGUARD STATIC SECURITY AUDIT", "Autonomous AST & Invariant Security Scanner", "v1.3.6"))
     print()
 
     print(card_border_top("Audit Execution Scope"))

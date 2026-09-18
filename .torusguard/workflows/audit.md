@@ -1,7 +1,7 @@
 ---
 description: Static security AST scanning, stable line-shift invariant fingerprinting, root-cause clustering, and 0-100 confidence scoring.
 tools: Read, Grep, Glob, Bash, Write
-version: 1.3.5
+version: 1.3.6
 agent: auditor
 lifecycle-phase: Phase 2 (Static Audit & Clustering)
 required-skills:

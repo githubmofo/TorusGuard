@@ -52,7 +52,7 @@ Security updates and patches are actively maintained for the following release l
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v1.3.x` (`v1.3.5`) | ✅ Yes | **Current active release line** (Universal Polyglot Engine, 74 Rules / 18 Families, Living Security Report Ground Truth, HTML Dashboard) |
+| `v1.3.x` (`v1.3.6`) | ✅ Yes | **Current active release line** (Universal Polyglot Engine, 74 Rules / 18 Families, Enterprise Remediation Hub, Living Security Report Ground Truth, HTML Dashboard) |
 | `v1.2.x` | ✅ Yes | AI IDE Rules Auto-Sync & Visual HTML Posture Reporting |
 | `v1.1.x` | ✅ Yes | Advanced Security Memory Engine, Proximity Scoring & Golden Fix Recipes |
 | `v1.0.x` | ✅ Yes | Core Adaptive Security Memory Engine & Context Window Generation |

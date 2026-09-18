@@ -1,7 +1,7 @@
 # TorusGuard Project Structure & Module Organization
 
 ## 1. Overview
-This document outlines the directory structure, file organization standards, and functional responsibilities across the TorusGuard repository as of **v1.3.5**.
+This document outlines the directory structure, file organization standards, and functional responsibilities across the TorusGuard repository as of **v1.3.6**.
 
 ---
 
@@ -10,7 +10,7 @@ This document outlines the directory structure, file organization standards, and
 ```text
 TorusGuard/
 ├── security_report.md                 # Root Living Security Report ground-truth ledger
-├── package.json                       # NPM CLI package manifest (v1.3.5)
+├── package.json                       # NPM CLI package manifest (v1.3.6)
 ├── README.md                          # Master documentation & visual branding
 ├── AGENTS.md                          # Master security guardrails & AI agent invariants
 ├── SECURITY.md                        # Security policy, supported versions, and disclosures
@@ -125,7 +125,7 @@ TorusGuard/
 │
 ├── docs/                              # Comprehensive documentation suite
 │   ├── architecture/                  # System architecture specifications
-│   ├── releases/                      # Release notes (v0.2.0 through v1.3.5)
+│   ├── releases/                      # Release notes (v0.2.0 through v1.3.6)
 │   ├── workflow/                      # Lifecycle, triage, and replay guides
 │   ├── overview/                      # Security philosophy and core principles
 │   └── validation/                    # Multi-repo validation reports

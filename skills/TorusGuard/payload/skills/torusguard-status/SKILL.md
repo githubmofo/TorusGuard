@@ -1,7 +1,7 @@
 ---
 name: torusguard-status
 description: Display current TorusGuard security posture, active configuration, rules catalog, and run history via CLI or AI Agent.
-version: 1.3.5
+version: 1.3.6
 workflow: .torusguard/workflows/status.md
 tools: Read, Grep, Glob, run_command, Write
 scripts-binding:

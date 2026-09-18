@@ -1,7 +1,7 @@
 ---
 name: torusguard-authorize
 description: Register and validate runtime target authorization boundaries — scope boundaries, ownership proofs, TTL expiration, and Safety Gate enforcement.
-version: 1.3.5
+version: 1.3.6
 workflow: .torusguard/workflows/authorize.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:

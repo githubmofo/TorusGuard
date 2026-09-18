@@ -1,7 +1,7 @@
 ---
 description: Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
 tools: Read, Grep, Glob, Bash, Edit, Write
-version: 1.3.5
+version: 1.3.6
 agent: remediator
 lifecycle-phase: Phase 5 (Patch Application)
 required-skills:

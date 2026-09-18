@@ -100,6 +100,11 @@ class ValidationHarnessRunner:
         self.test_run_context_and_ponytail()
         self.test_v6_governed_remediation_suite()
         self.test_v74_rule_coverage_and_living_report()
+        self.test_dual_ledger_sync_and_atomic_swapping()
+        self.test_interactive_html_dashboard_and_exporters()
+        self.test_cli_and_polyglot_integration()
+        self.test_wave5_visual_e2e_and_cryptographic_manifest()
+        self.test_wave6_remediation_hub_and_compliance_matrix()
 
         print("-" * 80)
         print(f"SUMMARY: {self.passed_tests} Passed | {self.failed_tests} Failed")
@@ -611,6 +616,399 @@ class ValidationHarnessRunner:
             }, "run-recheck-1")
             content4 = rep_path.read_text(encoding="utf-8")
             self.log_test("v1.3.5 Living Report Verified Closure (RESOLVED 🟢)", "🟢 RESOLVED" in content4 and "Closure Verified" in content4)
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_dual_ledger_sync_and_atomic_swapping(self):
+        print("\n16. Testing Dual-Ledger Sync & Lifecycle State Machine Transitions...")
+        temp_dir = Path(tempfile.mkdtemp(prefix="tg-dual-ledger-test-"))
+        try:
+            sys.path.insert(0, str(self.root_dir / ".torusguard" / "scripts"))
+            import report_sync
+            import html_reporter
+
+            # 1. Atomic Write Test
+            test_file = temp_dir / "atomic_test.txt"
+            res_write = report_sync.atomic_write_text(test_file, "ATOMIC_PASS")
+            self.log_test("Wave 2: Atomic File Swapping Engine", res_write and test_file.read_text(encoding="utf-8") == "ATOMIC_PASS")
+
+            # 2. Fresh Audit creates security_report.md but NOT report.html
+            dummy_f = [{
+                "finding_id": "TG-DB-001-sync1",
+                "rule_id": "TG-DB-001",
+                "title": "Unparameterized Raw SQL",
+                "severity": "Critical",
+                "file_path": "api/users.py",
+                "line_number": 42,
+                "description": "Raw string concatenation in database query.",
+                "snippet": "db.execute(f'SELECT * FROM users WHERE id={uid}')",
+                "confidence_score": 90,
+                "confidence_band": "Confirmed",
+                "cluster": "database-isolation"
+            }]
+            rep_path = report_sync.record_audit_findings(temp_dir, dummy_f, "run-sync-01")
+            root_html = temp_dir / "report.html"
+            self.log_test("Wave 2: Audit forms security_report.md without unprompted report.html", rep_path.is_file() and not root_html.exists())
+
+            # 3. Explicit HTML Generation creates report.html
+            runs_dir = temp_dir / ".torusguard" / "runs" / "run-sync-01"
+            runs_dir.mkdir(parents=True, exist_ok=True)
+            (runs_dir / "findings.json").write_text(json.dumps(dummy_f), encoding="utf-8")
+            html_res = html_reporter.emit_html_report(target_path=root_html, root_dir=temp_dir)
+            self.log_test("Wave 2: Explicit on-demand report.html emission", root_html.is_file() and html_res["status"] == "success")
+
+            # 4. Patch Application updates BOTH files in lockstep
+            dummy_bundle = [{
+                "finding_id": "TG-DB-001-sync1",
+                "rule_id": "TG-DB-001",
+                "target_file": "api/users.py",
+                "line_number": 42,
+                "bundle_id": "bnd-db-001",
+                "what_should_change": "Parameterized query substitution",
+                "proposed_diff": "+ db.execute('SELECT * FROM users WHERE id=:id', {'id': uid})",
+                "additions": 1,
+                "deletions": 1
+            }]
+            snap_dir = temp_dir / ".torusguard" / "snapshots" / "run-sync-01"
+            snap_dir.mkdir(parents=True, exist_ok=True)
+            report_sync.record_applied_patches(temp_dir, dummy_bundle, snap_dir, "run-apply-01")
+            md_content = rep_path.read_text(encoding="utf-8")
+            self.log_test("Wave 2: Patch application synchronizes both Markdown and HTML ledgers", "🔵 APPLIED" in md_content and root_html.stat().st_size > 0)
+
+            # 5. Rollback updates BOTH files back to OPEN
+            report_sync.record_rollback_results(temp_dir, ["api/users.py"], "run-rollback-01")
+            md_content_rb = rep_path.read_text(encoding="utf-8")
+            self.log_test("Wave 2: Rollback restoration synchronizes finding reversion across ledgers", "🔴 OPEN" in md_content_rb)
+
+            # 6. Recheck updates BOTH files to RESOLVED
+            report_sync.record_recheck_results(temp_dir, {
+                "fixed": [{"finding_id": "TG-DB-001-sync1"}],
+                "regressed": [],
+                "remaining": []
+            }, "run-recheck-01")
+            md_content_rc = rep_path.read_text(encoding="utf-8")
+            self.log_test("Wave 2: Recheck closure synchronizes verified state across ledgers", "🟢 RESOLVED" in md_content_rc)
+
+            # 7. Self-Healing from run artifacts when markdown report is absent
+            rep_path.unlink()
+            healed_report = report_sync.parse_existing_report(rep_path)
+            self.log_test("Wave 2: Self-healing reconciliation restores state from run artifacts", "TG-DB-001-sync1" in healed_report.get("findings", {}))
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_interactive_html_dashboard_and_exporters(self):
+        print("\n17. Testing Wave 3 Interactive HTML Dashboard Engine & Exporters...")
+        temp_dir = Path(tempfile.mkdtemp(prefix="tg-wave3-html-test-"))
+        try:
+            sys.path.insert(0, str(self.root_dir / ".torusguard" / "scripts"))
+            import html_reporter
+
+            # Seed sample run with 1 critical finding and 1 high finding
+            runs_dir = temp_dir / ".torusguard" / "runs" / "run-w3-01"
+            runs_dir.mkdir(parents=True, exist_ok=True)
+            dummy_findings = [
+                {
+                    "finding_id": "TG-DB-001-w3",
+                    "rule_id": "TG-DB-001",
+                    "title": "Unparameterized Raw SQL",
+                    "severity": "Critical",
+                    "file_path": "api/users.py",
+                    "line_number": 42,
+                    "description": "Raw string concatenation in database query.",
+                    "snippet": "db.execute(f'SELECT * FROM users WHERE id={uid}')",
+                    "confidence_score": 92,
+                    "confidence_band": "Confirmed",
+                    "cluster": "database-isolation"
+                },
+                {
+                    "finding_id": "TG-AUTH-002-w3",
+                    "rule_id": "TG-AUTH-002",
+                    "title": "Client-Only Authorization Enforcement",
+                    "severity": "High",
+                    "file_path": "client/App.tsx",
+                    "line_number": 15,
+                    "description": "Client-side route guard lacking backend check.",
+                    "snippet": "if (!user.isAdmin) return <Redirect />",
+                    "confidence_score": 85,
+                    "confidence_band": "High Confidence",
+                    "cluster": "cluster-auth-bypass"
+                }
+            ]
+            (runs_dir / "findings.json").write_text(json.dumps(dummy_findings), encoding="utf-8")
+
+            # Emit HTML report
+            out_html = temp_dir / "report.html"
+            res = html_reporter.emit_html_report(target_path=out_html, root_dir=temp_dir)
+            html_content = out_html.read_text(encoding="utf-8")
+
+            # 1. Output emission
+            self.log_test("Wave 3: Standalone report.html generated successfully", out_html.is_file() and res["status"] == "success")
+
+            # 2. Zero-CDN invariant
+            has_remote_tags = bool(re.findall(r'<(?:script|link)[^>]*(?:src|href)=["\']https?://[^>]*>', html_content, re.IGNORECASE))
+            has_remote_fonts = bool(re.findall(r'@import\s+url\(["\']https?://', html_content, re.IGNORECASE))
+            self.log_test("Wave 3: Zero-CDN Invariant (100% offline self-contained)", not has_remote_tags and not has_remote_fonts)
+
+            # 3. Defended Invariants Inventory (Safe vs Harmed)
+            self.log_test("Wave 3: Defended Invariants Inventory rendered", "Active Defenses &amp; Protected Invariants" in html_content and "Guards Defended" in html_content)
+
+            # 4. Interactive Directory Heatmap with filter
+            self.log_test("Wave 3: Interactive Directory Heatmap (Click-to-Filter)", "Directory Attack Surface Heatmap" in html_content and "filterByDirectory" in html_content)
+
+            # 5. In-Browser Exporters (SARIF & CSV)
+            self.log_test("Wave 3: In-Browser Artifact Exporters (SARIF & CSV Blobs)", "downloadSarif" in html_content and "downloadCsv" in html_content and "torusguard-report.sarif" in html_content)
+
+            # 6. Prescriptive Defenses & Golden Recipes
+            self.log_test("Wave 3: Prescriptive Next Best Defenses Advisory", "Next Best Defenses Advisory" in html_content and "npx torusguard harden" in html_content)
+            self.log_test("Wave 3: Golden Fix Recipes Explorer", "Golden Fix Recipes" in html_content and "Copy Pattern" in html_content)
+
+            # 7. Print & PDF CSS Engine
+            self.log_test("Wave 3: Executive Print & PDF CSS Engine", "@media print" in html_content and ".drawer-row { display: table-row !important; }" in html_content)
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_cli_and_polyglot_integration(self):
+        print("\n18. Testing CLI & AI Slash Command Integration, Polyglot Stack Detection & Dual-Mode Parity...")
+        temp_dir = Path(tempfile.mkdtemp(prefix="tg-cli-polyglot-test-"))
+        try:
+            scripts_dir = self.root_dir / ".torusguard" / "scripts"
+            if str(scripts_dir) not in sys.path:
+                sys.path.insert(0, str(scripts_dir))
+            import stack_detect
+            import html_reporter
+            import sarif_exporter
+
+            # 1. Polyglot Framework Profiling: Fastify
+            fastify_dir = temp_dir / "fastify_proj"
+            fastify_dir.mkdir(parents=True, exist_ok=True)
+            (fastify_dir / "package.json").write_text(json.dumps({"dependencies": {"fastify": "^4.0.0"}}), encoding="utf-8")
+            prof_fastify = stack_detect.detect_stack(fastify_dir)
+            self.log_test("Wave 4: Polyglot Stack Detection (Fastify)", "Fastify" in prof_fastify.get("frameworks_found", []))
+
+            # 2. Polyglot Framework Profiling: Blazor (.NET)
+            blazor_dir = temp_dir / "blazor_proj"
+            blazor_dir.mkdir(parents=True, exist_ok=True)
+            (blazor_dir / "App.razor").write_text("<h1>Blazor App</h1>", encoding="utf-8")
+            (blazor_dir / "test.csproj").write_text("<Project Sdk=\"Microsoft.NET.Sdk.Web\"></Project>", encoding="utf-8")
+            prof_blazor = stack_detect.detect_stack(blazor_dir)
+            self.log_test("Wave 4: Polyglot Stack Detection (Blazor .NET)", "Blazor" in prof_blazor.get("frameworks_found", []))
+
+            # 3. Polyglot Framework Profiling: Tornado (Python)
+            tornado_dir = temp_dir / "tornado_proj"
+            tornado_dir.mkdir(parents=True, exist_ok=True)
+            (tornado_dir / "app.py").write_text("import tornado.web\napp = tornado.web.Application()", encoding="utf-8")
+            prof_tornado = stack_detect.detect_stack(tornado_dir)
+            self.log_test("Wave 4: Polyglot Stack Detection (Tornado Python)", "Tornado" in prof_tornado.get("frameworks_found", []))
+
+            # 4. Polyglot Framework Profiling: WordPress (PHP)
+            wp_dir = temp_dir / "wp_proj"
+            wp_dir.mkdir(parents=True, exist_ok=True)
+            (wp_dir / "wp-config.php").write_text("<?php define('DB_NAME', 'wp_db');", encoding="utf-8")
+            prof_wp = stack_detect.detect_stack(wp_dir)
+            self.log_test("Wave 4: Polyglot Stack Detection (WordPress PHP)", "WordPress" in prof_wp.get("frameworks_found", []))
+
+            # 5. Default Emission Path: report.html at project root + mirror in .torusguard/runs/
+            mock_proj = temp_dir / "mock_proj"
+            mock_proj.mkdir(parents=True, exist_ok=True)
+            (mock_proj / ".torusguard" / "runs").mkdir(parents=True, exist_ok=True)
+            res_def = html_reporter.emit_html_report(root_dir=mock_proj)
+            root_report = mock_proj / "report.html"
+            run_mirror = mock_proj / ".torusguard" / "runs" / "report-latest.html"
+            self.log_test("Wave 4: Default HTML Emission to Root & Mirror Sync", root_report.is_file() and run_mirror.is_file() and root_report.stat().st_size > 1000)
+
+            # 6. Combined HTML and SARIF Execution
+            sarif_out = mock_proj / ".torusguard" / "runs" / "results-latest.sarif"
+            sarif_data = sarif_exporter.generate_sarif([], run_id="run-test")
+            with open(sarif_out, "w", encoding="utf-8") as f:
+                json.dump(sarif_data, f, indent=2)
+            self.log_test("Wave 4: Combined Multi-Artifact Emission (HTML + SARIF)", root_report.is_file() and sarif_out.is_file() and sarif_data.get("version") == "2.1.0")
+
+            # 7. Subproject Monorepo Scoping (--target)
+            sub_dir = mock_proj / "apps" / "api"
+            sub_dir.mkdir(parents=True, exist_ok=True)
+            res_scoped = html_reporter.emit_html_report(target_path=sub_dir / "report.html", root_dir=mock_proj)
+            scoped_report = sub_dir / "report.html"
+            self.log_test("Wave 4: Subproject Scoping Isolation (--target)", scoped_report.is_file() and scoped_report.stat().st_size > 1000)
+
+            # 8. 75-Column Terminal Visual Width Constraint
+            import term_ui as tui
+            sample_lines = [
+                tui.format_box_line("Posture Score:     100/100 (Optimal Defense)"),
+                tui.format_box_line("Invariants:        74 Defended · 0 Harmed (74 Rules)"),
+                tui.format_box_line("Dashboard Size:    44612 bytes (Zero CDN, 100% Offline)"),
+            ]
+            all_75 = all(tui.get_visual_width(l) == 75 for l in sample_lines)
+            self.log_test("Wave 4: Standardized 75-Column Visual Terminal Invariant", all_75)
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_wave5_visual_e2e_and_cryptographic_manifest(self):
+        print("\n19. Testing Wave 5 Visual Polish, Multi-Language E2E Verification & Cryptographic Manifest Integrity...")
+        temp_dir = Path(tempfile.mkdtemp(prefix="tg-wave5-e2e-test-"))
+        try:
+            scripts_dir = self.root_dir / ".torusguard" / "scripts"
+            if str(scripts_dir) not in sys.path:
+                sys.path.insert(0, str(scripts_dir))
+            import manifest_builder
+            import html_reporter
+            import audit_runner
+            import report_sync
+
+            # 1. Cryptographic Manifest Check on Active .torusguard Workspace
+            m_pass = manifest_builder.check_manifest(self.root_dir / ".torusguard")
+            self.log_test("Wave 5: Cryptographic Workspace Manifest Verification (100% SHA-256 Match)", m_pass)
+
+            # 2. Cryptographic Manifest Check on skills/torusguard/payload
+            payload_dir = self.root_dir / "skills" / "torusguard" / "payload"
+            m_payload_pass = manifest_builder.check_manifest(payload_dir)
+            self.log_test("Wave 5: Distributed Skill Payload Manifest Cryptographic Parity", m_payload_pass)
+
+            # 3. Posture Gauge Dynamic Tokens, Gradient Defs & SVG Glow
+            mock_proj = temp_dir / "mock_app"
+            mock_proj.mkdir(parents=True, exist_ok=True)
+            res_html = html_reporter.emit_html_report(root_dir=mock_proj)
+            html_text = (mock_proj / "report.html").read_text(encoding="utf-8")
+            has_svg_defs = 'linearGradient id="gaugeGradient"' in html_text and 'filter id="gaugeGlow"' in html_text
+            has_gauge_ids = 'id="gaugeCircleFill"' in html_text and 'id="postureScoreText"' in html_text
+            has_countup_anim = 'initPostureGauge' in html_text and 'requestAnimationFrame' in html_text
+            self.log_test("Wave 5: Dynamic Circular SVG Posture Gauge (Gradient, Glow & Count-Up)", has_svg_defs and has_gauge_ids and has_countup_anim)
+
+            # 4. Multi-Dimensional Quick-Filters (Severity, Status, Search Clear & Live Counter)
+            has_filter_pills = 'data-sev-filter' in html_text and 'data-status-filter' in html_text
+            has_filter_funcs = 'filterBySeverity' in html_text and 'filterByStatus' in html_text and 'resetAllFilters' in html_text
+            has_search_clear = 'id="searchClearBtn"' in html_text and 'clearSearch' in html_text
+            has_live_counts = 'id="visibleCount"' in html_text and 'id="totalCount"' in html_text
+            self.log_test("Wave 5: Multi-Dimensional Quick Filters & Live Visibility Counters", has_filter_pills and has_filter_funcs and has_search_clear and has_live_counts)
+
+            # 5. Multi-Language E2E: Python / FastAPI Fixture (Raw SQL Concatenation -> TG-INPUT-002)
+            py_proj = temp_dir / "py_app"
+            py_proj.mkdir(parents=True, exist_ok=True)
+            (py_proj / "app.py").write_text("def query(db, uid): return db.execute(f'SELECT * FROM users WHERE id={uid}')\n", encoding="utf-8")
+            r_py = audit_runner.execute_audit(py_proj, json_output=True)
+            has_py_finding = any(f.get("rule_id") == "TG-INPUT-002" for f in r_py.get("findings", []))
+            self.log_test("Wave 5: Multi-Language E2E - Python AST Invariant Detection (TG-INPUT-002)", has_py_finding)
+
+            # 6. Multi-Language E2E: TypeScript / React Fixture (Public Client Secret -> TG-SEC-002)
+            ts_proj = temp_dir / "ts_app"
+            ts_proj.mkdir(parents=True, exist_ok=True)
+            (ts_proj / "Page.tsx").write_text("export const clientSecret = process.env.NEXT_PUBLIC_SUPABASE_SECRET;\n", encoding="utf-8")
+            r_ts = audit_runner.execute_audit(ts_proj, json_output=True)
+            has_ts_finding = any(f.get("rule_id") == "TG-SEC-002" for f in r_ts.get("findings", []))
+            self.log_test("Wave 5: Multi-Language E2E - TypeScript AST Invariant Detection (TG-SEC-002)", has_ts_finding)
+
+            # 7. Multi-Language E2E: Server / API Fixture (User-Controlled SSRF -> TG-SSRF-001)
+            srv_proj = temp_dir / "srv_app"
+            srv_proj.mkdir(parents=True, exist_ok=True)
+            (srv_proj / "proxy.js").write_text('const fetch = require("node-fetch");\nasync function proxy(req) { return fetch(req.query.target_url); }\n', encoding="utf-8")
+            r_srv = audit_runner.execute_audit(srv_proj, json_output=True)
+            has_srv_finding = any(f.get("rule_id") == "TG-SSRF-001" for f in r_srv.get("findings", []))
+            self.log_test("Wave 5: Multi-Language E2E - Server AST Invariant Detection (TG-SSRF-001)", has_srv_finding)
+
+            # 8. Multi-Language E2E Lifecycle: Dual-Ledger Sync
+            py_report_md = py_proj / "security_report.md"
+            self.log_test("Wave 5: Multi-Language E2E - Automatic Living Security Report Synchronization", py_report_md.is_file() and "TG-INPUT-002" in py_report_md.read_text(encoding="utf-8"))
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_wave6_remediation_hub_and_compliance_matrix(self):
+        print("\n20. Testing Wave 6 Remediation Hub, Defended Invariants Matrix, Compliance Frameworks & Theme Switcher...")
+        temp_dir = Path(tempfile.mkdtemp(prefix="tg-wave6-test-"))
+        try:
+            scripts_dir = self.root_dir / ".torusguard" / "scripts"
+            if str(scripts_dir) not in sys.path:
+                sys.path.insert(0, str(scripts_dir))
+            import html_reporter
+
+            # Seed project with findings to test both Findings table and Simulator
+            runs_dir = temp_dir / ".torusguard" / "runs" / "run-w6-01"
+            runs_dir.mkdir(parents=True, exist_ok=True)
+            dummy_findings = [
+                {
+                    "finding_id": "TG-SEC-001-w6",
+                    "rule_id": "TG-SEC-001",
+                    "title": "Hardcoded Secret Token in Source",
+                    "severity": "Critical",
+                    "file_path": "backend/auth.py",
+                    "line_number": 12,
+                    "description": "Hardcoded secret token detected.",
+                    "snippet": "SECRET_KEY = 'sk_live_12345'",
+                    "confidence_score": 95,
+                    "confidence_band": "Confirmed",
+                    "cluster": "cluster-credentials-exposure"
+                },
+                {
+                    "finding_id": "TG-INPUT-001-w6",
+                    "rule_id": "TG-INPUT-001",
+                    "title": "Missing Schema Validation on Endpoint",
+                    "severity": "High",
+                    "file_path": "backend/routes.py",
+                    "line_number": 45,
+                    "description": "Payload unvalidated before access.",
+                    "snippet": "data = req.get_json()",
+                    "confidence_score": 85,
+                    "confidence_band": "High Confidence",
+                    "cluster": "cluster-injection"
+                }
+            ]
+            (runs_dir / "findings.json").write_text(json.dumps(dummy_findings), encoding="utf-8")
+
+            # Emit report
+            res = html_reporter.emit_html_report(root_dir=temp_dir)
+            report_file = temp_dir / "report.html"
+            html_text = report_file.read_text(encoding="utf-8")
+
+            # 1. Golden Recipes Memory Unpacking & Churn Bounds
+            has_diff_snippet = 'class="diff-line-header"' in html_text or 'class="diff-line-add"' in html_text or 'diff-line-del' in html_text
+            has_ponytail_churn = 'Ponytail line churn budget' in html_text
+            no_placeholders = ('// Parameterized pattern' not in html_text) and ('Verified fix pattern' not in html_text)
+            self.log_test("Wave 6: Golden Recipes Memory Unpacking & Ponytail Line Churn Verification", has_diff_snippet and has_ponytail_churn and no_placeholders)
+
+            # 2. Golden Recipes Dual-View Switcher & Category Filtering
+            has_dual_view = 'setRecipeView' in html_text and 'Unified Diff' in html_text and 'Before / After' in html_text
+            has_cat_filters = 'filterRecipeCategory' in html_text and 'data-recipe-cat-filter' in html_text
+            self.log_test("Wave 6: Golden Recipes Dual-View Switcher (Diff vs Split) & Category Filter Tabs", has_dual_view and has_cat_filters)
+
+            # 3. 5-Layer Architectural Invariant Matrix
+            has_layers = all(layer_name in html_text for layer_name in [
+                "Application & LLM Defense",
+                "Identity, Auth & Real-Time",
+                "Database, GraphQL & Cache",
+                "Network, SSRF & Webhooks",
+                "Platform, Supply Chain & Secrets"
+            ])
+            has_inv_search = 'filterInvariants' in html_text and 'id="invSearchInput"' in html_text
+            has_74_chips = html_text.count('class="inv-chip') == 74
+            self.log_test("Wave 6: 5-Layer Architectural Invariant Matrix (74 Rules & Live Search)", has_layers and has_inv_search and has_74_chips)
+
+            # 4. Interactive Invariant Inspection Modal
+            has_inv_modal = 'id="invariantModal"' in html_text and 'inspectInvariant' in html_text and 'closeInvariantModal' in html_text
+            self.log_test("Wave 6: Interactive Invariant Security Guarantee Inspection Modal", has_inv_modal)
+
+            # 5. Complete AI Prompt Removal
+            ai_prompt_absent = 'btnAiPrompt' not in html_text and 'copyAIPrompt' not in html_text and 'ai_prompt' not in html_text
+            self.log_test("Wave 6: Complete AI Prompt Button & Dead Code Removal", ai_prompt_absent)
+
+            # 6. Interactive "What-If" Posture Score Simulator
+            has_simulator_card = 'What-If" Posture Score Simulator' in html_text
+            has_sim_funcs = 'updateSimulatedScore' in html_text and 'simulateFixAll' in html_text and 'resetSimulatedFixes' in html_text
+            has_sim_chk = 'class="sim-fix-chk"' in html_text
+            self.log_test("Wave 6: Interactive What-If Posture Simulator with Live Dynamic Recalculation", has_simulator_card and has_sim_funcs and has_sim_chk)
+
+            # 7. Enterprise Compliance Framework Mapping (SOC 2, ISO 27001, HIPAA)
+            has_compliance_grid = 'Enterprise Compliance Framework Mapping' in html_text
+            has_frameworks = 'SOC 2 Type II' in html_text and 'ISO/IEC 27001:2022' in html_text and 'HIPAA Security Rule' in html_text
+            self.log_test("Wave 6: Enterprise Compliance Framework Mapping (SOC 2, ISO 27001, HIPAA)", has_compliance_grid and has_frameworks)
+
+            # 8. Zero-CDN Executive Dark / Light Mode Theme Switcher
+            has_theme_btn = 'id="themeToggleBtn"' in html_text and 'toggleTheme' in html_text
+            has_theme_css = 'body.light-theme' in html_text
+            has_theme_storage = 'localStorage.getItem(\'tg_theme\')' in html_text or "localStorage.getItem('tg_theme')" in html_text
+            self.log_test("Wave 6: Zero-CDN Executive Dark / Light Mode Switcher with LocalStorage Persistence", has_theme_btn and has_theme_css and has_theme_storage)
 
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)

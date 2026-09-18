@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Autonomous Remediation Engine (v1.3.5)
+TorusGuard Autonomous Remediation Engine (v1.3.6)
 Evaluates audit findings against canonical patch templates, enforces Ponytail bounds
 (<= 35 additions, <= 25 deletions), packages structured candidate remediation bundles,
 and renders unified patch diffs with standardized 75-column terminal UI.
@@ -58,7 +58,7 @@ def box_line(content: str, width: int = 67, border: str = "│", border_color: s
         return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
     return f"  {border_color}{border}{RESET}  {content}"
 
-def box_header(title: str, subtitle: str = "", version: str = "v1.3.5", border_color: str = CYAN) -> str:
+def box_header(title: str, subtitle: str = "", version: str = "v1.3.6", border_color: str = CYAN) -> str:
     if term_ui:
         return term_ui.card_header(title, subtitle, version, border_color)
     return f"=== {title} ({version}) ==="
@@ -564,7 +564,7 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
 
     # Print 75-column Terminal Cards
     print()
-    print(box_header("🛡️  TORUSGUARD GOVERNED REMEDIATION ENGINE", "Autonomous Minimal Patch Formulation & Ponytail Packaging", "v1.3.5"))
+    print(box_header("🛡️  TORUSGUARD GOVERNED REMEDIATION ENGINE", "Autonomous Minimal Patch Formulation & Ponytail Packaging", "v1.3.6"))
     print()
 
     print(border_top("Remediation Scope"))

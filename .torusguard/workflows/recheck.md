@@ -1,7 +1,7 @@
 ---
 description: Targeted differential AST re-scan, fix closure verification, and regression state machine transitions.
 tools: Read, Grep, Glob, Bash, Write
-version: 1.3.5
+version: 1.3.6
 agent: reviewer
 lifecycle-phase: Phase 6 (Targeted Recheck & Verification)
 required-skills:

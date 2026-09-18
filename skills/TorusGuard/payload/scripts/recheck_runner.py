@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Targeted Differential Recheck Engine (v1.3.5)
+TorusGuard Targeted Differential Recheck Engine (v1.3.6)
 Executes scoped differential re-audits verifying only impacted files and adjacent boundaries.
 Evaluates formal status transitions (Confirmed Fixed vs Regressed vs Unresolved), updates run manifest,
 and records verification telemetry in the persistent security memory subsystem.
@@ -57,7 +57,7 @@ def box_line(content: str, width: int = 67, border: str = "│", border_color: s
         return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
     return f"  {border_color}{border}{RESET}  {content}"
 
-def box_header(title: str, subtitle: str = "", version: str = "v1.3.5", border_color: str = CYAN) -> str:
+def box_header(title: str, subtitle: str = "", version: str = "v1.3.6", border_color: str = CYAN) -> str:
     if term_ui:
         return term_ui.card_header(title, subtitle, version, border_color)
     return f"=== {title} ({version}) ==="
@@ -106,7 +106,7 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
 
     # Header Card
     print()
-    print(box_header("🛡️  TORUSGUARD DIFFERENTIAL RECHECK ENGINE", "Targeted Differential AST Scan & Regression Verification", "v1.3.5"))
+    print(box_header("🛡️  TORUSGUARD DIFFERENTIAL RECHECK ENGINE", "Targeted Differential AST Scan & Regression Verification", "v1.3.6"))
     print()
 
     print(border_top("Recheck Verification Scope"))

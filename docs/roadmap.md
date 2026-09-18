@@ -291,6 +291,26 @@ This document outlines the development milestones, past releases, and future pri
 
 ---
 
+### ✅ v1.3.6 — Enterprise Remediation Hub, Defended Invariant Matrix & Compliance Frameworks (2026-09-18)
+- **Interactive Enterprise Remediation Hub (`report.html`, `html_reporter.py`):**
+  - Instant family filter tabs (`All Families`, `TG-SEC`, `TG-AUTH`, `TG-DB`, `TG-INPUT`, `TG-RATE`, `TG-AGENT`, etc.).
+  - Real-time search bar filtering Golden Recipes by rule ID, title, CWE code, and family category.
+  - Monokai Dark syntax-highlighted code drawers and 1-click "Copy Golden Fix" with animated badges.
+  - Surgical Diff view with green `+` additions and red `-` deletions obeying Ponytail Protocol bounds.
+  - Safe Exploit Simulation Canary cards with inert tokens and non-destructive proof steps.
+  - Direct Action CLI Pills generating copy-pasteable terminal commands (`npx torusguard harden --rule <RULE_ID>`).
+- **5-Layer Defended Invariant & Active Defenses Matrix:**
+  - Formalized Layer 1 (Secret Zero Exposure), Layer 2 (Multi-Tenant Isolation), Layer 3 (Ponytail Churn Bound), Layer 4 (Sinks Sanitization), and Layer 5 (Network Boundary).
+- **Enterprise Regulatory & Compliance Framework Mapping:**
+  - Automated mapping to SOC 2 Type II, ISO/IEC 27001:2022, HIPAA Security Rule, and OWASP Top 10:2025.
+- **Interactive "What-If" Posture Simulator:**
+  - Real-time client-side slider to model health score improvement and remediation ROI.
+- **Zero-CDN Accessible Dark / Light Theme Switcher:**
+  - Zero-external-dependency dark and light theme switch persisting preferences in local storage.
+- **Validation Test Suite:** 120/120 tests passing across 20 test suites (`npm test`).
+
+---
+
 ## 🎯 Upcoming Milestones: Post-v1.3.0 Series
 
 ### 🚀 v1.4.0 — Container & Infrastructure-as-Code (IaC) Security (Q4 2026)

@@ -151,7 +151,7 @@ function cardDivider(title = '', borderColor = CYAN, double = false) {
   return `  ${borderColor}${left}${h.repeat(71)}${right}${RESET}`;
 }
 
-function cardHeader(title, subtitle = '', version = 'v1.3.5', borderColor = CYAN) {
+function cardHeader(title, subtitle = '', version = 'v1.3.6', borderColor = CYAN) {
   const top = `  ${borderColor}╭${'─'.repeat(71)}╮${RESET}`;
   const bottom = `  ${borderColor}╰${'─'.repeat(71)}╯${RESET}`;
   const empty = `  ${borderColor}│${' '.repeat(71)}│${RESET}`;
@@ -169,7 +169,7 @@ function cardHeader(title, subtitle = '', version = 'v1.3.5', borderColor = CYAN
 
 function printHelp() {
   console.log();
-  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', 'v1.3.5'));
+  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', 'v1.3.6'));
   console.log(`\n  ${BOLD}Usage:${RESET}  ${GREEN}npx torusguard${RESET} ${WHITE}[command]${RESET} ${GRAY}[options]${RESET}\n`);
 
   console.log(cardBorderTop('Commands'));
@@ -189,6 +189,7 @@ function printHelp() {
   console.log(cardDivider('AI & Memory Subcommands'));
   console.log(formatBoxLine(`${WHITE}rules sync${RESET}       ${DIM}[--format all|cursor|claude|agent|windsurf]${RESET}`));
   console.log(formatBoxLine(`${WHITE}report --html${RESET}    ${DIM}[--out <path>] Self-contained visual HTML dashboard${RESET}`));
+  console.log(formatBoxLine(`${WHITE}report --sarif${RESET}   ${DIM}[--out <path>] OASIS SARIF v2.1.0 GitHub Scanning log${RESET}`));
   console.log(formatBoxLine(`${WHITE}memory context${RESET}   ${DIM}[--role auditor|remediator|reviewer] [--file <f>]${RESET}`));
   console.log(formatBoxLine(`${WHITE}memory hook${RESET}      ${DIM}[install|uninstall] Git pre-commit regression hook${RESET}`));
   console.log(formatBoxLine(`${WHITE}memory learn${RESET}     ${DIM}[--commits <range>] Ingest security commit fixes${RESET}`));
@@ -250,7 +251,7 @@ if (command === 'status') {
       }
 
       console.log();
-      console.log(cardHeader('🛡️  TORUSGUARD SECURITY POSTURE', '', 'v1.3.5'));
+      console.log(cardHeader('🛡️  TORUSGUARD SECURITY POSTURE', '', 'v1.3.6'));
       console.log(`\n  ${BOLD}▸ Workspace:${RESET}        ${GREEN}${cwd}${RESET}`);
       console.log(`  ${BOLD}▸ Governance:${RESET}       ${GREEN}Full Local Governance (.torusguard/)${RESET}`);
       console.log(`  ${BOLD}▸ Living Report:${RESET}    ${CYAN}security_report.md${RESET}\n`);
@@ -450,34 +451,69 @@ if (command === 'audit') {
 
 // Subcommand: report
 if (command === 'report') {
-  if (args.includes('--html') || args[1] === 'html') {
-    const htmlScript = path.join(cwd, '.torusguard', 'scripts', 'html_reporter.py');
+  const wantHtml = args.includes('--html') || args[1] === 'html' || args.includes('--out');
+  const wantSarif = args.includes('--sarif') || (!wantHtml && args[1] !== 'html');
+
+  // Resolve target directory (supports --target and --root)
+  const rootIdx = args.indexOf('--root') !== -1 ? args.indexOf('--root') : args.indexOf('--target');
+  let targetRoot = cwd;
+  if (rootIdx !== -1 && args[rootIdx + 1]) {
+    targetRoot = path.resolve(cwd, args[rootIdx + 1]);
+  }
+
+  let exitCode = 0;
+
+  // 1. If SARIF export is requested
+  if (wantSarif) {
+    const sarifScript = path.join(targetRoot, '.torusguard', 'scripts', 'sarif_exporter.py');
+    const fallbackSarifScript = path.join(rootDir, '.torusguard', 'scripts', 'sarif_exporter.py');
+    const actualSarifScript = fs.existsSync(fallbackSarifScript) ? fallbackSarifScript : sarifScript;
+
+    const sarifArgs = [actualSarifScript, '--root', targetRoot];
+    const sarifOutIdx = args.indexOf('--sarif-out');
+    if (sarifOutIdx !== -1 && args[sarifOutIdx + 1]) {
+      sarifArgs.push('--output', args[sarifOutIdx + 1]);
+    } else if (!wantHtml) {
+      const outIdx = args.indexOf('--out');
+      if (outIdx !== -1 && args[outIdx + 1]) {
+        sarifArgs.push('--output', args[outIdx + 1]);
+      }
+    }
+    const runIdIdx = args.indexOf('--run');
+    if (runIdIdx !== -1 && args[runIdIdx + 1]) {
+      sarifArgs.push('--run-id', args[runIdIdx + 1]);
+    }
+
+    const proc = spawnSync(pythonCmd, sarifArgs, { stdio: 'inherit', cwd: targetRoot });
+    if (proc.status !== 0 && proc.status !== null) {
+      exitCode = proc.status;
+    }
+  }
+
+  // 2. If Visual HTML dashboard is requested
+  if (wantHtml) {
+    const htmlScript = path.join(targetRoot, '.torusguard', 'scripts', 'html_reporter.py');
     const fallbackHtmlScript = path.join(rootDir, '.torusguard', 'scripts', 'html_reporter.py');
     const actualHtmlScript = fs.existsSync(fallbackHtmlScript) ? fallbackHtmlScript : htmlScript;
 
-    let pyArgs = [actualHtmlScript];
+    let pyArgs = [actualHtmlScript, '--root', targetRoot];
     const outIdx = args.indexOf('--out');
     if (outIdx !== -1 && args[outIdx + 1]) {
-      pyArgs.push('--out', args[outIdx + 1]);
-    }
-    const rootIdx = args.indexOf('--root') !== -1 ? args.indexOf('--root') : args.indexOf('--target');
-    if (rootIdx !== -1 && args[rootIdx + 1]) {
-      pyArgs.push('--root', args[rootIdx + 1]);
+      pyArgs.push('--out', path.resolve(cwd, args[outIdx + 1]));
+    } else {
+      pyArgs.push('--out', path.join(targetRoot, 'report.html'));
     }
     if (args.includes('--json')) {
       pyArgs.push('--json');
     }
 
-    const proc = spawnSync(pythonCmd, pyArgs, { stdio: 'inherit', cwd });
-    process.exit(proc.status !== null ? proc.status : 0);
-  } else {
-    const sarifScript = path.join(cwd, '.torusguard', 'scripts', 'sarif_exporter.py');
-    const fallbackSarifScript = path.join(rootDir, '.torusguard', 'scripts', 'sarif_exporter.py');
-    const actualSarifScript = fs.existsSync(fallbackSarifScript) ? fallbackSarifScript : sarifScript;
-
-    const proc = spawnSync(pythonCmd, [actualSarifScript, ...args.slice(1)], { stdio: 'inherit', cwd });
-    process.exit(proc.status !== null ? proc.status : 0);
+    const proc = spawnSync(pythonCmd, pyArgs, { stdio: 'inherit', cwd: targetRoot });
+    if (proc.status !== 0 && proc.status !== null) {
+      exitCode = proc.status;
+    }
   }
+
+  process.exit(exitCode);
 }
 
 // Subcommand: harden

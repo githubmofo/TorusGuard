@@ -1,7 +1,7 @@
 ---
 description: Legal scope definition, target ownership proof verification, and safety boundary enforcement for runtime validation.
 tools: Read, Grep, Glob, Bash, Write
-version: 1.3.5
+version: 1.3.6
 agent: reviewer
 lifecycle-phase: Phase 1 (Authorization Gate)
 required-skills:

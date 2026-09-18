@@ -1,7 +1,7 @@
 ---
 name: torusguard-apply
 description: Apply governed remediation patches to disk with pre-apply rollback snapshots and Human Gate validation via CLI or AI Agent.
-version: 1.3.5
+version: 1.3.6
 workflow: .torusguard/workflows/apply.md
 tools: Read, Grep, Glob, Write, replace_file_content, run_command
 scripts-binding:

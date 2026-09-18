@@ -1,7 +1,7 @@
 ---
 name: torusguard-audit
 description: Static AST security scanning, line-shift invariant fingerprinting, root-cause clustering, and 0-100 confidence scoring via CLI or AI Agent.
-version: 1.3.5
+version: 1.3.6
 workflow: .torusguard/workflows/audit.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:

@@ -1,7 +1,7 @@
 ---
 description: Executive posture reporting, cluster analysis, signed compliance audit, and OASIS SARIF v2.1.0 structured export.
 tools: Read, Grep, Glob, Bash, Write
-version: 1.3.5
+version: 1.3.6
 agent: reviewer
 lifecycle-phase: Phase 7 (Reporting & SARIF Export)
 required-skills:

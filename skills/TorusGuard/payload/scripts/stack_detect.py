@@ -221,6 +221,24 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
                         "indicator": "Flask application instantiation"
                     })
                     profile["recommended_references"].append("flask-security.md")
+                elif "tornado" in content or "tornado.web" in content:
+                    add_to_list(profile, "languages_found", "Python")
+                    profile["ecosystem_family"] = "python"
+                    add_to_list(profile, "frameworks_found", "Tornado")
+                    profile["confidence"] = "Confirmed"
+                    profile["detection_evidence"].append({
+                        "file": str(py_file.relative_to(project_root)),
+                        "indicator": "Tornado application"
+                    })
+                elif "starlette" in content:
+                    add_to_list(profile, "languages_found", "Python")
+                    profile["ecosystem_family"] = "python"
+                    add_to_list(profile, "frameworks_found", "Starlette")
+                    profile["confidence"] = "Confirmed"
+                    profile["detection_evidence"].append({
+                        "file": str(py_file.relative_to(project_root)),
+                        "indicator": "Starlette application"
+                    })
 
                 if "sqlalchemy" in content:
                     add_to_list(profile, "data_layers_found", "SQLAlchemy")
@@ -286,11 +304,27 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "express dependency"})
                 profile["recommended_references"].append("express-security.md")
+            elif "fastify" in deps:
+                add_to_list(profile, "frameworks_found", "Fastify")
+                profile["confidence"] = "Confirmed"
+                profile["detection_evidence"].append({"file": "package.json", "indicator": "fastify dependency"})
+            elif "koa" in deps:
+                add_to_list(profile, "frameworks_found", "Koa")
+                profile["confidence"] = "Confirmed"
+                profile["detection_evidence"].append({"file": "package.json", "indicator": "koa dependency"})
+            elif "@remix-run/react" in deps or "@remix-run/node" in deps:
+                add_to_list(profile, "frameworks_found", "Remix")
+                profile["confidence"] = "Confirmed"
+                profile["detection_evidence"].append({"file": "package.json", "indicator": "Remix dependency"})
             elif "react" in deps:
                 add_to_list(profile, "frameworks_found", "React / Vite")
                 profile["confidence"] = "Confirmed"
                 profile["detection_evidence"].append({"file": "package.json", "indicator": "react dependency"})
                 profile["recommended_references"].append("react-vite-security.md")
+            elif "vite" in deps:
+                add_to_list(profile, "frameworks_found", "Vite")
+                profile["confidence"] = "Confirmed"
+                profile["detection_evidence"].append({"file": "package.json", "indicator": "vite dependency"})
 
             # ORM / Data layer detection
             if "@prisma/client" in deps or "prisma" in deps:
@@ -433,6 +467,8 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
 
         if "Microsoft.NET.Sdk.Web" in csproj_content or "Microsoft.AspNetCore" in csproj_content or "Swashbuckle" in csproj_content:
             add_to_list(profile, "frameworks_found", "ASP.NET Core")
+        if list(project_root.glob("**/*.razor")) or "Microsoft.AspNetCore.Components" in csproj_content or "blazor" in csproj_content.lower():
+            add_to_list(profile, "frameworks_found", "Blazor")
         if "Microsoft.EntityFrameworkCore" in csproj_content:
             add_to_list(profile, "data_layers_found", "Entity Framework Core")
         elif "Dapper" in csproj_content:
@@ -442,11 +478,17 @@ def detect_stack(project_root: Path) -> dict[str, Any]:
     # G. PHP Ecosystem
     # -------------------------------------------------------------------------
     composer_json = project_root / "composer.json"
-    if composer_json.is_file():
+    is_wordpress = (project_root / "wp-config.php").is_file() or (project_root / "wp-load.php").is_file() or (project_root / "wp-content").is_dir()
+    if composer_json.is_file() or is_wordpress:
         add_to_list(profile, "languages_found", "PHP")
         profile["ecosystem_family"] = "php"
         profile["confidence"] = "Confirmed"
-        profile["detection_evidence"].append({"file": "composer.json", "indicator": "PHP Composer manifest"})
+        if is_wordpress:
+            add_to_list(profile, "frameworks_found", "WordPress")
+            add_to_list(profile, "data_layers_found", "MySQL / wpdb")
+            profile["detection_evidence"].append({"file": "wp-config.php" if (project_root / "wp-config.php").is_file() else "wp-content", "indicator": "WordPress installation"})
+        if composer_json.is_file():
+            profile["detection_evidence"].append({"file": "composer.json", "indicator": "PHP Composer manifest"})
         profile["recommended_rules"].extend(["TG-SEC-*", "TG-INPUT-001", "TG-INPUT-002", "TG-PLATFORM-*"])
         profile["recommended_references"].append("polyglot-security-matrix.md")
 

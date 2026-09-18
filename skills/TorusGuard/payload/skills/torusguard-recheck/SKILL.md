@@ -1,7 +1,7 @@
 ---
 name: torusguard-recheck
 description: Execute targeted differential AST re-scan against modified files, verify fix closure, and assert zero regressions via CLI or AI Agent.
-version: 1.3.5
+version: 1.3.6
 workflow: .torusguard/workflows/recheck.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:

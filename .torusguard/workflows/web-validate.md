@@ -1,7 +1,7 @@
 ---
 description: Authorized HTTP probing, token redaction, transparent audit header injection, and replay trace capture.
 tools: Read, Grep, Glob, Bash, Write
-version: 1.3.5
+version: 1.3.6
 agent: validator
 lifecycle-phase: Phase 3b (Runtime Web Validation)
 required-skills:

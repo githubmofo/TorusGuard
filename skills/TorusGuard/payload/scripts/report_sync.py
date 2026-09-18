@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Living Security Report Sync Engine (v1.3.5)
+TorusGuard Living Security Report Sync Engine (v1.3.6)
 Maintains a living, ground-truth `security_report.md` ledger at the root of the workspace.
 Tracks finding lifecycles from Discovery -> Candidate -> Applied -> Resolved -> Regressed.
 Pure Python 3.10+ standard library (zero external dependencies).
@@ -10,6 +10,7 @@ import sys
 import os
 import re
 import json
+import time
 import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
@@ -42,9 +43,106 @@ def get_report_path(target_root: Path) -> Path:
     """Return absolute path to security_report.md at the workspace root."""
     return target_root / "security_report.md"
 
+
+def atomic_write_text(file_path: Path, content: str, max_retries: int = 3, backoff_base: float = 0.05) -> bool:
+    """
+    Atomically write text to disk using a temporary file and atomic replace.
+    Handles Windows file-locking (e.g. browser read locks on open HTML reports)
+    via exponential backoff retries.
+    """
+    file_path = Path(file_path).resolve()
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    pid = os.getpid()
+    ts = int(time.time() * 1000)
+    tmp_path = file_path.with_name(f".tmp.{pid}.{ts}.{file_path.name}")
+
+    try:
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+    except Exception as e:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
+        raise e
+
+    for attempt in range(max_retries):
+        try:
+            os.replace(tmp_path, file_path)
+            return True
+        except (PermissionError, OSError):
+            if attempt == max_retries - 1:
+                try:
+                    file_path.write_text(content, encoding="utf-8")
+                    if tmp_path.exists():
+                        tmp_path.unlink()
+                    return True
+                except Exception:
+                    if tmp_path.exists():
+                        try:
+                            tmp_path.unlink()
+                        except Exception:
+                            pass
+                    raise
+            time.sleep(backoff_base * (2 ** attempt))
+
+    return False
+
+
+def reconcile_from_run_artifacts(target_root: Path) -> List[Dict[str, Any]]:
+    """
+    Authoritative fallback: if security_report.md is missing or damaged,
+    heal state from the latest run's findings.json in .torusguard/runs/.
+    """
+    runs_dir = target_root / ".torusguard" / "runs"
+    if not runs_dir.is_dir():
+        return []
+
+    run_folders = sorted(
+        [d for d in runs_dir.iterdir() if d.is_dir() and (d / "findings.json").is_file()],
+        key=lambda p: p.stat().st_mtime,
+        reverse=True
+    )
+    if not run_folders:
+        return []
+
+    latest_file = run_folders[0] / "findings.json"
+    try:
+        data = json.loads(latest_file.read_text(encoding="utf-8"))
+        if isinstance(data, list):
+            return data
+    except Exception:
+        pass
+    return []
+
+
 def parse_existing_report(report_path: Path) -> Dict[str, Any]:
-    """Parse existing security_report.md into structured data if it exists."""
+    """Parse existing security_report.md into structured data if it exists.
+    Supports both the legacy format and the new v2 summary-first format.
+    Heals from latest run findings if report is absent or damaged.
+    """
     if not report_path.is_file():
+        recovered = reconcile_from_run_artifacts(report_path.parent)
+        if recovered:
+            f_map = {}
+            for r in recovered:
+                fid = r.get("finding_id", "")
+                if fid:
+                    f_map[fid] = {
+                        "finding_id": fid,
+                        "rule_id": r.get("rule_id", "TG-GEN"),
+                        "title": r.get("title", "Security Finding"),
+                        "status": "🔴 OPEN",
+                        "severity": r.get("severity", "Medium"),
+                        "confidence": f"{r.get('confidence_score', 70)}% ({r.get('confidence_band', 'High Confidence')})",
+                        "target": f"{r.get('file_path', '')}:{r.get('line_number', 1)}",
+                        "history": []
+                    }
+            return {"findings": f_map, "metadata": {}}
         return {"findings": {}, "metadata": {}}
     
     try:
@@ -53,8 +151,9 @@ def parse_existing_report(report_path: Path) -> Dict[str, Any]:
         return {"findings": {}, "metadata": {}}
 
     findings = {}
-    # Parse individual finding cards: ### [RULE-ID] Title
-    card_pattern = re.compile(
+
+    # ── Format A (legacy): ### [RULE-ID] Title ──
+    card_pattern_legacy = re.compile(
         r'###\s+\[(TG-[A-Z]+-\d+)\]\s+(.*?)\n'
         r'- \*\*Finding ID:\*\*\s+`([^`]+)`\n'
         r'- \*\*Status:\*\*\s+([^\n]+)\n'
@@ -63,7 +162,7 @@ def parse_existing_report(report_path: Path) -> Dict[str, Any]:
         re.MULTILINE
     )
 
-    for m in card_pattern.finditer(content):
+    for m in card_pattern_legacy.finditer(content):
         rule_id = m.group(1).strip()
         title = m.group(2).strip()
         finding_id = m.group(3).strip()
@@ -83,7 +182,49 @@ def parse_existing_report(report_path: Path) -> Dict[str, Any]:
             "history": []
         }
 
-    # Extract history tables if present
+    # ── Format B (new v2): ### TG-RULE-001 · Title `status` `confidence` ──
+    card_pattern_v2 = re.compile(
+        r'###\s+(TG-[A-Z]+-\d+)\s+·\s+(.*?)\s+`([^`]+)`\s+`([^`]+)`\n'
+        r'- \*\*Finding ID:\*\*\s+`([^`]+)`(?:[^\n]*\*\*Severity:\*\*\s+`([^`]+)`)?\n'
+        r'(?:📁|- \*\*Target:\*\*)\s*`([^`\n]+)`',
+        re.MULTILINE
+    )
+
+    for m in card_pattern_v2.finditer(content):
+        rule_id = m.group(1).strip()
+        title = m.group(2).strip()
+        status = m.group(3).strip()
+        confidence = m.group(4).strip()
+        finding_id = m.group(5).strip()
+        sev_explicit = m.group(6).strip() if m.group(6) else None
+        target = m.group(7).strip()
+
+        if finding_id not in findings:  # Don't overwrite legacy matches
+            if sev_explicit:
+                severity = sev_explicit
+            else:
+                # Infer severity from section header or status
+                severity = "High"  # Default
+                match_pos = m.start()
+                preceding = content[:match_pos]
+                if "Critical" in preceding.split("##")[-1]:
+                    severity = "Critical"
+                elif "Medium" in preceding.split("##")[-1]:
+                    severity = "Medium"
+
+            findings[finding_id] = {
+                "finding_id": finding_id,
+                "rule_id": rule_id,
+                "title": title,
+                "status": status,
+                "severity": severity,
+                "confidence": confidence,
+                "target": target,
+                "history": []
+            }
+
+    # Extract history from inline blockquote format (new) or table format (legacy)
+    # Legacy: #### Lifecycle History for `finding_id`
     history_pattern = re.compile(r'#### Lifecycle History for `([^`]+)`\n([\s\S]*?)(?=\n---|\n###|\Z)')
     for hm in history_pattern.finditer(content):
         fid = hm.group(1).strip()
@@ -100,7 +241,39 @@ def parse_existing_report(report_path: Path) -> Dict[str, Any]:
                             "details": cols[3]
                         })
 
+    # New format: > Last: Action — timestamp · `run_id`
+    inline_history = re.compile(
+        r'###\s+TG-[A-Z]+-\d+.*?\n.*?Finding ID:\*\*\s+`([^`]+)`.*?'
+        r'>\s+Last:\s+(.*?)\s+—\s+(.*?)\s+·\s+`([^`]+)`',
+        re.DOTALL
+    )
+    for hm in inline_history.finditer(content):
+        fid = hm.group(1).strip()
+        if fid in findings and not findings[fid]["history"]:
+            findings[fid]["history"].append({
+                "timestamp": hm.group(3).strip(),
+                "action": hm.group(2).strip(),
+                "run_id": hm.group(4).strip(),
+                "details": "Restored from inline history"
+            })
+
+
     return {"findings": findings, "raw_content": content}
+
+
+def parse_metadata_block(content: str) -> Dict[str, Any]:
+    """Parse the YAML metadata block between TORUSGUARD_METADATA_START/END markers."""
+    metadata = {}
+    meta_match = re.search(
+        r'<!-- TORUSGUARD_METADATA_START\s*\n(.*?)\nTORUSGUARD_METADATA_END -->',
+        content, re.DOTALL
+    )
+    if meta_match:
+        for line in meta_match.group(1).strip().splitlines():
+            if ':' in line:
+                key, _, val = line.partition(':')
+                metadata[key.strip()] = val.strip()
+    return metadata
 
 def compute_health_score(findings: List[Dict[str, Any]]) -> Tuple[int, str]:
     """
@@ -127,7 +300,8 @@ def compute_health_score(findings: List[Dict[str, Any]]) -> Tuple[int, str]:
     return score, status
 
 def render_report(findings: List[Dict[str, Any]], target_root: Path) -> str:
-    """Render the full living security_report.md document."""
+    """Render the living security_report.md with summary-first layout,
+    AI-parseable metadata, severity grouping, and concise finding cards."""
     score, status_text = compute_health_score(findings)
     now_str = format_timestamp()
 
@@ -146,36 +320,11 @@ def render_report(findings: List[Dict[str, Any]], target_root: Path) -> str:
     med_count = sum(1 for f in findings if f["severity"].lower() == "medium")
     low_count = sum(1 for f in findings if f["severity"].lower() == "low")
 
-    lines = [
-        "# 🛡️ TorusGuard Living Security Report",
-        "",
-        "> **Notice:** This document is the living, single-source-of-truth ledger for security findings,",
-        "> candidate patches, and verified closures across this repository. Updated automatically by",
-        "> TorusGuard CLI commands (`audit`, `harden`, `apply`, `recheck`) and AI chat workflows.",
-        "",
-        "---",
-        "",
-        "## 📊 Security Posture Overview",
-        "",
-        f"- **Health Score:** `{score}/100` — **{status_text}**",
-        f"- **Last Updated:** `{now_str}`",
-        f"- **Total Tracked Findings:** `{total}`",
-        f"- **Status Breakdown:** `🔴 {open_count} Open` · `🟠 {verified_count} Verified` · `🟡 {candidate_count} Candidate` · `🔵 {applied_count} Applied` · `🟢 {resolved_count} Resolved` · `❌ {regressed_count} Regressed` · `⚪ {fp_count} Suppressed`",
-        "",
-        "| Severity | Total | Open / Regressed | Resolved | Candidate / Applied |",
-        "| :--- | :---: | :---: | :---: | :---: |",
-        f"| **Critical** | {crit_count} | {sum(1 for f in findings if f['severity'].lower() == 'critical' and ('OPEN' in f['status'] or 'REGRESSED' in f['status']))} | {sum(1 for f in findings if f['severity'].lower() == 'critical' and 'RESOLVED' in f['status'])} | {sum(1 for f in findings if f['severity'].lower() == 'critical' and ('CANDIDATE' in f['status'] or 'APPLIED' in f['status']))} |",
-        f"| **High** | {high_count} | {sum(1 for f in findings if f['severity'].lower() == 'high' and ('OPEN' in f['status'] or 'REGRESSED' in f['status']))} | {sum(1 for f in findings if f['severity'].lower() == 'high' and 'RESOLVED' in f['status'])} | {sum(1 for f in findings if f['severity'].lower() == 'high' and ('CANDIDATE' in f['status'] or 'APPLIED' in f['status']))} |",
-        f"| **Medium** | {med_count} | {sum(1 for f in findings if f['severity'].lower() == 'medium' and ('OPEN' in f['status'] or 'REGRESSED' in f['status']))} | {sum(1 for f in findings if f['severity'].lower() == 'medium' and 'RESOLVED' in f['status'])} | {sum(1 for f in findings if f['severity'].lower() == 'medium' and ('CANDIDATE' in f['status'] or 'APPLIED' in f['status']))} |",
-        f"| **Low** | {low_count} | {sum(1 for f in findings if f['severity'].lower() == 'low' and ('OPEN' in f['status'] or 'REGRESSED' in f['status']))} | {sum(1 for f in findings if f['severity'].lower() == 'low' and 'RESOLVED' in f['status'])} | {sum(1 for f in findings if f['severity'].lower() == 'low' and ('CANDIDATE' in f['status'] or 'APPLIED' in f['status']))} |",
-        "",
-        "---",
-        "",
-        "## 🔍 Tracked Findings Detail",
-        ""
-    ]
+    crit_open = sum(1 for f in findings if f["severity"].lower() == "critical" and ("OPEN" in f["status"] or "REGRESSED" in f["status"]))
+    high_open = sum(1 for f in findings if f["severity"].lower() == "high" and ("OPEN" in f["status"] or "REGRESSED" in f["status"]))
+    med_open = sum(1 for f in findings if f["severity"].lower() == "medium" and ("OPEN" in f["status"] or "REGRESSED" in f["status"]))
 
-    # Sort findings: Open/Regressed first, then by severity (Critical -> High -> Medium -> Low), then rule_id
+    # Sort findings by status priority and severity
     sev_rank = {"critical": 0, "high": 1, "medium": 2, "low": 3}
     def sort_key(f):
         is_active = 0 if ("OPEN" in f["status"] or "REGRESSED" in f["status"]) else 1
@@ -184,48 +333,141 @@ def render_report(findings: List[Dict[str, Any]], target_root: Path) -> str:
 
     sorted_findings = sorted(findings, key=sort_key)
 
-    for f in sorted_findings:
-        lines.append(f"### [{f['rule_id']}] {f['title']}")
-        lines.append(f"- **Finding ID:** `{f['finding_id']}`")
-        lines.append(f"- **Status:** {f['status']}")
-        lines.append(f"- **Severity:** {f['severity']} | **Confidence:** {f.get('confidence', '70% (High Confidence)')}")
-        lines.append(f"- **Target:** `{f['target']}`")
-        if f.get("cluster"):
-            lines.append(f"- **Root-Cause Cluster:** `{f['cluster']}`")
-        lines.append("")
-        lines.append(f"**What is wrong:**  \n{f.get('what_is_wrong', f.get('description', 'Security violation detected by TorusGuard scanner.'))}")
-        lines.append("")
-        lines.append(f"**Why it matters:**  \n{f.get('why_it_matters', 'Violates TorusGuard strict production safety and isolation invariant.')}")
-        lines.append("")
-        if f.get("what_should_change"):
-            lines.append(f"**Governed Remediation:**  \n{f['what_should_change']}")
-            lines.append("")
-        if f.get("snippet"):
-            lines.append("```")
-            lines.append(f["snippet"].strip())
-            lines.append("```")
-            lines.append("")
-        if f.get("proposed_diff"):
-            lines.append("**Proposed Minimal Patch Preview (Ponytail Bounded):**")
-            lines.append("```diff")
-            lines.append(f["proposed_diff"].strip())
-            lines.append("```")
-            lines.append("")
+    # Group by severity for active findings
+    active = [f for f in sorted_findings if "OPEN" in f["status"] or "REGRESSED" in f["status"]]
+    resolved = [f for f in sorted_findings if "RESOLVED" in f["status"]]
+    in_progress = [f for f in sorted_findings if any(s in f["status"] for s in ("CANDIDATE", "APPLIED", "VERIFIED"))]
+    suppressed = [f for f in sorted_findings if "FALSE POSITIVE" in f["status"]]
 
-        # History table
-        history = f.get("history", [])
-        if history:
-            lines.append(f"#### Lifecycle History for `{f['finding_id']}`")
-            lines.append("| Timestamp | Action | Run ID | Details |")
-            lines.append("| :--- | :--- | :--- | :--- |")
-            for h in history:
-                lines.append(f"| {h['timestamp']} | {h['action']} | `{h['run_id']}` | {h['details']} |")
-            lines.append("")
+    critical_findings = [f for f in active if f["severity"].lower() == "critical"]
+    high_findings = [f for f in active if f["severity"].lower() == "high"]
+    medium_findings = [f for f in active if f["severity"].lower() in ("medium", "low")]
 
+    # ── Build the report ──
+    lines = [
+        "# 🛡️ TorusGuard Security Report",
+        "",
+        "<!-- TORUSGUARD_METADATA_START",
+        f"health_score: {score}",
+        f"status: {status_text}",
+        f"total_findings: {total}",
+        f"critical: {crit_count}",
+        f"critical_open: {crit_open}",
+        f"high: {high_count}",
+        f"high_open: {high_open}",
+        f"medium: {med_count}",
+        f"medium_open: {med_open}",
+        f"low: {low_count}",
+        f"open: {open_count}",
+        f"resolved: {resolved_count}",
+        f"regressed: {regressed_count}",
+        f"suppressed: {fp_count}",
+        f"last_scan: {now_str}",
+        "TORUSGUARD_METADATA_END -->",
+        "",
+        "## Executive Summary",
+        "",
+        "| Metric | Value |",
+        "| :--- | :--- |",
+        f"| **Health Score** | `{score}/100` — {status_text} |",
+        f"| **Critical (Open)** | {crit_open} |",
+        f"| **High (Open)** | {high_open} |",
+        f"| **Medium (Open)** | {med_open} |",
+        f"| **Resolved** | {resolved_count} |",
+        f"| **In Progress** | {candidate_count + applied_count} |",
+        f"| **Last Scan** | {now_str} |",
+        "",
+    ]
+
+    # Action required callout
+    if crit_open > 0:
+        lines.append(f"> ⚠️ **Action Required:** {crit_open} critical finding{'s' if crit_open != 1 else ''} require immediate attention. Run `npx torusguard harden` to generate patches.")
+        lines.append("")
+
+    lines.append("---")
+    lines.append("")
+
+    # ── Critical Findings Section ──
+    if critical_findings:
+        lines.append(f"## 🔴 Critical Findings ({len(critical_findings)})")
+        lines.append("")
+        for f in critical_findings:
+            lines.extend(_render_finding_card(f))
+    
+    # ── High Findings Section ──
+    if high_findings:
+        lines.append(f"## 🟠 High Findings ({len(high_findings)})")
+        lines.append("")
+        for f in high_findings:
+            lines.extend(_render_finding_card(f))
+
+    # ── Medium/Low Findings Section ──
+    if medium_findings:
+        lines.append(f"## 🟡 Medium / Low Findings ({len(medium_findings)})")
+        lines.append("")
+        for f in medium_findings:
+            lines.extend(_render_finding_card(f))
+
+    # ── In Progress Section ──
+    if in_progress:
+        lines.append(f"## 🔵 In Progress ({len(in_progress)})")
+        lines.append("")
+        for f in in_progress:
+            lines.extend(_render_finding_card(f))
+
+    # ── Resolved Section ──
+    if resolved:
+        lines.append(f"## ✅ Resolved ({len(resolved)})")
+        lines.append("")
+        for f in resolved:
+            lines.extend(_render_finding_card(f))
+
+    # ── Suppressed Section ──
+    if suppressed:
+        lines.append(f"## ⚪ Suppressed ({len(suppressed)})")
+        lines.append("")
+        for f in suppressed:
+            lines.append(f"- **{f['rule_id']}** · {f['title']} — `{f['target']}` · False Positive")
+        lines.append("")
         lines.append("---")
         lines.append("")
 
+    # Footer
+    lines.append("---")
+    lines.append(f"*Generated by TorusGuard v1.3.6 · {now_str} · 100% Local-First*")
+    lines.append("")
+
     return "\n".join(lines)
+
+
+def _render_finding_card(f: Dict[str, Any]) -> List[str]:
+    """Render a concise finding card (4-6 lines max)."""
+    status_full = f["status"]
+    conf = f.get('confidence', '70% (High Confidence)')
+    sev = f.get('severity', 'High')
+    card = [
+        f"### {f['rule_id']} · {f['title']} `{status_full}` `{conf}`",
+        f"- **Finding ID:** `{f['finding_id']}` · **Severity:** `{sev}`",
+        f"📁 `{f['target']}`",
+        f"**Problem:** {f.get('what_is_wrong', f.get('description', 'Security violation detected.'))}",
+    ]
+    if f.get("what_should_change"):
+        card.append(f"**Fix:** {f['what_should_change']}")
+    if f.get("proposed_diff"):
+        card.append("")
+        card.append("```diff")
+        card.append(f["proposed_diff"].strip())
+        card.append("```")
+    card.append("")
+    # Include lifecycle history inline (compact)
+    history = f.get("history", [])
+    if history and len(history) > 0:
+        last_event = history[-1]
+        card.append(f"> Last: {last_event.get('action', '?')} — {last_event.get('timestamp', '?')} · `{last_event.get('run_id', '?')}`")
+        card.append("")
+    card.append("---")
+    card.append("")
+    return card
 
 
 def record_audit_findings(target_root: Path, findings: List[Dict[str, Any]], run_id: str):
@@ -298,7 +540,8 @@ def record_audit_findings(target_root: Path, findings: List[Dict[str, Any]], run
 
     # Render and save
     rendered = render_report(list(existing_map.values()), target_root)
-    report_file.write_text(rendered, encoding="utf-8")
+    atomic_write_text(report_file, rendered)
+    sync_html_if_exists(target_root)
     return report_file
 
 
@@ -340,7 +583,8 @@ def record_harden_bundles(target_root: Path, bundles: List[Dict[str, Any]], run_
             })
 
     rendered = render_report(list(existing_map.values()), target_root)
-    report_file.write_text(rendered, encoding="utf-8")
+    atomic_write_text(report_file, rendered)
+    sync_html_if_exists(target_root)
     return report_file
 
 
@@ -378,7 +622,8 @@ def record_applied_patches(target_root: Path, applied_bundles: List[Dict[str, An
             })
 
     rendered = render_report(list(existing_map.values()), target_root)
-    report_file.write_text(rendered, encoding="utf-8")
+    atomic_write_text(report_file, rendered)
+    sync_html_if_exists(target_root)
     return report_file
 
 
@@ -419,5 +664,56 @@ def record_recheck_results(target_root: Path, recheck_results: Dict[str, Any], r
             })
 
     rendered = render_report(list(existing_map.values()), target_root)
-    report_file.write_text(rendered, encoding="utf-8")
+    atomic_write_text(report_file, rendered)
+    sync_html_if_exists(target_root)
     return report_file
+
+
+def record_rollback_results(target_root: Path, restored_files: List[str], run_id: str):
+    """
+    Called at the conclusion of `npx torusguard rollback`.
+    Reverts findings for restored files back to OPEN 🔴.
+    """
+    report_file = get_report_path(target_root)
+    existing = parse_existing_report(report_file)
+    existing_map = existing["findings"]
+    now_str = format_timestamp()
+
+    norm_restored = {rf.replace("\\", "/") for rf in restored_files}
+
+    for item in existing_map.values():
+        target_path = item.get("target", "").split(":")[0].replace("\\", "/")
+        if any(rf in target_path or target_path in rf for rf in norm_restored):
+            item["status"] = "🔴 OPEN"
+            item["history"].append({
+                "timestamp": now_str,
+                "action": "Rollback Restored",
+                "run_id": run_id,
+                "details": f"File {target_path} reverted from pre-apply snapshot. Status restored to OPEN."
+            })
+
+    rendered = render_report(list(existing_map.values()), target_root)
+    atomic_write_text(report_file, rendered)
+    sync_html_if_exists(target_root)
+    return report_file
+
+
+def sync_html_if_exists(target_root: Path):
+    """
+    If the user has already generated report.html (at root or in .torusguard/runs),
+    refresh it so the HTML dashboard stays in lockstep with security_report.md.
+    """
+    root_html = target_root / "report.html"
+    runs_html = target_root / ".torusguard" / "runs" / "report-latest.html"
+    if root_html.is_file() or runs_html.is_file():
+        try:
+            s_dir = Path(__file__).resolve().parent
+            if str(s_dir) not in sys.path:
+                sys.path.insert(0, str(s_dir))
+            import html_reporter
+            if runs_html.is_file():
+                html_reporter.emit_html_report(target_path=runs_html, root_dir=target_root)
+            if root_html.is_file():
+                html_reporter.emit_html_report(target_path=root_html, root_dir=target_root)
+        except Exception:
+            pass

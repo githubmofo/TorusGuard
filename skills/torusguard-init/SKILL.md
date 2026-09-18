@@ -1,7 +1,7 @@
 ---
 name: torusguard-init
 description: Initialize TorusGuard workspace — detect project stack, activate tailored TG-* security rules, and generate SECURITY.md baseline via CLI or AI Agent.
-version: 1.3.5
+version: 1.3.6
 workflow: .torusguard/workflows/init.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
