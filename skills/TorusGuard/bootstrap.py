@@ -135,7 +135,7 @@ def print_header():
     print(f"""
   {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}
   {CYAN}│{RESET}                                                                         {CYAN}│{RESET}
-  {CYAN}│{RESET}   {BOLD}{WHITE}🛡️  T O R U S G U A R D{RESET}                                  {GRAY}v1.3.0{RESET}   {CYAN}│{RESET}
+  {CYAN}│{RESET}   {BOLD}{WHITE}🛡️  T O R U S G U A R D{RESET}                                  {GRAY}v1.4.0{RESET}   {CYAN}│{RESET}
   {CYAN}│{RESET}   {DIM}Autonomous Security Engine for AI-Built Applications{RESET}               {CYAN}│{RESET}
   {CYAN}│{RESET}                                                                         {CYAN}│{RESET}
   {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}
@@ -220,7 +220,7 @@ def print_already_initialized(target_root, cfg):
 
   {BOLD}▸ Project Root:{RESET}       {GREEN}{target_root}{RESET}
   {BOLD}▸ Workspace:{RESET}          {GREEN}.torusguard/{RESET} {DIM}(Already Initialized){RESET}
-  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '1.3.0')}{RESET}
+  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '1.4.0')}{RESET}
   {BOLD}▸ Severity Floor:{RESET}     {YELLOW}{cfg.get('severity_threshold', 'medium')}{RESET}
 
   {DIM}To refresh templates or re-scaffold, run:{RESET}
@@ -228,7 +228,7 @@ def print_already_initialized(target_root, cfg):
 """)
 
 
-def scaffold_workspace(target_root=None, force=False, full_commands=False):
+def scaffold_workspace(target_root=None, force=False, full_commands=False, template=None, run_audit=False):
     """Scaffold the .torusguard workspace into the target project root."""
     target_root = Path(target_root or find_project_root()).resolve()
     torusguard_target = target_root / ".torusguard"
@@ -379,12 +379,26 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
         except Exception:
             detected_stack = None
 
+    TEMPLATE_MAP = {
+        "golang": {"language": "Go", "framework": "Gin/Fiber", "data_layer": "database/sql"},
+        "go": {"language": "Go", "framework": "Gin/Fiber", "data_layer": "database/sql"},
+        "nextjs": {"language": "TypeScript", "framework": "Next.js", "data_layer": "Prisma ORM"},
+        "fastapi": {"language": "Python", "framework": "FastAPI", "data_layer": "SQLAlchemy"},
+        "express": {"language": "JavaScript", "framework": "Express", "data_layer": "Mongoose"},
+        "django": {"language": "Python", "framework": "Django", "data_layer": "Django ORM"},
+        "react": {"language": "JavaScript/TypeScript", "framework": "React / Vite", "data_layer": "Supabase"}
+    }
+    if template and template.lower() in TEMPLATE_MAP:
+        detected_stack = TEMPLATE_MAP[template.lower()]
+
     config_file = torusguard_target / "config" / "torusguard.json"
     if config_file.exists():
         try:
             with open(config_file, "r", encoding="utf-8") as f:
                 cfg = json.load(f)
-            if detected_stack and detected_stack.get("framework") != "None":
+            if template and template.lower() in TEMPLATE_MAP:
+                cfg["detected_stack"] = TEMPLATE_MAP[template.lower()]
+            elif detected_stack and detected_stack.get("framework") != "None":
                 cfg["detected_stack"] = {
                     "language": detected_stack.get("language"),
                     "framework": detected_stack.get("framework"),
@@ -516,15 +530,40 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
 
     # ── Success Card ────────────────────────────────────────────────────────
     print_success_card()
+
+    # ── Optional Immediate Audit ────────────────────────────────────────────
+    if run_audit:
+        audit_script = torusguard_target / "scripts" / "audit_runner.py"
+        if audit_script.is_file():
+            print(f"\n  {CYAN}▸ Running immediate baseline security audit (--audit)...{RESET}\n")
+            try:
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("audit_runner", str(audit_script))
+                if spec and spec.loader:
+                    ar_mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(ar_mod)
+                    if hasattr(ar_mod, "execute_audit"):
+                        ar_mod.execute_audit(target_root)
+            except Exception as e:
+                print(f"  {YELLOW}⚠ Immediate audit notice: {e}{RESET}")
+
     return True
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="TorusGuard Autonomous Workspace Bootstrapper")
-    parser.add_argument("--target", type=str, help="Target project root directory")
+    parser.add_argument("--target", "-t", type=str, help="Target project root directory")
     parser.add_argument("--force", action="store_true", help="Force overwrite existing workspace")
     parser.add_argument("--full-commands", action="store_true", help="Unlock and register all 11 individual slash commands")
+    parser.add_argument("--template", choices=["golang", "go", "nextjs", "fastapi", "express", "django", "react"], help="Pre-configure target framework stack template")
+    parser.add_argument("--audit", action="store_true", help="Execute immediate baseline audit post-initialization")
     args = parser.parse_args()
 
-    success = scaffold_workspace(target_root=args.target, force=args.force, full_commands=args.full_commands)
+    success = scaffold_workspace(
+        target_root=args.target,
+        force=args.force,
+        full_commands=args.full_commands,
+        template=args.template,
+        run_audit=args.audit
+    )
     sys.exit(0 if success else 1)

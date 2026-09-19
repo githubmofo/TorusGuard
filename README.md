@@ -9,15 +9,16 @@
     <strong>Zero Telemetry · Zero External Python Dependencies · Pure Standard-Library Architecture · 100% Local-First</strong>
   </p>
 
-  [![npm version](https://img.shields.io/badge/npm-v1.3.6-cb3837.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/torusguard)
-  [![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-v1.3.6-181717.svg?style=flat-square&logo=github)](https://github.com/githubmofo/TorusGuard/pkgs/npm/torusguard)
-  [![Release](https://img.shields.io/badge/Release-v1.3.6-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
-  [![Tests](https://img.shields.io/badge/Tests-120%2F120%20Passing-brightgreen.svg?style=flat-square)](harness/runner.py)
+  [![npm version](https://img.shields.io/badge/npm-v1.4.0-cb3837.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/torusguard)
+  [![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-v1.4.0-181717.svg?style=flat-square&logo=github)](https://github.com/githubmofo/TorusGuard/pkgs/npm/torusguard)
+  [![Release](https://img.shields.io/badge/Release-v1.4.0-blue.svg?style=flat-square)](https://github.com/githubmofo/TorusGuard/releases/latest)
+  [![Tests](https://img.shields.io/badge/Tests-133%2F133%20Passing-brightgreen.svg?style=flat-square)](harness/runner.py)
   [![Security Health](https://img.shields.io/badge/Health%20Score-100%2F100%20Hardened-brightgreen.svg?style=flat-square)](security_report.md)
   [![Rules Catalog](https://img.shields.io/badge/Rules%20Catalog-74%20Rules%20%7C%2018%20Families-indigo.svg?style=flat-square)](rules/)
   [![Terminal Standard](https://img.shields.io/badge/Terminal-75--col%20Standard-informational.svg?style=flat-square)](.torusguard/scripts/term_ui.py)
   [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
   [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B%20(Zero%20Deps)-blue.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
+  [![Go 1.22+](https://img.shields.io/badge/Go-1.22%2B-00ADD8.svg?style=flat-square&logo=go&logoColor=white)](https://go.dev)
   [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
   [![SARIF: v2.1.0](https://img.shields.io/badge/SARIF-v2.1.0%20OASIS-purple.svg?style=flat-square)](.torusguard/schemas/)
   [![OWASP: Top 10](https://img.shields.io/badge/OWASP-Top%2010%20Aligned-orange.svg?style=flat-square)](docs/architecture/SECURITY_ARCHITECTURE.md)
@@ -26,35 +27,8 @@
 
 ---
 
-## 🛡️ The Architecture Behind the Emblem
-
-In the emblem above, the **central golden keyhole shield** represents unbreakable secret protection, authentication integrity, and tenant isolation. It is enveloped by a continuous, interlocking **torus ring**—symbolizing TorusGuard's closed-loop autonomous security lifecycle:
-
-```mermaid
-flowchart LR
-    subgraph Torus ["🔄 360° Closed-Loop Torus Lifecycle"]
-        direction LR
-        Detect["1. Detect (74 AST Rules)"] --> Verify["2. Verify (Evidence & Fingerprints)"]
-        Verify --> Harden["3. Harden (Ponytail Protocol)"]
-        Harden --> Apply["4. Apply (Human Gate & Snapshots)"]
-        Apply --> Recheck["5. Recheck (Differential Closure)"]
-        Recheck --> Memory["6. Memory (Golden Fix Recipes)"]
-        Memory -.->|Continuous Guardrail| Detect
-    end
-
-    subgraph Shield ["🛡️ Central Golden Keyhole Shield"]
-        direction TB
-        Inv1["Browser-Code Truth: Zero Client Secrets"]
-        Inv2["Tenant Partitioning: Scoped Lookups"]
-        Inv3["Zero Bypasses: No verify=False"]
-        Inv4["Living Source of Truth: security_report.md"]
-    end
-
-    Torus === Shield
-```
-
-> **The Developer Reality:** AI coding assistants (Cursor, Claude Code, Copilot, Windsurf) build software at superhuman speed, but routinely leak private keys into client bundles, drop tenant partition filters, or inject raw user input into LLM system prompts.  
-> **TorusGuard forms an unbroken local guardrail around your codebase.** It audits static ASTs, runtime-verifies exploitability with inert canaries, synthesizes minimal surgical diffs adhering to the **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions), and eliminates hallucinations by maintaining a verifiable single source of truth in `security_report.md`.
+> **The Developer Reality:** AI coding assistants (Cursor, Claude Code, Copilot, Windsurf, Antigravity) build software at superhuman speed, but routinely leak private keys into client bundles, drop tenant partition filters, or inject raw user input into LLM system prompts.  
+> **TorusGuard forms an unbroken local guardrail around your codebase.** It audits static ASTs across 74 rules, runtime-verifies exploitability with inert canaries, synthesizes minimal surgical diffs adhering to the **Ponytail Protocol** ($\le 35$ additions, $\le 25$ deletions), and eliminates hallucinations by maintaining a verifiable single source of truth in `security_report.md`.
 
 ---
 
@@ -63,18 +37,20 @@ flowchart LR
 1. [Developer Overview & Value Proposition](#-developer-overview--value-proposition)
 2. [End-to-End Autonomous Architecture](#-end-to-end-autonomous-architecture)
 3. [Why TorusGuard? (Traditional SAST vs. AI Coding vs. TorusGuard)](#-why-torusguard)
-4. [Installation & Setup Guide (npm & CLI)](#-installation--setup-guide-npm--cli)
+4. [Installation & Setup Guide (npm, Go & CLI)](#-installation--setup-guide-npm-go--cli)
 5. [Quickstart: The 5-Step Core Lifecycle](#-quickstart-the-5-step-core-lifecycle)
 6. [Dual-Strategy Command Matrix (CLI & AI Chat Parity)](#-dual-strategy-command-matrix-cli--ai-chat-parity)
-7. [74 Canonical Security Rules Catalog (18 Families Across 6 Pillars)](#-74-canonical-security-rules-catalog-18-families-across-6-pillars)
-8. [Ponytail Remediation Protocol & Rollback Safety](#-ponytail-remediation-protocol--rollback-safety)
-9. [Living Security Report Ground Truth (`security_report.md`)](#-living-security-report-ground-truth-security_reportmd)
-10. [Visual HTML Dashboard & SARIF v2.1.0 Export](#-visual-html-dashboard--sarif-v210-export)
-11. [AI Editor Guardrails Auto-Sync](#-ai-editor-guardrails-auto-sync)
-12. [Monorepo Fleet Support & Git Pre-Commit Diff Guard](#-monorepo-fleet-support--git-pre-commit-diff-guard)
-13. [Verification & Test Harness (120/120 Passing Harness Explained)](#-verification--test-harness)
-14. [Security Policy & Responsible Disclosure](#-security-policy--responsible-disclosure)
-15. [License](#-license)
+7. [Polyglot Go Engine & Native Runner](#-polyglot-go-engine--native-runner)
+8. [Package Self-Update Engine (`update`)](#-package-self-update-engine-update)
+9. [74 Canonical Security Rules Catalog (18 Families Across 6 Pillars)](#-74-canonical-security-rules-catalog-18-families-across-6-pillars)
+10. [Ponytail Remediation Protocol & Rollback Safety](#-ponytail-remediation-protocol--rollback-safety)
+11. [Living Security Report Ground Truth (`security_report.md`)](#-living-security-report-ground-truth-security_reportmd)
+12. [Visual HTML Dashboard & SARIF v2.1.0 Export](#-visual-html-dashboard--sarif-v210-export)
+13. [AI Editor Guardrails Auto-Sync](#-ai-editor-guardrails-auto-sync)
+14. [Monorepo Fleet Support & Git Pre-Commit Diff Guard](#-monorepo-fleet-support--git-pre-commit-diff-guard)
+15. [Verification & Test Harness (133/133 Passing Harness Explained)](#-verification--test-harness)
+16. [Security Policy & Responsible Disclosure](#-security-policy--responsible-disclosure)
+17. [License](#-license)
 
 ---
 
@@ -155,6 +131,7 @@ TorusGuard is designed to be effortless to adopt in any project. There are no co
 ### 📋 Prerequisites
 - **Node.js:** 18.0.0 or higher
 - **Python:** 3.10 or higher (**Pure standard library** — **zero `pip` dependencies required**)
+- **Go (Optional):** 1.22 or higher (for native Go CLI compilation & Go module workflows)
 
 > [!IMPORTANT]
 > **Zero Pip Dependencies Guarantee:** TorusGuard's core Python engine relies strictly on the Python standard library (`pathlib`, `re`, `json`, `difflib`, `shutil`, `sys`, `os`, `argparse`, `hashlib`). You **never** need to create a Python virtualenv (`venv`), run `pip install`, or configure external wheels. It works out of the box with your system Python.
@@ -169,6 +146,7 @@ Run TorusGuard instantly in any repository without installing anything globally:
 npx torusguard init
 npx torusguard audit
 npx torusguard status
+npx torusguard update
 ```
 
 ### 2. Project Dev Dependency
@@ -185,19 +163,32 @@ Add convenience scripts to your `package.json`:
     "security:audit": "torusguard audit",
     "security:harden": "torusguard harden",
     "security:recheck": "torusguard recheck",
-    "security:status": "torusguard status"
+    "security:status": "torusguard status",
+    "security:update": "torusguard update"
   }
 }
 ```
 
-### 3. Global Installation
+### 3. Native Go CLI Runner
+For Go ecosystem developers, TorusGuard ships with a native Go runner module ([go.mod](go.mod)):
+
+```bash
+# Run zero-dependency Go CLI entrypoint directly
+go run cmd/torusguard/main.go audit
+
+# Or install globally into your $GOPATH/bin
+go install github.com/torusguard/torusguard/cmd/torusguard@latest
+torusguard status
+```
+
+### 4. Global NPM Installation
 If you prefer having the `torusguard` binary available system-wide across all terminal sessions:
 
 ```bash
 npm install -g torusguard
 ```
 
-### 4. AI Agent Skill Installation
+### 5. AI Agent Skill Installation
 Install TorusGuard as a native AI assistant skill for Cursor, Claude Code, Cline, or Antigravity:
 
 ```bash
@@ -207,7 +198,7 @@ npx skills add torusguard
 ---
 
 ### 🔍 What Happens on First Run (`init`)
-When you execute `npx torusguard init` in your repository:
+When you execute `npx torusguard init` (or `npx torusguard init --template golang`) in your repository:
 1. **Polyglot Profiling:** Automatically detects 16+ languages (Go, Rust, Java, C#, PHP, Python, TypeScript) and 30+ frameworks without manual configuration.
 2. **Scaffolding:** Creates a local `.torusguard/` directory containing active security rules, schemas, and runners.
 3. **Editor Rules Synchronization:** Automatically compiles compact, language-specific guardrails into `.cursorrules`, `CLAUDE.md`, `.agent/rules/torusguard.md`, and `.windsurfrules` ($\le 300$ prompt tokens).
@@ -221,16 +212,16 @@ When you execute `npx torusguard init` in your repository:
 Run the complete autonomous governance cycle in 60 seconds from your terminal:
 
 ```bash
-# Step 1: Initialize workspace and profile stack
+# Step 1: Initialize workspace and profile stack (optional: --template golang|nextjs|fastapi)
 npx torusguard init
 
-# Step 2: Run AST static security audit across 74 rules
+# Step 2: Run AST static security audit across 74 rules (optional: --watch, --sarif)
 npx torusguard audit
 
-# Step 3: Synthesize minimal surgical candidate patches
+# Step 3: Synthesize minimal surgical candidate patches (optional: --dry-run, --severity high)
 npx torusguard harden
 
-# Step 4: Review syntax-highlighted diffs and apply with rollback backup
+# Step 4: Review syntax-highlighted diffs and apply with rollback backup (optional: --diff, --selective)
 npx torusguard apply
 
 # Step 5: Differentially recheck modified files to verify fix closure
@@ -243,37 +234,71 @@ npx torusguard recheck
 
 ## ⌨️ Dual-Strategy Command Matrix (CLI & AI Chat Parity)
 
-TorusGuard guarantees **100% operational parity** between terminal CLI execution and AI chat slash commands. Terminal outputs strictly adhere to a **75-column visual width** with Unicode emojis and ANSI stripping.
+TorusGuard guarantees **100% operational parity** between terminal CLI execution and AI chat slash commands. Terminal outputs strictly adhere to a **75-column visual width** with Unicode emojis and ANSI stripping. All commands support `--target <dir>` / `-t <dir>` for monorepo and subproject isolation.
 
 ### 🔄 Core Remediation Lifecycle
 
 | Lifecycle Stage | Mode A: Terminal CLI | Mode B: AI Chat Command | Governed Action & Primary Artifact |
 |:---|:---|:---|:---|
-| **1. Init** | `npx torusguard init` | `/torusguard init` | Profiles workspace, activates rules, initializes `.torusguard/` |
-| **2. Audit** | `npx torusguard audit` | `/torusguard audit` | 74-rule AST scan, line-shift fingerprints, updates `security_report.md` |
-| **3. Harden** | `npx torusguard harden` | `/torusguard harden` | Synthesizes Ponytail diffs ($\le 35$ add, $\le 25$ del) into candidate bundles |
-| **4. Apply** | `npx torusguard apply [--yes]` | `/torusguard apply` | Human Gate, pre-apply `.bak` snapshots, Golden Fix distillation |
-| **5. Rollback**| `npx torusguard rollback` | `/torusguard rollback` | Instant restoration from pre-apply snapshots in `.torusguard/snapshots/` |
-| **6. Recheck** | `npx torusguard recheck` | `/torusguard recheck` | Differential AST re-scan; marks findings `RESOLVED 🟢` in living report |
+| **1. Init** | `npx torusguard init [--template <name>] [--audit]` | `/torusguard init` | Profiles workspace, activates rules, scaffolds `.torusguard/` |
+| **2. Status** | `npx torusguard status` | `/torusguard status` | 75-column diagnostic overview of health score, stack, memory & rules |
+| **3. Audit** | `npx torusguard audit [--watch] [--sarif]` | `/torusguard audit` | 74-rule AST scan, line-shift fingerprints, throughput metrics, living ledger |
+| **4. Verify** | `npx torusguard verify` | `/torusguard verify` | Asserts evidence sufficiency & live disk line-shift fingerprint matches |
+| **5. Harden** | `npx torusguard harden [--dry-run] [--severity <s\>]` | `/torusguard harden` | Synthesizes Ponytail diffs ($\le 35$ add, $\le 25$ del) into candidate bundles |
+| **6. Apply** | `npx torusguard apply [--diff] [--selective] [--yes]` | `/torusguard apply` | Human Gate, pre-apply `.bak` snapshots, Golden Fix distillation |
+| **7. Rollback**| `npx torusguard rollback [--run <id>]` | `/torusguard rollback` | Instant restoration from pre-apply snapshots in `.torusguard/snapshots/` |
+| **8. Recheck** | `npx torusguard recheck` | `/torusguard recheck` | Differential AST re-scan; marks findings `RESOLVED 🟢` in living report |
+| **9. Recipes** | `npx torusguard recipes [--search <q>] [--export <p>]`| `/torusguard recipes` | Explores and exports verified Golden Fix patterns from `.torusguard/memory/` |
+| **10. Report** | `npx torusguard report --html [--sarif]` | `/torusguard report` | Emits single-file dark-mode HTML posture dashboard & OASIS SARIF v2.1.0 |
+| **11. Update** | `npx torusguard update [--install]` | `/torusguard update` | Verifies npm registry for latest versions and provides 1-command upgrade |
+| **12. Rules Sync**| `npx torusguard rules sync` | `/torusguard rules sync`| Synchronizes prompt guardrails across Cursor, Claude, Antigravity, Windsurf |
+| **13. Diff Guard**| `npx torusguard diff-guard [--install-hook]` | `/torusguard diff-guard`| Audits git diffs for security bypasses; binds pre-commit git hook |
+| **14. Authorize** | `npx torusguard authorize` | `/torusguard authorize` | Target domain allowlisting, cryptographic ownership proof, TTL limits |
+| **15. Validate** | `npx torusguard web-validate` | `/torusguard web-validate`| Authorized non-destructive HTTP probing with transparent audit headers |
+| **16. Exploit** | `npx torusguard exploit-check` | `/torusguard exploit-check`| Bounded single-step exploitability confirmation using inert sentinels |
 
-### 📊 Intelligence, Memory & Reporting
+---
 
-| Capability | Mode A: Terminal CLI | Mode B: AI Chat Command | Governed Action & Primary Artifact |
-|:---|:---|:---|:---|
-| **Status** | `npx torusguard status` | `/torusguard status` | 75-column diagnostic overview of health score, stack, memory & rules |
-| **Recipes** | `npx torusguard recipes` | `/torusguard recipes` | Explores verified Golden Fix patterns stored in `.torusguard/memory/` |
-| **Report** | `npx torusguard report --html` | `/torusguard report` | Emits single-file dark-mode HTML posture report & OASIS SARIF v2.1.0 |
-| **Rules Sync**| `npx torusguard rules sync` | `/torusguard rules sync`| Synchronizes prompt guardrails across Cursor, Claude, Antigravity, Windsurf |
-| **Diff Guard**| `npx torusguard diff-guard` | `/torusguard diff-guard`| Audits git diffs for security bypasses; `--install-hook` binds pre-commit |
+## 🐹 Polyglot Go Engine & Native Runner
 
-### 🧪 Runtime Verification & Bounded Probing
+TorusGuard v1.4.0 introduces native, zero-dependency Go ecosystem support:
 
-| Capability | Mode A: Terminal CLI | Mode B: AI Chat Command | Governed Action & Primary Artifact |
-|:---|:---|:---|:---|
-| **Authorize** | `npx torusguard authorize` | `/torusguard authorize` | Target domain allowlisting, cryptographic ownership proof, TTL limits |
-| **Verify** | `npx torusguard verify` | `/torusguard verify` | Asserts evidence sufficiency & live disk line-shift fingerprint matches |
-| **Validate** | `npx torusguard web-validate` | `/torusguard web-validate`| Authorized non-destructive HTTP probing with transparent audit headers |
-| **Exploit** | `npx torusguard exploit-check`| `/torusguard exploit-check`| Bounded single-step exploitability confirmation using inert sentinels |
+### 1. Go AST Invariant Security Rules
+- **`TG-INPUT-002` (Raw SQL Concatenation):** Detects unparameterized string concatenation and `fmt.Sprintf` query interpolation in `database/sql`, `sqlx`, and GORM.
+- **`TG-INPUT-006` (Path Traversal):** Detects unsanitized file reads (`os.Open`, `os.ReadFile`) using user request parameters.
+- **`TG-SSRF-004` (Unbounded HTTP Requests):** Flags `&http.Client{}` and `http.DefaultClient` lacking explicit timeout boundaries to prevent connection pooling denial-of-service.
+- **`TG-DIFF-001` (Security Bypasses):** Prevents insecure TLS validation (`InsecureSkipVerify: true`).
+- **`TG-SUPPLY-001` (Supply Chain):** Asserts lockfile presence and cryptographic tracking for `go.sum`.
+
+### 2. Surgical Ponytail Remediation for Go
+Patches for Go follow strict Ponytail line churn limits ($\le 35$ additions, $\le 25$ deletions):
+```go
+// Example: TG-SSRF-004 Remediation
+- client := &http.Client{}
++ client := &http.Client{Timeout: 10 * time.Second}
+
+// Example: TG-INPUT-006 Path Traversal Remediation
+- data, err := os.ReadFile("/data/" + c.Query("file"))
++ data, err := os.ReadFile(filepath.Join("/data", filepath.Base(c.Query("file"))))
+```
+
+---
+
+## 🔄 Package Self-Update Engine (`update`)
+
+Keep your security guardrails continuously synchronized with the latest threat models:
+
+```bash
+# Check registry for newer versions
+npx torusguard update
+
+# Automatically upgrade to latest version
+npx torusguard update --install
+```
+
+- **Zero-Dependency Registry Check:** Queries `https://registry.npmjs.org/torusguard/latest` natively.
+- **SemVer Delta Analysis:** Displays current version against registry latest in standard 75-column cards.
+- **Automated Upgrade Flow:** Executes package installation upon user authorization.
 
 ---
 
@@ -426,7 +451,7 @@ TorusGuard automatically discovers and profiles multi-package workspaces:
 ## 🧪 Verification & Test Harness
 
 ### What Happens When You Run `npm test`?
-TorusGuard enforces a strict **100% pass requirement across 120 test suites** before every release.
+TorusGuard enforces a strict **100% pass requirement across 133 tests in 21 test suites** before every release.
 The test harness runs with **zero third-party dependencies** via standard Python 3:
 
 ```bash
@@ -441,11 +466,14 @@ npm test
 The test harness invokes `python harness/runner.py` directly using the Python standard library. It systematically verifies:
 1. **JSON Schema Validity:** 10 formal schemas (`finding`, `evidence`, `remediation`, `rule`, `lifecycle`, `provenance`, etc.).
 2. **74-Rule Catalog Integrity:** AST detection accuracy across all 18 security families.
-3. **Line-Shift Fingerprinting:** Stable anchor matching across file edits without line number drift.
-4. **Secret Redaction:** Stripe secret keys and JWT tokens safely masked.
-5. **Deterministic Replay:** 3-pass differential validation across Django, DRF, FastAPI, Flask, and SQLAlchemy fixtures.
-6. **Ponytail Patch Churn Bounds:** Verifying line budgets ($\le 35$ additions, $\le 25$ deletions).
-7. **Living Security Report State Transitions:** Discovery (`OPEN 🔴`), Candidate (`CANDIDATE 🟡`), Applied (`APPLIED 🔵`), and Verified Closure (`RESOLVED 🟢`).
+3. **Polyglot Go Engine:** Go module definition, Go stack detection (Gin, Fiber, GORM), and Go AST rules (`TG-INPUT-002`, `TG-INPUT-006`, `TG-SSRF-004`).
+4. **Line-Shift Fingerprinting:** Stable anchor matching across file edits without line number drift.
+5. **Secret Redaction:** Stripe secret keys and JWT tokens safely masked.
+6. **Deterministic Replay:** 3-pass differential validation across Django, DRF, FastAPI, Flask, and SQLAlchemy fixtures.
+7. **Ponytail Patch Churn Bounds:** Verifying line budgets ($\le 35$ additions, $\le 25$ deletions).
+8. **Deepened Command Verification:** Audit watch loop & SARIF export, Harden dry-run & severity floor, Recipes search & export, Apply diff preview & snapshot ledger, and Bootstrap templates.
+9. **Living Security Report State Transitions:** Discovery (`OPEN 🔴`), Candidate (`CANDIDATE 🟡`), Applied (`APPLIED 🔵`), and Verified Closure (`RESOLVED 🟢`).
+10. **Cryptographic Manifest Parity:** 100% SHA-256 match across all indexed workspace files.
 
 ```bash
 # Run formal TorusGuard test harness
@@ -453,7 +481,7 @@ npm test
 
 # Expected Output:
 # ================================================================================
-# SUMMARY: 120 Passed | 0 Failed
+# SUMMARY: 133 Passed | 0 Failed
 # ================================================================================
 ```
 

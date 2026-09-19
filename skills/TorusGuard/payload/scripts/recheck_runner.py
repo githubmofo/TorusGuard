@@ -233,11 +233,12 @@ def execute_recheck(target_root: Path, run_id_arg: Optional[str] = None) -> Dict
 def main():
     parser = argparse.ArgumentParser(description="TorusGuard Differential Recheck Engine")
     parser.add_argument("path", nargs="?", default=".", help="Target project root directory")
+    parser.add_argument("--target", "-t", help="Target project root directory (alias for path)")
     parser.add_argument("--run", "-r", help="Explicit run ID to recheck")
     parser.add_argument("--json", action="store_true", help="Output raw JSON")
     args = parser.parse_args()
 
-    target = Path(args.path).resolve()
+    target = Path(args.target or args.path).resolve()
     result = execute_recheck(target, run_id_arg=args.run)
 
     if args.json:

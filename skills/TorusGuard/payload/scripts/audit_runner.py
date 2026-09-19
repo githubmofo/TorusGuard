@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Autonomous Static Security Audit Engine (v1.3.6)
+TorusGuard Autonomous Static Security Audit Engine (v1.4.0)
 Multi-language static pattern & AST security scanner.
 Evaluates source trees against canonical TorusGuard rule families,
 augments confidence via the persistent security memory subsystem,
@@ -12,6 +12,7 @@ Pure Python 3.10+ standard library (zero external dependencies).
 import sys
 import os
 import re
+import time
 import json
 import hashlib
 import argparse
@@ -369,7 +370,9 @@ RULE_PATTERNS: List[RulePattern] = [
         "patterns": [
             (re.compile(r'(?:query|execute|raw)\s*\(\s*f["\'].*SELECT.*\{', re.IGNORECASE), "Python f-string interpolation in raw SQL query"),
             (re.compile(r'(?:query|execute|raw)\s*\(\s*[`"\'].*SELECT.*\$\{', re.IGNORECASE), "JavaScript template literal interpolation in SQL query"),
-            (re.compile(r'(?:query|execute|raw)\s*\(\s*["\'].*SELECT.*\+\s*(?:req|input|params)', re.IGNORECASE), "String concatenation in raw SQL query")
+            (re.compile(r'(?:query|execute|raw)\s*\(\s*["\'].*SELECT.*\+\s*(?:req|input|params)', re.IGNORECASE), "String concatenation in raw SQL query"),
+            (re.compile(r'(?:db|tx)\.(?:Query|Exec|QueryRow)\s*\(\s*fmt\.Sprintf\s*\(\s*["\'].*(?:SELECT|INSERT|UPDATE|DELETE).*%s', re.IGNORECASE), "Go database/sql query using fmt.Sprintf string interpolation instead of parameterized placeholders"),
+            (re.compile(r'(?:db|tx)\.(?:Query|Exec|QueryRow)\s*\(\s*["\'].*(?:SELECT|INSERT|UPDATE|DELETE).*\+\s*(?:r\.URL|c\.Query|input|param)', re.IGNORECASE), "Go database/sql query with string concatenation")
         ]
     },
     {
@@ -414,7 +417,8 @@ RULE_PATTERNS: List[RulePattern] = [
         "cluster": "cluster-injection",
         "patterns": [
             (re.compile(r'(?:open|readFile|readFileSync)\s*\([^)]*\+\s*(?:req|params|query)'), "File read operation using unsanitized user request path"),
-            (re.compile(r'path\.join\s*\([^)]*(?:req\.params|req\.query)\.[a-zA-Z0-9_]+\)'), "Path traversal sink in path.join without basename sanitization")
+            (re.compile(r'path\.join\s*\([^)]*(?:req\.params|req\.query)\.[a-zA-Z0-9_]+\)'), "Path traversal sink in path.join without basename sanitization"),
+            (re.compile(r'(?:os\.Open|os\.ReadFile|ioutil\.ReadFile)\s*\([^)]*(?:c\.Query|c\.Param|r\.URL\.Query|filepath\.Join\([^)]*(?:c\.Query|c\.Param|r\.URL\.Query))'), "Go file read operation using unsanitized user request parameter")
         ]
     },
 
@@ -502,7 +506,8 @@ RULE_PATTERNS: List[RulePattern] = [
         "category": "ssrf",
         "cluster": "cluster-ssrf",
         "patterns": [
-            (re.compile(r'(?:fetch|axios\.get|requests\.get|urllib\.request\.urlopen)\s*\(\s*(?:req\.query|req\.body|request\.GET)\.[a-zA-Z0-9_]+'), "Outbound HTTP request directly invoking user-supplied URL parameter")
+            (re.compile(r'(?:fetch|axios\.get|requests\.get|urllib\.request\.urlopen)\s*\(\s*(?:req\.query|req\.body|request\.GET)\.[a-zA-Z0-9_]+'), "Outbound HTTP request directly invoking user-supplied URL parameter"),
+            (re.compile(r'http\.(?:Get|Post|Head)\s*\(\s*(?:r\.URL\.Query|c\.Query|c\.Param|req\.)'), "Go http.Get/Post directly invoking user-supplied URL parameter")
         ]
     },
     {
@@ -533,7 +538,9 @@ RULE_PATTERNS: List[RulePattern] = [
         "category": "ssrf",
         "cluster": "cluster-ssrf",
         "patterns": [
-            (re.compile(r'requests\.(?:get|post|put)\s*\((?![^)]*\btimeout\s*=)[^)]*\)'), "Python requests call without explicit timeout parameter")
+            (re.compile(r'requests\.(?:get|post|put)\s*\((?![^)]*\btimeout\s*=)[^)]*\)'), "Python requests call without explicit timeout parameter"),
+            (re.compile(r'&http\.Client\s*\{\s*\}'), "Go http.Client initialized without explicit Timeout boundary (defaults to unbounded zero)"),
+            (re.compile(r'http\.DefaultClient\.(?:Get|Post|Do)\s*\('), "Go http.DefaultClient call with zero/unbounded request timeout")
         ]
     },
 
@@ -693,7 +700,8 @@ RULE_PATTERNS: List[RulePattern] = [
         "category": "supply",
         "cluster": "cluster-supply-chain",
         "patterns": [
-            (re.compile(r'^\s*package-lock\.json\s*$', re.MULTILINE), "Lockfile package-lock.json explicitly ignored in .gitignore")
+            (re.compile(r'^\s*package-lock\.json\s*$', re.MULTILINE), "Lockfile package-lock.json explicitly ignored in .gitignore"),
+            (re.compile(r'^\s*go\.sum\s*$', re.MULTILINE), "Go dependency checksum lockfile go.sum explicitly ignored in .gitignore")
         ]
     },
     {
@@ -1362,7 +1370,7 @@ def emit_run_artifacts(run_folder: Path, scored_findings: List[Dict[str, Any]], 
             pass
 
 
-def print_audit_dashboard(target_root: Path, file_count: int, scored_findings: List[Dict[str, Any]], clusters: Dict[str, List[Dict[str, Any]]], run_folder: Path, detected_stack: Optional[Dict[str, Any]] = None) -> None:
+def print_audit_dashboard(target_root: Path, file_count: int, scored_findings: List[Dict[str, Any]], clusters: Dict[str, List[Dict[str, Any]]], run_folder: Path, detected_stack: Optional[Dict[str, Any]] = None, perf_metrics: Optional[Dict[str, Any]] = None) -> None:
     """Print the unified 75-column TorusGuard Static Audit results card."""
     crit_count = sum(1 for f in scored_findings if f["severity"] == "Critical")
     high_count = sum(1 for f in scored_findings if f["severity"] == "High")
@@ -1373,13 +1381,17 @@ def print_audit_dashboard(target_root: Path, file_count: int, scored_findings: L
         stack_str = f"{detected_stack.get('framework')} ({detected_stack.get('language')})"
 
     print()
-    print(card_header("🛡️  TORUSGUARD STATIC SECURITY AUDIT", "Autonomous AST & Invariant Security Scanner", "v1.3.6"))
+    print(card_header("🛡️  TORUSGUARD STATIC SECURITY AUDIT", "Autonomous AST & Invariant Security Scanner", "v1.4.0"))
     print()
 
     print(card_border_top("Audit Execution Scope"))
     print(format_box_line(f"{BOLD}Target:{RESET}       {WHITE}{str(target_root)}{RESET}"))
     print(format_box_line(f"{BOLD}Stack:{RESET}        {GREEN}{stack_str}{RESET}"))
     print(format_box_line(f"{BOLD}Files:{RESET}        {WHITE}{file_count} files evaluated across 18 rule families (74 rules){RESET}"))
+    if perf_metrics:
+        ms = perf_metrics.get("elapsed_ms", 0)
+        fps = perf_metrics.get("throughput_fps", 0)
+        print(format_box_line(f"{BOLD}Metrics:{RESET}      {CYAN}{ms}ms{RESET} elapsed · {GREEN}{fps} files/sec{RESET} throughput"))
     print(card_border_bottom())
     print()
 
@@ -1389,6 +1401,17 @@ def print_audit_dashboard(target_root: Path, file_count: int, scored_findings: L
     print(format_box_line(f"Status:      {status_icon}"))
     print(format_box_line(f"Findings:    {RED}{crit_count} Critical{RESET}  {YELLOW}{high_count} High{RESET}  {CYAN}{med_count} Medium/Low{RESET}  ({len(scored_findings)} total)"))
     print(format_box_line(f"Clusters:    {WHITE}{len(clusters)} architectural root causes identified{RESET}"))
+
+    # Rule Family Breakdown
+    if scored_findings:
+        fam_counts: Dict[str, int] = {}
+        for f in scored_findings:
+            rid = f.get("rule_id", "")
+            parts = rid.split("-")
+            fam = f"{parts[0]}-{parts[1]}" if len(parts) >= 2 else "OTHER"
+            fam_counts[fam] = fam_counts.get(fam, 0) + 1
+        fam_items = [f"{YELLOW}{k}{RESET}: {v}" for k, v in sorted(fam_counts.items(), key=lambda x: -x[1])[:4]]
+        print(format_box_line(f"Families:    {'  '.join(fam_items)}"))
     print(card_divider())
 
     if not scored_findings:
@@ -1418,8 +1441,69 @@ def print_audit_dashboard(target_root: Path, file_count: int, scored_findings: L
     print()
 
 
+def export_sarif(target_root: Path, run_folder_str: Optional[str], sarif_out: Optional[str] = None) -> None:
+    """Export audit run findings to OASIS SARIF v2.1.0 format."""
+    s_dir = Path(__file__).resolve().parent
+    sarif_script = s_dir / "sarif_exporter.py"
+    if sarif_script.is_file():
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("sarif_exporter", str(sarif_script))
+            if spec and spec.loader:
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                run_id = Path(run_folder_str).name if run_folder_str else "audit-run"
+                findings = []
+                if run_folder_str and (Path(run_folder_str) / "findings.json").is_file():
+                    with open(Path(run_folder_str) / "findings.json", "r", encoding="utf-8") as f:
+                        findings = json.load(f)
+                sarif_data = mod.generate_sarif(findings, run_id=run_id)
+                out_path = Path(sarif_out) if sarif_out else (target_root / ".torusguard" / "reports" / "torusguard-audit.sarif")
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(out_path, "w", encoding="utf-8") as f:
+                    json.dump(sarif_data, f, indent=2)
+                print(f"  {GREEN}✔ OASIS SARIF v2.1.0 exported to:{RESET} {CYAN}{out_path}{RESET}\n")
+        except Exception as e:
+            print(f"  {YELLOW}⚠ SARIF export notice: {e}{RESET}")
+
+
+def run_watch_mode(target_root: Path, severity_floor: str = "medium", json_output: bool = False, include_tests: bool = False, sarif: bool = False, sarif_out: Optional[str] = None) -> None:
+    """Run audit continuously, re-scanning when files are modified."""
+    print(f"\n  {CYAN}👀 TorusGuard Watch Mode active.{RESET} Watching {WHITE}{target_root}{RESET} (Ctrl+C to stop)...\n")
+
+    def get_file_mtimes() -> Dict[str, float]:
+        mtimes = {}
+        for f in find_files_to_scan(target_root, include_tests=include_tests):
+            try:
+                mtimes[str(f)] = f.stat().st_mtime
+            except OSError:
+                pass
+        return mtimes
+
+    last_mtimes = get_file_mtimes()
+    res = execute_audit(target_root, severity_floor=severity_floor, json_output=json_output, include_tests=include_tests)
+    if sarif:
+        export_sarif(target_root, res.get("run_folder"), sarif_out)
+
+    try:
+        while True:
+            time.sleep(1.0)
+            curr_mtimes = get_file_mtimes()
+            if curr_mtimes != last_mtimes:
+                changed = [f for f in curr_mtimes if f not in last_mtimes or curr_mtimes[f] != last_mtimes.get(f)]
+                last_mtimes = curr_mtimes
+                now_str = get_ist_now().strftime("%H:%M:%S")
+                print(f"\n  {CYAN}↻ File changes detected ({len(changed)} file(s)) at {now_str}. Re-scanning...{RESET}\n")
+                res = execute_audit(target_root, severity_floor=severity_floor, json_output=json_output, include_tests=include_tests)
+                if sarif:
+                    export_sarif(target_root, res.get("run_folder"), sarif_out)
+    except KeyboardInterrupt:
+        print(f"\n  {YELLOW}🛑 Watch mode stopped.{RESET}\n")
+
+
 def execute_audit(target_root: Path, severity_floor: str = "medium", json_output: bool = False, include_tests: bool = False) -> Dict[str, Any]:
     """Execute the full TorusGuard static security audit."""
+    start_time = time.perf_counter()
     target_root = target_root.resolve()
     s_dir = Path(__file__).resolve().parent
 
@@ -1474,6 +1558,13 @@ def execute_audit(target_root: Path, severity_floor: str = "medium", json_output
     except Exception:
         pass
 
+    elapsed_ms = int((time.perf_counter() - start_time) * 1000)
+    throughput = round(len(files) / max(0.001, (elapsed_ms / 1000.0)), 1)
+    perf_metrics = {
+        "elapsed_ms": elapsed_ms,
+        "throughput_fps": throughput
+    }
+
     result = {
         "status": "completed",
         "target_root": str(target_root),
@@ -1484,13 +1575,15 @@ def execute_audit(target_root: Path, severity_floor: str = "medium", json_output
         "medium_count": sum(1 for f in scored_findings if f["severity"] in ("Medium", "Low")),
         "clusters_count": len(clusters),
         "run_folder": str(run_folder),
-        "findings": scored_findings
+        "findings": scored_findings,
+        "elapsed_ms": elapsed_ms,
+        "throughput_fps": throughput
     }
 
     if json_output:
         print(json.dumps(result, indent=2))
     else:
-        print_audit_dashboard(target_root, len(files), scored_findings, clusters, run_folder, detected_stack)
+        print_audit_dashboard(target_root, len(files), scored_findings, clusters, run_folder, detected_stack, perf_metrics=perf_metrics)
 
     return result
 
@@ -1498,14 +1591,26 @@ def execute_audit(target_root: Path, severity_floor: str = "medium", json_output
 def main():
     parser = argparse.ArgumentParser(description="TorusGuard Static Security Audit Engine")
     parser.add_argument("path", nargs="?", default=".", help="Target project root directory to audit")
+    parser.add_argument("--target", "-t", help="Target project root directory (alias for path)")
     parser.add_argument("--scope", "-s", help="Alternative path to target project")
     parser.add_argument("--severity", choices=["critical", "high", "medium", "low"], default="medium", help="Severity floor")
+    parser.add_argument("--watch", "-w", action="store_true", help="Continuous watch mode: re-scan on file save")
+    parser.add_argument("--sarif", action="store_true", help="Automatically export findings to OASIS SARIF v2.1.0")
+    parser.add_argument("--sarif-out", help="Output file path for SARIF export")
     parser.add_argument("--json", action="store_true", help="Output raw JSON")
     parser.add_argument("--include-tests", action="store_true", help="Include test files and harness fixtures in scan")
     args = parser.parse_args()
 
-    target = Path(args.scope or args.path).resolve()
+    target = Path(args.target or args.scope or args.path).resolve()
+
+    if args.watch:
+        run_watch_mode(target, severity_floor=args.severity, json_output=args.json, include_tests=args.include_tests, sarif=args.sarif, sarif_out=args.sarif_out)
+        sys.exit(0)
+
     res = execute_audit(target, severity_floor=args.severity, json_output=args.json, include_tests=args.include_tests)
+    if args.sarif:
+        export_sarif(target, res.get("run_folder"), args.sarif_out)
+
     sys.exit(0 if res["critical_count"] == 0 else 1)
 
 

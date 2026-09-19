@@ -15,6 +15,51 @@ const command = args[0] || 'init';
 const rootDir = path.resolve(__dirname, '..');
 const cwd = process.cwd();
 
+// Parse version flag immediately
+if (command === '--version' || command === '-v' || command === 'version') {
+  let ver = '1.4.0';
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf-8'));
+    ver = pkg.version || ver;
+  } catch (e) {}
+  console.log(`torusguard v${ver}`);
+  process.exit(0);
+}
+
+function parseTargetAndArgs(cliArgs) {
+  let target = '.';
+  const remaining = [];
+  for (let i = 1; i < cliArgs.length; i++) {
+    const a = cliArgs[i];
+    if (a === '--target' || a === '-t' || a === '--root') {
+      if (i + 1 < cliArgs.length) {
+        target = cliArgs[i + 1];
+        i++;
+      }
+    } else if (a.startsWith('--target=') || a.startsWith('--root=')) {
+      target = a.split('=')[1];
+    } else {
+      remaining.push(a);
+    }
+  }
+  if (target === '.' && remaining.length > 0 && !remaining[0].startsWith('-')) {
+    target = remaining.shift();
+  }
+  return { target, remaining };
+}
+
+function compareSemver(a, b) {
+  const pa = a.replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+  const pb = b.replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) {
+    const na = pa[i] || 0;
+    const nb = pb[i] || 0;
+    if (na > nb) return 1;
+    if (na < nb) return -1;
+  }
+  return 0;
+}
+
 // ─── ANSI Color Helpers ───────────────────────────────────────────────────────
 const BOLD = '\x1b[1m';
 const DIM = '\x1b[2m';
@@ -169,12 +214,13 @@ function cardHeader(title, subtitle = '', version = 'v1.3.6', borderColor = CYAN
 
 function printHelp() {
   console.log();
-  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', 'v1.3.6'));
+  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', 'v1.4.0'));
   console.log(`\n  ${BOLD}Usage:${RESET}  ${GREEN}npx torusguard${RESET} ${WHITE}[command]${RESET} ${GRAY}[options]${RESET}\n`);
 
   console.log(cardBorderTop('Commands'));
   console.log(formatBoxLine(`${GREEN}init${RESET}        Scaffold ${BOLD}.torusguard/${RESET} workspace + unlock slash commands`));
   console.log(formatBoxLine(`${GREEN}status${RESET}      Display active security posture, memory, rules, & stack`));
+  console.log(formatBoxLine(`${GREEN}update${RESET}      Check npm registry for updates (--install to auto-upgrade)`));
   console.log(formatBoxLine(`${GREEN}rules${RESET}       Auto-sync memory to AI IDE rules (.cursorrules, CLAUDE.md)`));
   console.log(formatBoxLine(`${GREEN}memory${RESET}      Manage persistent security memory (export, hook, learn)`));
   console.log(formatBoxLine(`${GREEN}audit${RESET}       Run static AST security scan on target project`));
@@ -198,6 +244,7 @@ function printHelp() {
   console.log(formatBoxLine(`${GRAY}--target <dir>${RESET}   Target directory to analyze or scaffold ${DIM}(default: .)${RESET}`));
   console.log(formatBoxLine(`${GRAY}--force${RESET}          Overwrite existing workspace and re-scaffold`));
   console.log(formatBoxLine(`${GRAY}--yes, -y${RESET}        Non-interactive auto-approval for patch application`));
+  console.log(formatBoxLine(`${GRAY}--version, -v${RESET}    Display TorusGuard package version`));
   console.log(cardBorderBottom());
 
   console.log(`\n  ${BOLD}AI Chat Commands:${RESET}`);
@@ -219,7 +266,18 @@ if (command === 'help' || command === '--help' || command === '-h') {
 }
 
 if (command === 'status') {
-  const cfgPath = path.join(cwd, '.torusguard', 'config', 'torusguard.json');
+  const { target, remaining } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
+  const statusScript = path.join(targetDir, '.torusguard', 'scripts', 'status_runner.py');
+  const fallbackStatusScript = path.join(rootDir, '.torusguard', 'scripts', 'status_runner.py');
+  const actualStatusScript = fs.existsSync(statusScript) ? statusScript : fallbackStatusScript;
+
+  if (fs.existsSync(actualStatusScript)) {
+    const proc = spawnSync(pythonCmd, [actualStatusScript, targetDir, ...remaining], { stdio: 'inherit', cwd: targetDir });
+    process.exit(proc.status !== null ? proc.status : 0);
+  }
+
+  const cfgPath = path.join(targetDir, '.torusguard', 'config', 'torusguard.json');
   if (fs.existsSync(cfgPath)) {
     try {
       const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf-8'));
@@ -441,11 +499,13 @@ if (command === 'rules') {
 
 // Subcommand: audit
 if (command === 'audit') {
-  const auditScript = path.join(cwd, '.torusguard', 'scripts', 'audit_runner.py');
+  const { target, remaining } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
+  const auditScript = path.join(targetDir, '.torusguard', 'scripts', 'audit_runner.py');
   const fallbackAuditScript = path.join(rootDir, '.torusguard', 'scripts', 'audit_runner.py');
   const actualAuditScript = fs.existsSync(fallbackAuditScript) ? fallbackAuditScript : auditScript;
 
-  const proc = spawnSync(pythonCmd, [actualAuditScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  const proc = spawnSync(pythonCmd, [actualAuditScript, targetDir, ...remaining], { stdio: 'inherit', cwd: targetDir });
   process.exit(proc.status !== null ? proc.status : 0);
 }
 
@@ -455,7 +515,7 @@ if (command === 'report') {
   const wantSarif = args.includes('--sarif') || (!wantHtml && args[1] !== 'html');
 
   // Resolve target directory (supports --target and --root)
-  const rootIdx = args.indexOf('--root') !== -1 ? args.indexOf('--root') : args.indexOf('--target');
+  const rootIdx = args.indexOf('--root') !== -1 ? args.indexOf('--root') : (args.indexOf('--target') !== -1 ? args.indexOf('--target') : args.indexOf('-t'));
   let targetRoot = cwd;
   if (rootIdx !== -1 && args[rootIdx + 1]) {
     targetRoot = path.resolve(cwd, args[rootIdx + 1]);
@@ -518,69 +578,179 @@ if (command === 'report') {
 
 // Subcommand: harden
 if (command === 'harden') {
-  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'harden_runner.py');
+  const { target, remaining } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
+  const scriptPath = path.join(targetDir, '.torusguard', 'scripts', 'harden_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'harden_runner.py');
   const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
-  const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  const proc = spawnSync(pythonCmd, [actualScript, targetDir, ...remaining], { stdio: 'inherit', cwd: targetDir });
   process.exit(proc.status !== null ? proc.status : 0);
 }
 
 // Subcommand: apply
 if (command === 'apply') {
-  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'apply_runner.py');
+  const { target, remaining } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
+  const scriptPath = path.join(targetDir, '.torusguard', 'scripts', 'apply_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'apply_runner.py');
   const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
-  const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  const proc = spawnSync(pythonCmd, [actualScript, targetDir, ...remaining], { stdio: 'inherit', cwd: targetDir });
   process.exit(proc.status !== null ? proc.status : 0);
 }
 
 // Subcommand: rollback
 if (command === 'rollback') {
-  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'apply_runner.py');
+  const { target, remaining } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
+  const scriptPath = path.join(targetDir, '.torusguard', 'scripts', 'apply_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'apply_runner.py');
   const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
-  const proc = spawnSync(pythonCmd, [actualScript, '--rollback', ...args.slice(1)], { stdio: 'inherit', cwd });
+  const proc = spawnSync(pythonCmd, [actualScript, targetDir, '--rollback', ...remaining], { stdio: 'inherit', cwd: targetDir });
   process.exit(proc.status !== null ? proc.status : 0);
 }
 
 // Subcommand: recheck / verify
 if (command === 'recheck' || command === 'verify') {
-  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'recheck_runner.py');
+  const { target, remaining } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
+  const scriptPath = path.join(targetDir, '.torusguard', 'scripts', 'recheck_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'recheck_runner.py');
   const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
-  const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  const proc = spawnSync(pythonCmd, [actualScript, targetDir, ...remaining], { stdio: 'inherit', cwd: targetDir });
   process.exit(proc.status !== null ? proc.status : 0);
 }
 
 // Subcommand: recipes
 if (command === 'recipes') {
-  const scriptPath = path.join(cwd, '.torusguard', 'scripts', 'recipes_runner.py');
+  const { target, remaining } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
+  const scriptPath = path.join(targetDir, '.torusguard', 'scripts', 'recipes_runner.py');
   const fallbackScript = path.join(rootDir, '.torusguard', 'scripts', 'recipes_runner.py');
   const actualScript = fs.existsSync(fallbackScript) ? fallbackScript : scriptPath;
 
-  const proc = spawnSync(pythonCmd, [actualScript, ...args.slice(1)], { stdio: 'inherit', cwd });
+  const proc = spawnSync(pythonCmd, [actualScript, targetDir, ...remaining], { stdio: 'inherit', cwd: targetDir });
   process.exit(proc.status !== null ? proc.status : 0);
 }
 
 // Subcommand: init (scaffold workspace)
 if (command === 'init') {
+  const { target, remaining } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
   const localBootstrap = path.join(rootDir, 'skills', 'torusguard', 'bootstrap.py');
   const localInstall = path.join(rootDir, 'install.py');
   const scriptToRun = fs.existsSync(localBootstrap) ? localBootstrap : localInstall;
 
-  const scriptArgs = [scriptToRun, '--full-commands', ...args.slice(1)];
+  const scriptArgs = [scriptToRun, '--full-commands', '--target', targetDir, ...remaining];
   const proc = spawnSync(pythonCmd, scriptArgs, {
     stdio: 'inherit',
-    cwd: cwd,
+    cwd: targetDir,
   });
   process.exit(proc.status !== null ? proc.status : 0);
 }
 
+// Subcommand: update
+if (command === 'update') {
+  const https = require('https');
+  const pkgJsonPath = path.join(rootDir, 'package.json');
+  let currentVersion = '1.4.0';
+  try {
+    if (fs.existsSync(pkgJsonPath)) {
+      currentVersion = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8')).version || currentVersion;
+    }
+  } catch (e) {}
+
+  console.log();
+  console.log(cardHeader('🛡️  TORUSGUARD UPDATE CHECK', 'Package Distribution & Registry Verifier', `v${currentVersion}`));
+  console.log(`\n  ${DIM}Checking npm registry for updates...${RESET}`);
+
+  const autoInstall = args.includes('--install') || args.includes('-i') || args.includes('--yes') || args.includes('-y');
+
+  function printUpdateOffline(reason) {
+    console.log();
+    console.log(cardBorderTop('Offline / Registry Unreachable', YELLOW));
+    console.log(formatBoxLine(`Current:    ${WHITE}v${currentVersion}${RESET}`, 67, '│', YELLOW));
+    console.log(formatBoxLine(`Notice:     ${DIM}${reason}${RESET}`, 67, '│', YELLOW));
+    console.log(formatBoxLine(`Manual:     ${BOLD}${CYAN}npm update torusguard${RESET} or ${BOLD}${CYAN}npm i -g torusguard@latest${RESET}`, 67, '│', YELLOW));
+    console.log(cardBorderBottom(YELLOW));
+    console.log();
+    process.exit(0);
+  }
+
+  const req = https.get('https://registry.npmjs.org/torusguard/latest', {
+    headers: { 'User-Agent': `torusguard-cli/${currentVersion}` },
+    timeout: 6000
+  }, (res) => {
+    let raw = '';
+    res.on('data', chunk => raw += chunk);
+    res.on('end', () => {
+      try {
+        const data = JSON.parse(raw);
+        const latestVersion = data.version;
+        if (!latestVersion) {
+          printUpdateOffline('No version field returned in npm registry response');
+          return;
+        }
+
+        const isNewer = compareSemver(latestVersion, currentVersion) > 0;
+        console.log();
+        console.log(cardBorderTop('Version Telemetry', CYAN));
+        console.log(formatBoxLine(`Installed Version: ${WHITE}v${currentVersion}${RESET}`));
+        console.log(formatBoxLine(`Latest on NPM:     ${BOLD}${GREEN}v${latestVersion}${RESET}`));
+        console.log(cardBorderBottom(CYAN));
+        console.log();
+
+        if (isNewer) {
+          console.log(cardBorderTop('Update Available', YELLOW, true));
+          console.log(formatBoxLine(`${YELLOW}A new version of TorusGuard is available!${RESET}`, 67, '║', YELLOW));
+          console.log(formatBoxLine(`Global:  ${BOLD}${WHITE}npm install -g torusguard@latest${RESET}`, 67, '║', YELLOW));
+          console.log(formatBoxLine(`Local:   ${BOLD}${WHITE}npm install torusguard@latest${RESET}`, 67, '║', YELLOW));
+          console.log(cardBorderBottom(YELLOW, true));
+          console.log();
+
+          if (autoInstall) {
+            console.log(`  ${CYAN}Auto-installing latest version via npm...${RESET}`);
+            const npmProc = spawnSync('npm', ['install', '-g', 'torusguard@latest'], { stdio: 'inherit' });
+            if (npmProc.status === 0) {
+              console.log(`\n  ${GREEN}✔ Successfully upgraded TorusGuard to v${latestVersion}!${RESET}\n`);
+            } else {
+              console.error(`\n  ${RED}✖ Failed to auto-install update. Run: npm install -g torusguard@latest${RESET}\n`);
+            }
+          } else {
+            console.log(`  ${DIM}Tip: Run with ${CYAN}npx torusguard update --install${DIM} to auto-upgrade.${RESET}\n`);
+          }
+        } else {
+          console.log(cardBorderTop('Status: Up To Date', GREEN, true));
+          console.log(formatBoxLine(`${GREEN}✔ TorusGuard is up to date (v${currentVersion})${RESET}`, 67, '║', GREEN));
+          console.log(cardBorderBottom(GREEN, true));
+          console.log();
+        }
+        process.exit(0);
+      } catch (err) {
+        printUpdateOffline(err.message);
+      }
+    });
+  });
+
+  req.on('error', (err) => printUpdateOffline(err.message));
+  req.on('timeout', () => {
+    req.destroy();
+    printUpdateOffline('npm registry request timed out (6000ms)');
+  });
+}
+
 // Unknown command fallback
-console.error(`\n  ${RED}✖ Unknown command:${RESET} ${WHITE}${command}${RESET}`);
-console.error(`  Run ${GREEN}npx torusguard help${RESET} for available commands.\n`);
-process.exit(1);
+const KNOWN_COMMANDS = new Set([
+  'init', 'status', 'rules', 'memory', 'diff-guard', 'audit',
+  'report', 'harden', 'apply', 'rollback', 'recheck', 'verify',
+  'recipes', 'update', 'help', '--help', '-h', '--version', '-v', 'version'
+]);
+
+if (!KNOWN_COMMANDS.has(command)) {
+  console.error(`\n  ${RED}✖ Unknown command:${RESET} ${WHITE}${command}${RESET}`);
+  console.error(`  Run ${GREEN}npx torusguard help${RESET} for available commands.\n`);
+  process.exit(1);
+}

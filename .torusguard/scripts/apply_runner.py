@@ -58,7 +58,7 @@ def box_line(content: str, width: int = 67, border: str = "│", border_color: s
         return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
     return f"  {border_color}{border}{RESET}  {content}"
 
-def box_header(title: str, subtitle: str = "", version: str = "v1.3.6", border_color: str = CYAN) -> str:
+def box_header(title: str, subtitle: str = "", version: str = "v1.4.0", border_color: str = CYAN) -> str:
     if term_ui:
         return term_ui.card_header(title, subtitle, version, border_color)
     return f"=== {title} ({version}) ==="
@@ -79,6 +79,35 @@ def find_latest_audit_run(runs_dir: Path) -> Optional[Path]:
         return None
     runs = sorted(runs_dir.glob("run-*-audit"), key=lambda p: p.stat().st_mtime, reverse=True)
     return runs[0] if runs else None
+
+
+def list_snapshots(target_root: Path) -> None:
+    """Display historical pre-apply backup snapshots."""
+    snapshots_base = target_root / ".torusguard" / "snapshots"
+    print()
+    print(box_header("🛡️  TORUSGUARD SNAPSHOT LEDGER", "Pre-Apply Safety Snapshots (.bak)", "v1.4.0"))
+    print()
+    if not snapshots_base.is_dir():
+        print(f"  {YELLOW}ℹ No snapshots directory found at:{RESET} {snapshots_base}\n")
+        return
+    snapshots = sorted([d for d in snapshots_base.iterdir() if d.is_dir()], key=lambda p: p.stat().st_mtime, reverse=True)
+    if not snapshots:
+        print(f"  {YELLOW}ℹ No rollback snapshots captured yet.{RESET}\n")
+        return
+    print(border_top(f"Available Snapshots ({len(snapshots)})"))
+    for s in snapshots:
+        bak_files = list(s.rglob("*.bak"))
+        total_bytes = sum(f.stat().st_size for f in bak_files)
+        kb_str = f"{total_bytes / 1024:.1f} KB"
+        try:
+            mtime_dt = datetime.datetime.fromtimestamp(s.stat().st_mtime, tz=IST)
+            time_str = mtime_dt.strftime("%Y-%m-%d %H:%M:%S IST")
+        except Exception:
+            time_str = "Captured"
+        print(box_line(f"{GREEN}{s.name}{RESET} ({len(bak_files)} files · {kb_str})"))
+        print(box_line(f"  └─ {DIM}Timestamp: {time_str}{RESET}"))
+    print(border_bottom())
+    print(f"\n  {DIM}To restore any snapshot, run: {CYAN}npx torusguard rollback --run <snapshot-name>{RESET}\n")
 
 
 def execute_rollback(target_root: Path, run_id_arg: Optional[str] = None) -> None:
@@ -115,7 +144,7 @@ def execute_rollback(target_root: Path, run_id_arg: Optional[str] = None) -> Non
         pass
 
     print()
-    print(box_header("🛡️  TORUSGUARD ROLLBACK RESTORATION", "Restored original files from pre-apply snapshot", "v1.3.6"))
+    print(box_header("🛡️  TORUSGUARD ROLLBACK RESTORATION", "Restored original files from pre-apply snapshot", "v1.4.0"))
     print()
 
     print(border_top("Rollback Snapshot Restored"))
@@ -128,7 +157,7 @@ def execute_rollback(target_root: Path, run_id_arg: Optional[str] = None) -> Non
     sys.exit(0)
 
 
-def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_approve: bool = False) -> Dict[str, Any]:
+def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_approve: bool = False, diff_only: bool = False, selective: bool = False, verify_post_apply: bool = False) -> Dict[str, Any]:
     runs_dir = target_root / ".torusguard" / "runs"
     if run_id_arg:
         run_folder = runs_dir / run_id_arg
@@ -144,7 +173,7 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
     bundle_meta_files = list(bundles_dir.glob("*/metadata.json")) if bundles_dir.is_dir() else []
     if not bundle_meta_files:
         print()
-        print(box_header("🛡️  TORUSGUARD GOVERNED PATCH APPLIER", "Human-Gate Authorization, Snapshots & Golden Recipe Distillation", "v1.3.6"))
+        print(box_header("🛡️  TORUSGUARD GOVERNED PATCH APPLIER", "Human-Gate Authorization, Snapshots & Golden Recipe Distillation", "v1.4.0"))
         print()
         print(f"  {YELLOW}ℹ Zero candidate remediation bundles found in run: {run_folder.name}{RESET}")
         print(f"  {GRAY}The findings in this run require manual review or AI-assisted remediation.{RESET}\n")
@@ -163,13 +192,46 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
         except Exception:
             pass
 
+    # Diff Preview Mode
+    if diff_only:
+        print()
+        print(box_header("🛡️  TORUSGUARD GOVERNED PATCH DIFF PREVIEW", "Dry-Run Unified Diff Inspection (No Files Modified)", "v1.4.0"))
+        print()
+        print(border_top(f"Candidate Patches ({len(bundles)})"))
+        for idx, b in enumerate(bundles, 1):
+            rule_id = b.get("rule_id", "TG-SEC")
+            rel_path = b.get("target_file", "")
+            line_no = b.get("line_number", 1)
+            diff = b.get("proposed_diff", "")
+            desc = b.get("what_should_change", "")
+            print(f"  {YELLOW}─── [{idx}/{len(bundles)}] Candidate Patch: [{rule_id}] on {rel_path}:{line_no} ───{RESET}")
+            print(f"  Strategy: {WHITE}{desc}{RESET}")
+            print(f"  Ponytail: {GREEN}+{b.get('additions', 0)} / -{b.get('deletions', 0)}{RESET}\n")
+            for dline in diff.splitlines()[:16]:
+                if dline.startswith("+") and not dline.startswith("+++"):
+                    print(f"    {GREEN}{dline}{RESET}")
+                elif dline.startswith("-") and not dline.startswith("---"):
+                    print(f"    {RED}{dline}{RESET}")
+                elif dline.startswith("@"):
+                    print(f"    {CYAN}{dline}{RESET}")
+                else:
+                    print(f"    {DIM}{dline}{RESET}")
+            print()
+        print(border_bottom())
+        print(f"\n  {DIM}To apply these patches to disk, run: {CYAN}npx torusguard apply{RESET} or {CYAN}npx torusguard apply --yes{RESET}\n")
+        return {
+            "status": "diff_preview",
+            "bundles_count": len(bundles),
+            "bundles": bundles
+        }
+
     # Snapshot directory
     snapshot_dir = target_root / ".torusguard" / "snapshots" / run_folder.name
     snapshot_dir.mkdir(parents=True, exist_ok=True)
 
     # Header Card
     print()
-    print(box_header("🛡️  TORUSGUARD GOVERNED PATCH APPLIER", "Human-Gate Authorization, Snapshots & Golden Recipe Distillation", "v1.3.6"))
+    print(box_header("🛡️  TORUSGUARD GOVERNED PATCH APPLIER", "Human-Gate Authorization, Snapshots & Golden Recipe Distillation", "v1.4.0"))
     print()
 
     print(border_top("Candidate Bundles Ready for Application"))
@@ -181,7 +243,7 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
 
     applied_count = 0
     skipped_count = 0
-    all_approved = auto_approve
+    all_approved = False if selective else auto_approve
     diff_summary_lines = [f"# TorusGuard Applied Patch Summary: {run_folder.name}\n"]
     applied_bundles = []
 
@@ -357,6 +419,21 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
     print(border_bottom(border_color=GREEN, double=True))
     print()
 
+    if verify_post_apply and applied_count > 0:
+        recheck_script = scripts_dir / "recheck_runner.py"
+        if recheck_script.is_file():
+            print(f"\n  {CYAN}▸ Triggering differential recheck post-apply (--verify)...{RESET}\n")
+            try:
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("recheck_runner", str(recheck_script))
+                if spec and spec.loader:
+                    rc_mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(rc_mod)
+                    if hasattr(rc_mod, "execute_recheck"):
+                        rc_mod.execute_recheck(target_root, run_folder.name)
+            except Exception as e:
+                print(f"  {YELLOW}⚠ Post-apply recheck notice: {e}{RESET}")
+
     return {
         "applied_count": applied_count,
         "skipped_count": skipped_count,
@@ -368,19 +445,35 @@ def execute_apply(target_root: Path, run_id_arg: Optional[str] = None, auto_appr
 def main():
     parser = argparse.ArgumentParser(description="TorusGuard Governed Patch Application Engine")
     parser.add_argument("path", nargs="?", default=".", help="Target project root directory")
+    parser.add_argument("--target", "-t", help="Target project root directory (alias for path)")
     parser.add_argument("--run", "-r", help="Explicit run ID to apply")
     parser.add_argument("--yes", "-y", action="store_true", help="Auto-approve all patches (non-interactive)")
+    parser.add_argument("--diff", action="store_true", help="Preview unified diffs without modifying files on disk")
+    parser.add_argument("--selective", action="store_true", help="Interactively review and select patches one by one")
+    parser.add_argument("--verify", action="store_true", help="Trigger differential AST recheck immediately post-apply")
+    parser.add_argument("--list-snapshots", action="store_true", help="List historical pre-apply backup snapshots")
     parser.add_argument("--rollback", action="store_true", help="Rollback all applied patches using snapshots")
     parser.add_argument("--json", action="store_true", help="Output raw JSON")
     args = parser.parse_args()
 
-    target = Path(args.path).resolve()
+    target = Path(args.target or args.path).resolve()
+
+    if args.list_snapshots:
+        list_snapshots(target)
+        return
 
     if args.rollback:
         execute_rollback(target, run_id_arg=args.run)
         return
 
-    result = execute_apply(target, run_id_arg=args.run, auto_approve=args.yes)
+    result = execute_apply(
+        target,
+        run_id_arg=args.run,
+        auto_approve=args.yes,
+        diff_only=args.diff,
+        selective=args.selective,
+        verify_post_apply=args.verify
+    )
     if args.json:
         print(json.dumps(result, indent=2))
 

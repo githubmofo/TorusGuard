@@ -33,6 +33,8 @@ def scan_workspace_files(base_dir):
             dirs.remove("snapshots")
         if "memory" in dirs:
             dirs.remove("memory")
+        if "reports" in dirs:
+            dirs.remove("reports")
         if "__pycache__" in dirs:
             dirs.remove("__pycache__")
 

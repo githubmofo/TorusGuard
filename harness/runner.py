@@ -105,6 +105,7 @@ class ValidationHarnessRunner:
         self.test_cli_and_polyglot_integration()
         self.test_wave5_visual_e2e_and_cryptographic_manifest()
         self.test_wave6_remediation_hub_and_compliance_matrix()
+        self.test_wave7_cli_and_polyglot_enhancements()
 
         print("-" * 80)
         print(f"SUMMARY: {self.passed_tests} Passed | {self.failed_tests} Failed")
@@ -1015,6 +1016,129 @@ class ValidationHarnessRunner:
             has_theme_css = 'body.light-theme' in html_text
             has_theme_storage = 'localStorage.getItem(\'tg_theme\')' in html_text or "localStorage.getItem('tg_theme')" in html_text
             self.log_test("Wave 6: Zero-CDN Executive Dark / Light Mode Switcher with LocalStorage Persistence", has_theme_btn and has_theme_css and has_theme_storage)
+
+            # 9. Governed Remediation & Problem-Solved Velocity Ledger
+            has_rem_ledger = 'Governed Remediation &amp; Problem-Solved Velocity' in html_text and 'remediation-ledger-card' in html_text
+            self.log_test("Wave 6: Governed Remediation & Problem-Solved Velocity Ledger below Posture Score", has_rem_ledger)
+
+            # 10. Severity Cards Dual-State Sub-Badges & Status Filters
+            has_sev_badges = 'class="sev-sub-badge' in html_text and 'data-status-filter="resolved"' in html_text
+            self.log_test("Wave 6: Severity Cards Dual-State Sub-Badges & Status Filter Pills", has_sev_badges)
+
+            # 11. Persistent Directory Attack Surface Heatmap & Dismantled Clusters
+            has_heatmap = 'Directory Attack Surface Heatmap' in html_text and 'filterByDirectory' in html_text
+            has_clusters = 'Root-Cause Architectural Clusters' in html_text
+            self.log_test("Wave 6: Persistent Directory Attack Surface Heatmap & Architectural Clusters", has_heatmap and has_clusters)
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_wave7_cli_and_polyglot_enhancements(self):
+        print("\n21. Testing Wave 7 CLI Routing, Go Polyglot Engine & Deepened MVP Runners...")
+        temp_dir = Path(tempfile.mkdtemp(prefix="tg-wave7-enhancements-"))
+        try:
+            scripts_dir = self.root_dir / ".torusguard" / "scripts"
+            if str(scripts_dir) not in sys.path:
+                sys.path.insert(0, str(scripts_dir))
+            skills_dir = self.root_dir / "skills" / "torusguard"
+            if str(skills_dir) not in sys.path:
+                sys.path.insert(0, str(skills_dir))
+
+            import stack_detect
+            import audit_runner
+            import harden_runner
+            import apply_runner
+            import recipes_runner
+            import bootstrap
+
+            # 1. Package Distribution & Update Command Parity
+            pkg_path = self.root_dir / "package.json"
+            pkg_data = json.loads(pkg_path.read_text(encoding="utf-8"))
+            has_ver_140 = pkg_data.get("version") == "1.4.0"
+            has_update_script = "update" in pkg_data.get("scripts", {})
+            self.log_test("Wave 7: Package.json Version 1.4.0 & Update Script Parity", has_ver_140 and has_update_script)
+
+            # 2. Go Module & Zero-Dependency CLI Distribution
+            go_mod = self.root_dir / "go.mod"
+            go_cli = self.root_dir / "cmd" / "torusguard" / "main.go"
+            has_go_mod = go_mod.is_file() and "module github.com/torusguard/torusguard" in go_mod.read_text(encoding="utf-8")
+            has_go_cli = go_cli.is_file() and "package main" in go_cli.read_text(encoding="utf-8") and "75-column" in go_cli.read_text(encoding="utf-8")
+            self.log_test("Wave 7: Native Go CLI & Module Definition Parity", has_go_mod and has_go_cli)
+
+            # 3. Polyglot Go Stack Detection (go.mod, Gin)
+            go_proj = temp_dir / "go_service"
+            go_proj.mkdir(parents=True, exist_ok=True)
+            (go_proj / "go.mod").write_text("module example.com/service\n\ngo 1.22\n\nrequire github.com/gin-gonic/gin v1.9.1\n", encoding="utf-8")
+            (go_proj / "main.go").write_text('package main\nimport "github.com/gin-gonic/gin"\nfunc main() { r := gin.Default(); r.Run() }\n', encoding="utf-8")
+            detected = stack_detect.detect_stack(go_proj)
+            self.log_test("Wave 7: Polyglot Go Stack & Framework Detection (Gin)", "Go" in detected.get("languages_found", []) and "Gin" in detected.get("frameworks_found", []))
+
+            # 4. Multi-Language Go AST Security Rules (TG-INPUT-002, TG-SSRF-004, TG-DIFF-001)
+            vuln_go_proj = temp_dir / "vuln_go"
+            vuln_go_proj.mkdir(parents=True, exist_ok=True)
+            (vuln_go_proj / "go.mod").write_text("module example.com/vuln\ngo 1.22\n", encoding="utf-8")
+            (vuln_go_proj / "query.go").write_text('package main\nimport "database/sql"\nimport "fmt"\nfunc getUser(db *sql.DB, uid string) {\n\tdb.Query(fmt.Sprintf("SELECT * FROM users WHERE id=%s", uid))\n}\n', encoding="utf-8")
+            (vuln_go_proj / "fetch.go").write_text('package main\nimport "net/http"\nfunc makeReq() {\n\tclient := &http.Client{}\n\tclient.Get("http://example.com")\n}\n', encoding="utf-8")
+            (vuln_go_proj / "tls.go").write_text('package main\nimport "crypto/tls"\nfunc getTLSConfig() *tls.Config {\n\treturn &tls.Config{InsecureSkipVerify: true}\n}\n', encoding="utf-8")
+
+            audit_res = audit_runner.execute_audit(vuln_go_proj, json_output=False)
+            rule_ids = [f["rule_id"] for f in audit_res.get("findings", [])]
+            has_go_rules = "TG-INPUT-002" in rule_ids and "TG-SSRF-004" in rule_ids and "TG-DIFF-001" in rule_ids
+            self.log_test("Wave 7: Go Static AST Invariant Detection (TG-INPUT-002, TG-SSRF-004, TG-DIFF-001)", has_go_rules)
+
+            # 5. Audit Performance Telemetry & Direct SARIF Export
+            has_perf_metrics = "elapsed_ms" in audit_res and "throughput_fps" in audit_res and audit_res["elapsed_ms"] >= 0
+            sarif_file = vuln_go_proj / "audit-test.sarif"
+            audit_runner.export_sarif(vuln_go_proj, audit_res.get("run_folder"), str(sarif_file))
+            sarif_valid = sarif_file.is_file() and sarif_file.stat().st_size > 500
+            self.log_test("Wave 7: Audit Performance Telemetry & Direct SARIF Export", has_perf_metrics and sarif_valid)
+
+            # 6. Governed Remediation Patch Formulation & Ponytail Bounds for Go
+            harden_res = harden_runner.execute_harden(vuln_go_proj, dry_run=False)
+            bundles = harden_res.get("bundles", [])
+            has_bundles = len(bundles) >= 2
+            ponytail_safe = all(b["additions"] <= 35 and b["deletions"] <= 25 for b in bundles)
+            self.log_test("Wave 7: Go Surgical Patch Formulation & Ponytail Line Bounds (<=35 add, <=25 del)", has_bundles and ponytail_safe)
+
+            # 7. Harden Severity Floor & Dry-Run Invariant
+            harden_dry = harden_runner.execute_harden(vuln_go_proj, dry_run=True, severity_floor="critical")
+            is_dry_status = harden_dry.get("status") == "dry_run"
+            self.log_test("Wave 7: Harden Severity Filtering & Dry-Run Invariant (Zero Disk Churn)", is_dry_status and len(harden_dry.get("bundles", [])) >= 1)
+
+            # 8. Golden Recipes Search, JSON/MD Export & Application Projection
+            export_json = temp_dir / "recipes.json"
+            # Seed a golden fix recipe into patterns.json for export test
+            mem_dir = vuln_go_proj / ".torusguard" / "memory"
+            mem_dir.mkdir(parents=True, exist_ok=True)
+            sample_pattern = [{
+                "pattern_id": "recipe-go-test-1",
+                "pattern_type": "golden_fix_recipe",
+                "rule_id": "TG-SSRF-004",
+                "description": "Injected explicit 10s timeout to Go http.Client",
+                "recipe_data": {
+                    "verified_count": 2,
+                    "ponytail_metrics": {"additions": 1, "deletions": 1},
+                    "diff_snippet": "- client := &http.Client{}\n+ client := &http.Client{Timeout: 10 * time.Second}"
+                }
+            }]
+            (mem_dir / "patterns.json").write_text(json.dumps(sample_pattern), encoding="utf-8")
+            recipes_runner.list_recipes(vuln_go_proj, search_query="TG-SSRF", export_path=str(export_json), json_output=False)
+            has_export = export_json.is_file() and export_json.stat().st_size > 50
+            self.log_test("Wave 7: Golden Recipes Search, Export & Dynamic Filtering", has_export)
+
+            # 9. Governed Patch Apply Engine: Diff Preview & Snapshot Listing
+            apply_diff = apply_runner.execute_apply(vuln_go_proj, diff_only=True)
+            diff_only_intact = apply_diff.get("status") == "diff_preview"
+            snapshots_listed = hasattr(apply_runner, "list_snapshots")
+            self.log_test("Wave 7: Apply Engine Diff Preview & Pre-Apply Snapshot Inspection", diff_only_intact and snapshots_listed)
+
+            # 10. Workspace Bootstrapper Template Scaffolding (Golang Template)
+            boot_target = temp_dir / "clean_go_app"
+            boot_target.mkdir(parents=True, exist_ok=True)
+            boot_ok = bootstrap.scaffold_workspace(target_root=boot_target, template="golang")
+            boot_cfg = json.loads((boot_target / ".torusguard" / "config" / "torusguard.json").read_text(encoding="utf-8"))
+            has_go_tmpl = boot_cfg.get("detected_stack", {}).get("language") == "Go" and (boot_target / ".torusguard" / "scripts" / "audit_runner.py").is_file()
+            self.log_test("Wave 7: Workspace Scaffolding with Go Template Guided Configuration", boot_ok and has_go_tmpl)
 
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)

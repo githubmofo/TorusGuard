@@ -184,9 +184,9 @@ def parse_existing_report(report_path: Path) -> Dict[str, Any]:
 
     # ── Format B (new v2): ### TG-RULE-001 · Title `status` `confidence` ──
     card_pattern_v2 = re.compile(
-        r'###\s+(TG-[A-Z]+-\d+)\s+·\s+(.*?)\s+`([^`]+)`\s+`([^`]+)`\n'
-        r'- \*\*Finding ID:\*\*\s+`([^`]+)`(?:[^\n]*\*\*Severity:\*\*\s+`([^`]+)`)?\n'
-        r'(?:📁|- \*\*Target:\*\*)\s*`([^`\n]+)`',
+        r'###\s+(TG-[A-Z]+-\d+)\s+·\s+(.*?)\s+`([^`]+)`\s+`([^`]+)`[\r\n]+'
+        r'-\s+\*\*Finding ID:\*\*\s+`([^`]+)`(?:[^\r\n]*\*\*Severity:\*\*\s+`([^`]+)`)?(?:[^\r\n]*\*\*Cluster:\*\*\s+`([^`]+)`)?[^\r\n]*[\r\n]+'
+        r'(?:📁|- \*\*Target:\*\*)\s*`?([^\r\n`]+)`?(?:[\r\n]+\*\*Problem:\*\*\s+([^\r\n]+))?',
         re.MULTILINE
     )
 
@@ -197,7 +197,9 @@ def parse_existing_report(report_path: Path) -> Dict[str, Any]:
         confidence = m.group(4).strip()
         finding_id = m.group(5).strip()
         sev_explicit = m.group(6).strip() if m.group(6) else None
-        target = m.group(7).strip()
+        cluster_explicit = m.group(7).strip() if m.group(7) else None
+        target = m.group(8).strip()
+        problem = m.group(9).strip() if m.group(9) else None
 
         if finding_id not in findings:  # Don't overwrite legacy matches
             if sev_explicit:
@@ -220,6 +222,8 @@ def parse_existing_report(report_path: Path) -> Dict[str, Any]:
                 "severity": severity,
                 "confidence": confidence,
                 "target": target,
+                "cluster": cluster_explicit or "cluster-general",
+                "description": problem or "Security violation detected.",
                 "history": []
             }
 
@@ -257,6 +261,37 @@ def parse_existing_report(report_path: Path) -> Dict[str, Any]:
                 "details": "Restored from inline history"
             })
 
+    # Enrich findings from run history if available
+    runs_dir = report_path.parent / ".torusguard" / "runs"
+    run_findings_map: Dict[str, Any] = {}
+    if runs_dir.is_dir():
+        for d in sorted(runs_dir.iterdir()):
+            if d.is_dir() and (d / "findings.json").is_file():
+                try:
+                    f_items = json.loads((d / "findings.json").read_text(encoding="utf-8"))
+                    for it in f_items:
+                        if isinstance(it, dict) and it.get("finding_id"):
+                            run_findings_map[it["finding_id"]] = it
+                except Exception:
+                    pass
+
+    for fid, f in findings.items():
+        if fid in run_findings_map:
+            rf = run_findings_map[fid]
+            if not f.get("cluster") or f.get("cluster") == "cluster-general":
+                f["cluster"] = rf.get("cluster") or "cluster-general"
+            if not f.get("category"):
+                f["category"] = rf.get("category") or "general"
+            if not f.get("target") or "\n" in f.get("target", "") or "**Problem:**" in f.get("target", "") or f.get("target") == "unknown":
+                f["target"] = f"{rf.get('file_path', 'unknown')}:{rf.get('line_number', 1)}"
+            if not f.get("description") or f.get("description") == "Security violation detected.":
+                f["description"] = rf.get("description") or "Security invariant check failed."
+            if not f.get("snippet"):
+                f["snippet"] = rf.get("snippet") or rf.get("matched_text", "")
+            if not f.get("file_path"):
+                f["file_path"] = rf.get("file_path", "")
+            if not f.get("line_number"):
+                f["line_number"] = rf.get("line_number", 1)
 
     return {"findings": findings, "raw_content": content}
 
@@ -384,6 +419,83 @@ def render_report(findings: List[Dict[str, Any]], target_root: Path) -> str:
         lines.append(f"> ⚠️ **Action Required:** {crit_open} critical finding{'s' if crit_open != 1 else ''} require immediate attention. Run `npx torusguard harden` to generate patches.")
         lines.append("")
 
+    # ── Governed Remediation & Problem-Solved Velocity Table ──
+    crit_resolved = max(0, crit_count - crit_open)
+    high_resolved = max(0, high_count - high_open)
+    med_resolved = max(0, med_count - med_open)
+    low_resolved = max(0, low_count)
+
+    crit_pct = int((crit_resolved / crit_count) * 100) if crit_count > 0 else 100
+    high_pct = int((high_resolved / high_count) * 100) if high_count > 0 else 100
+    med_pct = int((med_resolved / med_count) * 100) if med_count > 0 else 100
+    overall_pct = int((resolved_count / total) * 100) if total > 0 else 100
+
+    lines.extend([
+        "### ⚡ Governed Remediation & Problem-Solved Velocity",
+        "",
+        "| Severity Layer | Total Discovered | Remediated & Hardened | Active Exposure | Closure Rate | Status |",
+        "| :--- | :---: | :---: | :---: | :---: | :---: |",
+        f"| **Critical** | {crit_count} | {crit_resolved} | {crit_open} | {crit_pct}% | {'🟢 100% DEFENDED' if crit_open == 0 else '🔴 ACTION REQUIRED'} |",
+        f"| **High** | {high_count} | {high_resolved} | {high_open} | {high_pct}% | {'🟢 100% DEFENDED' if high_open == 0 else '🟠 NEEDS ATTENTION'} |",
+        f"| **Medium / Low** | {med_count + low_count} | {med_resolved + low_resolved} | {med_open} | {med_pct}% | {'🟢 100% DEFENDED' if med_open == 0 else '🟡 PENDING REVIEW'} |",
+        f"| **Total Flaws** | **{total}** | **{resolved_count}** | **{open_count}** | **{overall_pct}%** | **{'🟢 100% HARDENED' if open_count == 0 else '🟡 REMEDIATION IN PROGRESS'}** |",
+        "",
+    ])
+
+    # ── Directory Attack Surface Overview Table ──
+    dir_stats: Dict[str, Dict[str, int]] = {}
+    for f in findings:
+        t = f.get('target', '')
+        fp = t.split(':')[0] if ':' in t else t
+        fp = fp.replace('\\', '/')
+        d_name = f"{fp.split('/')[0]}/" if '/' in fp else "root"
+        if d_name not in dir_stats:
+            dir_stats[d_name] = {"total": 0, "resolved": 0, "open": 0}
+        dir_stats[d_name]["total"] += 1
+        if "RESOLVED" in f.get("status", ""):
+            dir_stats[d_name]["resolved"] += 1
+        else:
+            dir_stats[d_name]["open"] += 1
+
+    if dir_stats:
+        lines.extend([
+            "### 🗺️ Directory Attack Surface Defended",
+            "",
+            "| Directory / Module | Total Invariants Checked | Vulnerabilities Neutralized | Active Risk | Defense Posture |",
+            "| :--- | :---: | :---: | :---: | :--- |",
+        ])
+        for d_name, d_data in sorted(dir_stats.items(), key=lambda x: x[1]["total"], reverse=True):
+            posture_str = "🟢 Hardened Zone (100% Invariants Enforced)" if d_data["open"] == 0 else f"🔴 Active Exposure ({d_data['open']} Open Flaws)"
+            lines.append(f"| `{d_name}` | {d_data['total']} | {d_data['resolved']} | {d_data['open']} | {posture_str} |")
+        lines.append("")
+
+    # ── Root-Cause Architectural Clusters Overview Table ──
+    cluster_stats: Dict[str, Dict[str, Any]] = {}
+    for f in findings:
+        c_id = f.get('cluster') or f.get('category') or 'cluster-general'
+        if c_id not in cluster_stats:
+            cluster_stats[c_id] = {"total": 0, "resolved": 0, "open": 0, "rules": set()}
+        cluster_stats[c_id]["total"] += 1
+        cluster_stats[c_id]["rules"].add(f.get("rule_id", "TG-GEN"))
+        if "RESOLVED" in f.get("status", ""):
+            cluster_stats[c_id]["resolved"] += 1
+        else:
+            cluster_stats[c_id]["open"] += 1
+
+    if cluster_stats:
+        lines.extend([
+            "### 🏛️ Root-Cause Architectural Clusters",
+            "",
+            "| Cluster ID | Threat Architectural Domain | Neutralized Issues | Enforced Invariants | Posture State |",
+            "| :--- | :--- | :---: | :--- | :--- |",
+        ])
+        for c_id, c_data in sorted(cluster_stats.items(), key=lambda x: x[1]["total"], reverse=True):
+            c_domain = c_id.replace("cluster-", "").replace("-", " ").title()
+            rules_str = ", ".join(f"`{r}`" for r in sorted(c_data["rules"])[:3])
+            c_state = "🟢 Dismantled & Defended" if c_data["open"] == 0 else f"🔴 {c_data['open']} Active Flaws"
+            lines.append(f"| `{c_id}` | {c_domain} | {c_data['resolved']} | {rules_str} | {c_state} |")
+        lines.append("")
+
     lines.append("---")
     lines.append("")
 
@@ -445,11 +557,26 @@ def _render_finding_card(f: Dict[str, Any]) -> List[str]:
     status_full = f["status"]
     conf = f.get('confidence', '70% (High Confidence)')
     sev = f.get('severity', 'High')
+    target = f.get('target', 'unknown')
+    if "\n" in target:
+        target = target.splitlines()[0]
+    target = target.strip().strip("`")
+    if target.startswith("📁"):
+        target = target.replace("📁", "").strip()
+
+    desc = f.get('what_is_wrong') or f.get('description') or 'Security violation detected.'
+    if "\n" in desc:
+        desc = desc.splitlines()[0]
+    desc = desc.strip().strip("`")
+    if desc.startswith("**Problem:**"):
+        desc = desc.replace("**Problem:**", "").strip()
+
+    cluster_badge = f" · **Cluster:** `{f['cluster']}`" if f.get("cluster") else ""
     card = [
         f"### {f['rule_id']} · {f['title']} `{status_full}` `{conf}`",
-        f"- **Finding ID:** `{f['finding_id']}` · **Severity:** `{sev}`",
-        f"📁 `{f['target']}`",
-        f"**Problem:** {f.get('what_is_wrong', f.get('description', 'Security violation detected.'))}",
+        f"- **Finding ID:** `{f['finding_id']}` · **Severity:** `{sev}`{cluster_badge}",
+        f"📁 `{target}`",
+        f"**Problem:** {desc}",
     ]
     if f.get("what_should_change"):
         card.append(f"**Fix:** {f['what_should_change']}")

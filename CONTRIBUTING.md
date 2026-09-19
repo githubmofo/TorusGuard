@@ -103,17 +103,9 @@ Before submitting:
 - [ ] Markdown formatting is clean, valid, and all internal links resolve.
 - [ ] Relevant catalog files (`rules/README.md`) and `CHANGELOG.md` are updated if applicable.
 - [ ] Context budget constraint verified: any modified workflow or skill stays strictly within **1,000–1,500 tokens** (maximum 300 lines).
-- [ ] All 11 verification test suites pass cleanly:
+- [ ] All 133 tests across 21 verification test suites pass cleanly. We recommend running the full harness:
   ```bash
-  python harness/validate_v0_9_2_dual_track.py
-  python harness/validate_v0_9_2_diff_and_monorepo.py
-  python harness/validate_v0_9_2_workflows_and_skills.py
+  go test ./...
+  python harness/runner.py --all
   python .torusguard/scripts/manifest_builder.py --check
-  python harness/validate_v0_9_1_installer.py
-  python harness/validate_v0_9_0_skills.py
-  python harness/runner.py
-  python harness/validate_v0_7_0_runtime.py
-  python harness/validate_v0_8_0_part1.py
-  python harness/validate_v0_8_0_part2.py
-  python harness/validate_v0_8_0_part3.py
   ```

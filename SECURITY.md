@@ -52,7 +52,8 @@ Security updates and patches are actively maintained for the following release l
 
 | Version Line | Supported? | Status |
 |---|:---:|---|
-| `v1.3.x` (`v1.3.6`) | ✅ Yes | **Current active release line** (Universal Polyglot Engine, 74 Rules / 18 Families, Enterprise Remediation Hub, Living Security Report Ground Truth, HTML Dashboard) |
+| `v1.4.x` (`v1.4.0`) | ✅ Yes | **Current active release line** (Go Native CLI, Expanded AST Scanners, Self-Update Engine, 133-Test Harness) |
+| `v1.3.x` | ✅ Yes | Universal Polyglot Engine, 74 Rules / 18 Families, Enterprise Remediation Hub |
 | `v1.2.x` | ✅ Yes | AI IDE Rules Auto-Sync & Visual HTML Posture Reporting |
 | `v1.1.x` | ✅ Yes | Advanced Security Memory Engine, Proximity Scoring & Golden Fix Recipes |
 | `v1.0.x` | ✅ Yes | Core Adaptive Security Memory Engine & Context Window Generation |
@@ -128,9 +129,13 @@ To eliminate AI hallucination and maintain provable security state across both h
 
 ## Continuous Validation & Release Gate Policy
 
-To guarantee that code changes never compromise security, safety, or backward compatibility, TorusGuard mandates a **100% pass rate across 13 automated test suites** prior to any release tag:
+To guarantee that code changes never compromise security, safety, or backward compatibility, TorusGuard mandates a **100% pass rate across 133 tests within 21 automated test suites** prior to any release tag:
 
-1. **Universal Polyglot Engine Suite (`harness/validate_v1_3_0_polyglot.py`):**
+1. **Go Native Engine Suite:**
+   - Asserts Go CLI runner compilation, target argument parsing, and `.torusguard/update` functionality.
+2. **Cryptographic Manifest Verifier (`.torusguard/scripts/manifest_builder.py --check`):**
+   - Cryptographically verifies all workspace files against SHA-256 integrity signatures, explicitly ignoring volatile directories like `reports/`.
+3. **Universal Polyglot Engine Suite (`harness/validate_v1_3_0_polyglot.py`):**
    - Asserts ecosystem profiling across 16+ languages, multi-language bypasses, tenant stripping, and token bounds.
 2. **AI IDE Rules & HTML Reporter Suite (`harness/validate_v1_2_0_rules_and_html.py`):**
    - Asserts non-destructive rule sync across Cursor, Claude, Antigravity, Windsurf and zero-external-CDN HTML generation.
@@ -144,8 +149,8 @@ To guarantee that code changes never compromise security, safety, or backward co
    - Asserts unified diff safety line scanner and multi-package workspace detector.
 7. **Workflows & Skills Suite (`harness/validate_v0_9_2_workflows_and_skills.py`):**
    - Asserts 100% YAML frontmatter compliance and required sections across all 11 workflows and 13 skills.
-8. **Cryptographic Manifest Verifier (`.torusguard/scripts/manifest_builder.py --check`):**
-   - Cryptographically verifies all 112 workspace files against SHA-256 integrity signatures.
+8. **Cryptographic Manifest Verifier:**
+   - (Moved to #2 above, ensuring 100% integrity check up front).
 9. **Autonomous Installer Suite (`harness/validate_v0_9_1_installer.py`):**
    - Simulates clean-room installation via `npx skills add` and standalone `install.py`.
 10. **Granular Skills Suite (`harness/validate_v0_9_0_skills.py`):**

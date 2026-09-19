@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TorusGuard Golden Fix Recipe Explorer (v1.3.6)
+TorusGuard Golden Fix Recipe Explorer (v1.4.0)
 Inspect, list, and export reusable, verified AST remediation code snippets
 distilled from passing security patches and persistent memory patterns.
 Standardized 75-column terminal UI formatting.
@@ -47,7 +47,7 @@ def box_line(content: str, width: int = 67, border: str = "│", border_color: s
         return term_ui.format_box_line(content, width=width, border=border, border_color=border_color)
     return f"  {border_color}{border}{RESET}  {content}"
 
-def box_header(title: str, subtitle: str = "", version: str = "v1.3.6", border_color: str = CYAN) -> str:
+def box_header(title: str, subtitle: str = "", version: str = "v1.4.0", border_color: str = CYAN) -> str:
     if term_ui:
         return term_ui.card_header(title, subtitle, version, border_color)
     return f"=== {title} ({version}) ==="
@@ -63,16 +63,87 @@ def border_bottom(border_color: str = CYAN, double: bool = False) -> str:
     return "└" + "─" * 71 + "┘"
 
 
-def list_recipes(target_root: Path, detail_id: Optional[str] = None, json_output: bool = False) -> None:
+def list_recipes(target_root: Path, detail_id: Optional[str] = None, search_query: Optional[str] = None, export_path: Optional[str] = None, apply_id: Optional[str] = None, json_output: bool = False) -> None:
     patterns_file = target_root / ".torusguard" / "memory" / "patterns.json"
     recipes: List[Dict[str, Any]] = []
 
     if patterns_file.is_file():
         try:
             patterns = json.loads(patterns_file.read_text(encoding="utf-8"))
-            recipes = [p for p in patterns if p.get("pattern_type") == "golden_fix_recipe"]
+            if isinstance(patterns, list):
+                recipes = [p for p in patterns if p.get("pattern_type") == "golden_fix_recipe"]
+            elif isinstance(patterns, dict) and "patterns" in patterns:
+                recipes = [p for p in patterns["patterns"] if p.get("pattern_type") == "golden_fix_recipe"]
         except Exception:
             recipes = []
+
+    # 1. Search filtering
+    if search_query:
+        sq = search_query.lower()
+        recipes = [
+            r for r in recipes
+            if sq in r.get("rule_id", "").lower()
+            or sq in r.get("recipe_id", "").lower()
+            or sq in r.get("description", "").lower()
+            or sq in r.get("recipe_data", {}).get("diff_snippet", "").lower()
+        ]
+
+    # 2. Export requested
+    if export_path:
+        out_p = Path(export_path)
+        if not out_p.is_absolute():
+            out_p = (target_root / out_p).resolve()
+        out_p.parent.mkdir(parents=True, exist_ok=True)
+        if out_p.suffix.lower() == ".json":
+            out_p.write_text(json.dumps(recipes, indent=2), encoding="utf-8")
+        else:
+            md_lines = [
+                "# TorusGuard Golden Fix Recipes Catalog",
+                f"- Total Recipes: {len(recipes)}",
+                f"- Exported From: {target_root}",
+                ""
+            ]
+            for r in recipes:
+                md_lines.append(f"## [{r.get('rule_id')}] {r.get('recipe_id')}")
+                md_lines.append(f"- **Description:** {r.get('description')}")
+                rdata = r.get("recipe_data", {})
+                md_lines.append(f"- **Verified Count:** {rdata.get('verified_count', 1)}x")
+                md_lines.append("```diff")
+                md_lines.append(rdata.get("diff_snippet", ""))
+                md_lines.append("```\n")
+            out_p.write_text("\n".join(md_lines), encoding="utf-8")
+        print(f"\n  {GREEN}✔ Exported {len(recipes)} golden recipe(s) to:{RESET} {CYAN}{out_p}{RESET}\n")
+        return
+
+    # 3. Apply inspection requested
+    if apply_id:
+        target_rec = next((r for r in recipes if r.get("recipe_id") == apply_id or apply_id in r.get("recipe_id", "")), None)
+        if not target_rec:
+            print(f"\n  {RED}✖ Recipe '{apply_id}' not found in golden recipe memory.{RESET}\n")
+            return
+        rdata = target_rec.get("recipe_data", {})
+        print()
+        print(box_header("🛡️  GOLDEN RECIPE APPLICATION PREVIEW", f"Recipe ID: {target_rec.get('recipe_id')}", "v1.4.0"))
+        print()
+        print(border_top("Recipe Metadata"))
+        print(box_line(f"Rule ID:     {YELLOW}{target_rec.get('rule_id')}{RESET}"))
+        print(box_line(f"Description: {WHITE}{target_rec.get('description')}{RESET}"))
+        metrics = rdata.get("ponytail_metrics", {})
+        print(box_line(f"Ponytail:    {GREEN}+{metrics.get('additions', 0)} / -{metrics.get('deletions', 0)} lines{RESET}"))
+        print(border_bottom())
+        print()
+        print(f"  {BOLD}Diff Projection:{RESET}")
+        print("  ```diff")
+        for line in rdata.get("diff_snippet", "").splitlines():
+            if line.startswith("+"):
+                print(f"    {GREEN}{line}{RESET}")
+            elif line.startswith("-"):
+                print(f"    {RED}{line}{RESET}")
+            else:
+                print(f"    {DIM}{line}{RESET}")
+        print("  ```")
+        print(f"\n  {DIM}To apply automatically across all matching findings, run: {CYAN}npx torusguard harden && npx torusguard apply{RESET}\n")
+        return
 
     if json_output:
         print(json.dumps(recipes, indent=2))
@@ -80,11 +151,12 @@ def list_recipes(target_root: Path, detail_id: Optional[str] = None, json_output
 
     # Header Card
     print()
-    print(box_header("🛡️  TORUSGUARD GOLDEN FIX RECIPES", "Distilled Ponytail Fixes (<= 35 add, <= 25 del) in Persistent Memory", "v1.3.6"))
+    sub_title = f"Filtered by '{search_query}'" if search_query else "Distilled Ponytail Fixes (<= 35 add, <= 25 del) in Persistent Memory"
+    print(box_header("🛡️  TORUSGUARD GOLDEN FIX RECIPES", sub_title, "v1.4.0"))
     print()
 
     if not recipes:
-        print(f"  {YELLOW}ℹ No golden fix recipes captured yet.{RESET}")
+        print(f"  {YELLOW}ℹ No golden fix recipes found matching query.{RESET}")
         print(f"  Run {CYAN}npx torusguard harden{RESET} followed by {CYAN}npx torusguard apply{RESET} to distill verified recipes.\n")
         return
 
@@ -125,12 +197,23 @@ def list_recipes(target_root: Path, detail_id: Optional[str] = None, json_output
 def main():
     parser = argparse.ArgumentParser(description="TorusGuard Golden Fix Recipe Explorer")
     parser.add_argument("path", nargs="?", default=".", help="Target project root directory")
+    parser.add_argument("--target", "-t", help="Target project root directory (alias for path)")
     parser.add_argument("--detail", "-d", help="Inspect specific recipe ID")
+    parser.add_argument("--search", "-s", help="Filter recipes by rule, keyword, or language")
+    parser.add_argument("--export", "-e", help="Export recipes to JSON or Markdown file path")
+    parser.add_argument("--apply", "-a", help="Project and display application diff for specific recipe ID")
     parser.add_argument("--json", action="store_true", help="Output raw JSON")
     args = parser.parse_args()
 
-    target = Path(args.path).resolve()
-    list_recipes(target, detail_id=args.detail, json_output=args.json)
+    target = Path(args.target or args.path).resolve()
+    list_recipes(
+        target,
+        detail_id=args.detail,
+        search_query=args.search,
+        export_path=args.export,
+        apply_id=args.apply,
+        json_output=args.json
+    )
 
 
 if __name__ == "__main__":

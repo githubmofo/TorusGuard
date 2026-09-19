@@ -20,6 +20,7 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 | **12. Validate** | `npx torusguard web-validate` | `/torusguard web-validate` | Authorized non-destructive HTTP probing with transparent audit headers |
 | **13. Exploit** | `npx torusguard exploit-check` | `/torusguard exploit-check` | Bounded single-step exploitability confirmation with inert tokens |
 | **14. Rules Sync** | `npx torusguard rules sync` | `/torusguard rules sync` | Synchronizes prompt guardrails across Cursor, Claude, Antigravity, Windsurf |
+| **15. Update** | `npx torusguard update` | `/torusguard update` | Invokes the Go native CLI to self-update the TorusGuard engine |
 
 ---
 

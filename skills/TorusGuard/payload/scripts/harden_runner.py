@@ -147,6 +147,15 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
                 new_lines[line_number - 1] = replacement
                 applied_rule = True
                 fix_explanation = f"Replaced hardcoded credential with os.environ.get('{env_key}')"
+        elif file_path.endswith(".go"):
+            if re.search(r'(:=|=)\s*["\'][A-Za-z0-9_\-]{8,}["\']', target_line):
+                var_match = re.search(r'([A-Za-z0-9_]+)\s*[:=]', target_line)
+                var_name = var_match.group(1) if var_match else "apiKey"
+                env_key = re.sub(r'(?<!^)(?=[A-Z])', '_', var_name).upper()
+                replacement = f'{indent}{var_name} := os.Getenv("{env_key}")'
+                new_lines[line_number - 1] = replacement
+                applied_rule = True
+                fix_explanation = f"Replaced hardcoded Go credential with os.Getenv('{env_key}')"
 
     # Strategy 2: Dangerous React HTML rendering & DOM innerHTML (TG-INPUT-003)
     elif rule_id == "TG-INPUT-003":
@@ -187,6 +196,13 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
                     new_lines[line_number - 1] = fixed_line
                     applied_rule = True
                     fix_explanation = "Replaced template literal SQL string interpolation with parameterized SQL placeholder (?)"
+        elif file_path.endswith(".go") and ("fmt.Sprintf(" in target_line or " + " in target_line):
+            if any(w in target_line for w in ("SELECT", "INSERT", "UPDATE", "DELETE")):
+                fixed_line = re.sub(r'fmt\.Sprintf\(\s*["\'](SELECT.*?WHERE.*?%s.*?)["\'],\s*([A-Za-z0-9_$.]+)\)', r'/* parameterized */ "\1", \2', target_line)
+                if fixed_line != target_line:
+                    new_lines[line_number - 1] = fixed_line
+                    applied_rule = True
+                    fix_explanation = "Replaced unsafe Go SQL fmt.Sprintf concatenation with parameterized placeholder"
 
     # Strategy 4: Multi-Tenant Query Scoping (TG-DB-004)
     elif rule_id == "TG-DB-004":
@@ -246,6 +262,12 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
                 new_lines[line_number - 1] = fixed_line
                 applied_rule = True
                 fix_explanation = "Wrapped dynamic path segment in os.path.basename to neutralize path traversal sequences"
+        elif file_path.endswith(".go") and "filepath.Join(" in target_line and "filepath.Base" not in target_line:
+            fixed_line = re.sub(r'filepath\.Join\((.*?),\s*([a-zA-Z0-9_$.]+)\)', r'filepath.Join(\1, filepath.Base(\2))', target_line)
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Wrapped dynamic path segment in filepath.Base to neutralize Go path traversal"
 
     # Strategy 8: TLS Verification Bypass (TG-DIFF-001)
     elif rule_id == "TG-DIFF-001":
@@ -264,6 +286,22 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
             new_lines[line_number - 1] = fixed_line
             applied_rule = True
             fix_explanation = "Restored mandatory TLS certificate validation (InsecureSkipVerify: false)"
+
+    # Strategy 9: Unbounded HTTP Client Timeout / SSRF (TG-SSRF-004)
+    elif rule_id == "TG-SSRF-004":
+        if file_path.endswith(".go") and ("&http.Client{}" in target_line or "http.DefaultClient" in target_line):
+            fixed_line = target_line.replace("&http.Client{}", "&http.Client{Timeout: 10 * time.Second}")
+            fixed_line = fixed_line.replace("http.DefaultClient", "&http.Client{Timeout: 10 * time.Second}")
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Injected explicit 10s timeout to Go http.Client to prevent resource exhaustion"
+        elif file_path.endswith(".py") and "requests.get(" in target_line and "timeout=" not in target_line:
+            fixed_line = re.sub(r'requests\.get\((.*?)\)', r'requests.get(\1, timeout=10)', target_line)
+            if fixed_line != target_line:
+                new_lines[line_number - 1] = fixed_line
+                applied_rule = True
+                fix_explanation = "Injected explicit timeout=10 to requests.get call"
 
 
     # Strategy 9: Hardcoded Database / Service Credential in Config (TG-SEC-003)
@@ -466,7 +504,7 @@ def generate_patch_for_finding(finding: Dict[str, Any], target_root: Path) -> Op
     }
 
 
-def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[str, Any]:
+def execute_harden(target_root: Path, run_id_arg: Optional[str] = None, severity_floor: str = "medium", dry_run: bool = False) -> Dict[str, Any]:
     """Execute autonomous remediation formulation and package candidate bundles."""
     runs_dir = target_root / ".torusguard" / "runs"
     if run_id_arg:
@@ -490,8 +528,14 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
         print(f"\n  {RED}✖ Failed to parse findings.json:{RESET} {e}\n")
         sys.exit(1)
 
+    # Severity filtering
+    SEV_RANKS = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+    min_rank = SEV_RANKS.get(severity_floor.lower(), 2)
+    findings = [f for f in findings if SEV_RANKS.get(f.get("severity", "Medium").lower(), 2) >= min_rank]
+
     bundles_dir = run_folder / "bundles"
-    bundles_dir.mkdir(parents=True, exist_ok=True)
+    if not dry_run:
+        bundles_dir.mkdir(parents=True, exist_ok=True)
 
     bundles = []
     seen_file_lines = set()
@@ -503,73 +547,79 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
         if candidate:
             seen_file_lines.add(target_key)
             bundles.append(candidate)
-            b_dir = bundles_dir / candidate["bundle_id"]
-            b_dir.mkdir(parents=True, exist_ok=True)
+            if not dry_run:
+                b_dir = bundles_dir / candidate["bundle_id"]
+                b_dir.mkdir(parents=True, exist_ok=True)
 
-            # 1. patch.diff
-            (b_dir / "patch.diff").write_text(candidate["proposed_diff"], encoding="utf-8")
+                # 1. patch.diff
+                (b_dir / "patch.diff").write_text(candidate["proposed_diff"], encoding="utf-8")
 
-            # 2. minimal_patch_plan.md
-            plan_content = [
-                f"# Remediation Plan: {candidate['bundle_id']}",
-                f"- **Rule ID:** `{candidate['rule_id']}`",
-                f"- **Target File:** `{candidate['target_file']}:{candidate['line_number']}`",
-                f"- **Ponytail Churn:** `+{candidate['additions']} / -{candidate['deletions']}` (Compliant <=35/<=25)",
-                f"\n## Proposed Change\n{candidate['what_should_change']}\n",
-                "## Unified Diff Preview\n```diff",
-                candidate["proposed_diff"],
-                "```"
-            ]
-            (b_dir / "minimal_patch_plan.md").write_text("\n".join(plan_content), encoding="utf-8")
+                # 2. minimal_patch_plan.md
+                plan_content = [
+                    f"# Remediation Plan: {candidate['bundle_id']}",
+                    f"- **Rule ID:** `{candidate['rule_id']}`",
+                    f"- **Target File:** `{candidate['target_file']}:{candidate['line_number']}`",
+                    f"- **Ponytail Churn:** `+{candidate['additions']} / -{candidate['deletions']}` (Compliant <=35/<=25)",
+                    f"\n## Proposed Change\n{candidate['what_should_change']}\n",
+                    "## Unified Diff Preview\n```diff",
+                    candidate["proposed_diff"],
+                    "```"
+                ]
+                (b_dir / "minimal_patch_plan.md").write_text("\n".join(plan_content), encoding="utf-8")
 
-            # 3. metadata.json
-            with open(b_dir / "metadata.json", "w", encoding="utf-8") as mf:
-                json.dump(candidate, mf, indent=2)
+                # 3. metadata.json
+                with open(b_dir / "metadata.json", "w", encoding="utf-8") as mf:
+                    json.dump(candidate, mf, indent=2)
 
-    # Render run-level remediation.md
-    remediation_lines = [
-        f"# TorusGuard Governed Remediation Catalog",
-        f"**Run ID:** `{run_folder.name}`  ",
-        f"**Generated:** `{get_ist_now().strftime('%Y-%m-%d %H:%M:%S IST')}`  ",
-        f"**Candidate Bundles Formulated:** `{len(bundles)}`  \n",
-        "---",
-        "## Formulated Candidate Patches\n"
-    ]
+    if not dry_run:
+        # Render run-level remediation.md
+        remediation_lines = [
+            f"# TorusGuard Governed Remediation Catalog",
+            f"**Run ID:** `{run_folder.name}`  ",
+            f"**Generated:** `{get_ist_now().strftime('%Y-%m-%d %H:%M:%S IST')}`  ",
+            f"**Candidate Bundles Formulated:** `{len(bundles)}`  \n",
+            "---",
+            "## Formulated Candidate Patches\n"
+        ]
 
-    for b in bundles:
-        remediation_lines.append(f"### [{b['rule_id']}] {b['title']}")
-        remediation_lines.append(f"- **Target:** `{b['target_file']}:{b['line_number']}` | **Bundle ID:** `{b['bundle_id']}`")
-        remediation_lines.append(f"- **Strategy:** {b['what_should_change']}")
-        remediation_lines.append(f"- **Ponytail Churn:** `+{b['additions']} / -{b['deletions']}`")
-        remediation_lines.append("```diff")
-        remediation_lines.append(b["proposed_diff"].strip())
-        remediation_lines.append("```\n")
+        for b in bundles:
+            remediation_lines.append(f"### [{b['rule_id']}] {b['title']}")
+            remediation_lines.append(f"- **Target:** `{b['target_file']}:{b['line_number']}` | **Bundle ID:** `{b['bundle_id']}`")
+            remediation_lines.append(f"- **Strategy:** {b['what_should_change']}")
+            remediation_lines.append(f"- **Ponytail Churn:** `+{b['additions']} / -{b['deletions']}`")
+            remediation_lines.append("```diff")
+            remediation_lines.append(b["proposed_diff"].strip())
+            remediation_lines.append("```\n")
 
-    (run_folder / "remediation.md").write_text("\n".join(remediation_lines), encoding="utf-8")
-    try:
-        import report_sync
-        report_sync.record_harden_bundles(target_root, bundles, run_folder.name)
-    except Exception:
-        pass
-
-    # Update manifest
-    manifest_file = run_folder / "manifest.json"
-    if manifest_file.is_file():
+        (run_folder / "remediation.md").write_text("\n".join(remediation_lines), encoding="utf-8")
         try:
-            mdata = json.loads(manifest_file.read_text(encoding="utf-8"))
-            mdata["remediation_bundles_count"] = len(bundles)
-            manifest_file.write_text(json.dumps(mdata, indent=2), encoding="utf-8")
+            import report_sync
+            report_sync.record_harden_bundles(target_root, bundles, run_folder.name)
         except Exception:
             pass
 
+        # Update manifest
+        manifest_file = run_folder / "manifest.json"
+        if manifest_file.is_file():
+            try:
+                mdata = json.loads(manifest_file.read_text(encoding="utf-8"))
+                mdata["remediation_bundles_count"] = len(bundles)
+                manifest_file.write_text(json.dumps(mdata, indent=2), encoding="utf-8")
+            except Exception:
+                pass
+
     # Print 75-column Terminal Cards
+    title_sub = "DRY RUN PREVIEW (No Disk Modifications)" if dry_run else "Autonomous Minimal Patch Formulation & Ponytail Packaging"
     print()
-    print(box_header("🛡️  TORUSGUARD GOVERNED REMEDIATION ENGINE", "Autonomous Minimal Patch Formulation & Ponytail Packaging", "v1.3.6"))
+    print(box_header("🛡️  TORUSGUARD GOVERNED REMEDIATION ENGINE", title_sub, "v1.4.0"))
     print()
 
     print(border_top("Remediation Scope"))
     print(box_line(f"Active Run:     {WHITE}{run_folder.name}{RESET}"))
     print(box_line(f"Target Scope:   {WHITE}{target_root}{RESET}"))
+    print(box_line(f"Severity Floor: {YELLOW}{severity_floor.upper()}{RESET}"))
+    if dry_run:
+        print(box_line(f"Execution Mode: {YELLOW}DRY RUN (Preview Only · Zero Disk Churn){RESET}"))
     print(box_line(f"Total Findings: {len(findings)} evaluated | {GREEN}{len(bundles)} surgical patches formulated{RESET}"))
     print(box_line(f"Ponytail Guard: {GREEN}All patches strictly <= 35 additions, <= 25 deletions{RESET}"))
     print(border_bottom())
@@ -585,13 +635,14 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
         print(border_bottom())
         print()
 
-        print(border_top("Next Governed Action", border_color=GREEN, double=True))
-        print(box_line(f"Living Report:    {CYAN}security_report.md (patch previews attached){RESET}", border="║", border_color=GREEN))
-        print(box_line(f"Review & Apply:   {BOLD}{WHITE}npx torusguard apply{RESET}  (CLI Human Gate)", border="║", border_color=GREEN))
-        print(box_line(f"Auto-Apply Flag:  {CYAN}npx torusguard apply --yes{RESET} (Automated mode)", border="║", border_color=GREEN))
-        print(box_line(f"AI IDE Chat:      Run {CYAN}/torusguard-apply{RESET} in your AI chat", border="║", border_color=GREEN))
-        print(border_bottom(border_color=GREEN, double=True))
-        print()
+        if not dry_run:
+            print(border_top("Next Governed Action", border_color=GREEN, double=True))
+            print(box_line(f"Living Report:    {CYAN}security_report.md (patch previews attached){RESET}", border="║", border_color=GREEN))
+            print(box_line(f"Review & Apply:   {BOLD}{WHITE}npx torusguard apply{RESET}  (CLI Human Gate)", border="║", border_color=GREEN))
+            print(box_line(f"Auto-Apply Flag:  {CYAN}npx torusguard apply --yes{RESET} (Automated mode)", border="║", border_color=GREEN))
+            print(box_line(f"AI IDE Chat:      Run {CYAN}/torusguard-apply{RESET} in your AI chat", border="║", border_color=GREEN))
+            print(border_bottom(border_color=GREEN, double=True))
+            print()
     else:
         print(f"  {YELLOW}ℹ No automatic patch templates matched current findings.{RESET}")
         print(f"  {GRAY}Findings require architectural refactoring or AI-assisted guidance.{RESET}\n")
@@ -603,7 +654,7 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
         print()
 
     return {
-        "status": "success",
+        "status": "dry_run" if dry_run else "success",
         "run_folder": str(run_folder),
         "bundles_count": len(bundles),
         "bundles": bundles
@@ -613,12 +664,15 @@ def execute_harden(target_root: Path, run_id_arg: Optional[str] = None) -> Dict[
 def main():
     parser = argparse.ArgumentParser(description="TorusGuard Autonomous Governed Remediation Engine")
     parser.add_argument("path", nargs="?", default=".", help="Target project root directory")
+    parser.add_argument("--target", "-t", help="Target project root directory (alias for path)")
     parser.add_argument("--run", "-r", help="Explicit run ID to harden (default: latest audit run)")
+    parser.add_argument("--severity", "-s", choices=["critical", "high", "medium", "low"], default="medium", help="Severity floor for patch generation")
+    parser.add_argument("--dry-run", action="store_true", help="Preview patch diffs without writing files to disk")
     parser.add_argument("--json", action="store_true", help="Output raw JSON")
     args = parser.parse_args()
 
-    target = Path(args.path).resolve()
-    result = execute_harden(target, run_id_arg=args.run)
+    target = Path(args.target or args.path).resolve()
+    result = execute_harden(target, run_id_arg=args.run, severity_floor=args.severity, dry_run=args.dry_run)
 
     if args.json:
         print(json.dumps(result, indent=2))
