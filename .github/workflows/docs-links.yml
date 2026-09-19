@@ -39,11 +39,11 @@ jobs:
 
       - name: Verify SKILL.md Frontmatter and References
         run: |
-          test -f skills/TorusGuard/SKILL.md || exit 1
-          test -f skills/TorusGuard/references/django-security.md || exit 1
-          test -f skills/TorusGuard/references/drf-security.md || exit 1
-          test -f skills/TorusGuard/references/fastapi-security.md || exit 1
-          test -f skills/TorusGuard/references/flask-security.md || exit 1
-          test -f skills/TorusGuard/references/sqlalchemy-security.md || exit 1
-          test -f skills/TorusGuard/references/python-dependencies.md || exit 1
-          test -f skills/TorusGuard/references/python-security-overview.md || exit 1
+          test -f skills/torusguard/SKILL.md || exit 1
+          test -f skills/torusguard/references/django-security.md || exit 1
+          test -f skills/torusguard/references/drf-security.md || exit 1
+          test -f skills/torusguard/references/fastapi-security.md || exit 1
+          test -f skills/torusguard/references/flask-security.md || exit 1
+          test -f skills/torusguard/references/sqlalchemy-security.md || exit 1
+          test -f skills/torusguard/references/python-dependencies.md || exit 1
+          test -f skills/torusguard/references/python-security-overview.md || exit 1
