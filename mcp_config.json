@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/mcp-server-config.json",
+  "mcpServers": {
+    "torusguard": {
+      "command": "./torusguard.exe",
+      "args": ["mcp"],
+      "env": {
+        "TESSERACT_PATH": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe"
+      },
+      "description": "TorusGuard Autonomous Security Guardrails, Vision OCR Scanner & Governed Remediation Engine"
+    }
+  }
+}

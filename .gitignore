@@ -47,10 +47,19 @@ examples/*/*/*.db
 # TorusGuard local tests, run folders, and audit artifacts
 security_report.md
 report.html
+*.sarif
+*.patch
+torusguard
+torusguard.exe
+
+# TorusGuard ephemeral workspace state
+.torusguard/snapshots/
+.torusguard/auth.json
 .torusguard/runs/
 !.torusguard/runs/.gitkeep
 .torusguard/memory/
 !.torusguard/memory/.gitignore
+
 runs/
 qa-runs/
 test_repos/
@@ -73,7 +82,6 @@ test_output/
 # Temporary files
 *.bak
 *.tmp
-*.temp
-*.swp
+scratch/
 
 .agent

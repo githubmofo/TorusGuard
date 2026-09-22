@@ -4,23 +4,25 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 
 ## Quick CLI & Chat Commands Matrix
 
-| Lifecycle Stage | Mode A: Terminal CLI | Mode B: AI Chat Slash Command | Governed Action & Artifacts |
-| :--- | :--- | :--- | :--- |
-| **1. Init** | `npx torusguard init` | `/torusguard init` | Profiles workspace stack, activates `TG-*` rules, initializes `.torusguard/` |
-| **2. Status** | `npx torusguard status` | `/torusguard status` | Read-only diagnostic overview of posture, stack, rules & run history |
-| **3. Audit** | `npx torusguard audit` | `/torusguard audit` | Polyglot AST scan across 74 rules; synchronizes `security_report.md` |
-| **4. Verify** | `npx torusguard verify` | `/torusguard verify` | Asserts evidence sufficiency & line-shift invariant fingerprint matches |
-| **5. Harden** | `npx torusguard harden` | `/torusguard harden` | Synthesizes Ponytail patches ($\le 35$ add, $\le 25$ del) into candidate bundles |
-| **6. Apply** | `npx torusguard apply [--yes]` | `/torusguard apply` | Human Gate, pre-apply `.bak` snapshots, Golden Fix distillation |
-| **7. Rollback** | `npx torusguard rollback` | `/torusguard rollback` | Instant restoration from pre-apply snapshots in `.torusguard/snapshots/` |
-| **8. Recheck** | `npx torusguard recheck` | `/torusguard recheck` | Targeted differential AST re-scan; marks findings `Confirmed Fixed` |
-| **9. Recipes** | `npx torusguard recipes` | `/torusguard recipes` | Explores verified Golden Fix patterns from persistent memory |
-| **10. Report** | `npx torusguard report --html` | `/torusguard report` | Emits single-file visual dark-mode HTML posture report & SARIF v2.1.0 |
-| **11. Authorize** | `npx torusguard authorize` | `/torusguard authorize` | Target domain whitelisting, cryptographic ownership proof, TTL boundaries |
-| **12. Validate** | `npx torusguard web-validate` | `/torusguard web-validate` | Authorized non-destructive HTTP probing with transparent audit headers |
-| **13. Exploit** | `npx torusguard exploit-check` | `/torusguard exploit-check` | Bounded single-step exploitability confirmation with inert tokens |
-| **14. Rules Sync** | `npx torusguard rules sync` | `/torusguard rules sync` | Synchronizes prompt guardrails across Cursor, Claude, Antigravity, Windsurf |
-| **15. Update** | `npx torusguard update` | `/torusguard update` | Invokes the Go native CLI to self-update the TorusGuard engine |
+| Lifecycle Stage | Mode A: Terminal CLI | Mode B: AI Chat Slash Command | Mode C: Native MCP Tool | Governed Action & Artifacts |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Init** | `torusguard init` | `/torusguard init` | — | Profiles workspace stack, activates `TG-*` rules, initializes `.torusguard/` |
+| **2. Status** | `torusguard status` | `/torusguard status` | `torusguard_status` | Read-only diagnostic overview of posture, stack, rules & run history |
+| **3. Audit** | `torusguard audit` | `/torusguard audit` | `torusguard_audit` | Polyglot heuristic + OCR scan; synchronizes `security_report.md` |
+| **4. OCR Vision** | `torusguard ocr-scan <target>` | `/torusguard ocr-scan` | `torusguard_ocr_scan` | Scans diagrams/images via Tesseract OCR for leaked keys & secrets |
+| **5. Verify** | `torusguard verify` | `/torusguard verify` | — | Asserts evidence sufficiency & line-shift invariant fingerprint matches |
+| **6. Harden** | `torusguard harden` | `/torusguard harden` | `torusguard_harden` | Validates patches against Ponytail bounds (≤35 add, ≤25 del) |
+| **7. Apply** | `torusguard apply [--yes]` | `/torusguard apply` | — | Human Gate, pre-apply `.bak` snapshots, Golden Fix distillation |
+| **8. Rollback** | `torusguard rollback` | `/torusguard rollback` | — | Instant restoration from pre-apply snapshots in `.torusguard/snapshots/` |
+| **9. Recheck** | `torusguard recheck` | `/torusguard recheck` | `torusguard_recheck` | Targeted differential re-scan; marks findings `Confirmed Fixed` |
+| **10. Recipes** | `torusguard recipes` | `/torusguard recipes` | `torusguard://rules_catalog` | Explores verified Golden Fix patterns from persistent memory |
+| **11. Report** | `torusguard report --html` | `/torusguard report` | `torusguard://security_report` | Emits single-file visual dark-mode HTML posture report & SARIF v2.1.0 |
+| **12. MCP Server**| `torusguard mcp` | — | Stdio JSON-RPC 2.0 | Serves native Model Context Protocol tools to AI coding agents |
+| **13. Authorize** | `torusguard authorize` | `/torusguard authorize` | — | Target domain whitelisting, cryptographic ownership proof, TTL boundaries |
+| **14. Validate** | `torusguard web-validate` | `/torusguard web-validate` | — | Authorized non-destructive HTTP probing with transparent audit headers |
+| **15. Exploit** | `torusguard exploit-check` | `/torusguard exploit-check` | — | Bounded single-step exploitability confirmation with inert tokens |
+| **16. Update** | `torusguard update` | `/torusguard update` | — | Self-update the TorusGuard engine |
+| **17. Help** | `torusguard help` | `/torusguard help` | — | Interactive command guide |
 
 ---
 
@@ -28,11 +30,14 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 
 1. **Browser-Code Truth:** If the browser receives it, users can inspect it via DevTools. Never expose database credentials, service role keys, master secrets, or private API tokens in frontend or client bundles (`TG-CLIENT-001`, `TG-CLIENT-002`).
 2. **Multi-Tenant Isolation:** Always scope database lookups by tenant or user ownership (e.g., `tenant_id`, `where: { tenantId: user.tenantId }`). Never allow unpartitioned primary key lookups (`TG-DB-001`).
-3. **Ponytail Churn Bounds:** Never attempt full-file rewrites. Patches must be minimal surgical diffs ($\le 35$ additions, $\le 25$ deletions per bundle).
+3. **Ponytail Churn Bounds:** Never attempt full-file rewrites. Patches must be minimal surgical diffs (≤35 additions, ≤25 deletions per bundle).
 4. **Standardized 75-Column Terminal:** All CLI terminal outputs must strictly adhere to 75 visual columns with Unicode emoji width calculation, ANSI escape stripping, and visual truncation with ellipsis (`...`).
 5. **Zero Security Bypasses:** Never insert `# nosec`, `verify=False`, `InsecureSkipVerify: true`, `csrf().disable()`, `[AllowAnonymous]`, or `CURLOPT_SSL_VERIFYPEER => false` (`TG-DIFF-001`).
 6. **Snapshots Before Edits:** Every code modification must capture a byte-for-byte pre-apply backup in `.torusguard/snapshots/<run_id>/` before modifying files on disk.
 7. **Living Security Report Ground Truth:** All finding discoveries, patch formulations, applications, and recheck verifications must synchronize with `security_report.md` at the workspace root to maintain verifiable finding state and eliminate hallucination.
+8. **Fail-Closed Cryptography:** Authorization token generation must panic on entropy failure. No hardcoded fallback tokens are permitted.
+9. **SSRF Boundary Enforcement:** The web validator must resolve and block private IP ranges and cloud metadata endpoints before probing.
+10. **DoS Resilience:** The scanner must enforce a 10,000-file maximum and 5-minute timeout to prevent resource exhaustion attacks.
 
 ---
 
@@ -64,7 +69,12 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 ## AI Agent Operational Instructions
 
 When assisting developers in a TorusGuard workspace:
-1. **Always Inspect `security_report.md`:** Check the current posture ledger before proposing or writing code changes.
-2. **Adhere to Ponytail Bounds:** When repairing security flaws, write surgical replacements ($\le 35$ additions, $\le 25$ deletions). Do NOT rewrite surrounding business logic.
-3. **Never Introduce Security Bypasses:** Reject developer requests to disable SSL verification, bypass CSRF tokens, or turn off tenant filters.
-4. **Dual Mode Parity:** Support both Mode A (running `npx torusguard <cmd>`) and Mode B (executing direct chat workflows while keeping `security_report.md` updated).
+1. **Always Inspect `security_report.md`:** Check the living posture ledger before proposing or modifying code.
+2. **Tri-Mode Parity:** 
+   - **Mode A (Terminal CLI):** Run `torusguard audit`, `torusguard ocr-scan`, `torusguard harden`, etc.
+   - **Mode B (Chat Slash Commands):** Execute `/torusguard audit`, `/torusguard ocr-scan`, etc.
+   - **Mode C (Native MCP Tools):** In MCP-capable agents (Antigravity, Cursor, Windsurf, Claude Code), call `torusguard_audit`, `torusguard_ocr_scan`, and `torusguard_harden` directly.
+3. **Multi-Modal Vision OCR:** When images or architecture diagrams exist (`.png`, `.jpg`, etc.), invoke `torusguard ocr-scan` or `torusguard_ocr_scan` to detect leaked credentials and private keys hidden inside visual assets (file size bounded to 10MB).
+4. **Adhere to Ponytail Bounds:** When repairing security flaws, formulate surgical patches (≤35 additions, ≤25 deletions). Validate candidate patches with `torusguard harden` or `torusguard_harden`. Do NOT rewrite surrounding business logic.
+5. **Never Introduce Security Bypasses:** Reject requests to disable SSL verification (`verify=False`, `InsecureSkipVerify`), bypass CSRF tokens, or turn off tenant filters.
+

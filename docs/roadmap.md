@@ -1,329 +1,52 @@
-# TorusGuard Project Roadmap
+# TorusGuard Roadmap
 
-This document outlines the development milestones, past releases, and future priorities for TorusGuard.
+## Current Version: 2.0.0-alpha
 
-> **Note on Open Source Roadmap:** Roadmap items represent current architectural priorities and community goals, not contractual commitments or fixed delivery deadlines. Priorities evolve based on community feedback, vulnerability research, and contributor support.
+### Completed ✅
 
----
-
-## 🏁 Completed Milestones
-
-### ✅ v0.1.0 — Foundation & Core Skill (2026-08-18)
-- Initial portable Markdown skill definition (`skills/torusguard/SKILL.md`).
-- Core reference modules across secrets, frontend database access, input validation, and auth.
-- Basic `/torusguard` command dispatch.
-
-### ✅ v0.2.0 — Structured Audit Framework (2026-08-18)
-- Established stable TorusGuard Rule IDs (`TG-SEC-*`, `TG-DB-*`, `TG-INPUT-*`, `TG-AUTH-*`, `TG-RATE-*`, `TG-CLIENT-*`, `TG-PLATFORM-*`).
-- 25 documented rule files with unsafe/safe examples and remediation guidance.
-- Standardized templates (`SECURITY.md`, threat models, audit reports, pre-flight checklists).
-- Vulnerable and hardened React + Express reference applications.
-- Framework implementation guides for React/Vite, Next.js, Express, Supabase, and Firebase.
-
-### ✅ v0.3.0 — Advanced Web & API Security (2026-08-19)
-- Expanded catalog to 60+ rules covering modern attack surfaces:
-  - SSRF & outbound network boundaries (`TG-SSRF-*`)
-  - Business-logic & flow abuse (`TG-BIZ-*`)
-  - Mass assignment & property-level authorization (`TG-AUTH-006`, `TG-AUTH-007`)
-  - Webhook signature, replay, and idempotency validation (`TG-WEBHOOK-*`)
-  - GraphQL depth/complexity and resolver authorization (`TG-GQL-*`)
-  - WebSocket handshake auth, message validation, and rate limits (`TG-WS-*`)
-  - Supply-chain dependencies and CI/CD secret exposure (`TG-SUPPLY-*`)
-  - Sensitive response cache controls (`TG-CACHE-*`)
-- Formal validation suite on OWASP NodeGoat and FastAPI.
-- Human-First output formatting standard for audit reports.
-
-### ✅ v0.4.0 — Python Platform Security (2026-08-21)
-- Deep, native security guides and reference modules for **Django**, **Django REST Framework (DRF)**, **FastAPI**, **Flask**, and **SQLAlchemy**.
-- Python dependency management, deterministic lockfile rules, `pip-audit`, and CI/CD hardening.
-- Automatic Python framework detection in `skills/torusguard/SKILL.md`.
-- Paired vulnerable and hardened reference applications in `examples/python/` with `fixes.md` remediation matrices.
-- Formal validation reports for Django, DRF, FastAPI, and Flask in `docs/validation/`.
-- Cross-Platform Rule Parity analysis (`docs/validation/cross-platform-rule-parity.md`).
-
-### ✅ v0.4.1 — Python Validation & Quality Patch (2026-08-21)
-- Refined Python stack detection across Django (`manage.py`), DRF (`pyproject.toml`), FastAPI, Flask (`requirements.txt`), Flask+SQLAlchemy, libraries, and mixed monorepos.
-- Added 10 paired safe and vulnerable Python regression fixtures in `tests/fixtures/python/`.
-- Established evidence-confidence standards for service-layer authorization and serializer mass-assignment protection.
-- Created authorized repository validation template and legal/ethical scoping boundaries.
-
-### ✅ v0.5.0 — Core Architecture & Workflow Release (2026-08-25)
-- **Formal 6-Stage Finding Lifecycle:** `Detect` ──► `Classify` ──► `Verify` ──► `Remediate` ──► `Re-check` ──► `Archive`.
-- **Formal JSON Schemas (`schemas/`):** Standardized schemas for findings, evidence, remediations, rule metadata, and lifecycle transitions.
-- **Repeatable Automated Validation Harness (`harness/runner.py`):** Standalone harness executing schema validation, rule catalog integrity, educational fixture differentials, and lifecycle state assertions.
-- **Core Workflow Package (`core/`):** Normalized data models, lifecycle manager, and Human-First report formatter.
-- **Command Addition:** Added `/torusguard recheck` for differential verification of post-fix codebases.
-
-### ✅ v0.5.1 — Finding Quality & Provenance Release (2026-08-25)
-- **Structured Provenance Tracking:** Explicit provenance chains documenting discovery module, triggering input, decision path, and verification step.
-- **Auditable 0–100 Confidence Scoring:** Transparent 5-factor mathematical rubric replacing subjective estimates.
-- **Cryptographic Evidence Packaging:** Immutable SHA-256 checksums computed for all raw code evidence snippets.
-- **Explicit Retest State Machine:** Formal post-fix retesting via `/torusguard recheck` before findings can transition to `Verified Fixed`.
-- **New Schemas:** Added `provenance.schema.json`, `confidence.schema.json`, and `retest.schema.json`.
-
-### ✅ v0.5.2 — Validation Engine & Deterministic Replay Release (2026-08-25)
-- **7-Layer Validation Engine (`harness/engine/`):** `FixtureManager`, `ReplayRunner`, `ResultComparator`, `RegressionTracker`, `FalsePositiveAnalyzer`, `ValidationEvidenceCollector`, `ValidationReportEmitter`.
-- **Multi-Pass Deterministic Replay (3x):** Verified identical serialized output hashes across repeated scan passes.
-- **Differential Result Comparator:** Evaluates paired vulnerable vs hardened behavior with standardized outcome labels (`Vulnerable Confirmed`, `Hardened Safe`, `False Positive`, etc.).
-- **Historical Regression Tracker:** Automated tracking ensuring baseline fixes from earlier releases remain clean.
-- **New Schemas:** Added `fixture.schema.json` and `validation-run.schema.json`.
-
-### ✅ v0.5.3 — Python Security Coverage & Framework Guidance (2026-08-25)
-- **4 New Canonical Security Rules (64 Total):**
-  - `TG-AUTH-008`: Untrusted Role or Tenant Header Injection (`X-User-Role`, `X-Tenant-ID`).
-  - `TG-INPUT-005`: Unsafe Template Rendering & Disabled Autoescaping (`mark_safe`, `| safe`, `render_template_string`).
-  - `TG-INPUT-006`: Path Traversal & Unsafe Upload Storage (`os.path.join` with client filename).
-  - `TG-DB-004`: Missing Tenant Query Isolation in Multi-Tenant Models.
-- **Framework-Native Remediations:** Added concrete Before/After remediation patterns for FastAPI, Flask, Django, DRF, and SQLAlchemy.
-- **Validation Engine Expansion:** Added 3 new paired differential fixtures in `FixtureManager` (62 passed automated tests).
-
-### ✅ v0.5.4 — Usability, Clarity & Actionable Remediation Release (2026-08-25)
-- **9-Section Actionable Report Flow:** Standardized flow comprising Header, Executive Summary, Scope & Methodology, Summary Table, Detailed Findings, Prioritized Triage Roadmap, Retest Workflow, Limitations, and Appendix.
-- **Remediation Priority Triage:** Findings classified by urgency (`Immediate P0`, `Near-Term P1`, `Backlog P2`).
-- **Context Separation:** Strict separation of executive Business Impact from technical code mechanics.
-- **Sensitive Data Masking:** Automated redaction of API keys (`sk_live_...`), GitHub tokens, JWTs, and passwords in evidence snippets.
-- **Ticket-Ready Payloads:** Pre-formatted Markdown blocks ready to copy-paste into GitHub Issues, Jira, and Linear.
-- **Validation Harness:** 64 automated tests passing with 100% pass rate (`python harness/runner.py`).
-
-### ✅ v0.5.5 — Folder-per-Run & Ponytail Integration (2026-08-26)
-- **Folder-per-Run Architecture (`RunFolder`):** Isolated execution folders (`.torusguard/runs/run-YYYYMMDD-HHMMSS/`) strictly grouping findings, remediation guides, logs, and patches for auditability.
-- **Ponytail Agent Integration (`/torusguard apply`):** Direct application of remediation via the Ponytail skill, producing constrained, safe, and minimal patches without rewriting large code segments.
-- **Rule Precision Calibration:** Criteria for routing ambiguous proxy/gateway patterns to `Needs Review` to avoid false positive escalation.
-- **Closed-Loop Workflow:** Formalized `Harden ──► Apply ──► Recheck` workflow bridging AI remediation suggestions with auditable, reproducible codebase patches.
-
-### ✅ v0.5.6 — Large-Project Validation Suite & Rule Tuning Architecture (2026-08-27)
-- **10 Large-Project Validation Harness (`harness/validate_large_projects.py`):** Standardized multi-repository runner supporting 14,000+ files across 10 major Python ecosystem targets.
-- **Multi-Project Manifest & Seed Tracking (`projects/manifest.yaml`):** Standardized repository declarations, exclusions, and synthetic vulnerability seed injection.
-- **Context-Aware Rule Tuning Guardrails:** Hardened rules (`TG-AUTH-008`, `TG-INPUT-005`, `TG-INPUT-006`, `TG-DB-004`) to suppress false positives from framework utilities while preserving true positive detection.
-- **Seeded-Case Recall Measurement:** Formal benchmarking framework for calculating recall on known vulnerabilities.
-- **Ponytail Patch Quality Tracking Ledger:** Auditable diff metrics (line churn, 0 unrelated files changed, test pass confirmation).
-- **Transparent Pilot Readiness Classification:** Honest evaluation framework distinguishing simulated runs from human-triaged scans.
-
-### ✅ v0.6.0 — Governed Remediation & Targeted Recheck System (2026-08-31)
-- **Isolated Run Folder System (`RunManager`):** Dedicated execution folders (`runs/<run-id>/`) containing all 10 standard audit artifacts.
-- **Line-Shift Invariant Finding Fingerprints (`IdentityEngine`):** Deterministic fingerprint hashing based on AST sink signatures that survive line shifts.
-- **Root-Cause Clustering Engine (`ClusteringEngine`):** Automatic grouping of related findings into systemic root-cause clusters.
-- **Structured Remediation Bundles (`BundleManager`):** Standardized 5-file packages per cluster.
-- **Minimal Patch Governance (`PatchGovernor`):** Strict line churn bounds ($\le 35$ additions, $\le 25$ deletions).
-- **Targeted Recheck Engine (`TargetedRechecker`):** Differential re-audits scoped strictly to modified files.
-- **SARIF v2.1.0 JSON Export (`SarifExporter`):** Standard OASIS SARIF v2.1.0 output for CI/CD and SIEM.
-
-### ✅ v0.6.1 — Scale & Complexity Hardening (2026-08-31)
-- **Monorepo & Deep-Hierarchy Support:** Multi-framework applications (Django + FastAPI + Flask + Shared ORM) and 8-level directory resolution without truncation.
-- **Automated Generated/Vendor Noise Suppression:** Auto-filtering of `migrations/`, `dist/`, `build/`, `node_modules/`.
-- **High-Density Root-Cause Collapsing:** Collapses 250+ repeated alerts into 3 actionable clusters with hotspot metrics.
-- **Readable Report Guardrails:** Collapsible `<details>` tables triggered at 25+ findings.
-- **Scale Benchmarking:** Tested on 2,500+ files and 1,000+ SARIF items ($< 0.10\text{s}$ execution time).
-
-### ✅ v0.6.2 — Modern Stack Compatibility (2026-08-31)
-- **Modern Stack Profiler (`StackProfiler`):** Detection of framework version families (Django 5.x, FastAPI 0.100+, SQLAlchemy 2.0, Next.js 14+) and package managers (uv, Poetry, PEP 621).
-- **Async-Native Remediation:** Idiomatic patches for async view coroutines (`await aget()`) and async database queries (`AsyncSession`).
-- **FastAPI & Pydantic v2 Compatibility:** `Annotated[User, Depends()]` dependency injections.
-- **SQLAlchemy 2.0 select() Scoping:** Modern 2.0 select statement query scoping for multi-tenant isolation.
-- **Frontend Server Action Security:** Detection and remediation of Next.js 14 Server Actions (`"use server"`).
-- **Container & Supply Chain Security:** Hardening of Dockerfiles (non-root user, secret protection) and GitHub Actions.
-
-### ✅ v0.6.3 — Final Drift, Upload & Sensitive-Path Hardening (2026-08-31)
-- **Multi-Commit Drift Invariance:** Invariant fingerprints verified across multi-commit refactorings.
-- **GitHub Code Scanning SARIF Deduplication:** Added `partialFingerprints` (`primaryLocationLineHash`) to eliminate duplicate security alerts in GitHub PRs.
-- **Sensitive-Path Review Levels:** Stricter escalation hierarchy (`Automatic`, `Peer Review Recommended`, `Mandatory Security Sign-Off`) blocking auto-apply on Auth, Tenancy, Secrets, Crypto, Storage, and CI/CD.
-- **Modern-Stack Negative Test Suite:** Verified zero false positives on safe Django 5.x async, FastAPI `Annotated`, SQLAlchemy 2.0 select, and Next.js 14 Server Actions.
-
-### ✅ v0.7.0 — Authorized Runtime Validation & Bounded Exploitability (2026-09-01)
-- **Target Authorization Gate:** Enforces target ownership proof and strict scope limits (`scope.json`, `authorization.md`).
-- **Safety Review Gates:** Tiered risk evaluation (`Auto-Allowed`, `Approval Required`, `Manual Only`) blocking destructive actions.
-- **Bounded Exploitability Confirmation:** Safe, single-step verification probes across 5 formal statuses (`Runtime Confirmed`, `Runtime Likely`, `Needs Manual Review`, `Not Reproducible in Scope`, `Blocked by Controls`).
-- **4-Role Multi-Agent Workflow:** Explicit authority separation and handoff contracts between Profiler, Validator, Remediator, and Reviewer roles (`role-audit.json`, `agent-handoffs.md`).
-- **Replayable Validation Traces:** Deterministic verification sequences serialized to `replay.json` and `replay.md`.
-- **Multi-Analysis SARIF v2.1.0:** Partitioned category exports via `automationDetails.id: torusguard/runtime/`.
-- **Structural Architecture Refactoring:** Modular clean-tier refactor across core engine with 100% test pass rate.
-
-### ✅ v0.8.0 — Installable AI-Agent Security Skill Kit (2026-09-02)
-- **Installable Open Skill:** Enabled installation via `npx skills add https://github.com/githubmofo/TorusGuard --skill "torusguard"`.
-- **Autonomous Scaffolding:** One-command setup via `/torusguard init` creating `.torusguard/` in target projects.
-- **5 Specialist Agents:** `profiler.md`, `auditor.md`, `validator.md`, `remediator.md`, `reviewer.md`.
-- **11 Slash Command Workflows:** Initial playbooks for `/torusguard init`, `authorize`, `audit`, `verify`, `web-validate`, `exploit-check`, `harden`, `apply`, `recheck`, `report`, and `status`.
-- **Pure Python Automation Utilities:** `stack_detect.py`, `finding_scorer.py`, `sarif_exporter.py`, `run_manager.py`, `safety_gate.py`.
-
-### ✅ v0.9.0 — Granular Specialist Skills Architecture (2026-09-02)
-- **Decoupled Specialist Skills:** Decomposed TorusGuard into 12 self-contained specialist skills in `skills/` (`torusguard-init`, `torusguard-audit`, etc.).
-- **Strict Context Budget Discipline:** Every skill constrained to $\le 300$ lines (58–123 lines each) with inline safety constraints and scoring models.
-- **Intelligent Lazy-Loading Router:** Root `torusguard` router loading only the single matching specialist skill per command.
-- **Master Pipeline Orchestrator:** Added `/torusguard full` (`skills/torusguard-full/SKILL.md`) for end-to-end 7-stage pipeline execution.
-- **Automated Skills Harness:** `harness/validate_v0_9_0_skills.py` (53 automated checks).
-
-### ✅ v0.9.1 — Workspace Autonomy & Offline Bootstrapper (2026-09-02)
-- **Bundled Offline Template Payload:** Packaged canonical `.torusguard/` inside `skills/torusguard/payload/` so `npx skills add` downloads all templates offline.
-- **Autonomous Bootstrapper (`skills/torusguard/bootstrap.py`):** Cross-platform Python script unpacking `.torusguard/` into project roots during init.
-- **Standalone Zero-Dependency Installer (`install.py`):** CLI tool for direct `python install.py` and remote curl piping.
-- **System Architecture Guide (`.torusguard/ARCHITECTURE.md`):** Complete lifecycle flowcharts, agent authority contracts, and directory topology.
-- **Cryptographic SHA-256 Manifest (`.torusguard/.manifest.json` & `manifest_builder.py`):** Integrity ledger indexing all 88 workspace files with tamper detection.
-- **End-to-End Simulation Test Suite:** `harness/validate_v0_9_1_installer.py`.
-
-### ✅ v0.9.2 — Workflows & Skills Command-Engine Standard (2026-09-02)
-- **Command-Engine Standard Workflows (`.torusguard/workflows/`):** Upgraded all 11 workflows to 120–172 line production playbooks with formal YAML frontmatter, mandatory pre-flight checks, "When to Use" decision tables, deterministic CLI invocations, failure recovery rules, and hallucination guards.
-- **Deepened Specialist Skills:** Enriched all 13 skills with concrete AST detection patterns for Python and TypeScript, safe canaries, and two-way workflow cross-bindings (`workflow: .torusguard/workflows/<cmd>.md`).
-- **`TG-AGENT-*` Rule Family Implemented:**
-  - `TG-AGENT-001`: Direct/Indirect Prompt Injection in System Context Files.
-  - `TG-AGENT-002`: Unsafe Tool Dispatch & Shell Execution without Sandboxing.
-  - `TG-AGENT-003`: Overly Broad MCP Tool Scoping & Credential Access.
-  - `TG-AGENT-004`: Persistent Memory & Cross-Session Information Leakage.
-- **`TG-EDGE-*` Rule Family Implemented:**
-  - `TG-EDGE-001`: Cloudflare Workers & V8 Isolate Global Memory Leakage.
-  - `TG-EDGE-003`: AWS Lambda Ephemeral Execution & Cold-Start Security.
-- **Supply Chain & Runtime Probing Hardening:**
-  - `TG-SUPPLY-002`: Explicit warnings against destructive `npm audit fix --force`.
-  - `TG-SUPPLY-006`: Container Build Secret Persistence & BuildKit secret mounts.
-  - `TG-GQL-001` & `TG-WS-001`: Bounded 3-level canary introspection and unauthenticated handshake probes.
-- **Content-Aware Diff Line Scanner (`diff_guard.py`):** Evaluates added and deleted lines in unified patches against security invariants (`TG-DIFF-001` auth bypass comments, `TG-DIFF-002` secret ingestion, `TG-DIFF-003` tenant filter removal).
-- **Monorepo Sub-Scope Orchestration (`monorepo_detector.py`):** Automated detection and per-package profiling for Turborepo, pnpm workspaces, npm/yarn, and multi-service repositories.
-- **Interactive Multi-Stack Playground Suite (`demo/playground/`):** Self-contained runnable test fixtures for FastAPI and Next.js demonstrating SQLi, IDOR, Prompt Injection, and Client Secret leakage out of the box.
-- **Autonomous Slash Command Registration:** Auto-registers `/torusguard` workflows in `.agent/workflows/`, `.claude/commands/`, and `.cursor/rules/`.
-- **Dual-Track Distribution Architecture:** Decoupled TorusGuard into two clean, independent tracks:
-  - *Track 1 (Universal AI Agent Skill):* Single `/torusguard` command for all AI agents (Kimi, Antigravity, Cursor, Copilot, Claude Code, Windsurf) installed via `npx skills add` with zero local file dependencies.
-  - *Track 2 (Production NPM Package):* Standalone package installed via `npx torusguard init` that scaffolds `.torusguard/` and unlocks all 11 individual slash commands (`/torusguard-audit`, `/torusguard-harden`, `/torusguard-apply`, etc.).
-- **Dual-Track Validation Test Suite (`harness/validate_v0_9_2_dual_track.py`):** Automated harness verifying standalone skill execution, npm scaffolding, command unlocking, and token budgets.
-- **Comprehensive Validation Harness:** Built `harness/validate_v0_9_2_workflows_and_skills.py` and `harness/validate_v0_9_2_diff_and_monorepo.py`, achieving 100% pass rate.
-
-### ✅ v0.9.3 — Dual-Track Distribution & Public NPM Registry Release (2026-09-03)
-- **Official NPM Publication:** Published `torusguard@0.9.3` to the global public npm registry (`https://www.npmjs.com/package/torusguard`).
-- **Canonical Root `SKILL.md`:** Single-skill auto-discovery for Open Agent Skills CLI (`npx skills add`), stopping the "Found 13 skills" multi-select prompt.
-- **Modern Box-Drawn Terminal UX:** Redesigned CLI status, help, and initialization rendering into clean Unicode box-drawn cards with step-by-step progress tracking.
-- **Cross-Registry Documentation Parity:** Upgraded all system architecture diagrams and finding lifecycles from Mermaid to high-fidelity Unicode text diagrams to ensure 100% rendering fidelity on npmjs.com and GitHub.
-- **Windows UTF-8 Console Hardening:** Implemented `sys.stdout.reconfigure` in the Python bootstrapper to eliminate Windows `cp1252` encoding errors.
+- [x] Go native CLI with 15 commands
+- [x] Heuristic regex-based polyglot scanner (Go, JS, TS, Python)
+- [x] Ponytail Protocol bounds enforcement
+- [x] Pre-apply snapshot engine with rollback
+- [x] Dynamic SARIF v2.1.0 report generation
+- [x] Dark-mode HTML posture dashboards
+- [x] Cryptographic authorization token generation
+- [x] HTTP security probing with audit headers
+- [x] Bounded exploit checking with inert payloads
+- [x] Evidence verification against `security_report.md`
+- [x] 75-column terminal UI with ANSI formatting
+- [x] Stack detection (Go, Node.js, Python, etc.)
+- [x] Fail-closed cryptography (panic on entropy failure)
+- [x] Path traversal defense in snapshot engine
+- [x] SSRF blocking (private IP ranges + AWS metadata)
+- [x] DoS resilience (10,000-file limit, 5-minute timeout)
+- [x] AI agent integration (Antigravity, Cursor, Claude Code, Windsurf)
 
 ---
 
-### ✅ v1.0.0 — Adaptive Security Memory Engine & General Availability (2026-09-05)
-- **Adaptive Security Memory Engine (`.torusguard/memory/`):** Persistent local intelligence layer maintaining audit findings, verified fix idioms, and false-positive suppressions across sessions.
-- **4-Tier Structured Memory Store:**
-  - Append-only event ledger (`memory/events/`) with 6 distinct event types.
-  - Distilled pattern store (`memory/patterns.json`) with multi-file confidence amplification.
-  - Pre-computed context window (`memory/context.json`) formatted as structured JSON cards ($\le 2,000$ tokens).
-  - Project DNA security profile (`memory/profile.json`) tracking fix velocity and top vulnerability rules.
-- **Configurable TTL Decay:** 90-day time-to-live decay prevents stale architectural advice.
-- **Event Compaction:** Automatically condenses loose event files older than 30 days into `compacted_archive.json`.
-- **Export & Import Subsystem:** Explicit, user-controlled memory bundling for team collaboration.
-- **Pipeline Memory Integration:**
-  - `finding_scorer.py`: Memory-augmented confidence scoring (+15 for regression watch, -30 for false positives, +10 for recurring patterns).
-  - `diff_guard.py`: Added `TG-DIFF-004` regression detection for files on Regression Watch.
-  - `run_manager.py`: Run-to-memory synchronization.
-  - `bootstrap.py`: Automatic memory layout initialization during `init`.
-- **CLI Commands:** Added `npx torusguard memory` and real-time memory metrics on `npx torusguard status`.
-- **Validation Test Suite:** 11-check test suite (`harness/validate_v1_0_0_memory.py`) achieving 100% pass rate.
+### v2.0.0-beta (Next)
 
----
+- [ ] Go `go/ast` native parser for Go source files (replacing regex for Go-specific rules)
+- [ ] Worker pool concurrency for parallel file scanning
+- [ ] SARIF report with precise `physicalLocation` (file, line, column)
+- [ ] `torusguard diff` command for pre-commit security gate
+- [ ] `torusguard rules list` and `torusguard rules sync` commands
+- [ ] JSON-structured CLI output (`--json` flag on all commands)
+- [ ] Configuration file (`.torusguard/config.yaml`) for custom rule overrides
 
-### ✅ v1.1.0 — Advanced Security Memory & Proximity Scoring (2026-09-06)
-- **File & Rule Proximity Scoring Engine:** Multi-dimensional affinity scoring matches memory cards to the active file being edited (exact file match $\ge 90$, directory match $40-80$, extension match $10-30$).
-- **Golden Fix Recipe Distillation:** Verified Before/After diff extraction from `/torusguard apply` with strict Ponytail bounds ($\le 35$ additions, $\le 25$ deletions).
-- **Formal Golden Recipe JSON Schema:** `.torusguard/schemas/golden-recipe.schema.json`.
-- **Role-Tailored Context Windows:** Dynamic memory perspectives for Auditor, Remediator, and Reviewer roles (`--role auditor|remediator|reviewer`).
-- **Git Pre-Commit Regression Hooks:** `npx torusguard memory hook install` configures `.git/hooks/pre-commit` to prevent committing regressions.
-- **Git Commit Learning:** Analyzes git commit logs for security fixes (`npx torusguard memory learn`).
-- **Sanitized Team Export:** `npx torusguard memory export --sanitized` removes sensitive local paths and secrets.
-- **Validation Test Suite:** 9-point validation battery (`harness/validate_v1_1_0_advanced_memory.py`).
+### v2.1.0
 
----
+- [ ] Support for additional languages: Rust, Java, C#, Ruby, PHP
+- [ ] Custom rule authoring (user-defined regex patterns)
+- [ ] GitHub Actions marketplace action
+- [ ] GitLab CI integration template
+- [ ] VS Code extension for inline findings
+- [ ] Persistent finding database (SQLite) for trend tracking
 
-### ✅ v1.2.0 — AI IDE Rules Auto-Sync & Visual HTML Security Posture Report (2026-09-07)
-- **AI IDE Rules Auto-Sync Engine (`rules_sync.py`):**
-  - Compiles project security invariants, golden recipes, and active guardrails into prompt-optimized rule files for Cursor (`.cursorrules`), Claude Code (`CLAUDE.md`), Antigravity (`.agent/rules/torusguard.md`), and Windsurf (`.windsurfrules`).
-  - Strict token overhead ceiling $\le 400$ prompt tokens (typically ~180–270 tokens).
-  - Non-destructive sync with comment fences `<!-- TORUSGUARD-SECURITY-GUARDRAILS:START -->` and `<!-- TORUSGUARD-SECURITY-GUARDRAILS:END -->`.
-  - CLI subcommand: `npx torusguard rules sync [--format all|cursor|claude|agent|windsurf]`.
-- **Visual Single-File HTML Posture Report (`html_reporter.py`):**
-  - Self-contained, zero-external-CDN, dark-mode visual dashboard (`.torusguard/runs/report-latest.html`).
-  - Animated SVG circular gauge for Security Posture Score ($0-100$).
-  - Interactive 7-Stage closed-loop governance pipeline visualizer.
-  - Golden Fix Recipes card grid with unified diff viewer and Ponytail metrics.
-  - CLI subcommand: `npx torusguard report --html [--out <path>]`.
-- **Validation Test Suite:** 8-point validation battery (`harness/validate_v1_2_0_rules_and_html.py`).
+### v3.0.0 (Long-term)
 
----
-
-### ✅ v1.3.0 — Universal Polyglot Security Engine (2026-09-07)
-- **Universal Polyglot Stack Detector (`stack_detect.py` & `core/stack_profiler.py`):**
-  - 16+ programming languages (Go, Rust, Java, C#, PHP, Ruby, Kotlin, Elixir, Dart, C/C++, Scala, Swift, Python, TypeScript/JavaScript).
-  - 30+ frameworks and 20+ ORMs recognized from manifests and dependency trees.
-  - Multi-language source file extension census fallback.
-- **Monorepo Fleet Discovery (`monorepo_detector.py`):**
-  - Discovers multi-package workspace hierarchies (npm/pnpm/yarn workspaces, Cargo workspaces, Go multi-module workspaces, Gradle multi-project builds).
-  - Per-package security profiling with individual framework and ORM boundary resolution.
-- **Polyglot Content-Aware Diff Guard (`diff_guard.py`):**
-  - Multi-language security bypass detection (`TG-DIFF-001`) for Go (`InsecureSkipVerify`), Java (`csrf().disable()`), C# (`[AllowAnonymous]`), PHP (`CURLOPT_SSL_VERIFYPEER => false`), and Rust (`unsafe {`).
-  - Multi-ORM tenant boundary stripping detection (`TG-DIFF-003`) for GORM, LINQ / EF Core, and Prisma.
-  - Added programmatic string-based audit helper `check_diff_content()`.
-- **1-Command Git Pre-Commit Hook Installer:**
-  - `diff_guard.py --install-hook` (or `npx torusguard diff-guard --install-hook`) automatically binds `.git/hooks/pre-commit` to prevent committing bypasses, plain credentials, or tenant boundary strippings.
-- **Context-Aware Test-Path False Positive Suppression:**
-  - `is_test_path()` dynamically discounts mock credentials, test fixtures, and harness files, eliminating spurious warnings in `test/`, `tests/`, `spec/`, and `__tests__/`.
-- **Multi-Stack AI IDE Rules Auto-Deduplication:**
-  - Dynamic language-tailored guardrail compilation matching repository stack within $\le 300$ prompt tokens for multi-framework setups.
-- **Polyglot Reference Guides & Custom Rules:**
-  - Dedicated reference matrices for Go, Rust, Java, C#, and universal polyglot security in `.torusguard/references/`.
-  - Custom rules framework in `.torusguard/rules/custom/` with schema guidelines.
-- **Visual Polyglot Posture Report (`html_reporter.py`):**
-  - Self-contained, zero-external-CDN, dark-mode visual dashboard (`.torusguard/runs/report-latest.html`) with dynamic ecosystem badges for 16+ languages.
-- **26-Repository Real-World Enterprise Portfolio Evaluation:**
-  - Validated across 26 production-grade repositories spanning 9 language ecosystems with 100.0% validation pass rate and 0-byte residual footprint on clean repos.
-- **Validation Test Suite:** 10-point validation battery (`harness/validate_v1_3_0_polyglot.py`) and 13 active test suites.
-
----
-
-### ✅ v1.3.5 — Full 74-Rule AST Security Catalog & Living Report Ground Truth (2026-09-12)
-- **Full 74-Rule AST Static Engine (`audit_runner.py`):**
-  - Expanded static security detection to all 74 documented rules across all 18 families (`TG-SEC`, `TG-AUTH`, `TG-DB`, `TG-INPUT`, `TG-RATE`, `TG-AGENT`, `TG-SSRF`, `TG-WEBHOOK`, `TG-WS`, `TG-CSRF`, `TG-GQL`, `TG-SUPPLY`, `TG-BIZ`, `TG-CACHE`, `TG-CLIENT`, `TG-PLATFORM`, `TG-DIFF`, `TG-EDGE`).
-  - High-precision polyglot regex AST detection supporting JS/TS, Python, Go, Java, and shell scripts.
-- **Living Security Report Ground-Truth Engine (`report_sync.py`, `security_report.md`):**
-  - Introduced root-level `security_report.md` ledger acting as single source of truth across CLI and AI chat.
-  - Complete lifecycle state machine tracking: `OPEN 🔴` $\rightarrow$ `VERIFIED 🟠` $\rightarrow$ `CANDIDATE 🟡` $\rightarrow$ `APPLIED 🔵` $\rightarrow$ `RESOLVED 🟢`.
-  - Standardized 75-column header card, dynamic posture health scoring (0-100), and auditable lifecycle histories.
-  - 100/100 verified Health Score achieved across all 40 baseline findings in the repository.
-- **Expanded Autonomous Ponytail Remediation (`harden_runner.py`):**
-  - 19 automated patch templates adhering to Ponytail bounds ($\le 35$ additions, $\le 25$ deletions).
-- **Dual-Mode Parity & Anti-Hallucination Guardrails:**
-  - 100% parity across 14 CLI commands (`bin/torusguard.js`) and 14 AI Chat slash commands (`.agent/workflows/` and `.agent/skills/`).
-- **Scanner Precision & False-Positive Suppression:**
-  - Fixed `TG-SSRF-002` (targeted network sinks), `TG-SSRF-004` (lookahead timeout fix), and `TG-PLATFORM-002` (whole-file inspection).
-  - Added documentation path exemption (-25 pts in `finding_scorer.py`).
-- **Validation Harness:** 81/81 test suites passing (`npm test`).
-
----
-
-### ✅ v1.3.6 — Enterprise Remediation Hub, Defended Invariant Matrix & Compliance Frameworks (2026-09-18)
-- **Interactive Enterprise Remediation Hub (`report.html`, `html_reporter.py`):**
-  - Instant family filter tabs (`All Families`, `TG-SEC`, `TG-AUTH`, `TG-DB`, `TG-INPUT`, `TG-RATE`, `TG-AGENT`, etc.).
-  - Real-time search bar filtering Golden Recipes by rule ID, title, CWE code, and family category.
-  - Monokai Dark syntax-highlighted code drawers and 1-click "Copy Golden Fix" with animated badges.
-  - Surgical Diff view with green `+` additions and red `-` deletions obeying Ponytail Protocol bounds.
-  - Safe Exploit Simulation Canary cards with inert tokens and non-destructive proof steps.
-  - Direct Action CLI Pills generating copy-pasteable terminal commands (`npx torusguard harden --rule <RULE_ID>`).
-- **5-Layer Defended Invariant & Active Defenses Matrix:**
-  - Formalized Layer 1 (Secret Zero Exposure), Layer 2 (Multi-Tenant Isolation), Layer 3 (Ponytail Churn Bound), Layer 4 (Sinks Sanitization), and Layer 5 (Network Boundary).
-- **Enterprise Regulatory & Compliance Framework Mapping:**
-  - Automated mapping to SOC 2 Type II, ISO/IEC 27001:2022, HIPAA Security Rule, and OWASP Top 10:2025.
-- **Interactive "What-If" Posture Simulator:**
-  - Real-time client-side slider to model health score improvement and remediation ROI.
-- **Zero-CDN Accessible Dark / Light Theme Switcher:**
-  - Zero-external-dependency dark and light theme switch persisting preferences in local storage.
-- **Validation Test Suite:** 120/120 tests passing across 20 test suites (`npm test`).
-
----
-
-## 🎯 Upcoming Milestones: Post-v1.3.0 Series
-
-### 🚀 v1.4.0 — Container & Infrastructure-as-Code (IaC) Security (Q4 2026)
-- [ ] **Dockerfile & OCI Container Hardening:** Local containerfile static security analysis (non-root execution, secret leakage, multi-stage builds).
-- [ ] **Kubernetes & Compose Manifest Scanning:** Audit K8s YAML and Docker Compose services for security context, privileged mode, and host network exposure.
-- [ ] **CI/CD Least-Privilege & OIDC Auditing:** Deep GitHub Actions token permissions and OIDC trust configuration checks.
-
-### 🚀 v1.5.0 — Multi-Agent Consensus & Real-Time LSP Integration (Q1 2027)
-- [ ] **Language Server Protocol (LSP) Daemon:** Real-time in-editor security linting as you type across VS Code, Neovim, and JetBrains.
-- [ ] **Distributed Multi-Agent Consensus:** Parallel verification voting between auditor, validator, and independent external verifier before patch application.
-- [ ] **Live Telemetry Bridge:** Optional encrypted local-first webhook dispatcher for internal enterprise SIEM / SOC ingestion.
-
----
-
-## 💡 Proposing a Roadmap Item
-Have an idea for a new feature, platform guide, or security domain? Open a [Feature Request](https://github.com/githubmofo/TorusGuard/issues/new?template=feature_request.md) or start a discussion in our repository!
+- [ ] WebAssembly (WASM) build for browser-based scanning
+- [ ] Remote rule distribution (pull rules from a registry)
+- [ ] Team dashboards with aggregated posture metrics
+- [ ] API server mode for CI/CD webhook integration
+- [ ] Plugin system for third-party rule packages

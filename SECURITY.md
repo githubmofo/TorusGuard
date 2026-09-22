@@ -1,183 +1,92 @@
 # Security Policy
 
-## Reporting Security Vulnerabilities
-
-The TorusGuard project takes security and safety seriously. If you believe you have discovered a vulnerability or security flaw in **TorusGuard itself** (such as unsafe skill instructions, template flaws, bootstrapper vulnerabilities, or repository infrastructure), please report it responsibly and privately.
-
-**Do not file public GitHub issues, discussions, or pull requests for undisclosed security vulnerabilities.**
-
----
-
-## What Belongs in a Security Report?
-
-| Belongs in Private Security Disclosure | Belongs in Public GitHub Issues |
-|---|---|
-| 🔒 Flaws in TorusGuard skill instructions that cause unsafe code generation | 💡 Requesting a new security rule (`TG-...`) |
-| 🔒 Insecure defaults in `templates/` or framework references | 🐛 Reporting a false positive or minor rule detection bug |
-| 🔒 Credential leaks or malicious dependencies in the TorusGuard repository | ❓ General usage questions, installation help, or feature ideas |
-| 🔒 Logic flaws in `safety_gate.py` that allow unauthorized network probes | ⚡ Proposing performance optimizations for AST scanners |
-
-> **Note on Third-Party Applications & Educational Fixtures:**  
-> - **External Codebases:** TorusGuard is an open-source guidance framework and automated skill kit. If you find a security vulnerability in an application audited with TorusGuard, please report it directly to the maintainers of that application following their private disclosure policy.  
-> - **Educational Fixtures:** Files located in `examples/vulnerable-*/`, `examples/python/*-vuln/`, and `tests/fixtures/*/` are **intentionally vulnerable educational fixtures**. They are deliberately insecure by design for validation purposes and must never be deployed to production.
-
----
-
-## How to Submit a Private Report
-
-1. **Preferred Method:** Use [GitHub Private Vulnerability Reporting](https://github.com/githubmofo/TorusGuard/security/advisories/new).
-2. **Alternative Method:** Contact the project maintainer directly via GitHub ([@githubmofo](https://github.com/githubmofo) / Jenish Lad).
-
-### What to Include in Your Report
-Please provide:
-- A clear, concise description of the security issue.
-- Affected files, workflows, skills, templates, or rule identifiers.
-- Step-by-step reproduction instructions or code snippets.
-- Assessment of potential security impact and blast radius.
-- Any suggested remediations or mitigations.
-
----
-
-## Response Commitments & Triage Targets
-
-* **Initial Acknowledgment / Triage:** Within **24 to 48 hours**.
-* **Status Update & Remediation Plan:** Within **5 days** of initial triage.
-* **Coordinated Disclosure:** We adhere to standard coordinated disclosure principles. Once a fix is verified and released, a public security advisory will be published crediting the researcher (unless anonymity is requested).
-
----
-
 ## Supported Versions
 
-Security updates and patches are actively maintained for the following release lines:
+| Version       | Supported          |
+| :------------ | :----------------- |
+| 2.0.0-alpha   | ✅ Active development |
+| 1.4.x         | ✅ Security patches |
+| < 1.4.0       | ❌ End of life      |
 
-| Version Line | Supported? | Status |
-|---|:---:|---|
-| `v1.4.x` (`v1.4.0`) | ✅ Yes | **Current active release line** (Go Native CLI, Expanded AST Scanners, Self-Update Engine, 133-Test Harness) |
-| `v1.3.x` | ✅ Yes | Universal Polyglot Engine, 74 Rules / 18 Families, Enterprise Remediation Hub |
-| `v1.2.x` | ✅ Yes | AI IDE Rules Auto-Sync & Visual HTML Posture Reporting |
-| `v1.1.x` | ✅ Yes | Advanced Security Memory Engine, Proximity Scoring & Golden Fix Recipes |
-| `v1.0.x` | ✅ Yes | Core Adaptive Security Memory Engine & Context Window Generation |
-| `v0.9.x` | ⚠️ Best effort | Dual-Track Architecture & Scaffolding |
-| `< v0.9.0` | ❌ No | Deprecated |
+## Reporting a Vulnerability
 
----
+**Do not open a public GitHub issue for security vulnerabilities.**
 
-## Security Architecture & Enforcement Controls
+If you discover a security vulnerability in TorusGuard, please report it responsibly:
 
-```text
-┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                           TORUSGUARD RUNTIME ENFORCEMENT & SAFETY GATES                     │
-└─────────────────────────────────────────────────────────────────────────────────────────────┘
+1. **Email:** Send a detailed report to the maintainer via GitHub private vulnerability reporting at [github.com/githubmofo/TorusGuard/security/advisories](https://github.com/githubmofo/TorusGuard/security/advisories)
+2. **Include:**
+   - Description of the vulnerability
+   - Steps to reproduce
+   - Affected versions
+   - Potential impact assessment
+   - Suggested fix (if available)
 
-  [ Operator / AI Agent ] ──────> [ Workflow Engine (.torusguard/workflows/) ]
-                                                  │
-                                                  ▼
-                                    { Scope Authorized? (scope.json) }
-                                     ├─ Expired / Invalid ──> ❌ HALT: Authorization Required
-                                     └─ Valid Host & TTL
-                                                  │
-                                                  ▼
-                                    { Safety Gate Check (safety_gate.py) }
-                                     ├─ Destructive Verb ───> ❌ HALT: Manual Only / Blocked
-                                     ├─ Sensitive Path ─────> ⚠️ Human Gate Approval Required
-                                     └─ Safe Read-Only GET
-                                                  │
-                                                  ▼
-                                    [ Bounded Probing (web-validate) ]
-                                                  │
-                                                  ▼
-                                    [ Automatic Credential Scrubbing ]
-                                    (Zero JWTs, Tokens, or Keys to Disk)
-                                                  │
-                                                  ▼
-                                    [ Redacted Run Artifacts (runs/<run-id>/) ]
-```
+## Response Timeline
 
-### 1. Legal Scope & Authorization Gate (`.torusguard/config/scope.json`)
-Before any live network traffic is generated, TorusGuard requires an explicit authorization record specifying:
-- Whitelisted `target_host` (localhost, private IP, or confirmed staging domain).
-- Permitted `allowed_prefixes` and strictly blocked `forbidden_paths`.
-- Mandatory Time-To-Live (TTL) expiration (maximum 24 hours).
-- Enforced by `.torusguard/scripts/safety_gate.py`.
+| Stage                  | Target     |
+| :--------------------- | :--------- |
+| Acknowledgment         | 48 hours   |
+| Initial assessment     | 5 days     |
+| Patch development      | 14 days    |
+| Public disclosure       | 30 days after patch |
 
-### 2. Tiered Safety Review Gate (`safety_gate.py`)
-Every runtime probe is evaluated through a strict 3-tier risk classification:
-- **Auto-Allowed**: Non-sensitive read-only `GET`, `HEAD`, `OPTIONS` requests within authorized scope.
-- **Approval Required**: Sensitive authentication endpoints (`/auth/login`, `/settings`) or state-changing `POST` verbs. Requires explicit human confirmation.
-- **Manual Only / Blocked**: Destructive operations (`DELETE`, `DROP`), payment endpoints, or forbidden paths. Strictly blocked from automated execution.
+## Security Design Principles
 
-### 3. Automated Credential Redaction (`.torusguard/scripts/run_manager.py`)
-All captured network payloads, headers, and logs are automatically scrubbed prior to writing to disk:
-- Bearer tokens masked: `Bearer [REDACTED_JWT_sha256:abcd...]`
-- Cookies masked: `session_id=[REDACTED_COOKIE]`
-- Passwords and secret keys masked: `[REDACTED_SECRET]`
+TorusGuard itself is built following the security principles it enforces:
 
-### 4. Governed Remediation & The Ponytail Protocol
-To prevent AI coding assistants from introducing subtle bugs, breaking architectures, or rewriting entire modules, TorusGuard enforces hard patch bounds:
-- **Max Additions**: $\le 35$ lines per bundle.
-- **Max Deletions**: $\le 25$ lines per bundle.
-- **Zero Full-File Rewrites**: Only the exact vulnerable function is patched.
-- **Rollback Guarantee**: A byte-for-byte backup is archived in `pre_apply/<file>.bak` before any code edit is written to disk.
+### Tri-Mode Governance Model
+- TorusGuard operates as a strictly enforced **Tri-Track Security Engine**:
+  - **Mode A (Terminal CLI):** Deterministic enforcement via the standalone Go binary.
+  - **Mode B (AI Chat Slash Commands):** Prompt-guided workflow bridge.
+  - **Mode C (Native MCP Protocol):** Standardized JSON-RPC 2.0 stdio tools and resources for direct agent invocation.
+- The AI Agent acts purely as an intelligence layer (formulating fixes) and is restricted from bypassing the Go enforcement binary.
+- All three modes converge directly into `security_report.md` as the living ground truth to eliminate finding drift or hallucination.
 
-### 5. Living Security Report Ground Truth (`security_report.md`)
-To eliminate AI hallucination and maintain provable security state across both human terminal CLI workflows and AI assistant chat sessions:
-- All static finding discoveries, patch formulation states, human gate applications, and recheck closures automatically synchronize into `security_report.md` at workspace root.
-- Findings adhere to a formal lifecycle: `OPEN 🔴` $\rightarrow$ `VERIFIED 🟠` $\rightarrow$ `CANDIDATE 🟡` $\rightarrow$ `APPLIED 🔵` $\rightarrow$ `RESOLVED 🟢`.
-- Provides deterministic posture health scoring (0-100) verifiable locally without external dependencies.
+### Multi-Modal Vision OCR Security Controls
+- **Resource Exhaustion Bounds:** Image scanning is strictly bounded to a 10MB memory safety envelope (configurable 5MB–10MB) to mitigate decompression bombs and image-based Denial of Service (DoS) attacks.
+- **Directory Traversal Defense:** Image file discovery is constrained within the target repository and skips `.git/`, `node_modules/`, and internal system folders.
+- **Automated Evidence Redaction:** Extracted secret payloads in OCR evidence strings are automatically truncated and masked prior to logging or streaming over MCP.
 
----
+### Model Context Protocol (MCP) Boundary Defense
+- **Stdio Isolation:** The MCP server communicates strictly over standard input/output using JSON-RPC 2.0; no raw network listeners or unsandboxed RPC ports are opened.
+- **Strict Schema Parameter Validation:** Every exposed tool (`torusguard_audit`, `torusguard_ocr_scan`, `torusguard_harden`, `torusguard_recheck`, `torusguard_status`) enforces typed JSON Schema input contracts.
+- **Output Truncation Safeguard:** Tool responses are capped at a 32,000-character ceiling (`maxOutputChars = 32000`) to strictly prevent LLM context window saturation attacks.
 
-## Continuous Validation & Release Gate Policy
+### Fail-Closed Architecture
+- Cryptographic token generation panics on entropy failure rather than falling back to a predictable value.
+- The scanner aborts on resource exhaustion (10,000-file limit, 5-minute timeout) rather than producing incomplete results.
 
-To guarantee that code changes never compromise security, safety, or backward compatibility, TorusGuard mandates a **100% pass rate across 133 tests within 21 automated test suites** prior to any release tag:
+### Path Traversal Prevention
+- All file paths in the snapshot engine are sanitized with `filepath.Clean()` and validated to prevent directory escape.
+- Patch files are parsed to extract target filenames, and the resolved path must stay within the workspace boundary.
 
-1. **Go Native Engine Suite:**
-   - Asserts Go CLI runner compilation, target argument parsing, and `.torusguard/update` functionality.
-2. **Cryptographic Manifest Verifier (`.torusguard/scripts/manifest_builder.py --check`):**
-   - Cryptographically verifies all workspace files against SHA-256 integrity signatures, explicitly ignoring volatile directories like `reports/`.
-3. **Universal Polyglot Engine Suite (`harness/validate_v1_3_0_polyglot.py`):**
-   - Asserts ecosystem profiling across 16+ languages, multi-language bypasses, tenant stripping, and token bounds.
-2. **AI IDE Rules & HTML Reporter Suite (`harness/validate_v1_2_0_rules_and_html.py`):**
-   - Asserts non-destructive rule sync across Cursor, Claude, Antigravity, Windsurf and zero-external-CDN HTML generation.
-3. **Advanced Memory & Governance Suite (`harness/validate_v1_1_0_advanced_memory.py`):**
-   - Asserts golden fix recipe storage, Ponytail bounds enforcement, proximity scoring, and sanitized export.
-4. **Core Security Memory Suite (`harness/validate_v1_0_0_memory.py`):**
-   - Asserts 6 event types, pattern distillation, confidence amplification, and TTL decay.
-5. **Dual-Track Architecture Suite (`harness/validate_v0_9_2_dual_track.py`):**
-   - Validates Track 1 portable agent skill and Track 2 NPM CLI orchestration.
-6. **Diff Guard & Monorepo Engine Suite (`harness/validate_v0_9_2_diff_and_monorepo.py`):**
-   - Asserts unified diff safety line scanner and multi-package workspace detector.
-7. **Workflows & Skills Suite (`harness/validate_v0_9_2_workflows_and_skills.py`):**
-   - Asserts 100% YAML frontmatter compliance and required sections across all 11 workflows and 13 skills.
-8. **Cryptographic Manifest Verifier:**
-   - (Moved to #2 above, ensuring 100% integrity check up front).
-9. **Autonomous Installer Suite (`harness/validate_v0_9_1_installer.py`):**
-   - Simulates clean-room installation via `npx skills add` and standalone `install.py`.
-10. **Granular Skills Suite (`harness/validate_v0_9_0_skills.py`):**
-    - Validates specialist skill frontmatter, routing table integrity, and script bindings.
-11. **Runtime Validation & Safety Suite (`harness/validate_v0_7_0_runtime.py`):**
-    - Asserts legal scope gating, TTL expiration, safety gate tiers, token redaction, and role handoffs.
-12. **Core Validation Harness (`harness/runner.py`):**
-    - Verifies 10 JSON schemas, 74 rule definitions across 18 families, 5-factor confidence scoring, and 3-pass deterministic replay.
-13. **Workspace Foundation Suites (`harness/validate_v0_8_0_part1.py`, `part2.py`, `part3.py`):**
-    - Asserts template structures, reference guides, and script execution sanity.
+### SSRF Defense
+- The `web-validate` command resolves target hostnames and blocks requests to private IP ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) and cloud metadata endpoints (`169.254.169.254`).
 
-### Blocking Release Criteria
-A proposed release is **strictly blocked** if any of the following occur:
-- ❌ Any failure in legal scope enforcement or out-of-scope host blocking.
-- ❌ Any regression in patch governance bounds or bypass of sensitive-path review escalation.
-- ❌ Any failure in secret redaction leading to unmasked Bearer tokens or credentials in logs.
-- ❌ Any non-deterministic variation in replay trace reproduction.
-- ❌ Any checksum discrepancy in `.manifest.json`.
+### Ponytail Protocol (Churn Bounds)
+- No patch bundle may exceed 35 line additions or 25 line deletions.
+- This prevents full-file rewrites that could introduce unreviewed vulnerabilities.
 
----
+### Human Gate
+- The `apply` command requires explicit `--yes` confirmation before modifying any source file.
+- Pre-apply `.bak` snapshots are always captured before modifications.
 
-## Maintainer Security Checklist
+## Scope
 
-All repository maintainers must comply with the operational security standards detailed in [`MAINTAINERS.md`](MAINTAINERS.md):
-- **Accounts:** Hardware 2FA/MFA enforced (FIDO2/WebAuthn); zero shared maintainer credentials.
-- **Branches:** Strict branch protection on `main`; PR review required on core engine, rule catalogs, and safety gates.
-- **Dependencies:** Reproducible lockfiles required; continuous scanning for dependency CVEs via `pip-audit`.
-- **Secrets:** CI secret scanning enabled; zero credentials permitted in commit history.
-- **Integrity:** SHA-256 manifest regenerated and verified before any release.
-- **Signing:** All release git tags and release assets must be cryptographically signed with maintainer GPG keys.
+This security policy covers:
+- The TorusGuard Go CLI binary (`cmd/torusguard/`) including the MCP server (`cmd/torusguard/mcp.go`)
+- The `internal/` packages (scanner, ocr, apply, validate, harden, report, memory, rules, termui, workspace)
+- The `.torusguard/` workspace configuration schemas and persistent memory
+- The AI agent integration files (`AGENTS.md`, `CLAUDE.md`, `SKILL.md`, `.cursorrules`, `.windsurfrules`, `.agents/mcp_config.json`, `mcp_config.json`)
+
+This security policy does **not** cover:
+- Third-party AI agents that consume TorusGuard rules (Cursor, Claude Code, etc.)
+- User-authored security rules or custom scanners
+- The npm wrapper (`bin/torusguard.js`) which delegates to the Go binary
+
+## Known Security Boundaries
+
+1. **Heuristic Scanner Limitations:** The scanner uses regex-based heuristic analysis rather than full AST parsing. It may produce false negatives on obfuscated or dynamically generated code patterns.
+2. **Local-Only Probing:** The `web-validate` and `exploit-check` commands are designed exclusively for `localhost` testing. Pointing them at production systems is outside the intended security boundary.
+3. **Agent Trust Model:** When running in AI Agent Mode, TorusGuard relies on the host agent's isolation model. It does not independently sandbox agent-generated code.

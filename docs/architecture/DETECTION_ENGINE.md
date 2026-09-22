@@ -49,7 +49,21 @@ In complex workspaces, the engine maps monorepo architectures (pnpm/npm/yarn wor
 ### Stage 2: AST & Heuristic Matching
 Combines abstract syntax tree traversal with semantic regular expressions to detect high-risk patterns (such as unescaped rendering, unparameterized queries, raw secret string assignments, or unvalidated request headers).
 
-### Stage 3: Context-Aware Guardrails
+### Stage 3: Multi-Modal Vision OCR Pipeline (`internal/scanner/ocr.go`)
+TorusGuard does not merely parse text code; it actively executes optical character recognition against visual assets, architecture diagrams, and UI mockups (`.png`, `.jpg`, `.jpeg`, `.webp`, `.bmp`, `.tiff`):
+- **Tesseract OCR Integration:** Invokes local high-accuracy Tesseract OCR engines (v5.4.0) with `--dpi 300` resolution enhancement.
+- **Resource Exhaustion Envelope:** Image processing is hard-bounded to 10MB (configurable 5MB–10MB) to satisfy TorusGuard Invariant #10 (DoS Resilience).
+- **Heuristic Pattern Families:**
+  - `TG-SEC-001`: Hardcoded API keys, bearer tokens, OpenAI/Stripe keys (`sk-live-...`).
+  - `TG-SEC-002`: AWS Access Key IDs (`AKIA...`).
+  - `TG-SEC-003`: GitHub Personal Access Tokens (`ghp_...`, `github_pat_...`).
+  - `TG-SEC-004`: Database connection URIs with embedded passwords (`postgres://...`, `mysql://...`, `mongodb://...`).
+  - `TG-SEC-005`: Private Key PEM headers (`-----BEGIN RSA PRIVATE KEY-----`).
+  - `TG-SEC-006`: JSON Web Tokens (`eyJ...`).
+  - `TG-SEC-007`: Password assignments and credentials in visual text.
+- **Automated Evidence Redaction:** Detected secret strings are truncated and masked to prevent secret dissemination in report artifacts.
+
+### Stage 4: Context-Aware Guardrails
 To prevent systematic false positives, the engine checks for framework-native mitigation boundaries and operational context:
 - **Context-Aware Test-Path False Positive Suppression (`is_test_path()`):** Test suites, mocks, and fixtures located in `test/`, `tests/`, `spec/`, `__tests__/`, or test harness files often contain intentional dummy credentials, bypasses, or mock tokens. The engine automatically discounts non-production test harnesses to eliminate false alarms.
 - **`TG-AUTH-008` (Untrusted Role Headers):** Escalates only when client-controlled headers directly assign authorization or tenant scope without server-side validation. If handled via API Gateway/mTLS, status is downgraded to `Needs Review`.
@@ -59,8 +73,9 @@ To prevent systematic false positives, the engine checks for framework-native mi
 - **`TG-EDGE-001` (Edge Isolate Memory Leaks):** Differentiates read-only global constants from mutable in-memory cache dictionaries in Cloudflare Workers and Edge runtimes.
 - **`TG-AGENT-001` (Prompt Injection Boundaries):** Detects user inputs concatenated into LLM system prompts without explicit XML/markdown encapsulation delimiters.
 - **`TG-AGENT-002` (Unsandboxed Tool Execution):** Verifies that agent shell tool callers enforce sandbox environments, command allowlists, and execution timeouts.
+- **`TG-AGENT-003` (Model Context Protocol Tool Scoping):** Asserts typed parameter schemas and bounded output caps on exposed MCP tools to avoid context flooding.
 
-### Stage 4: Mathematical Confidence Rubric
+### Stage 5: Mathematical Confidence Rubric
 Every surviving candidate finding is evaluated against an objective 0–100 scoring model:
 $$\text{Score} = (w_d \cdot D) + (w_e \cdot E) + (w_c \cdot C_{ast}) + \text{MemoryBoost} - P_{fp} - P_{drift}$$
 

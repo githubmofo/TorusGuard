@@ -1,13 +1,13 @@
-<!-- TORUSGUARD-SECURITY-GUARDRAILS:START -->
-## 🛡️ TorusGuard Active Project Security Invariants
-> Auto-synced from `.torusguard/memory/`. Adhere to these guardrails in all generated code.
+# TorusGuard Security Guardrails
 
-**Detected Stack:** TypeScript
+## Rules
+1. Check `security_report.md` before writing code.
+2. Ponytail Protocol: patches ≤35 additions, ≤25 deletions. No full-file rewrites.
+3. Never insert `# nosec`, `verify=False`, `InsecureSkipVerify: true`, `csrf().disable()`.
+4. Secrets in env vars only. Never hardcode API keys or JWT secrets.
+5. Parameterize all SQL queries. No string interpolation.
+6. Scope all DB queries by tenant/user ownership.
+7. Multi-Modal Vision OCR: Inspect images (.png, .jpg) for leaked credentials using `ocr-scan` or `torusguard_ocr_scan`.
+8. MCP Native Tools: In MCP agents, call `torusguard_audit`, `torusguard_ocr_scan`, `torusguard_harden`.
 
-### Universal Guardrails
-1. **Zero Raw SQL:** Always use parameterized queries (Prisma / Drizzle binders).
-2. **Tenant Isolation:** Enforce tenant/owner filtering on every database lookup (never query without `tenant_id` or owner scope).
-3. **Ponytail Bound Rule:** Remediation patches must be minimal (<= 35 additions, <= 25 deletions).
-4. **No Security Bypasses:** Never insert `# nosec`, `verify=False`, or `rejectUnauthorized: false`.
-
-<!-- TORUSGUARD-SECURITY-GUARDRAILS:END -->
+## Commands: torusguard init | audit | ocr-scan | mcp | harden | apply --yes | rollback | recheck | report --html | report --sarif | authorize | web-validate | exploit-check

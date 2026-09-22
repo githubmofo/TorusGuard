@@ -5,28 +5,55 @@ This document specifies the formal application programming interfaces, CLI comma
 
 ---
 
-## 2. Command & Dispatch Interface (14 Operations)
+## 2. Command & Dispatch Interface (Tri-Mode Parity)
 
-TorusGuard enforces 100% functional parity between **Mode A (Terminal CLI: `npx torusguard <cmd>`)** and **Mode B (AI Chat: `/torusguard <cmd>`)**:
+TorusGuard enforces 100% functional parity between **Mode A (Terminal CLI)**, **Mode B (AI Chat Slash Command)**, and **Mode C (Native MCP Protocol)**:
 
-| Operation | Mode A (CLI) | Mode B (Chat) | Bound Implementation | Artifacts Generated |
-| :--- | :--- | :--- | :--- | :--- |
-| **1. Init** | `npx torusguard init` | `/torusguard init` | `stack_detect.py`, `bootstrap.py` | `.torusguard/config/torusguard.json`, `SECURITY.md` |
-| **2. Status** | `npx torusguard status` | `/torusguard status` | `bin/torusguard.js status` | 75-column diagnostic posture card |
-| **3. Audit** | `npx torusguard audit` | `/torusguard audit` | `audit_runner.py`, `report_sync.py` | `security_report.md`, `findings.json` |
-| **4. Verify** | `npx torusguard verify` | `/torusguard verify` | `finding_scorer.py --verify` | Evidence verification & calibrated scores |
-| **5. Harden** | `npx torusguard harden` | `/torusguard harden` | `harden_runner.py` | `.torusguard/runs/<run_id>/bundles/` |
-| **6. Apply** | `npx torusguard apply [--yes]` | `/torusguard apply` | `apply_runner.py` | Pre-apply snapshots in `.torusguard/snapshots/` |
-| **7. Rollback** | `npx torusguard rollback` | `/torusguard rollback`| `apply_runner.py --rollback` | Source restoration from `.torusguard/snapshots/` |
-| **8. Recheck** | `npx torusguard recheck` | `/torusguard recheck` | `recheck_runner.py`, `report_sync.py`| Closed findings, updated `security_report.md` |
-| **9. Recipes** | `npx torusguard recipes` | `/torusguard recipes` | `recipes_runner.py` | Distilled patterns in `memory/patterns.json` |
-| **10. Report** | `npx torusguard report --html`| `/torusguard report` | `html_reporter.py`, `sarif_exporter.py`| `report-latest.html`, `results.sarif` |
-| **11. Authorize**| `npx torusguard authorize` | `/torusguard authorize` | `safety_gate.py --authorize` | `.torusguard/config/scope.json` |
-| **12. Validate** | `npx torusguard web-validate` | `/torusguard web-validate`| `safety_gate.py --validate` | Bounded HTTP trace logs with scrubbed secrets |
-| **13. Exploit** | `npx torusguard exploit-check`| `/torusguard exploit-check`| `safety_gate.py --exploit` | Exploitability confirmation matrix |
-| **14. Rules Sync**| `npx torusguard rules sync` | `/torusguard rules sync` | `rules_sync.py` | `.cursorrules`, `CLAUDE.md`, `.windsurfrules` |
+| Operation | Mode A: Terminal CLI | Mode B: AI Chat Slash Command | Mode C: Native MCP Tool | Bound Implementation | Artifacts Generated |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1. Init** | `torusguard init` | `/torusguard init` | — | `internal/workspace/` | `.torusguard/rules_catalog.json`, `security_report.md` |
+| **2. Status** | `torusguard status` | `/torusguard status` | `torusguard_status` | `internal/workspace/` | 75-column diagnostic posture card |
+| **3. Audit** | `torusguard audit` | `/torusguard audit` | `torusguard_audit` | `internal/scanner/` | `security_report.md`, findings ledger |
+| **4. OCR Vision** | `torusguard ocr-scan <target>` | `/torusguard ocr-scan` | `torusguard_ocr_scan` | `internal/scanner/ocr.go` | Optical finding list with redacted secrets |
+| **5. Verify** | `torusguard verify` | `/torusguard verify` | — | `internal/validate/` | Evidence verification & calibrated scores |
+| **6. Harden** | `torusguard harden` | `/torusguard harden` | `torusguard_harden` | `internal/harden/` | Ponytail-validated patch candidate |
+| **7. Apply** | `torusguard apply [--yes]` | `/torusguard apply` | — | `internal/apply/` | Pre-apply snapshots in `.torusguard/snapshots/` |
+| **8. Rollback** | `torusguard rollback` | `/torusguard rollback` | — | `internal/apply/` | Source restoration from `.torusguard/snapshots/` |
+| **9. Recheck** | `torusguard recheck` | `/torusguard recheck` | `torusguard_recheck` | `internal/recheck/` | Closed findings, updated `security_report.md` |
+| **10. Recipes** | `torusguard recipes` | `/torusguard recipes` | `torusguard://rules_catalog` | `internal/memory/` | Golden Fix library inspection |
+| **11. Report** | `torusguard report --html` | `/torusguard report` | `torusguard://security_report` | `internal/report/` | Single-file visual HTML & SARIF v2.1.0 |
+| **12. MCP Server** | `torusguard mcp` | — | Stdio JSON-RPC 2.0 | `cmd/torusguard/mcp.go` | Standard MCP session over stdin/stdout |
+| **13. Authorize** | `torusguard authorize` | `/torusguard authorize` | — | `internal/validate/` | Cryptographic ownership authorization tokens |
+| **14. Validate** | `torusguard web-validate` | `/torusguard web-validate` | — | `internal/validate/` | Bounded HTTP trace logs with scrubbed secrets |
+| **15. Exploit** | `torusguard exploit-check` | `/torusguard exploit-check` | — | `internal/validate/` | Exploitability confirmation matrix |
+| **16. Update** | `torusguard update` | `/torusguard update` | — | `cmd/torusguard/` | Engine self-update inspection |
+| **17. Help** | `torusguard help` | `/torusguard help` | — | `cmd/torusguard/` | Interactive command guide |
 
 ---
+
+## 2.1. Model Context Protocol (MCP) Tool Contracts
+
+AI coding agents discover and execute TorusGuard tools natively via stdio JSON-RPC 2.0:
+
+### `torusguard_audit`
+- **Description:** Runs polyglot static AST scan & multi-modal Vision OCR on target directory, writing results to `security_report.md`.
+- **Parameters:** `target` (string, default: `"."`), `include_ocr` (boolean, default: `true`), `max_image_mb` (integer, default: `10`).
+
+### `torusguard_ocr_scan`
+- **Description:** Scans an image file or directory of diagrams for leaked secrets using Tesseract OCR.
+- **Parameters:** `target` (string, required), `max_image_mb` (integer, default: `10`).
+
+### `torusguard_harden`
+- **Description:** Asserts candidate patch conformity to Ponytail bounds (≤35 additions, ≤25 deletions) and blocks security bypasses.
+- **Parameters:** `patch_file` (string, default: `"candidate.patch"`).
+
+### `torusguard_recheck`
+- **Description:** Differential re-scan verifying that previously flagged findings are Confirmed Fixed with zero regressions.
+- **Parameters:** `target` (string, default: `"."`).
+
+### `torusguard_status`
+- **Description:** Read-only posture diagnostics and detected framework stack.
+- **Parameters:** `target` (string, default: `"."`).
 
 ## 3. Schema Contracts & Data Models
 
