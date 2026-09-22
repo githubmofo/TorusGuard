@@ -12,7 +12,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-2.0.0--alpha-orange.svg" alt="Version"></a>
-  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/npm/v/torusguard.svg" alt="npm"></a>
+  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.0.0--alpha-CB3837?logo=npm&logoColor=white" alt="npm: v2.0.0-alpha"></a>
   <img src="https://img.shields.io/badge/Privacy-Local_First-success" alt="Privacy: Local First">
   <img src="https://img.shields.io/badge/Dependencies-Zero-brightgreen" alt="Dependencies: Zero">
   <img src="https://img.shields.io/badge/SARIF-v2.1.0-6C3483" alt="SARIF">
@@ -169,7 +169,7 @@ npx torusguard init
 ```
 
 <a href="https://www.npmjs.com/package/torusguard">
-  <img src="https://img.shields.io/npm/v/torusguard.svg?label=npm&logo=npm" alt="npm package">
+  <img src="https://img.shields.io/badge/npm-v2.0.0--alpha-CB3837?logo=npm&logoColor=white" alt="npm package">
 </a>
 
 ### Option 2: Build from Source (Recommended for Contributors)
