@@ -20,6 +20,7 @@ import (
 
 const Version = "2.1.0"
 
+// Standardized 75-column terminal UI formatting with Unicode emoji width calculation
 func printHelp() {
 	fmt.Println()
 	fmt.Println(termui.CardHeader("🛡️  T O R U S G U A R D   C L I   ( G O )", "Autonomous Security Engine for AI-Built Applications", "v"+Version, termui.Cyan))

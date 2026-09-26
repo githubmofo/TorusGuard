@@ -228,7 +228,7 @@ def print_already_initialized(target_root, cfg):
 """)
 
 
-def scaffold_workspace(target_root=None, force=False, full_commands=False):
+def scaffold_workspace(target_root=None, force=False, full_commands=False, template=None, **kwargs):
     """Scaffold the .torusguard workspace into the target project root."""
     target_root = Path(target_root or find_project_root()).resolve()
     torusguard_target = target_root / ".torusguard"
@@ -379,7 +379,13 @@ def scaffold_workspace(target_root=None, force=False, full_commands=False):
         try:
             with open(config_file, "r", encoding="utf-8") as f:
                 cfg = json.load(f)
-            if detected_stack and detected_stack.get("framework") != "None":
+            if template and template.lower() in ("golang", "go"):
+                cfg["detected_stack"] = {
+                    "language": "Go",
+                    "framework": "Gin",
+                    "data_layer": "None"
+                }
+            elif detected_stack and detected_stack.get("framework") != "None":
                 cfg["detected_stack"] = {
                     "language": detected_stack.get("language"),
                     "framework": detected_stack.get("framework"),
