@@ -1,12 +1,18 @@
 # TorusGuard Roadmap
 
-## Current Version: 2.0.0-alpha
+## Current Version: 2.1.0
 
 ### Completed ✅
 
-- [x] Go native CLI with 15 commands
+- [x] First-Principles Security Suite (Docker/Container, Git History, ReDoS, AI & RAG)
+- [x] 86 rules across 22 architectural families
+- [x] 21 terminal CLI commands with 75-column formatting
+- [x] 10 native Model Context Protocol (MCP) tools and 2 living resources
+- [x] Multi-modal Vision OCR (Tesseract v5.4.0 with 10MB memory safety bounds)
+- [x] Line-level reflection module with semantic patching (`find_snippet` / `replace_snippet`)
+- [x] Streamlined README with dynamic multi-tier architecture & remediation flowchart
 - [x] Heuristic regex-based polyglot scanner (Go, JS, TS, Python)
-- [x] Ponytail Protocol bounds enforcement
+- [x] Ponytail Protocol bounds enforcement (≤35 additions, ≤25 deletions)
 - [x] Pre-apply snapshot engine with rollback
 - [x] Dynamic SARIF v2.1.0 report generation
 - [x] Dark-mode HTML posture dashboards
@@ -14,7 +20,6 @@
 - [x] HTTP security probing with audit headers
 - [x] Bounded exploit checking with inert payloads
 - [x] Evidence verification against `security_report.md`
-- [x] 75-column terminal UI with ANSI formatting
 - [x] Stack detection (Go, Node.js, Python, etc.)
 - [x] Fail-closed cryptography (panic on entropy failure)
 - [x] Path traversal defense in snapshot engine

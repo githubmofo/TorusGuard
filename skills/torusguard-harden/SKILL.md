@@ -1,78 +1,80 @@
 ---
 name: torusguard-harden
 description: Package surgical remediation bundles conforming to the Ponytail Protocol (<= 35 additions, <= 25 deletions) via CLI or AI Agent.
-version: 1.3.6
+version: 2.0.0
 workflow: .torusguard/workflows/harden.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
-  - .torusguard/scripts/report_sync.py
-  - .torusguard/scripts/harden_runner.py
-  - .torusguard/scripts/diff_guard.py
-  - .torusguard/scripts/term_ui.py
+  - internal/harden/harden.go
+  - internal/harden/patch.go
+  - internal/harden/reflection.go
+  - cmd/torusguard/main.go
 ---
 
 # TorusGuard Harden — Governed Remediation & Bundle Packaging
 
 ## Objective
-Formulate minimal, surgical code fixes bound by the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions), packaging unified diffs into auditable remediation bundles ready for review.
+Formulate minimal, surgical code fixes bound by the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions), packaging unified diffs or semantic reflection patches into auditable remediation bundles ready for review.
 
 ---
 
-## Two Execution Modes
+## Tri-Mode Execution
 
 ### Mode A: Automated CLI Execution (Recommended First Step)
 Run the autonomous remediation engine via the terminal:
 ```bash
-# Harden latest audit run
-npx torusguard harden
+# Validate candidate patch or semantic patch against Ponytail bounds
+torusguard harden candidate.patch
 
-# Harden specific project directory
-npx torusguard harden ./my-project
-
-# Harden specific run ID
-npx torusguard harden --run run-20260910-121618-audit
-
-# Machine-readable JSON output
-npx torusguard harden --json
+# Validate semantic JSON patch
+torusguard harden patch.json
 ```
-**Under the Hood:** Executes `python .torusguard/scripts/harden_runner.py`.
-- Discovers findings in `.torusguard/runs/<run_id>/findings.json`.
-- Matches findings against canonical AST patch templates (`TG-SEC-*`, `TG-INPUT-*`, `TG-DB-*`, `TG-PLATFORM-*`, `TG-AUTH-*`, `TG-DIFF-*`).
-- Validates that every candidate patch strictly satisfies Ponytail bounds ($\le 35$ additions, $\le 25$ deletions).
-- Packages candidate bundles into `.torusguard/runs/<run_id>/bundles/<bundle_id>/` containing `patch.diff`, `minimal_patch_plan.md`, and `metadata.json`.
-- Emits run-level summary `remediation.md`.
+**Under the Hood:** Executes compiled Go hardening engine (`internal/harden`).
+- Evaluates patch churn strictly against Ponytail bounds ($\le 35$ additions, $\le 25$ deletions).
+- Scans replacement code for security bypasses (`# nosec`, `verify=False`, `InsecureSkipVerify: true`).
+- Supports both unified diff files (`.diff`, `.patch`) and Semantic Reflection JSON files.
 - Renders pixel-perfect 75-column terminal cards.
 
 ### Mode B: In-Session AI Chat Agent Remediation
-When findings require complex architectural changes, or when the automated CLI cannot formulate a template match:
-1. **Locate Target Finding:** Inspect `.torusguard/runs/<run_id>/findings.md` or `findings.json`.
-2. **Inspect AST Context:** Read surrounding lines ($\pm 15$) of the vulnerable sink using `view_file`.
-3. **Formulate Minimal Fix:** Craft a surgical code modification:
+When findings require complex architectural changes, or when formulating fixes:
+1. **Locate Target Finding:** Inspect `security_report.md` at workspace root.
+2. **Inspect AST Context (1/9th Token Strategy):** Inspect only surrounding lines ($\pm 3$ lines) via `ExtractContext` rather than ingesting entire files.
+3. **Formulate Minimal Semantic Patch:** Formulate a surgical code modification using the Line-Level Reflection Module:
+   - Provide `target_file`, `find_snippet`, and `replace_snippet`.
    - Parameterize SQL queries (replace concatenation with `?` or `$1` or `%s`).
-   - Add tenant isolation (`where: { tenantId }`, `organization_id=...`).
-   - Replace unsafe HTML injection (`dangerouslySetInnerHTML`, `.innerHTML = ...`) with safe text rendering (`textContent`, React elements).
-   - Sanitize path traversal using `path.basename()` or `os.path.basename()`.
-   - Constrain wildcard CORS headers to verified origin environment variables.
-   - Restore TLS verification flags (`verify=True`, `rejectUnauthorized: true`).
+   - Add tenant isolation (`where: { tenantId: user.tenantId }`).
+   - Replace unsafe HTML injection with safe text rendering (`textContent`).
+   - Sanitize path traversal using `filepath.Base()` or `path.basename()`.
+   - Restore TLS verification flags.
 4. **Validate Ponytail Bounds:** Count additions ($\le 35$) and deletions ($\le 25$). Never perform full-file rewrites.
-5. **Package Bundle Artifacts:** Write bundle under `.torusguard/runs/<run_id>/bundles/<bundle_id>/`:
-   - `patch.diff`: Standard unified diff.
-   - `minimal_patch_plan.md`: Context, rationale, and diff preview.
-   - `metadata.json`: Bundle metadata.
-6. **Report to Operator:** Present proposed diff card and recommend running `/torusguard apply` or `npx torusguard apply`.
+5. **Report to Operator:** Present proposed diff card and recommend running `/torusguard apply` or `torusguard apply`.
+
+### Mode C: Native MCP Tool Execution
+For autonomous AI coding agents (Antigravity, Cursor, Windsurf, Claude Code):
+- **Tool Invocation:** Call `torusguard_harden` with semantic reflection arguments:
+  ```json
+  {
+    "target_file": "src/controllers/userController.js",
+    "find_snippet": "const query = `SELECT * FROM users WHERE id = ${req.params.id}`;",
+    "replace_snippet": "const query = 'SELECT * FROM users WHERE id = ? AND tenant_id = ?';\nconst params = [req.params.id, req.user.tenantId];"
+  }
+  ```
+- **Programmatic Return:** Receives exact line ranges matched by Go AST, calculated additions/deletions, and verification that no `# nosec` or security bypasses exist.
 
 ---
 
-## Remediation Bundle Structure
+## 🏛️ Line-Level Reflection Module (OpenCodeReview Hybrid Engine)
+Instead of forcing the LLM to guess error-prone unified diff line offsets (`@@ -14,6 +14,8 @@`), TorusGuard allows formulating **Semantic Patches**:
+```json
+{
+  "target_file": "server/index.js",
+  "rule_id": "TG-SEC-001",
+  "find_snippet": "const jwtSecret = 'hardcoded-dev-secret-key-12345';",
+  "replace_snippet": "const jwtSecret = process.env.JWT_SECRET;",
+  "rationale": "Extracted hardcoded JWT secret to environment variable"
+}
 ```
-.torusguard/runs/<run_id>/
-├── remediation.md                         # Run-level catalog of formulated candidate patches
-└── bundles/
-    └── bnd-<rule_id>-<line>-<hash>/
-        ├── patch.diff                    # Unified diff preview
-        ├── minimal_patch_plan.md         # Detailed explanation, rationale, and churn stats
-        └── metadata.json                 # Machine-readable bundle metadata
-```
+The Go engine deterministically matches `find_snippet` against the target file, counts additions/deletions, verifies Ponytail bounds, and guarantees zero line-number drift.
 
 ---
 
@@ -90,9 +92,38 @@ When findings require complex architectural changes, or when the automated CLI c
 - **Target Finding:** `[TG-SEC-001]` at `server/index.js:9`
 - **Ponytail Churn:** +1 / -1 (Compliant <= 35 add, <= 25 del)
 - **Strategy:** Migrated hardcoded JWT secret to environment variable process.env.JWT_SECRET
-- **Bundle Directory:** `.torusguard/runs/<run_id>/bundles/bnd-tg-sec-001-9-a8310c/`
-- **Next Step:** Run `npx torusguard apply` or `/torusguard apply` to review and apply
+- **Mode:** Line-Level Reflection Match (Semantic Patch)
+- **Next Step:** Run `torusguard apply` or `/torusguard apply` to review and apply
 ```
 
-## Living Report Ground Truth
-- Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.
+---
+
+## 🚨 LLM Trap Table
+
+| Pattern | What AI Does Wrong | What Is Actually Correct |
+| :--- | :--- | :--- |
+| **Line-Number Drift** | Formulates diff headers with estimated line numbers that fail `git apply`. | Use semantic patches (`find_snippet` -> `replace_snippet`) so Go reflection pins line bounds. |
+| **Exceeding Ponytail Budget** | Produces patches with +50 additions or +40 deletions rewriting surrounding logic. | Split complex remediations or keep changes surgical ($\le 35$ additions, $\le 25$ deletions). |
+| **Introducing Bypass Flags** | Inserts `# nosec`, `verify=False`, or `@csrf_exempt` to quickly silence warnings. | Fix the root cause without disabling security invariants. Bypasses trigger immediate error. |
+| **Formatting Unrelated Lines** | Re-indents or cleans up imports in unrelated sections of the target file. | Zero unrelated churn. Touch only the lines required for vulnerability remediation. |
+
+---
+
+## ✅ Pre-Flight Self-Audit
+
+Before formulating a remediation bundle, verify:
+- [ ] Did I read only the bounded AST context window ($\pm 3$ lines) to keep tokens minimal?
+- [ ] Is `find_snippet` an exact, verbatim substring of the target file?
+- [ ] Are total additions $\le 35$ and deletions $\le 25$?
+- [ ] Does `replace_snippet` strictly avoid any bypass flags (`# nosec`, `verify=False`)?
+- [ ] Does the fix preserve existing application behavior and business contracts?
+
+---
+
+## 🔁 VBC Protocol (Verify → Build → Confirm)
+
+```
+VERIFY: Inspect target finding context and verify verbatim match of find_snippet in source code.
+BUILD:  Formulate minimal SemanticPatch or unified diff conforming to Ponytail budget (<=35 add, <=25 del).
+CONFIRM: Validate via torusguard harden or torusguard_harden MCP tool; verify zero bypass rejections.
+```

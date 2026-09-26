@@ -1,16 +1,16 @@
 ---
 description: Executive posture reporting, cluster analysis, signed compliance audit, and OASIS SARIF v2.1.0 structured export.
-tools: Read, Grep, Glob, Bash, Write
-version: 1.3.6
+tools: Read, Grep, Glob, Bash, Write, run_command
+version: 2.0.0
 agent: reviewer
 lifecycle-phase: Phase 7 (Reporting & SARIF Export)
 required-skills:
   - torusguard-report
 scripts-binding:
-  - .torusguard/scripts/html_reporter.py
-  - .torusguard/scripts/report_sync.py
-  - .torusguard/scripts/sarif_exporter.py
-  - .torusguard/scripts/run_manager.py
+  - internal/report/html.go
+  - internal/report/sarif.go
+  - cmd/torusguard/main.go
+  - cmd/torusguard/mcp.go
 ---
 
 # /torusguard report — Unified Security Posture Report & SARIF Export
@@ -20,30 +20,28 @@ $ARGUMENTS
 ---
 
 ## Objective
-Executive posture reporting, cluster analysis, signed compliance audit, and SARIF v2.1.0 export.
+Executive posture reporting, cluster analysis, signed compliance audit, and OASIS SARIF v2.1.0 export.
+
+---
+
+## Tri-Mode Execution
+
+| Mode | Command / Tool | Execution Method |
+| :--- | :--- | :--- |
+| **Mode A: Terminal CLI** | `torusguard report --html [--sarif]` | Shell compilation of HTML dashboard and SARIF log. |
+| **Mode B: AI Chat Slash** | `/torusguard report` | Executive summary generation and posture calculation. |
+| **Mode C: Native MCP Tool** | `torusguard://security_report` | Agent reads resource payload directly from living report. |
 
 ---
 
 ## Mandatory Pre-Flight Context Inspection
 
 Inspect run records and reporting parameters before generating release artifacts:
-1. **Active Run Records:** Ensure target run folder contains `findings.json` or `findings.md`.
+1. **Living Report State:** Ensure `security_report.md` exists and reflects latest findings.
 2. **SARIF v2.1.0 Schema:** Validate output structure against official OASIS SARIF standard.
 3. **Multi-Analysis Category:** Tag static findings under category `torusguard/static` to prevent CI collision.
 4. **Secret Masking:** Ensure zero unredacted authorization tokens or API keys appear in report.
-5. **Role Boundary:** Enforce reviewer agent sign-off before archiving run results.
-
----
-
-## When to Use /torusguard report
-
-| Trigger Scenario | Recommended Action |
-| :--- | :--- |
-| Concluding a security review cycle or audit milestone | Run `/torusguard report` |
-| Exporting SARIF v2.1.0 logs for GitHub Code Scanning | Run `/torusguard report` |
-| Sharing executive posture summaries with stakeholders | Run `/torusguard report` |
-| Applying code modifications | Run `/torusguard apply` |
-| Re-checking modified files | Run `/torusguard recheck` |
+5. **Zero-CDN Guarantee:** Ensure HTML report contains zero external CDN script dependencies.
 
 ---
 
@@ -51,33 +49,17 @@ Inspect run records and reporting parameters before generating release artifacts
 - Executive posture reports incorporate health scoring and metrics from `security_report.md`.
 - Emits visual dark-mode HTML (`--html`) and OASIS SARIF v2.1.0 (`--sarif`).
 
+---
+
 ## Execution Steps
 
-1. **Aggregate Lifecycle Data:** Load all finding cards, verification traces, and recheck logs.
-2. **Export OASIS SARIF v2.1.0:**
-   ```bash
-   python .torusguard/scripts/sarif_exporter.py --run <run_dir> --output <run_dir>/results.sarif
-   ```
-3. **Compile Executive Markdown Report:** Generate `report.md` with executive summary, posture score, and metrics.
-4. **Sign Off Run Manifest:** Update `.torusguard/runs/<run_id>/manifest.json` with final status counts.
-5. **Archive Results:** Confirm artifacts (`report.md`, `results.sarif`, `summary.md`) are saved on disk.
-
----
-
-## Failure Recovery
-
-- **SARIF Schema Error:** Re-run `sarif_exporter.py` with schema validation flag to locate invalid properties.
-- **Empty Findings List:** Emit valid clean report indicating zero security vulnerabilities detected.
-- **Missing Run Folder:** Point script to latest valid timestamped run in `.torusguard/runs/`.
-- **Halt Trigger:** Abort if unredacted private secrets are detected in output text.
-
----
-
-## Hallucination Guard
-
-- ❌ Never invent vulnerability counts not backed by actual findings in the run ledger.
-- ❌ Never generate invalid SARIF JSON with missing physical location URIs.
-- ✅ Always export standard-compliant SARIF v2.1.0 with AST line fingerprints.
+1. **Trigger Report Generation:**
+   - **Mode A (CLI):** Run `torusguard report --html --sarif`.
+   - **Mode B (Chat):** Calculate posture score from `security_report.md` and present summary card.
+   - **Mode C (MCP):** Query resource `torusguard://security_report`.
+2. **Compile Visual HTML:** Generate zero-dependency dark-mode HTML dashboard at `report.html`.
+3. **Export SARIF v2.1.0:** Produce schema-compliant SARIF log for CI/CD pipelines.
+4. **Sign Off Ledger:** Confirm artifacts are persisted to disk.
 
 ---
 
@@ -85,12 +67,11 @@ Inspect run records and reporting parameters before generating release artifacts
 
 ```markdown
 ### 📊 TorusGuard Security Posture Report
-- **Run ID:** `run-YYYYMMDD-HHMMSS`
-- **Total Findings:** [Count] ([Fixed] Fixed, [Open] Open)
-- **Security Posture Score:** [Score]/100
-- **SARIF v2.1.0 Export:** `.torusguard/runs/<run_id>/results.sarif`
-- **Executive Report:** `.torusguard/runs/<run_id>/report.md`
-- **Status:** COMPLETE — report published
+- **Posture Score:** 100/100 (OPTIMAL DEFENSE)
+- **Total Invariants:** 74 Defended across 18 families
+- **HTML Dashboard:** `report.html`
+- **SARIF v2.1.0 Export:** `results.sarif`
+- **Living Ledger:** `security_report.md`
 ```
 
 ---
@@ -98,4 +79,4 @@ Inspect run records and reporting parameters before generating release artifacts
 ## Next Steps
 
 1. Upload `results.sarif` to GitHub Code Scanning via `.github/workflows/`.
-2. Share `report.md` with engineering stakeholders and project maintainers.
+2. Open `report.html` in browser for visual audit presentation.

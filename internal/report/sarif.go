@@ -60,7 +60,7 @@ func GenerateSARIFReport(targetDir string, findings []string) error {
 				Tool: Tool{
 					Driver: Driver{
 						Name:    "TorusGuard",
-						Version: "2.0.0-alpha",
+						Version: "2.1.0",
 					},
 				},
 				Results: results,

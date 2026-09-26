@@ -18,7 +18,7 @@ import (
 	"github.com/torusguard/torusguard/internal/workspace"
 )
 
-const Version = "2.0.0-alpha"
+const Version = "2.1.0"
 
 func printHelp() {
 	fmt.Println()
@@ -40,6 +40,10 @@ func printHelp() {
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sweb-validate%s Authorized HTTP probing with audit headers", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sexploit-check%s Bounded exploitability confirmation", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%socr-scan%s    Run Tesseract OCR secret scan on images/diagrams", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%scontainer%s   Audit Dockerfile, compose, and container configs", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sgit-mine%s    Mine git commit history for leaked secrets & creds", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sredos%s       Analyze regex patterns for catastrophic backtracking", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sai-guard%s    Scan AI/LLM code for prompt injection & RAG flaws", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%smcp%s         Run Model Context Protocol (MCP) server over stdio", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%supdate%s      Self-update TorusGuard engine", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%shelp%s        Show this interactive command guide", termui.Green, termui.Reset), 67, "│", termui.Cyan))
@@ -198,12 +202,27 @@ func main() {
 			os.Exit(1)
 		}
 	case "web-validate":
-		if err := validate.RunWebValidate(target); err != nil {
+		targetURL := ""
+		for i, a := range cliArgs {
+			if a == "--url" && i+1 < len(cliArgs) {
+				targetURL = cliArgs[i+1]
+			}
+		}
+		if err := validate.RunWebValidate(target, targetURL); err != nil {
 			fmt.Printf("Web validate failed: %v\n", err)
 			os.Exit(1)
 		}
 	case "exploit-check":
-		if err := validate.RunExploitCheck(target); err != nil {
+		targetURL := ""
+		findingID := ""
+		for i, a := range cliArgs {
+			if a == "--url" && i+1 < len(cliArgs) {
+				targetURL = cliArgs[i+1]
+			} else if (a == "--finding" || a == "-f") && i+1 < len(cliArgs) {
+				findingID = cliArgs[i+1]
+			}
+		}
+		if err := validate.RunExploitCheck(target, targetURL, findingID); err != nil {
 			fmt.Printf("Exploit check failed: %v\n", err)
 			os.Exit(1)
 		}
@@ -247,6 +266,90 @@ func main() {
 		for _, f := range findings {
 			fmt.Printf(" - %s\n", f)
 		}
+	case "container":
+		findings, err := scanner.RunContainerAudit(target)
+		if err != nil {
+			fmt.Printf("Container audit failed: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println()
+		fmt.Println(termui.CardHeader("🐳  CONTAINER AUDIT", "Dockerfile & Compose Hardening", "v"+Version, termui.Cyan))
+		if len(findings) == 0 {
+			fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s✔ Zero container vulnerabilities detected.%s", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+		} else {
+			for _, f := range findings {
+				line := fmt.Sprintf("[%s] %s:%d %s", f.RuleID, f.File, f.Line, f.Description)
+				if len(line) > 65 {
+					line = line[:62] + "..."
+				}
+				fmt.Println(termui.FormatBoxLine(line, 67, "│", termui.Cyan))
+			}
+		}
+		fmt.Println(termui.CardBorderBottom(termui.Cyan, false))
+		fmt.Println()
+	case "git-mine":
+		findings, err := scanner.RunGitMineAudit(target)
+		if err != nil {
+			fmt.Printf("Git mine audit failed: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println()
+		fmt.Println(termui.CardHeader("🔍  GIT HISTORY SECRET MINING", "Commit Logs & Config Audit", "v"+Version, termui.Yellow))
+		if len(findings) == 0 {
+			fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s✔ Zero leaked secrets in Git history.%s", termui.Green, termui.Reset), 67, "│", termui.Yellow))
+		} else {
+			for _, f := range findings {
+				line := fmt.Sprintf("[%s] %s:%d %s", f.RuleID, f.File, f.Line, f.Description)
+				if len(line) > 65 {
+					line = line[:62] + "..."
+				}
+				fmt.Println(termui.FormatBoxLine(line, 67, "│", termui.Yellow))
+			}
+		}
+		fmt.Println(termui.CardBorderBottom(termui.Yellow, false))
+		fmt.Println()
+	case "redos":
+		findings, err := scanner.RunReDoSAudit(target)
+		if err != nil {
+			fmt.Printf("ReDoS audit failed: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println()
+		fmt.Println(termui.CardHeader("⚡  REDOS COMPLEXITY SCANNER", "Catastrophic Backtracking Analysis", "v"+Version, termui.Red))
+		if len(findings) == 0 {
+			fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s✔ Zero catastrophic backtracking regexes detected.%s", termui.Green, termui.Reset), 67, "│", termui.Red))
+		} else {
+			for _, f := range findings {
+				line := fmt.Sprintf("[%s] %s:%d %s", f.RuleID, f.File, f.Line, f.Description)
+				if len(line) > 65 {
+					line = line[:62] + "..."
+				}
+				fmt.Println(termui.FormatBoxLine(line, 67, "│", termui.Red))
+			}
+		}
+		fmt.Println(termui.CardBorderBottom(termui.Red, false))
+		fmt.Println()
+	case "ai-guard":
+		findings, err := scanner.RunAIGuardAudit(target)
+		if err != nil {
+			fmt.Printf("AI Guard audit failed: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println()
+		fmt.Println(termui.CardHeader("🤖  AI & RAG PIPELINE DEFENSE", "Injection & Vector Boundary Guard", "v"+Version, termui.Cyan))
+		if len(findings) == 0 {
+			fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s✔ Zero AI prompt injection / RAG flaws detected.%s", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+		} else {
+			for _, f := range findings {
+				line := fmt.Sprintf("[%s] %s:%d %s", f.RuleID, f.File, f.Line, f.Description)
+				if len(line) > 65 {
+					line = line[:62] + "..."
+				}
+				fmt.Println(termui.FormatBoxLine(line, 67, "│", termui.Cyan))
+			}
+		}
+		fmt.Println(termui.CardBorderBottom(termui.Cyan, false))
+		fmt.Println()
 	default:
 		fmt.Fprintf(os.Stderr, "\n  %s✖ Unknown command:%s %s%s%s\n", termui.Red, termui.Reset, termui.White, command, termui.Reset)
 		fmt.Fprintf(os.Stderr, "  Run %storusguard help%s for available commands.\n\n", termui.Green, termui.Reset)

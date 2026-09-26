@@ -239,6 +239,102 @@
       "patterns": [
         "(?i)(vulnerable_function\\(\\))"
       ]
+    },
+    {
+      "id": "TG-CONT-001",
+      "description": "Root User Execution in Container",
+      "severity": "High",
+      "patterns": [
+        "(?i)(USER\\s+(root|0))"
+      ]
+    },
+    {
+      "id": "TG-CONT-002",
+      "description": "Dangerous Docker Socket Mount",
+      "severity": "Critical",
+      "patterns": [
+        "(?i)(/var/run/docker\\.sock)"
+      ]
+    },
+    {
+      "id": "TG-CONT-003",
+      "description": "Privileged Container Mode or Disabled Security Profile",
+      "severity": "Critical",
+      "patterns": [
+        "(?i)(privileged:\\s*true|seccomp:unconfined|cap_add:.*SYS_ADMIN)"
+      ]
+    },
+    {
+      "id": "TG-CONT-004",
+      "description": "Sensitive Credentials in Container Build ARG or ENV",
+      "severity": "High",
+      "patterns": [
+        "(?i)(ARG|ENV)\\s+.*(password|secret|api_key|token)="
+      ]
+    },
+    {
+      "id": "TG-GIT-001",
+      "description": "Historical Secret Leaked in Git Commit History",
+      "severity": "Critical",
+      "patterns": [
+        "(?i)(sk-[a-zA-Z0-9]{20,}|AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36})"
+      ]
+    },
+    {
+      "id": "TG-GIT-002",
+      "description": "Plaintext Credentials in Git Config",
+      "severity": "High",
+      "patterns": [
+        "(?i)(https?://[^:]+:[^@]+@)"
+      ]
+    },
+    {
+      "id": "TG-GIT-003",
+      "description": "Sensitive Tracked File in .gitignore Violation",
+      "severity": "High",
+      "patterns": [
+        "(?i)(\\.env|id_rsa|.*\\.pem)"
+      ]
+    },
+    {
+      "id": "TG-REDOS-001",
+      "description": "Catastrophic Exponential Backtracking in Regular Expression",
+      "severity": "High",
+      "patterns": [
+        "(\\([^)]+[+*]\\)[+*])"
+      ]
+    },
+    {
+      "id": "TG-REDOS-002",
+      "description": "Unbounded Nested Quantifier in Input Validation",
+      "severity": "Medium",
+      "patterns": [
+        "(\\([^)]+\\+?\\)[+*]\\$)"
+      ]
+    },
+    {
+      "id": "TG-RAG-001",
+      "description": "Untrusted RAG Context Concatenation into System Prompt",
+      "severity": "Critical",
+      "patterns": [
+        "(?i)(system.*content.*(docs|context|retrieved)|f[\"'].*system.*\\{.*(docs|context|chunk))"
+      ]
+    },
+    {
+      "id": "TG-RAG-002",
+      "description": "Autonomous LLM Tool Unsandboxed Call",
+      "severity": "Critical",
+      "patterns": [
+        "(?i)(os\\.system|subprocess\\.run.*shell=True|child_process\\.exec)\\(.*(tool_call|arguments)"
+      ]
+    },
+    {
+      "id": "TG-RAG-003",
+      "description": "Unpartitioned Vector Database Tenant Lookup",
+      "severity": "High",
+      "patterns": [
+        "(?i)(similaritySearch|similarity_search|query)\\(.*(vector|query)(?![^)]*tenant)"
+      ]
     }
   ]
 }

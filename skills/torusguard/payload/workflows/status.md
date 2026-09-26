@@ -1,14 +1,15 @@
 ---
 description: Read-only diagnostic overview of workspace security posture, active configuration, rules catalog, and run history.
-tools: Read, Grep, Glob, Bash
-version: 1.4.0
+tools: Read, Grep, Glob, Bash, Write, run_command
+version: 2.0.0
 agent: reviewer
 lifecycle-phase: System / Diagnostics
 required-skills:
   - torusguard-status
 scripts-binding:
-  - .torusguard/scripts/report_sync.py
-  - .torusguard/scripts/run_manager.py
+  - cmd/torusguard/main.go
+  - cmd/torusguard/mcp.go
+  - internal/workspace/workspace.go
 ---
 
 # /torusguard status — Workspace Security Posture & Diagnostic Overview
@@ -18,10 +19,17 @@ $ARGUMENTS
 ---
 
 ## Objective
-Read-only diagnostic overview of workspace security posture, active configuration, and run history.
+Read-only diagnostic overview of workspace security posture, active configuration, and run history across 74 canonical security rules and 18 families.
 
-Supported CLI flags:
-- `npx torusguard status [--target <dir>]` : Diagnostic check on specified project directory
+---
+
+## Tri-Mode Execution
+
+| Mode | Command / Tool | Execution Method |
+| :--- | :--- | :--- |
+| **Mode A: Terminal CLI** | `torusguard status [--json]` | Terminal execution of 75-column diagnostic cards. |
+| **Mode B: AI Chat Slash** | `/torusguard status` | Conversational diagnostic inspection of active config and ledger. |
+| **Mode C: Native MCP Tool** | `torusguard_status` | Agent tool call with `{"target": "."}` returning posture JSON/string. |
 
 ---
 
@@ -29,22 +37,9 @@ Supported CLI flags:
 
 Inspect workspace state and configuration records prior to status display:
 1. **Config State (`.torusguard/config/torusguard.json`):** Confirm workspace initialization and read detected stack.
-2. **Active Rules Directory (`.torusguard/rules/active/`):** Count active rule files.
-3. **Run Folder Ledger (`.torusguard/runs/`):** Check run history and locate latest `manifest.json`.
-4. **Scope Record (`.torusguard/config/scope.json`):** Check whether runtime authorization TTL is active or expired.
-5. **Read-Only Invariant:** Ensure command performs zero file modifications or disk mutations.
-
----
-
-## When to Use /torusguard status
-
-| Trigger Scenario | Recommended Action |
-| :--- | :--- |
-| Checking workspace configuration and active security posture | Run `/torusguard status` |
-| Reviewing recent audit runs and finding counts | Run `/torusguard status` |
-| Checking active legal scope authorization TTL | Run `/torusguard status` |
-| Initializing workspace for the first time | Run `/torusguard init` |
-| Executing full security scan | Run `/torusguard audit` |
+2. **Active Rules Directory (`.torusguard/rules/active/`):** Count active rule files (74 canonical rules).
+3. **Living Report (`security_report.md`):** Read current open vs resolved findings.
+4. **Read-Only Invariant:** Ensure command performs zero file modifications or disk mutations.
 
 ---
 
@@ -52,33 +47,16 @@ Inspect workspace state and configuration records prior to status display:
 - Reads current health score and status breakdown directly from `security_report.md`.
 - Displays 18 rule families and 74 rules in standardized 75-column terminal cards.
 
+---
+
 ## Execution Steps
 
-1. **Read Configuration:** Load `.torusguard/config/torusguard.json`; extract stack, version, and enabled rule count.
-2. **Enumerate Active Rules:** Count rule files physically present in `.torusguard/rules/active/`.
-3. **Inspect Run History:**
-   ```bash
-   python .torusguard/scripts/run_manager.py list
-   ```
-4. **Evaluate Scope Expiry:** Parse `.torusguard/config/scope.json`; report if TTL is valid or expired.
-5. **Print Status Overview:** Render complete workspace diagnostic overview card.
-
----
-
-## Failure Recovery
-
-- **Uninitialized Workspace:** If config is missing, prompt user to execute `/torusguard init`.
-- **Zero Runs Found:** Display clean status card noting no historical audit runs exist yet.
-- **Corrupt Config File:** Report parsing error and recommend re-running `/torusguard init`.
-- **Halt Trigger:** Abort command if read access to `.torusguard/` is denied.
-
----
-
-## Hallucination Guard
-
-- ❌ Never display fabricated finding counts not substantiated by run manifests.
-- ❌ Never execute modifying shell commands or edit source code during status inspection.
-- ✅ Always report factual file counts from `.torusguard/rules/active/` and `.torusguard/runs/`.
+1. **Trigger Status Check:**
+   - **Mode A (CLI):** Run `torusguard status`.
+   - **Mode B (Chat):** Read `torusguard.json` and `security_report.md`.
+   - **Mode C (MCP):** Call `torusguard_status`.
+2. **Evaluate Posture:** Report detected stack, active invariants, and living findings ledger.
+3. **Recommend Next Actions:** Direct user to audit or remediation as needed.
 
 ---
 
@@ -86,13 +64,11 @@ Inspect workspace state and configuration records prior to status display:
 
 ```markdown
 ### 🛡️ TorusGuard Workspace Status
-- **Version:** v0.9.2
-- **Framework Detected:** [Stack or None]
-- **Active Rules:** [Count] rules active in `.torusguard/rules/active/`
-- **Total Runs:** [Count] historical runs recorded
-- **Latest Run:** `run-YYYYMMDD-HHMMSS` ([Findings Count] findings)
-- **Scope Status:** [Authorized (TTL Active) / Expired / Unconfigured]
-- **Health Posture:** [GOOD / ACTION NEEDED]
+- **Version:** v2.0.0
+- **Framework Detected:** [Stack]
+- **Active Rules:** 74 canonical rules active across 18 families
+- **Living Report:** `security_report.md`
+- **Health Posture:** [OPTIMAL DEFENSE / ACTION NEEDED]
 ```
 
 ---
@@ -100,4 +76,4 @@ Inspect workspace state and configuration records prior to status display:
 ## Next Steps
 
 1. Run `/torusguard audit` to scan codebase for security vulnerabilities.
-2. Run `/torusguard authorize` to configure or refresh live target scope.
+2. Run `/torusguard report --html` to view interactive dashboard.

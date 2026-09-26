@@ -19,9 +19,9 @@
 
 - **CLI Mode (Mode A):** Deterministic scanning and enforcement running in terminal or CI/CD pipelines via the `torusguard` binary.
 - **AI Agent Mode (Mode B):** Chat slash commands (`/torusguard audit`, `/torusguard ocr-scan`, etc.) bridging developer requests to workflow scripts.
-- **Native MCP Mode (Mode C):** Standard Model Context Protocol (MCP) JSON-RPC 2.0 stdio server enabling agents (Antigravity, Cursor, Windsurf, Claude Code) to invoke tools natively (`torusguard_audit`, `torusguard_ocr_scan`, `torusguard_harden`) and read live posture resources.
+- **Native MCP Mode (Mode C):** Standard Model Context Protocol (MCP) JSON-RPC 2.0 stdio server enabling agents (Antigravity, Cursor, Windsurf, Claude Code) to invoke tools natively (`torusguard_audit`, `torusguard_ocr_scan`, `torusguard_container`, `torusguard_git_mine`, `torusguard_redos`, `torusguard_ai_guard`, `torusguard_verify`, `torusguard_harden`, `torusguard_recheck`, `torusguard_status`) and stream live posture resources.
 
-The Go binary handles all deterministic operations (AST scanning, bounds checking, snapshotting, reporting, OCR image analysis), while AI agents handle intelligence-requiring tasks (patch generation, root-cause analysis, remediation formulation).
+The Go binary handles all deterministic operations (AST scanning, bounds checking, snapshotting, reporting, OCR image analysis, semantic reflection), while AI agents handle intelligence-requiring tasks (patch generation, root-cause analysis, remediation formulation).
 
 ---
 
@@ -45,24 +45,26 @@ The Go binary handles all deterministic operations (AST scanning, bounds checkin
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   cmd/torusguard/main.go & mcp.go                      │
-│             (17-command router & JSON-RPC 2.0 MCP Server)              │
+│             (21-command router & JSON-RPC 2.0 MCP Server)              │
 └──────────┬───────────┬──────────┬────────────┬───────────┬─────────────┘
            │           │          │            │           │
     ┌──────▼──┐  ┌─────▼────┐ ┌──▼──────┐ ┌───▼──────┐ ┌──▼───────────┐
     │ scanner │  │  apply    │ │validate │ │  report  │ │ mcp server  │
-    │         │  │  snapshot │ │authorize│ │  sarif   │ │ stdio RPC   │
-    │ AST scan│  │  rollback │ │web-val  │ │  html    │ │ 5 tools     │
-    │ ocr.go  │  └─────┬────┘ │exploit  │ └────┬─────┘ │ 2 resources │
-    └────┬────┘        │      │verify   │      │       └─────────────┘
-         │       ┌─────▼────┐ └────┬────┘ ┌───▼──────┐
-    ┌────▼────┐  │  harden  │      │      │  termui  │
-    │  rules  │  │ ponytail │      │      │  75-col  │
-    │ catalog │  └──────────┘      │      └──────────┘
-    └─────────┘                ┌───▼──────┐
-                               │workspace │
-                               │  init    │
-                               │  detect  │
-                               └──────────┘
+    │ AST scan│  │  snapshot │ │authorize│ │  sarif   │ │ stdio RPC   │
+    │ ocr.go  │  │  rollback │ │web-val  │ │  html    │ │ 10 tools    │
+    │contain. │  └─────┬────┘ │exploit  │ └────┬─────┘ │ 2 resources │
+    │git_mine │        │      │verify   │      │       └─────────────┘
+    │redos/ai └────────┼──────┴────┬────┘ ┌───▼──────┐
+    └────┬────┘        │           │      │  termui  │
+         │       ┌─────▼────┐      │      │  75-col  │
+         │       │  harden  │      │      └──────────┘
+         │       │ ponytail │      │
+         │       │reflection│      │
+    ┌────▼────┐  └──────────┘  ┌───▼──────┐
+    │  rules  │                │workspace │
+    │ 86 rules│                │  init    │
+    │ catalog │                │  detect  │
+    └─────────┘                └──────────┘
 ```
 
 ### 3.1 Interactive Architectural & Workflow Visualizations
@@ -79,11 +81,11 @@ TorusGuard architecture diagrams are authored as verifiable, self-contained inte
 | Package | Path | Responsibility | Depends On |
 | :--- | :--- | :--- | :--- |
 | `main` | `cmd/torusguard/` | CLI entry point, command routing, stdio MCP server (`mcp.go`) | All internal packages |
-| `scanner` | `internal/scanner/` | Polyglot AST/heuristic scanner (`scanner.go`) & Vision OCR (`ocr.go`) | `rules` |
-| `rules` | `internal/rules/` | Load and manage TG-* rule catalog from `.torusguard/rules/` | — |
+| `scanner` | `internal/scanner/` | Polyglot AST scanner (`scanner.go`), OCR (`ocr.go`), Container (`container.go`), Git mining (`git_mine.go`), ReDoS (`redos.go`), and AI Guard (`ai_guard.go`) | `rules` |
+| `rules` | `internal/rules/` | Load and manage 86 TG-* rules across 22 families from `.torusguard/rules/` | — |
 | `apply` | `internal/apply/` | Patch application via `git apply`, pre-apply `.bak` snapshots | — |
-| `harden` | `internal/harden/` | Ponytail Protocol line-count bounds enforcement (≤35 add, ≤25 del) | — |
-| `validate` | `internal/validate/` | Authorization tokens, HTTP probing, SSRF defense, evidence verification | — |
+| `harden` | `internal/harden/` | Ponytail Protocol line-count bounds enforcement (≤35 add, ≤25 del) & line-level reflection module (`reflection.go`) | — |
+| `validate` | `internal/validate/` | Authorization tokens, HTTP probing, SSRF defense, evidence verification (`torusguard verify`) | — |
 | `report` | `internal/report/` | SARIF v2.1.0 and HTML report generation, `security_report.md` sync | — |
 | `recheck` | `internal/recheck/` | Differential re-scan of modified files | — |
 | `memory` | `internal/memory/` | Golden Fix recipe persistence and retrieval | — |

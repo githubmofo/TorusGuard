@@ -1,10 +1,11 @@
 ---
 name: torusguard-verify
 description: Verify finding evidence sufficiency, audit live code line matches, and calibrate 0–100 confidence scores.
-version: 1.3.6
+version: 2.0.0
 workflow: .torusguard/workflows/verify.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - internal/scanner/scanner.go
   - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/finding_scorer.py
 ---
@@ -16,22 +17,31 @@ Audit the evidence sufficiency of candidate findings by reading current disk lin
 
 ---
 
-## Execution Steps
+## Tri-Mode Parity
 
-1. **Locate Target Findings:** Load active findings from `.torusguard/runs/<latest-run>/findings.md`.
-2. **Handle CLI Failures:** If `python .torusguard/scripts/finding_scorer.py` or the verify workflow fails, YOU must manually read the code and calibrate the score based on the evidence parameters.
-3. **Live Disk Line Match:** Inspect exact cited lines using `view_file` to confirm code presence.
-4. **Audit Evidence Sufficiency:** Verify source-to-sink flow against criteria below.
-5. **Calibrate Confidence Score:**
-   ```bash
-   python .torusguard/scripts/finding_scorer.py --run <run_dir> --verify
-   ```
-6. **Update State:** Mark finding as `Confirmed`, `Needs Review`, or `False Positive`.
-7. **Emit Verified Evidence:** Save report in `.torusguard/runs/<run_id>/verified-evidence.md`.
+| Mode | Command / Tool | Governed Behavior |
+| :--- | :--- | :--- |
+| **Mode A: CLI Terminal** | `torusguard verify` | Verifies evidence across findings on disk, asserts line matches. |
+| **Mode B: AI Chat Slash** | `/torusguard verify` | Performs live code inspection, audits source-to-sink taint flows. |
+| **Mode C: Native MCP Tool**| `torusguard_audit` / verify | Diagnostic validation of candidate security findings. |
 
 ---
 
-## Evidence Sufficiency
+## Execution Steps
+
+1. **Locate Target Findings:** Load active findings from `security_report.md` or `.torusguard/runs/<latest-run>/findings.md`.
+2. **Live Disk Line Match:** Inspect exact cited lines using `view_file` to confirm code presence on disk. Do not rely on stale line numbers.
+3. **Audit Evidence Sufficiency:** Verify source-to-sink flow against criteria below.
+4. **Calibrate Confidence Score:**
+   ```bash
+   torusguard verify
+   ```
+5. **Update State:** Mark finding as `Confirmed`, `Needs Review`, or `False Positive`.
+6. **Emit Verified Evidence:** Save report in `.torusguard/runs/<run_id>/verified-evidence.md`.
+
+---
+
+## Evidence Sufficiency Rubric
 A finding is verified as sufficient when:
 - **Direct AST Match:** The vulnerable API or sink call exists on disk at the cited location.
 - **Exposed Surface:** The sink is reachable from an external route, view, or public method.
@@ -58,4 +68,36 @@ A finding is verified as sufficient when:
 - False Positives Filtered: <Count> | Refined Mean Score: <Score>/100
 - Artifact: `.torusguard/runs/<run_id>/verified-evidence.md`
 Next: Run `/torusguard harden` to formulate surgical fixes for confirmed flaws.
+```
+
+---
+
+## 🚨 LLM Trap Table
+
+| Pattern | What AI Does Wrong | What Is Actually Correct |
+| :--- | :--- | :--- |
+| **Stale Line Reliance** | Assumes finding line number matches current disk state without inspecting active file. | Read live disk lines via `view_file` to verify the exact AST sink is located at that line. |
+| **Sanitizer Blindness** | Flags parameterized queries or sanitized inputs as SQLi because raw SQL keywords exist. | Inspect surrounding lines ($\pm 3$) for parameter bindings (`?`, `$1`, prep statements) or sanitizers. |
+| **Test Fixture Confusion** | Confirms vulnerabilities inside mock test files or test suites as production risks. | Check file path against test exclusion patterns (`_test.go`, `.test.ts`, `fixtures/`). Test vulnerabilities must be contextualized or ignored. |
+| **Hallucinated Reachability** | Confirms private internal functions with no external caller as exploitable web attack surfaces. | Verify if the tainted source is actually reachable from public handlers or API routes. |
+
+---
+
+## ✅ Pre-Flight Self-Audit
+
+Before calibrating or confirming any finding:
+- [ ] Did I read the live file content directly from disk?
+- [ ] Did I verify the exact cited code exists and matches the AST rule pattern?
+- [ ] Did I check for neutralizing middleware, sanitizers, or parameterization in the context window?
+- [ ] Did I verify that the file is not an excluded test fixture or mock?
+- [ ] Is the confidence score (0-100) calibrated against real evidence, not assumptions?
+
+---
+
+## 🔁 VBC Protocol (Verify → Build → Confirm)
+
+```
+VERIFY:  Read cited file lines on disk to verify presence of the reported sink.
+BUILD:   Trace source-to-sink flow and check for existing sanitizers or validators.
+CONFIRM: Calibrate confidence score and record verified status in security_report.md.
 ```
