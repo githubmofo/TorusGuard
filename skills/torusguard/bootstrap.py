@@ -63,14 +63,15 @@ import unicodedata
 ANSI_REGEX = re.compile(r'\033\[[0-9;]*m')
 
 def get_visual_width(text: str) -> int:
-    """Calculate the printable display width of a string (ANSI and emoji aware)."""
+    """Calculate the printable display width of a string (ANSI, emoji and variation selector aware)."""
     clean = ANSI_REGEX.sub('', text)
     width = 0
     for ch in clean:
+        cp = ord(ch)
+        if (0xFE00 <= cp <= 0xFE0F) or (0xE0100 <= cp <= 0xE01EF) or cp in (0x200B, 0x200C, 0x200D, 0x00AD):
+            continue
         ea = unicodedata.east_asian_width(ch)
-        if ea in ('W', 'F'):
-            width += 2
-        elif ord(ch) >= 0x1F300:
+        if ea in ('W', 'F') or cp >= 0x1F300:
             width += 2
         else:
             width += 1
@@ -82,7 +83,7 @@ def truncate_visual(text: str, max_w: int = 67) -> str:
         return text
     out, curr_w, in_ansi, ansi_buf = [], 0, False, ''
     for ch in text:
-        if ch == '\033':
+        if ch in ('\033', '\x1b'):
             in_ansi = True
             ansi_buf = ch
             continue
@@ -92,13 +93,19 @@ def truncate_visual(text: str, max_w: int = 67) -> str:
                 in_ansi = False
                 out.append(ansi_buf)
             continue
+        cp = ord(ch)
+        if (0xFE00 <= cp <= 0xFE0F) or (0xE0100 <= cp <= 0xE01EF) or cp in (0x200B, 0x200C, 0x200D, 0x00AD):
+            out.append(ch)
+            continue
         ea = unicodedata.east_asian_width(ch)
-        cw = 2 if ea in ('W', 'F') or ord(ch) >= 0x1F300 else 1
+        cw = 2 if (ea in ('W', 'F') or cp >= 0x1F300) else 1
         if curr_w + cw > max_w - 3:
-            out.append('...')
+            out.append(RESET + '...')
+            curr_w += 3
             break
         out.append(ch)
         curr_w += cw
+    out.append(RESET)
     return ''.join(out)
 
 def card_line(content: str, max_w: int = 67, border: str = "│", border_color: str = CYAN) -> str:
@@ -109,37 +116,56 @@ def card_line(content: str, max_w: int = 67, border: str = "│", border_color: 
     return f"  {border_color}{border}{RESET}  {trunc}{pad}  {border_color}{border}{RESET}"
 
 def card_border_top(title: str = "", border_color: str = CYAN, double: bool = False) -> str:
+    """Generate 75-column top border (single ┌ or double ╔) with optional title."""
     left = "╔" if double else "┌"
     right = "╗" if double else "┐"
     h = "═" if double else "─"
     if title:
         vis = get_visual_width(title)
-        rem = max(0, 71 - 3 - vis - 1)
+        rem = max(0, 68 - vis)
         return f"  {border_color}{left}{h} {BOLD}{WHITE}{title}{RESET}{border_color} {h * rem}{right}{RESET}"
     return f"  {border_color}{left}{h * 71}{right}{RESET}"
 
 def card_border_bottom(border_color: str = CYAN, double: bool = False) -> str:
+    """Generate 75-column bottom border (single └ or double ╚)."""
     left = "╚" if double else "└"
     right = "╝" if double else "┘"
     h = "═" if double else "─"
     return f"  {border_color}{left}{h * 71}{right}{RESET}"
 
-def card_divider(border_color: str = CYAN, double: bool = False) -> str:
+def card_divider(title: str = "", border_color: str = CYAN, double: bool = False) -> str:
+    """Generate 75-column divider (single ├ or double ╠) with optional title."""
     left = "╠" if double else "├"
     right = "╣" if double else "┤"
     h = "═" if double else "─"
+    if title:
+        vis = get_visual_width(title)
+        rem = max(0, 68 - vis)
+        return f"  {border_color}{left}{h} {BOLD}{WHITE}{title}{RESET}{border_color} {h * rem}{right}{RESET}"
     return f"  {border_color}{left}{h * 71}{right}{RESET}"
+
+def card_header(title: str, subtitle: str = "", version: str = "v2.1.0", border_color: str = CYAN) -> str:
+    """Generate standardized 75-column curved header box."""
+    top = f"  {border_color}╭{'─' * 71}╮{RESET}"
+    bottom = f"  {border_color}╰{'─' * 71}╯{RESET}"
+    empty = f"  {border_color}│{' ' * 71}│{RESET}"
+
+    title_vis = get_visual_width(title)
+    ver_vis = get_visual_width(version)
+    space_count = max(1, 67 - title_vis - ver_vis)
+    title_str = f"{BOLD}{WHITE}{title}{RESET}{' ' * space_count}{GRAY}{version}{RESET}"
+
+    lines = [top, empty, card_line(title_str, max_w=67, border_color=border_color)]
+    if subtitle:
+        lines.append(card_line(f"{DIM}{subtitle}{RESET}", max_w=67, border_color=border_color))
+    lines.extend([empty, bottom])
+    return "\n".join(lines)
 
 def print_header():
     """Print the branded TorusGuard header card."""
-    print(f"""
-  {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}
-  {CYAN}│{RESET}                                                                         {CYAN}│{RESET}
-  {CYAN}│{RESET}   {BOLD}{WHITE}🛡️  T O R U S G U A R D{RESET}                                  {GRAY}v1.3.0{RESET}   {CYAN}│{RESET}
-  {CYAN}│{RESET}   {DIM}Autonomous Security Engine for AI-Built Applications{RESET}               {CYAN}│{RESET}
-  {CYAN}│{RESET}                                                                         {CYAN}│{RESET}
-  {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}
-""")
+    print()
+    print(card_header("🛡️  T O R U S G U A R D", "Autonomous Security Engine for AI-Built Applications", version="v2.1.0"))
+    print()
 
 
 def print_step_1_assets(file_count):
@@ -213,14 +239,15 @@ def print_success_card():
 
 def print_already_initialized(target_root, cfg):
     """Print the already-initialized status card."""
+    print()
+    top = f"  {CYAN}╭{'─' * 71}╮{RESET}"
+    bottom = f"  {CYAN}╰{'─' * 71}╯{RESET}"
+    title_line = card_line(f"{BOLD}{WHITE}🛡️  TORUSGUARD WORKSPACE{RESET}{' ' * 28}{GREEN}[Active]{RESET}")
+    print(f"{top}\n{title_line}\n{bottom}")
     print(f"""
-  {CYAN}╭─────────────────────────────────────────────────────────────────────────╮{RESET}
-  {CYAN}│{RESET}   {BOLD}{WHITE}🛡️  TORUSGUARD WORKSPACE{RESET}                           {GREEN}[Active]{RESET}         {CYAN}│{RESET}
-  {CYAN}╰─────────────────────────────────────────────────────────────────────────╯{RESET}
-
   {BOLD}▸ Project Root:{RESET}       {GREEN}{target_root}{RESET}
   {BOLD}▸ Workspace:{RESET}          {GREEN}.torusguard/{RESET} {DIM}(Already Initialized){RESET}
-  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '1.3.0')}{RESET}
+  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '2.1.0')}{RESET}
   {BOLD}▸ Severity Floor:{RESET}     {YELLOW}{cfg.get('severity_threshold', 'medium')}{RESET}
 
   {DIM}To refresh templates or re-scaffold, run:{RESET}

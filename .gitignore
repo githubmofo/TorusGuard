@@ -49,8 +49,8 @@ security_report.md
 report.html
 *.sarif
 *.patch
-torusguard
-torusguard.exe
+/torusguard
+/torusguard.exe
 
 # TorusGuard ephemeral workspace state
 .torusguard/snapshots/

@@ -39,7 +39,7 @@ def scan_workspace_files(base_dir):
             dirs.remove("__pycache__")
 
         for f in sorted(files):
-            if f in [".manifest.json", ".gitkeep"] or f.endswith(".pyc"):
+            if f in [".manifest.json", ".gitkeep", "auth.json"] or f.endswith(".pyc"):
                 continue
             full_path = Path(root) / f
             rel_path = full_path.relative_to(base_dir).as_posix()
