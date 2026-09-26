@@ -4,6 +4,7 @@
 1. [System Overview](#1-system-overview)
 2. [Design Principles](#2-design-principles)
 3. [High-Level Architecture](#3-high-level-architecture)
+   - [3.1 Interactive Architectural & Workflow Visualizations](#31-interactive-architectural--workflow-visualizations)
 4. [Module Dependency Map](#4-module-dependency-map)
 5. [Command Lifecycle](#5-command-lifecycle)
 6. [Technology Stack](#6-technology-stack)
@@ -63,6 +64,13 @@ The Go binary handles all deterministic operations (AST scanning, bounds checkin
                                │  detect  │
                                └──────────┘
 ```
+
+### 3.1 Interactive Architectural & Workflow Visualizations
+
+TorusGuard architecture diagrams are authored as verifiable, self-contained interactive HTML artifacts powered by the [`archify`](../../.agent/skills/archify/) skill, strictly validated under the `--quality showcase` composition profile:
+
+- 📊 **[Interactive System Architecture (`torusguard-architecture.html`)](torusguard-architecture.html)** — Dynamic interactive architecture canvas with dark/light theme switching, live view filters (Tri-Mode Ingress, Polyglot AST Engine, Multi-Modal Vision OCR, Ponytail Bounds, Fail-Closed Recovery), and SVG/PNG export.
+- 🔄 **[Interactive Governed Remediation Workflow (`torusguard-governance.workflow.html`)](torusguard-governance.workflow.html)** — Step-by-step visual trace of the 7-stage remediation loop, showing how candidate changes pass through Ponytail limits (≤35 add / ≤25 del), require the Human Gate, take byte-for-byte snapshots, verify differential recheck closure, and handle instant rollback.
 
 ---
 
