@@ -6,13 +6,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [2.1.0] — 2026-09-26
+
+### Added
+- **First-Principles Security Suite (Docker, Git History, ReDoS, AI & RAG)**:
+  - `internal/scanner/container.go`: Container and Dockerfile security scanner detecting root user defaults (`TG-CONT-001`), host daemon socket mounts (`TG-CONT-002`), privileged container flags (`TG-CONT-003`), and build-arg secret injections (`TG-CONT-004`).
+  - `internal/scanner/git_mine.go`: Git commit log and config secret mining engine inspecting commit history diffs (`TG-GIT-001`), remote credentials (`TG-GIT-002`), and tracked sensitive key files (`TG-GIT-003`).
+  - `internal/scanner/redos.go`: Regular expression complexity analyzer detecting nested quantifiers with $O(2^n)$ catastrophic exponential backtracking (`TG-REDOS-001`) and overlapping alternations (`TG-REDOS-002`).
+  - `internal/scanner/ai_guard.go`: AI agent and RAG pipeline guard detecting unpartitioned vector searches (`TG-RAG-001`), indirect prompt injection in RAG chunk ingestion (`TG-RAG-002`), document poisoning (`TG-RAG-003`), and direct prompt injection (`TG-AGENT-001` - `004`).
+  - **4 New CLI Commands**: Added `container`, `git-mine`, `redos`, and `ai-guard` with 75-column formatted terminal outputs (total 21 CLI commands).
+  - **4 New Native MCP Tools**: Registered `torusguard_container`, `torusguard_git_mine`, `torusguard_redos`, and `torusguard_ai_guard` (total 10 MCP tools, 2 resources).
+  - **86 Rules Across 22 Families**: Expanded canonical rule catalog from 74 rules across 18 families to 86 rules across 22 families (adding `TG-CONT`, `TG-GIT`, `TG-REDOS`, `TG-RAG`).
+  - **4 New Canonical Skills & Workflows**: Created `torusguard-container`, `torusguard-git-mine`, `torusguard-redos`, and `torusguard-ai-guard` across `.torusguard/skills/`, `.torusguard/workflows/`, and root `skills/`.
+- **Architectural Flowchart in README**: Decoupled bulky rules table from README into `AGENTS.md` and added an end-to-end multi-tier Mermaid diagram covering Tri-Mode Ingress, Scanner Suite, Ponytail Governance, and Enterprise Outputs.
+
+---
+
 ## [2.0.0-alpha] — 2026-09-22
 
 ### Added
+- **First-Principles Security Suite (Docker, Git History, ReDoS, AI & RAG)**:
+  - `internal/scanner/container.go`: Container and Dockerfile security scanner detecting root user defaults (`TG-CONT-001`), host daemon socket mounts (`TG-CONT-002`), privileged container flags (`TG-CONT-003`), and build-arg secret injections (`TG-CONT-004`).
+  - `internal/scanner/git_mine.go`: Git commit log and config secret mining engine inspecting commit history diffs (`TG-GIT-001`), remote credentials (`TG-GIT-002`), and tracked sensitive key files (`TG-GIT-003`).
+  - `internal/scanner/redos.go`: Regular expression complexity analyzer detecting nested quantifiers with $O(2^n)$ catastrophic exponential backtracking (`TG-REDOS-001`) and overlapping alternations (`TG-REDOS-002`).
+  - `internal/scanner/ai_guard.go`: AI agent and RAG pipeline guard detecting unpartitioned vector searches (`TG-RAG-001`), indirect prompt injection in RAG chunk ingestion (`TG-RAG-002`), document poisoning (`TG-RAG-003`), and direct prompt injection (`TG-AGENT-001` - `004`).
+  - **4 New CLI Commands**: Added `container`, `git-mine`, `redos`, and `ai-guard` with 75-column formatted terminal outputs.
+  - **4 New Native MCP Tools**: Registered `torusguard_container`, `torusguard_git_mine`, `torusguard_redos`, and `torusguard_ai_guard` (total 10 MCP tools, 2 resources).
+  - **86 Rules Across 22 Families**: Expanded canonical rule catalog from 74 rules across 18 families to 86 rules across 22 families (adding `TG-CONT`, `TG-GIT`, `TG-REDOS`, `TG-RAG`).
+  - **4 New Canonical Skills & Workflows**: Created `torusguard-container`, `torusguard-git-mine`, `torusguard-redos`, and `torusguard-ai-guard` across `.torusguard/skills/`, `.torusguard/workflows/`, and root `skills/`.
 - **Multi-Modal Vision OCR Engine** (`internal/scanner/ocr.go`): Optical character recognition powered by Tesseract OCR (v5.4.0) with `--dpi 300` resolution enhancement. Automatically discovers leaked API keys (`TG-SEC-001`), AWS credentials (`TG-SEC-002`), GitHub PATs (`TG-SEC-003`), Database URIs (`TG-SEC-004`), Private Keys (`TG-SEC-005`), and JWTs (`TG-SEC-006`) within architecture diagrams and screenshot assets (`.png`, `.jpg`, `.jpeg`, `.webp`, `.bmp`, `.tiff`).
 - **OCR Memory Bounds & DoS Invariant**: Enforced 10MB memory safety envelope on all image scanning to satisfy TorusGuard Invariant #10.
 - **Native Model Context Protocol (MCP) Server** (`cmd/torusguard/mcp.go`): JSON-RPC 2.0 stdio server providing standard agent integration for Antigravity, Cursor, Windsurf, and Claude Code.
-- **MCP Native Tools**: Implemented and registered `torusguard_audit`, `torusguard_ocr_scan`, `torusguard_harden`, `torusguard_recheck`, and `torusguard_status`.
+- **MCP Native Tools**: Implemented and registered 10 tools: `torusguard_audit`, `torusguard_ocr_scan`, `torusguard_container`, `torusguard_git_mine`, `torusguard_redos`, `torusguard_ai_guard`, `torusguard_verify`, `torusguard_harden`, `torusguard_recheck`, and `torusguard_status`.
+- **Line-Level Reflection Module** (`internal/harden/reflection.go`): Semantic patch generation (`find_snippet` / `replace_snippet`) that accurately replaces exact code blocks without brittle line-number offsets.
+- **1/9th Token Bounded Context Extraction** (`internal/scanner/scanner.go`): AST context extraction (±3 lines) via `scanner.ExtractContext` keeping review prompts hyper-dense and preventing context saturation.
+- **Tri-Mode Canonical Skills & Workflows v2.0.0**: Upgraded all canonical skills and workflows in `.torusguard/skills/`, `.torusguard/workflows/`, and root `skills/` to v2.0.0 with Tri-Mode Parity execution tables, domain-specific LLM Trap tables, Pre-Flight Self-Audit checklists, and VBC (Verify → Build → Confirm) protocols.
 - **MCP Living Resources**: Exposed `torusguard://security_report` and `torusguard://rules_catalog` for instant LLM context ingestion.
 - **MCP Output Truncation Safeguard**: Built-in 32,000-character truncation ceiling (`maxOutputChars = 32000`) preventing context overflow attacks.
 - **Tri-Mode Parity Architecture**: Unified operational parity across Mode A (Terminal CLI), Mode B (AI Chat Slash Commands), and Mode C (Native MCP Protocol).

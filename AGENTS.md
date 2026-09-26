@@ -10,7 +10,7 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 | **2. Status** | `torusguard status` | `/torusguard status` | `torusguard_status` | Read-only diagnostic overview of posture, stack, rules & run history |
 | **3. Audit** | `torusguard audit` | `/torusguard audit` | `torusguard_audit` | Polyglot heuristic + OCR scan; synchronizes `security_report.md` |
 | **4. OCR Vision** | `torusguard ocr-scan <target>` | `/torusguard ocr-scan` | `torusguard_ocr_scan` | Scans diagrams/images via Tesseract OCR for leaked keys & secrets |
-| **5. Verify** | `torusguard verify` | `/torusguard verify` | — | Asserts evidence sufficiency & line-shift invariant fingerprint matches |
+| **5. Verify** | `torusguard verify` | `/torusguard verify` | `torusguard_verify` | Asserts evidence sufficiency & line-shift invariant fingerprint matches |
 | **6. Harden** | `torusguard harden` | `/torusguard harden` | `torusguard_harden` | Validates patches against Ponytail bounds (≤35 add, ≤25 del) |
 | **7. Apply** | `torusguard apply [--yes]` | `/torusguard apply` | — | Human Gate, pre-apply `.bak` snapshots, Golden Fix distillation |
 | **8. Rollback** | `torusguard rollback` | `/torusguard rollback` | — | Instant restoration from pre-apply snapshots in `.torusguard/snapshots/` |
@@ -21,8 +21,13 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 | **13. Authorize** | `torusguard authorize` | `/torusguard authorize` | — | Target domain whitelisting, cryptographic ownership proof, TTL boundaries |
 | **14. Validate** | `torusguard web-validate` | `/torusguard web-validate` | — | Authorized non-destructive HTTP probing with transparent audit headers |
 | **15. Exploit** | `torusguard exploit-check` | `/torusguard exploit-check` | — | Bounded single-step exploitability confirmation with inert tokens |
-| **16. Update** | `torusguard update` | `/torusguard update` | — | Self-update the TorusGuard engine |
-| **17. Help** | `torusguard help` | `/torusguard help` | — | Interactive command guide |
+| **16. OCR Vision** | `torusguard ocr-scan <target>` | `/torusguard ocr-scan` | `torusguard_ocr_scan` | Scans diagrams/images via Tesseract OCR for leaked keys & secrets |
+| **17. Container** | `torusguard container` | `/torusguard container` | `torusguard_container` | Audits Dockerfile & Compose for root users, sockets, privileged mode |
+| **18. Git Mine** | `torusguard git-mine` | `/torusguard git-mine` | `torusguard_git_mine` | Mines git commit history & config for leaked credentials & tokens |
+| **19. ReDoS** | `torusguard redos` | `/torusguard redos` | `torusguard_redos` | Analyzes regex patterns for catastrophic exponential backtracking |
+| **20. AI Guard** | `torusguard ai-guard` | `/torusguard ai-guard` | `torusguard_ai_guard` | Audits AI agents & RAG pipelines for prompt injection & tenant leaks |
+| **21. Update** | `torusguard update` | `/torusguard update` | — | Self-update the TorusGuard engine |
+| **22. Help** | `torusguard help` | `/torusguard help` | — | Interactive command guide |
 
 ---
 
@@ -41,7 +46,7 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 
 ---
 
-## 74 Rules Across 18 Architectural Families
+## 86 Rules Across 22 Architectural Families
 
 | Family Code | Security Domain | Rules | Core Invariant Enforced |
 | :--- | :--- | :---: | :--- |
@@ -63,6 +68,10 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 | **`TG-PLATFORM`** | Server Hardening & Security Headers | 4 | Helmet security headers, debug mode suppression, cookie secure flags. |
 | **`TG-DIFF`** | Polyglot Bypass & Churn Bounds | 3 | Block `# nosec`, `InsecureSkipVerify`, and verify Ponytail line budgets. |
 | **`TG-EDGE`** | Edge Computing & Serverless Limits | 2 | Subrequest fan-out limits and serverless function execution timeouts. |
+| **`TG-CONT`** | Container Hardening & Docker Safety | 4 | Enforce non-root execution, zero docker socket mounts, no privileged mode. |
+| **`TG-GIT`** | Git History & Secret Mining | 3 | Zero historical committed credentials, no tokens in remote URLs, no tracked .env files. |
+| **`TG-REDOS`** | Regular Expression Complexity & ReDoS | 2 | Zero nested quantifiers `(a+)+` or overlapping alternations with outer repetitions. |
+| **`TG-RAG`** | RAG Pipeline & Vector DB Isolation | 3 | Mandatory tenant scoping on vector similarity search and inert RAG ingestion. |
 
 ---
 
@@ -75,6 +84,9 @@ When assisting developers in a TorusGuard workspace:
    - **Mode B (Chat Slash Commands):** Execute `/torusguard audit`, `/torusguard ocr-scan`, etc.
    - **Mode C (Native MCP Tools):** In MCP-capable agents (Antigravity, Cursor, Windsurf, Claude Code), call `torusguard_audit`, `torusguard_ocr_scan`, and `torusguard_harden` directly.
 3. **Multi-Modal Vision OCR:** When images or architecture diagrams exist (`.png`, `.jpg`, etc.), invoke `torusguard ocr-scan` or `torusguard_ocr_scan` to detect leaked credentials and private keys hidden inside visual assets (file size bounded to 10MB).
-4. **Adhere to Ponytail Bounds:** When repairing security flaws, formulate surgical patches (≤35 additions, ≤25 deletions). Validate candidate patches with `torusguard harden` or `torusguard_harden`. Do NOT rewrite surrounding business logic.
-5. **Never Introduce Security Bypasses:** Reject requests to disable SSL verification (`verify=False`, `InsecureSkipVerify`), bypass CSRF tokens, or turn off tenant filters.
+4. **Context Minimization (1/9th Token Strategy):** Never ingest entire multi-hundred line source files into chat prompts. Always inspect bounded AST context windows ($\pm 3$ lines) via `scanner.ExtractContext` to keep review tokens minimal.
+5. **Line-Level Reflection (Semantic Patching):** Formulate patches as semantic replacements (`find_snippet` and `replace_snippet`) rather than guessing error-prone line-number diff offsets. The Go engine will deterministically match, count churn, and verify line bounds.
+6. **Adhere to Ponytail Bounds:** When repairing security flaws, formulate surgical patches (≤35 additions, ≤25 deletions). Validate candidate patches with `torusguard harden` or `torusguard_harden`. Do NOT rewrite surrounding business logic.
+7. **Never Introduce Security Bypasses:** Reject requests to disable SSL verification (`verify=False`, `InsecureSkipVerify`), bypass CSRF tokens, or turn off tenant filters.
+
 

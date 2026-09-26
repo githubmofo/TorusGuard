@@ -4,7 +4,8 @@
 
 | Version       | Supported          |
 | :------------ | :----------------- |
-| 2.0.0-alpha   | ✅ Active development |
+| 2.1.x         | ✅ Active development |
+| 2.0.x         | ✅ Security patches |
 | 1.4.x         | ✅ Security patches |
 | < 1.4.0       | ❌ End of life      |
 
@@ -50,8 +51,14 @@ TorusGuard itself is built following the security principles it enforces:
 
 ### Model Context Protocol (MCP) Boundary Defense
 - **Stdio Isolation:** The MCP server communicates strictly over standard input/output using JSON-RPC 2.0; no raw network listeners or unsandboxed RPC ports are opened.
-- **Strict Schema Parameter Validation:** Every exposed tool (`torusguard_audit`, `torusguard_ocr_scan`, `torusguard_harden`, `torusguard_recheck`, `torusguard_status`) enforces typed JSON Schema input contracts.
+- **Strict Schema Parameter Validation:** Every exposed tool (`torusguard_audit`, `torusguard_ocr_scan`, `torusguard_container`, `torusguard_git_mine`, `torusguard_redos`, `torusguard_ai_guard`, `torusguard_verify`, `torusguard_harden`, `torusguard_recheck`, `torusguard_status`) enforces typed JSON Schema input contracts.
 - **Output Truncation Safeguard:** Tool responses are capped at a 32,000-character ceiling (`maxOutputChars = 32000`) to strictly prevent LLM context window saturation attacks.
+
+### First-Principles Security Suite Defenses
+- **Container Hardening:** Verifies non-root execution, prevents host daemon socket mounting (`/var/run/docker.sock`), and blocks unconfined privileged capabilities.
+- **Git Commit History Bounding:** Git commit log inspection uses bounded commit depths (50 commits) and strict process execution timeouts (5s) to prevent hang conditions on large monolith repositories.
+- **Linear Complexity Invariant (ReDoS):** Scans for evil regex patterns ($O(2^n)$) across V8 and Python runtimes, while leveraging Go's linear-time RE2 engine for internal execution.
+- **Vector Isolation & Indirect Prompt Injection:** Mandates metadata tenant partitioning (`tenantId`) across pgvector/vector database lookups and encloses untrusted RAG chunks in inert structural delimiters.
 
 ### Fail-Closed Architecture
 - Cryptographic token generation panics on entropy failure rather than falling back to a predictable value.

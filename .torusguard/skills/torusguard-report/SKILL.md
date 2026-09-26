@@ -5,11 +5,11 @@ version: 2.2.0
 workflow: .torusguard/workflows/report.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
+  - internal/scanner/scanner.go
   - .torusguard/scripts/report_sync.py
   - .torusguard/scripts/html_reporter.py
   - .torusguard/scripts/sarif_exporter.py
   - .torusguard/scripts/run_manager.py
-  - .torusguard/scripts/term_ui.py
 ---
 
 # TorusGuard Report — Posture Reporting & SARIF / HTML Export
@@ -19,30 +19,40 @@ Aggregate findings, verification traces, and recheck results into an auditable e
 
 ---
 
+## Tri-Mode Parity
+
+| Mode | Command / Tool | Governed Behavior |
+| :--- | :--- | :--- |
+| **Mode A: CLI Terminal** | `torusguard report --html` | Compiles single-file HTML dashboard and OASIS SARIF v2.1.0 log. |
+| **Mode B: AI Chat Slash** | `/torusguard report` | Generates executive posture summary and checks CI/CD readiness. |
+| **Mode C: Native MCP Tool**| `torusguard://security_report` | Serves resource payload and posture metrics directly to agent context. |
+
+---
+
 ## Execution Steps
 
 ### Mode A: Automated CLI Execution
 Run the report engine from your terminal:
 ```bash
 # Generate visual dark-mode HTML dashboard (defaults to report.html at project root)
-npx torusguard report --html
+torusguard report --html
 
 # Export OASIS SARIF v2.1.0 for GitHub Code Scanning / CI
-npx torusguard report --sarif
+torusguard report --sarif
 
 # Generate both HTML and SARIF in a single pass
-npx torusguard report --html --sarif
+torusguard report --html --sarif
 
 # Custom HTML output location
-npx torusguard report --html --out ./docs/security-audit.html
+torusguard report --html --out ./docs/security-audit.html
 
 # Target a specific subproject / monorepo package
-npx torusguard report --target ./apps/api --html
+torusguard report --target ./apps/api --html
 ```
 
 **Under the Hood:**
-- Invokes `python .torusguard/scripts/html_reporter.py` to compile self-contained, offline-ready HTML reports with dynamic filtering, posture gauge, directory attack surface heatmap, and golden recipe explorer at `report.html` (workspace root) and mirrors to `.torusguard/runs/report-latest.html`.
-- Invokes `python .torusguard/scripts/sarif_exporter.py` to produce OASIS SARIF v2.1.0 logs at `.torusguard/runs/results-latest.sarif`.
+- Compiles self-contained, offline-ready HTML reports with dynamic filtering, posture gauge, directory attack surface heatmap, and golden recipe explorer at `report.html` (workspace root) and mirrors to `.torusguard/runs/report-latest.html`.
+- Produces OASIS SARIF v2.1.0 logs at `.torusguard/runs/results-latest.sarif`.
 - Finalizes `manifest.json` metrics and updates historical posture scoring.
 - Displays standardized 75-column terminal cards adhering to visual width invariants.
 
@@ -65,7 +75,7 @@ When generating security posture summaries in AI chat:
 
 ## SARIF v2.1.0 Output Specification
 - **Schema:** `https://docs.oasis-open.org/sarif/sarif/v2.1.0/cos02/schemas/sarif-schema-2.1.0.json`
-- **Tool Driver:** `name: TorusGuard`, `semanticVersion: 1.3.6`, full rules catalog in `driver.rules`.
+- **Tool Driver:** `name: TorusGuard`, `semanticVersion: 2.0.0`, full rules catalog in `driver.rules`.
 - **Automation Details:** `automationDetails.id: "torusguard/static"` to avoid collisions in multi-scanner CI/CD pipelines.
 - **Fingerprints:** `partialFingerprints.primaryLocationLineHash` with SHA-256 context hash.
 
@@ -91,3 +101,34 @@ When generating security posture summaries in AI chat:
 
 ## Living Report Ground Truth
 - Read `security_report.md` in the workspace root before taking any action. Update the relevant finding card after completing remediation.
+
+---
+
+## 🚨 LLM Trap Table
+
+| Pattern | What AI Does Wrong | What Is Actually Correct |
+| :--- | :--- | :--- |
+| **Credential Leakage in HTML** | Embeds raw plaintext passwords, JWTs, or API secrets into HTML report DOM or SARIF output. | Redact all secret values (`[REDACTED]`) before serializing findings to HTML or SARIF. |
+| **External CDN Dependency** | Inserts CDN links (`https://cdn.jsdelivr.net/...`, Google Fonts) breaking offline and air-gapped environments. | Embed 100% of styles, SVGs, and interactive logic inline inside single-file `report.html`. |
+| **SARIF Schema Invalidation** | Emits invalid JSON or omits required fields (`runs[0].tool.driver.rules`), breaking GitHub Code Scanning ingestion. | Validate SARIF output against OASIS v2.1.0 specification with valid rule IDs and URI locations. |
+| **Out-of-Sync Ledger** | Emits HTML report with different counts or statuses than `security_report.md`. | Synchronize metrics so `report.html`, `security_report.md`, and SARIF reflect the identical ground truth. |
+
+---
+
+## ✅ Pre-Flight Self-Audit
+
+Before generating reports:
+- [ ] Are all secrets, tokens, and authorization credentials redacted?
+- [ ] Is `report.html` 100% self-contained with zero external CDN tags?
+- [ ] Does the SARIF export conform strictly to OASIS SARIF v2.1.0?
+- [ ] Does the reported posture score match findings in `security_report.md`?
+
+---
+
+## 🔁 VBC Protocol (Verify → Build → Confirm)
+
+```
+VERIFY:  Collect finding counts, verification states, and recheck results from active run.
+BUILD:   Compile self-contained visual HTML dashboard and serialize SARIF v2.1.0 log.
+CONFIRM: Check file size and validity on disk; verify zero unredacted secrets exist.
+```

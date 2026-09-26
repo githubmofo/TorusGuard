@@ -1,16 +1,16 @@
 ---
 description: Governed remediation formulation under strict Ponytail Protocol bounds (<= 35 additions, <= 25 deletions) and bundle packaging.
-tools: Read, Grep, Glob, Bash, Write
-version: 1.3.6
+tools: Read, Grep, Glob, Bash, Write, run_command
+version: 2.0.0
 agent: remediator
 lifecycle-phase: Phase 4 (Remediation Formulation)
 required-skills:
   - torusguard-harden
 scripts-binding:
-  - .torusguard/scripts/harden_runner.py
-  - .torusguard/scripts/report_sync.py
-  - .torusguard/scripts/run_manager.py
-  - .torusguard/scripts/diff_guard.py
+  - internal/harden/patch.go
+  - internal/harden/reflection.go
+  - cmd/torusguard/main.go
+  - cmd/torusguard/mcp.go
 ---
 
 # /torusguard harden — Governed Remediation & Bundle Packaging
@@ -20,31 +20,29 @@ $ARGUMENTS
 ---
 
 ## Objective
-Governed remediation formulation under strict Ponytail Protocol bounds (<=35 add, <=25 del).
+Formulate minimal, surgical code fixes bound by the Ponytail Protocol ($\le 35$ additions, $\le 25$ deletions), packaging unified diffs or semantic reflection patches into auditable remediation bundles ready for review.
+
+---
+
+## Tri-Mode Execution
+
+| Mode | Command / Tool | Execution Method |
+| :--- | :--- | :--- |
+| **Mode A: Terminal CLI** | `torusguard harden <candidate.patch \| patch.json>` | Shell validation of patch against Ponytail bounds. |
+| **Mode B: AI Chat Slash** | `/torusguard harden` | Formulate semantic patch with Line-Level Reflection. |
+| **Mode C: Native MCP Tool** | `torusguard_harden` | Automated validation of patch file or `find_snippet` / `replace_snippet`. |
 
 ---
 
 ## Mandatory Pre-Flight Context Inspection
 
 Inspect finding targets and patch constraints before generating diffs:
-1. **Target Finding (`findings.md`):** Identify prioritized verified findings.
+1. **Target Finding (`security_report.md`):** Identify prioritized verified findings.
 2. **Ponytail Protocol:** Enforce hard limit ($\le 35$ additions, $\le 25$ deletions). Ban rewrites.
-3. **Sensitive Path Review:** Flag changes touching `auth/` or `settings.py` for human sign-off.
+3. **Sensitive Path Review:** Flag changes touching `auth/` or credentials for explicit sign-off.
 4. **Behavior Preservation:** Ensure patch addresses flaw without breaking public APIs.
 5. **Dry-Run Rule:** Do NOT apply changes to disk during harden; emit bundle for review.
-6. **Backup Readiness:** Ensure rollback procedures are prepared before staging patch.
-
----
-
-## When to Use /torusguard harden
-
-| Trigger Scenario | Recommended Action |
-| :--- | :--- |
-| Formulating minimal patches for verified findings | Run `/torusguard harden` |
-| Packaging a 4-artifact remediation bundle for review | Run `/torusguard harden` |
-| Writing and applying changes to code files | Run `/torusguard apply` |
-| Differentially re-scanning code after patch application | Run `/torusguard recheck` |
-| Discovering new vulnerabilities | Run `/torusguard audit` |
+6. **Zero Bypasses:** Reject `# nosec`, `verify=False`, or `InsecureSkipVerify` under rule `TG-DIFF-001`.
 
 ---
 
@@ -52,30 +50,15 @@ Inspect finding targets and patch constraints before generating diffs:
 - Candidate patches transition findings in `security_report.md` into `CANDIDATE 🟡` status.
 - Every patch strictly conforms to Ponytail bounds (<= 35 additions, <= 25 deletions).
 
+---
+
 ## Execution Steps
 
-1. **Select Target Finding:** Choose verified flaw from active run directory.
-2. **Examine Live Code Context:** Read surrounding lines (±15) of vulnerable sink.
-3. **Draft Unified Diff:** Formulate minimal fix adhering to Ponytail Protocol limits.
-4. **Audit Patch Safety:** Run `python .torusguard/scripts/diff_guard.py <patch.diff>`.
-5. **Package 4-Artifact Bundle:** Write `patch.diff`, `plan.md`, `verification.md`, `rollback.md` to `.torusguard/runs/<run_id>/remediation/<finding_id>/`.
-
----
-
-## Failure Recovery
-
-- **Line Churn Exceeded (>35 add or >25 del):** Decompose patch into smaller sequential sub-fixes.
-- **Sensitive Path Conflict:** Mark bundle with `Requires Sensitive-Path Sign-Off` in `plan.md`.
-- **Finding Not Found:** Ensure finding ID exists in active `findings.md`.
-- **Halt Trigger:** Abort if target source file cannot be read from disk.
-
----
-
-## Hallucination Guard
-
-- ❌ Never generate full-file replacements or unconstrained cosmetic code refactoring.
-- ❌ Never modify imports, variables, or functions unrelated to the vulnerability.
-- ✅ Always calculate addition and deletion line counts before emitting `patch.diff`.
+1. **Select Target Finding:** Choose verified flaw from `security_report.md`.
+2. **Examine Live Code Context:** Read surrounding lines ($\pm 3$) using bounded context extraction.
+3. **Formulate Minimal Semantic Patch:** Formulate `find_snippet` and `replace_snippet`.
+4. **Audit Patch Safety:** Run `torusguard harden` or call `torusguard_harden`.
+5. **Package Bundle:** Prepare candidate patch ready for the Human Gate.
 
 ---
 
@@ -84,10 +67,8 @@ Inspect finding targets and patch constraints before generating diffs:
 ```markdown
 ### 🛠️ TorusGuard Remediation Bundle
 - **Finding Target:** `TG-XXX-HASH` ([Vulnerability Name])
-- **File Affected:** `src/path/to/file.py`
+- **File Affected:** `src/path/to/file`
 - **Line Churn:** +[Additions] / -[Deletions] (Ponytail: PASS)
-- **Sensitive Path:** [Yes (Sign-Off Needed) / No (Standard)]
-- **Bundle Path:** `.torusguard/runs/<run_id>/remediation/<finding_id>/`
 - **Status:** READY FOR REVIEW — run `/torusguard apply` to execute
 ```
 
@@ -95,5 +76,5 @@ Inspect finding targets and patch constraints before generating diffs:
 
 ## Next Steps
 
-1. Review proposed diff in `.torusguard/runs/<run_id>/remediation/<finding_id>/patch.diff`.
-2. Run `/torusguard apply` to execute the governed patch with automatic rollback backup.
+1. Review proposed diff or semantic reflection snippet.
+2. Run `/torusguard apply` or `torusguard apply` with Human Gate approval.

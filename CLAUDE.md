@@ -19,6 +19,10 @@ Run these via the terminal or as slash commands in chat:
 torusguard init           # Initialize workspace
 torusguard audit          # Run security + OCR scan; sync security_report.md
 torusguard ocr-scan       # Scan diagram/image assets for leaked credentials
+torusguard container      # Audit Dockerfile & Compose for root users & sockets
+torusguard git-mine       # Mine git commit history & config for leaked secrets
+torusguard redos          # Analyze regex patterns for catastrophic backtracking
+torusguard ai-guard       # Scan AI/LLM code for prompt injection & RAG flaws
 torusguard verify         # Check evidence sufficiency
 torusguard harden         # Validate patch bounds (<=35 add, <=25 del)
 torusguard apply --yes    # Apply patch with snapshot
@@ -36,16 +40,22 @@ torusguard exploit-check  # Send inert test payloads
 When Claude Code is connected to TorusGuard via MCP (`mcp_config.json`), invoke native tools directly:
 - `torusguard_audit`: Run polyglot AST + Vision OCR scan; writes `security_report.md`
 - `torusguard_ocr_scan`: Analyze images/diagrams for leaked API keys and tokens
+- `torusguard_container`: Audit container configs for root execution and socket leaks
+- `torusguard_git_mine`: Mine git history for historical secrets and token leaks
+- `torusguard_redos`: Analyze regexes for catastrophic exponential backtracking
+- `torusguard_ai_guard`: Audit LLM prompts, tool registries, and vector queries
+- `torusguard_verify`: Asserts evidence sufficiency & line-shift invariant fingerprint matches
 - `torusguard_harden`: Validate proposed diff against Ponytail bounds
 - `torusguard_recheck`: Differential re-scan confirming zero regressions
 - `torusguard_status`: Inspect detected stack and active security rules
 - `torusguard://security_report`: Read living security report resource
+- `torusguard://rules_catalog`: Explore verified rules catalog & Golden Fix patterns
 
 ## Architecture
 
 - **Go CLI binary & MCP Server** at `cmd/torusguard/main.go` and `cmd/torusguard/mcp.go`.
-- **Internal packages** at `internal/` — scanner (including `ocr.go`), apply, validate, harden, report, rules, workspace, memory, recheck, termui.
-- **74 rules across 18 families** — loaded from `.torusguard/rules/`.
+- **Internal packages** at `internal/` — scanner (including `ocr.go`, `container.go`, `git_mine.go`, `redos.go`, `ai_guard.go`), apply, validate, harden, report, rules, workspace, memory, recheck, termui.
+- **86 rules across 22 families** — loaded from `.torusguard/rules/`.
 - **Snapshot engine** — creates `.bak` files in `.torusguard/snapshots/` before every modification.
 
 ## Security Invariants

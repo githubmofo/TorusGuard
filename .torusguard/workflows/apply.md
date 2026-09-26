@@ -1,16 +1,14 @@
 ---
 description: Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
-tools: Read, Grep, Glob, Bash, Edit, Write
-version: 1.3.6
+tools: Read, Grep, Glob, Bash, Edit, Write, run_command
+version: 2.0.0
 agent: remediator
 lifecycle-phase: Phase 5 (Patch Application)
 required-skills:
   - torusguard-apply
 scripts-binding:
-  - .torusguard/scripts/apply_runner.py
-  - .torusguard/scripts/report_sync.py
-  - .torusguard/scripts/run_manager.py
-  - .torusguard/scripts/diff_guard.py
+  - internal/apply/apply.go
+  - cmd/torusguard/main.go
 ---
 
 # /torusguard apply — Governed Patch Application & Rollback Snapshot
@@ -20,83 +18,62 @@ $ARGUMENTS
 ---
 
 ## Objective
-Governed patch application with pre-apply rollback snapshots and Human Gate authorization.
+Safely apply approved remediation bundles to disk source files, creating an automated byte-for-byte pre-apply backup snapshot (`.bak`) in `.torusguard/snapshots/<run_id>/`, asserting syntax validity, and distilling passing patterns into Golden Fix Recipes.
+
+---
+
+## Tri-Mode Execution
+
+| Mode | Command / Tool | Execution Method |
+| :--- | :--- | :--- |
+| **Mode A: Terminal CLI** | `torusguard apply candidate.patch [--yes]` | Shell execution of patch applier with snapshot creation. |
+| **Mode B: AI Chat Slash** | `/torusguard apply` | Guided conversational application with explicit Human Gate approval. |
+| **Mode C: Native MCP Tool** | Autonomous Agent Flow | Formulates patch with `torusguard_harden`, awaits Human Gate, invokes CLI. |
 
 ---
 
 ## Mandatory Pre-Flight Context Inspection
 
 Inspect bundle validity and file safety before modifying disk code:
-1. **Bundle Verification:** Assert `patch.diff` exists in active run's remediation folder.
-2. **Pre-Apply Snapshot:** Save a byte-for-byte backup copy (`.bak` or `.torusguard/snapshots/<run_id>/`) prior to editing.
+1. **Bundle Verification:** Assert `candidate.patch` or semantic `patch.json` exists.
+2. **Pre-Apply Snapshot:** Save a byte-for-byte backup copy (`.torusguard/snapshots/<run_id>/<rel_path>.bak`) prior to editing.
 3. **Uncommitted Changes:** Check git status; ensure target file has clean baseline.
 4. **Ponytail Check:** Re-verify that patch additions $\le 35$ and deletions $\le 25$.
 5. **Human Gate:** Confirm operator approval before committing edits to disk.
-6. **Workspace Cleanliness:** Verify git working tree has no uncommitted merge conflicts.
-7. **Execution Privilege:** Verify write access to targeted file locations.
-
----
-
-## When to Use /torusguard apply
-
-| Trigger Scenario | Recommended Action |
-| :--- | :--- |
-| Applying an approved remediation patch to disk | Run `/torusguard apply` |
-| Generating patch diff without modifying disk | Run `/torusguard harden` |
-| Verifying that patch eliminated flaw without regression | Run `/torusguard recheck` |
-| Reverting an applied patch | Restore from `.bak` snapshot |
-| Checking workspace status | Run `/torusguard status` |
 
 ---
 
 ## Living Report Invariant
 - Applied patches create pre-apply `.bak` snapshots in `.torusguard/snapshots/<run_id>/`.
 - Finding statuses transition in `security_report.md` to `APPLIED 🔵`.
-- Instant rollback available via `npx torusguard rollback`.
+- Instant rollback available via `torusguard rollback`.
+
+---
 
 ## Execution Steps
 
-1. **Load Remediation Bundle:** Read `patch.diff` and metadata from active run directory.
-2. **Audit Patch Invariants:** Run `python .torusguard/scripts/diff_guard.py <patch.diff>`.
-3. **Create Rollback Backup:** Copy target file to `.torusguard/runs/<run_id>/.torusguard/snapshots/<run_id>/<filename>.bak`.
-4. **Apply Minimal Diff:** Execute precise surgical edit using `replace_file_content` or `patch`.
-5. **Assert Syntax & Integrity:** Check that modified file compiles cleanly without syntax errors.
-6. **Log Application Ledger:** Record timestamp, original SHA-256, and patched SHA-256 in `apply-log.json`.
-
----
-
-## Failure Recovery
-
-- **Syntax Error After Patch:** Instantly revert target file from `.bak` backup snapshot.
-- **Merge / Context Conflict:** Re-run `/torusguard harden` to regenerate diff against latest disk lines.
-- **Missing Backup File:** Do not apply patch if backup copy cannot be written.
-- **Halt Trigger:** Abort if git working tree is dirty on conflicting lines.
-
----
-
-## Hallucination Guard
-
-- ❌ Never apply code changes without creating an exact pre-apply rollback backup first.
-- ❌ Never touch files not explicitly listed in the approved `patch.diff`.
-- ✅ Always verify syntax compilation immediately after modifying source files.
+1. **Load Remediation Bundle:** Read `candidate.patch` or `patch.json`.
+2. **Obtain Human Gate:** Confirm user approval to modify target source file.
+3. **Create Rollback Backup:** Capture `.bak` in `.torusguard/snapshots/<run_id>/`.
+4. **Apply Surgical Edit:** Run `torusguard apply <patch> --yes` or apply semantic reflection.
+5. **Assert Syntax & Integrity:** Check that modified file compiles cleanly (`go test ./...`, syntax lint).
+6. **Recommend Recheck:** Run `torusguard recheck` or `/torusguard recheck`.
 
 ---
 
 ## Output Card Format
 
 ```markdown
-### 🚀 TorusGuard Patch Application
-- **Finding Addressed:** `TG-XXX-HASH`
-- **File Patched:** `src/path/to/file.py`
-- **Rollback Backup:** `.torusguard/runs/<run_id>/.torusguard/snapshots/<run_id>/<file>.bak`
-- **Churn Applied:** +[Additions] / -[Deletions] lines
-- **Syntax Check:** PASSED (clean compile)
-- **Status:** APPLIED — run `/torusguard recheck` to verify fix
+### 🚀 TorusGuard Patch Applied Successfully
+- **Target File:** `src/path/to/file`
+- **Backup Snapshot:** `.torusguard/snapshots/<run_id>/<file>.bak`
+- **Rollback Command:** `torusguard rollback`
+- **Next Step:** Run `/torusguard recheck` to verify closure
 ```
 
 ---
 
 ## Next Steps
 
-1. Run `/torusguard recheck` to perform differential audit on the modified file.
-2. Run test suites to verify that business logic and regressions remain intact.
+1. Run `/torusguard recheck` or `torusguard recheck` to verify closure and zero regressions.
+2. If unexpected behavior occurs, run `torusguard rollback`.
