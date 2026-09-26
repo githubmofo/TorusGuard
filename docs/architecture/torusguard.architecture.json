@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "TorusGuard v2.0 System Architecture",
+    "subtitle": "Hybrid Governance Security Engine for AI-Built Applications",
+    "output": "docs/architecture/torusguard-architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "tri-mode",
+        "label": "Tri-Mode Ingress",
+        "focus": ["developer", "ai_agents", "cli_mode", "chat_mode", "mcp_mode", "router"],
+        "note": "Unified entry points across Terminal CLI, Chat Slash Commands, and Native MCP Tools."
+      },
+      {
+        "id": "dual-scan",
+        "label": "Dual AST & Vision Scan",
+        "focus": ["router", "ast_engine", "ocr_vision", "living_ledger", "sarif_export"],
+        "note": "Multi-modal analysis covering source code AST heuristics and visual diagram OCR."
+      },
+      {
+        "id": "governed-remediation",
+        "label": "Governed Remediation",
+        "focus": ["harden_engine", "snapshot_store", "living_ledger"],
+        "note": "Ponytail churn enforcement with pre-apply rollback snapshots and living ledger updates."
+      }
+    ]
+  },
+  "components": [
+    { "id": "developer", "type": "external", "label": "Developer / CI", "sublabel": "Terminal & Pipelines", "pos": [40, 150], "size": [130, 60] },
+    { "id": "ai_agents", "type": "frontend", "label": "AI Coding Agents", "sublabel": "Cursor · Claude · Windsurf", "pos": [40, 310], "size": [130, 60], "tag": "Autonomous Loop" },
+    { "id": "cli_mode", "type": "backend", "label": "CLI Mode", "sublabel": "torusguard <cmd>", "brand": "go", "pos": [240, 150], "size": [140, 60] },
+    { "id": "chat_mode", "type": "backend", "label": "Slash Commands", "sublabel": "/torusguard <cmd>", "pos": [240, 250], "size": [140, 60], "tag": "Chat Bridge" },
+    { "id": "mcp_mode", "type": "backend", "label": "Native MCP Server", "sublabel": "JSON-RPC 2.0 Stdio", "pos": [240, 350], "size": [140, 60], "tag": "Agent Tools" },
+    { "id": "router", "type": "backend", "label": "Command Router", "sublabel": "cmd/torusguard", "brand": "go", "pos": [450, 250], "size": [130, 60] },
+    { "id": "ast_engine", "type": "security", "label": "AST Rule Scanner", "sublabel": "74 Invariant Rules", "pos": [660, 150], "size": [140, 60], "tag": "18 Families" },
+    { "id": "ocr_vision", "type": "security", "label": "Vision OCR Engine", "sublabel": "Tesseract v5.4.0", "pos": [660, 250], "size": [140, 60], "tag": "10MB Bounds" },
+    { "id": "harden_engine", "type": "security", "label": "Remediation Engine", "sublabel": "Ponytail Bounds (≤35/+25)", "pos": [660, 350], "size": [140, 60], "tag": "Human Gate" },
+    { "id": "sarif_export", "type": "cloud", "label": "SARIF v2.1.0", "sublabel": "OASIS Standard Log", "pos": [880, 150], "size": [140, 60], "tag": "GitHub Security" },
+    { "id": "living_ledger", "type": "database", "label": "Living Security Ledger", "sublabel": "security_report.md", "pos": [880, 250], "size": [140, 60], "tag": "Ground Truth" },
+    { "id": "snapshot_store", "type": "database", "label": "Rollback Snapshots", "sublabel": ".torusguard/snapshots/", "pos": [880, 350], "size": [140, 60], "tag": "Byte-for-byte .bak" }
+  ],
+  "boundaries": [
+    { "kind": "security-group", "label": "Tri-Mode Operational Gateways", "wraps": ["cli_mode", "chat_mode", "mcp_mode"] },
+    { "kind": "region", "label": "TorusGuard Security Kernel (Go Single Binary)", "wraps": ["router", "ast_engine", "ocr_vision", "harden_engine", "sarif_export", "living_ledger", "snapshot_store"] }
+  ],
+  "connections": [
+    { "id": "dev-to-cli", "from": "developer", "to": "cli_mode", "label": "exec", "variant": "emphasis" },
+    { "id": "agent-to-chat", "from": "ai_agents", "to": "chat_mode" },
+    { "id": "agent-to-mcp", "from": "ai_agents", "to": "mcp_mode", "label": "JSON-RPC", "variant": "emphasis" },
+    { "id": "cli-to-router", "from": "cli_mode", "to": "router" },
+    { "id": "chat-to-router", "from": "chat_mode", "to": "router" },
+    { "id": "mcp-to-router", "from": "mcp_mode", "to": "router" },
+    { "id": "router-to-ast", "from": "router", "to": "ast_engine", "fromSide": "right", "toSide": "left" },
+    { "id": "router-to-ocr", "from": "router", "to": "ocr_vision", "fromSide": "right", "toSide": "left" },
+    { "id": "router-to-harden", "from": "router", "to": "harden_engine", "fromSide": "right", "toSide": "left" },
+    { "id": "ast-to-sarif", "from": "ast_engine", "to": "sarif_export", "label": "export" },
+    { "id": "ocr-to-ledger", "from": "ocr_vision", "to": "living_ledger", "label": "sync" },
+    { "id": "harden-to-snapshot", "from": "harden_engine", "to": "snapshot_store", "label": "backup", "variant": "security" },
+    { "id": "harden-to-ledger", "from": "harden_engine", "to": "living_ledger", "fromSide": "top", "toSide": "bottom" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Tri-Mode Parity", "items": ["CLI, AI Chat slash commands, and Native MCP Tools execute identical governance rules", "Zero runtime divergence across developer environments"] },
+    { "dot": "emerald", "title": "Multi-Modal Analysis", "items": ["74 Heuristic AST invariant rules across 18 architectural families", "Tesseract v5.4.0 Vision OCR discovers leaked keys in diagrams & screenshots"] },
+    { "dot": "rose", "title": "Governed Remediation", "items": ["Ponytail Protocol line bounds prevent runaway file rewrites (≤35 additions, ≤25 deletions)", "Pre-apply byte-for-byte snapshots ensure instant rollback recovery"] }
+  ]
+}

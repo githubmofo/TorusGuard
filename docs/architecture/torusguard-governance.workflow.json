@@ -1,0 +1,102 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "TorusGuard Governed Remediation Pipeline",
+    "subtitle": "Autonomous Security Loop with Human Gate & Ponytail Bounds",
+    "output": "docs/architecture/torusguard-governance.workflow.html",
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "full-loop",
+        "label": "Full remediation loop",
+        "focus": ["code_change", "audit_scan", "harden_eval", "human_gate", "snapshot_bak", "apply_patch", "recheck_fix", "sync_ledger"],
+        "note": "Follow candidate AI code from initial scan to verified closure."
+      },
+      {
+        "id": "safety-gates",
+        "label": "Ponytail & Human Gate",
+        "focus": ["harden_eval", "bound_rejected", "human_gate", "user_denied"],
+        "note": "See where runaway diffs (churn >35/-25) or unapproved changes stop."
+      },
+      {
+        "id": "rollback-path",
+        "label": "Rollback and recovery",
+        "focus": ["snapshot_bak", "apply_patch", "recheck_fix", "rollback_restore"],
+        "note": "Instant byte-for-byte rollback if recheck detects any regression."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "agent", "label": "AI Agent / IDE Client" },
+    { "id": "scanner", "label": "Security Scan & Profiling" },
+    { "id": "governance", "label": "Ponytail & Human Policy", "variant": "exception" },
+    { "id": "execution", "label": "Snapshot & Patch Execution" },
+    { "id": "verification", "label": "Differential Recheck & Ledger" }
+  ],
+  "phases": [
+    { "id": "discovery", "label": "Discovery & OCR", "fromCol": 0, "toCol": 1 },
+    { "id": "policy_check", "label": "Policy & Consent", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "closure", "label": "Execution & Closure", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "scan_phase", "label": "Multi-Modal Scan", "lane": "scanner", "fromCol": 0, "toCol": 1, "variant": "emphasis" },
+    { "id": "policy_phase", "label": "Ponytail Bounds", "lane": "governance", "fromCol": 2, "toCol": 3, "variant": "security" },
+    { "id": "patch_phase", "label": "Safe Application", "lane": "execution", "fromCol": 3, "toCol": 4, "variant": "dashed" }
+  ],
+  "mainPath": ["code_change", "audit_scan", "harden_eval", "human_gate", "snapshot_bak", "apply_patch", "recheck_fix", "sync_ledger"],
+  "nodes": [
+    { "id": "code_change", "lane": "agent", "col": 0, "type": "frontend", "label": "AI Code / Diagram", "sublabel": "candidate changes", "width": 132 },
+    { "id": "audit_scan", "lane": "scanner", "col": 1, "type": "security", "label": "Audit & OCR Scan", "sublabel": "74 rules + Tesseract", "tag": "multi-modal", "width": 132 },
+    { "id": "harden_eval", "lane": "governance", "col": 2, "type": "security", "label": "Harden Bounds", "sublabel": "≤35 add / ≤25 del", "tag": "Ponytail Protocol", "width": 132 },
+    { "id": "bound_rejected", "lane": "governance", "col": 1, "type": "security", "label": "Reject Churn", "sublabel": "diff exceeds limit", "width": 132 },
+    { "id": "human_gate", "lane": "governance", "col": 3, "type": "security", "label": "Human Gate", "sublabel": "explicit consent", "tag": "--yes required", "width": 132 },
+    { "id": "user_denied", "lane": "governance", "col": 4, "type": "security", "label": "Operation Aborted", "sublabel": "user withheld consent", "width": 132 },
+    { "id": "snapshot_bak", "lane": "execution", "col": 3, "type": "database", "label": "Pre-Apply .bak", "sublabel": "byte-for-byte snapshot", "tag": "safe rollback", "width": 132 },
+    { "id": "apply_patch", "lane": "execution", "col": 4, "type": "backend", "label": "Apply Patch", "sublabel": "surgical diff edit", "width": 132 },
+    { "id": "rollback_restore", "lane": "execution", "col": 5, "type": "messagebus", "label": "Rollback", "sublabel": "restore .bak file", "tag": "auto-revert", "width": 132 },
+    { "id": "recheck_fix", "lane": "verification", "col": 4, "type": "security", "label": "Targeted Recheck", "sublabel": "differential AST re-scan", "tag": "zero regressions", "width": 132 },
+    { "id": "sync_ledger", "lane": "verification", "col": 5, "type": "external", "label": "Sync Ledger", "sublabel": "security_report.md", "tag": "RESOLVED 🟢", "width": 132 }
+  ],
+  "edges": [
+    { "id": "e-code-audit", "from": "code_change", "to": "audit_scan", "label": "inspect", "variant": "emphasis" },
+    { "id": "e-audit-harden", "from": "audit_scan", "to": "harden_eval", "label": "findings", "variant": "default" },
+    { "id": "e-harden-gate", "from": "harden_eval", "to": "human_gate", "label": "valid diff", "variant": "emphasis" },
+    { "id": "e-harden-reject", "from": "harden_eval", "to": "bound_rejected", "label": "too large", "variant": "security", "role": "error" },
+    { "id": "e-gate-snap", "from": "human_gate", "to": "snapshot_bak", "label": "approved", "variant": "security" },
+    { "id": "e-gate-abort", "from": "human_gate", "to": "user_denied", "label": "denied", "variant": "security", "role": "error" },
+    { "id": "e-snap-apply", "from": "snapshot_bak", "to": "apply_patch", "variant": "default" },
+    { "id": "e-apply-recheck", "from": "apply_patch", "to": "recheck_fix", "variant": "default" },
+    { "id": "e-recheck-sync", "from": "recheck_fix", "to": "sync_ledger", "label": "clean", "variant": "emphasis" },
+    { "id": "e-recheck-rollback", "from": "recheck_fix", "to": "rollback_restore", "label": "regression", "variant": "security", "role": "error" },
+    { "id": "e-rollback-revert", "from": "rollback_restore", "to": "apply_patch", "label": "revert", "variant": "dashed", "role": "return" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Zero Blindspots",
+      "items": [
+        "Multi-modal pipeline inspects code AST heuristics and visual diagram OCR simultaneously",
+        "All findings captured in living markdown ledger"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Ponytail Governance",
+      "items": [
+        "Enforces strict bounds: max 35 additions and 25 deletions per patch bundle",
+        "Prevents hallucinated full-file overwrites from AI coding assistants"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Fail-Closed Recovery",
+      "items": [
+        "Mandatory byte-for-byte snapshot (.bak) taken before modifying files on disk",
+        "Differential recheck confirms fix closure before marking resolved"
+      ]
+    }
+  ]
+}
