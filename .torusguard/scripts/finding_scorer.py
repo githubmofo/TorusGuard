@@ -11,9 +11,14 @@ import argparse
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional
 
+# Ensure .torusguard directory is in sys.path for core imports
+_TG_DIR = Path(__file__).resolve().parent.parent
+if str(_TG_DIR) not in sys.path:
+    sys.path.insert(0, str(_TG_DIR))
+
 
 def compute_memory_boost(
-    rule_id: str,
+    rule_id: Optional[str] = None,
     file_path: Optional[str] = None,
     root_dir: Optional[Path] = None
 ) -> int:
@@ -112,21 +117,35 @@ def compute_confidence_score(
     memory_boost: int = 0,
     rule_id: Optional[str] = None,
     file_path: Optional[str] = None,
-    root_dir: Optional[Path] = None
+    root_dir: Optional[Path] = None,
+    taint_path_confirmed: bool = False,
+    taint_depth: Optional[int] = None,
+    sanitizer_present: bool = False,
+    rule_severity: str = "High",
+    use_evidence_chain: bool = False,
+    **kwargs
 ) -> Tuple[int, str, Dict[str, Any]]:
     """
     Computes total score and assigns confidence band.
-    Max points:
-    - evidence_quality: 35
-    - reproduction_success: 25
-    - independent_confirmations: 15
-    - environmental_clarity: 15
-    - manual_review_status: 10
-    - memory_boost: -30 to +20 (modifier from persistent memory)
-    - test_deduction: -30 if file is located in a test/mock path
-    - doc_deduction: -25 if file is located in documentation
-    Total is clamped to [0, 100].
+    Supports classical factor evaluation and multi-signal evidence-chain calibration.
     """
+    if use_evidence_chain:
+        try:
+            from core.confidence import ConfidenceCalibrator, EvidenceSignals
+            signals = EvidenceSignals(
+                rule_severity=rule_severity,
+                taint_path_confirmed=taint_path_confirmed,
+                taint_depth=taint_depth,
+                sanitizer_present=sanitizer_present,
+                framework_context_match=True,
+                has_multiline_evidence=(evidence_quality >= 30),
+                is_test_or_mock=is_test_path(file_path),
+                memory_boost=memory_boost or (compute_memory_boost(rule_id, file_path=file_path, root_dir=root_dir) if rule_id else 0)
+            )
+            return ConfidenceCalibrator.calculate_score(signals)
+        except Exception:
+            pass
+
     eq = min(max(evidence_quality, 0), 35)
     rs = min(max(reproduction_success, 0), 25)
     ic = min(max(independent_confirmations, 0), 15)
@@ -138,6 +157,13 @@ def compute_confidence_score(
     if rule_id and eff_mem_boost == 0:
         eff_mem_boost = compute_memory_boost(rule_id, file_path=file_path, root_dir=root_dir)
 
+    # Taint path adjustments
+    taint_mod = 0
+    if taint_path_confirmed:
+        taint_mod += 15
+    if sanitizer_present:
+        taint_mod -= 35
+
     # Test and Doc path noise suppression
     is_test = is_test_path(file_path)
     test_deduction = -30 if is_test else 0
@@ -145,7 +171,7 @@ def compute_confidence_score(
     is_doc = is_doc_path(file_path)
     doc_deduction = -25 if is_doc else 0
 
-    raw_total = eq + rs + ic + ec + mr + eff_mem_boost + test_deduction + doc_deduction
+    raw_total = eq + rs + ic + ec + mr + eff_mem_boost + taint_mod + test_deduction + doc_deduction
     total = min(max(raw_total, 0), 100)
 
     if total >= 90:
@@ -164,12 +190,16 @@ def compute_confidence_score(
         "environmental_clarity": ec,
         "manual_review_status": mr,
         "memory_boost": eff_mem_boost,
+        "taint_path_confirmed": taint_path_confirmed,
+        "taint_depth": taint_depth,
+        "sanitizer_present": sanitizer_present,
         "test_exemption": is_test,
         "test_deduction": test_deduction,
         "total_score": total,
         "classification_band": band
     }
     return total, band, factors
+
 
 
 def main():

@@ -1,7 +1,7 @@
 ---
 name: torusguard
-description: Universal autonomous security engine: 74 canonical rules across 18 families, polyglot stack detection across 16+ languages, Ponytail remediation bounds (<=35 add, <=25 del), standardized 75-column terminal UI, SARIF v2.1.0 exports, and persistent security memory context.
-version: 2.0.0
+description: Universal autonomous security engine: 88 canonical rules across 22 families, polyglot stack detection across 16+ languages, Ponytail remediation bounds (<=35 add, <=25 del), standardized 75-column terminal UI, SARIF v2.1.0 exports, and persistent security memory context.
+version: 2.1.1
 ---
 
 # TorusGuard Master Security Engine & Command Router
@@ -30,6 +30,10 @@ TorusGuard operates with 100% feature parity across the compiled terminal CLI, A
 | **Authorize** | `torusguard authorize` | `/torusguard authorize` | `.torusguard/skills/torusguard-authorize`| Legal scope definition & safety boundaries |
 | **Validate** | `torusguard web-validate` | `/torusguard web-validate` | `.torusguard/skills/torusguard-web-validate`| Authorized non-destructive HTTP probing |
 | **Exploit** | `torusguard exploit-check` | `/torusguard exploit-check`| `.torusguard/skills/torusguard-exploit-check`| Bounded single-step exploitability confirmation |
+| **Container** | `torusguard container` | `/torusguard container` | `.torusguard/skills/torusguard-container` | Audits Dockerfile & Compose for root users, sockets, privileged mode |
+| **Git Mine** | `torusguard git-mine` | `/torusguard git-mine` | `.torusguard/skills/torusguard-git-mine` | Mines git commit history & config for leaked credentials & tokens |
+| **ReDoS** | `torusguard redos` | `/torusguard redos` | `.torusguard/skills/torusguard-redos` | Analyzes regex patterns for catastrophic exponential backtracking |
+| **AI Guard** | `torusguard ai-guard` | `/torusguard ai-guard` | `.torusguard/skills/torusguard-ai-guard` | Audits AI agents & RAG pipelines for prompt injection & tenant leaks |
 | **Full** | `torusguard full` | `/torusguard full` | `.torusguard/skills/torusguard-full` | End-to-end 7-stage closed-loop execution |
 | **MCP Server**| `torusguard mcp` | — | Native Stdio JSON-RPC 2.0 | Serves native Model Context Protocol tools to AI coding agents |
 | **Update** | `torusguard update` | `/torusguard update` | `.torusguard/skills/torusguard-init` | Self-update TorusGuard engine binary |

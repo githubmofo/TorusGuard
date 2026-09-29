@@ -1,107 +1,122 @@
 ---
 name: torusguard-audit
-description: Static AST security scanning, line-shift invariant fingerprinting, root-cause clustering, and 0-100 confidence scoring via CLI or AI Agent.
-version: 2.0.0
+description: Taint-aware static AST security scanning, cross-file interprocedural dataflow, 88 rules across 22 families, line-shift invariant fingerprinting, and 7-signal calibrated confidence scoring via CLI or AI Agent.
+version: 2.1.1
 workflow: .torusguard/workflows/audit.md
 tools: Read, Grep, Glob, Write, run_command
 scripts-binding:
-  - internal/scanner/scanner.go
-  - cmd/torusguard/main.go
+  - .torusguard/scripts/audit_runner.py
+  - .torusguard/scripts/finding_scorer.py
+  - .torusguard/core/taint_graph.py
+  - .torusguard/core/cross_file_taint.py
+  - .torusguard/core/confidence.py
+  - .torusguard/core/parser.py
+  - .torusguard/core/incremental.py
+
 ---
 
-# TorusGuard Audit — Static Code Security Analysis
+# TorusGuard Audit — Deep Taint-Aware Static Code Security Analysis
 
 ## Objective
-Execute static AST analysis across polyglot project files, evaluate code against 74 canonical security rules across 18 families, assign stable line-shift invariant fingerprints, cluster architectural root causes, synchronize findings with `security_report.md`, and score findings with auditable 0–100 confidence ratings.
+Execute deep static analysis combining **Tree-sitter polyglot AST parsing**, **source-to-sink taint tracking**, and **interprocedural call-graph analysis** across Python, JavaScript/TypeScript, Go, Rust, Java, Ruby, PHP, and C#. Evaluates code against 88 canonical rules across 22 architectural families, generates line-shift invariant fingerprints, clusters systemic root causes, and computes 7-signal evidence-chain confidence ratings.
 
 ---
 
-## Tri-Mode Execution
+## Tri-Mode Execution Parity
 
-### Mode A: Automated CLI Execution
+### Mode A: Automated Terminal CLI
 Run the static security audit from your terminal:
 ```bash
-# Scan current repository
+# Full codebase audit with taint dataflow analysis
 torusguard audit
 
-# Scan specific directory or example app
+# Incremental scan (sub-second diff on changed files only)
+torusguard audit --incremental
+
+# Continuous watch mode (re-scan debounced on file save)
+torusguard audit --watch
+
+# Audit specific directory or microservice
 torusguard audit ./examples/vulnerable-react-express
 
-# Include test fixtures and spec directories
-torusguard audit --include-tests
+# Export findings to OASIS SARIF v2.1.0 format
+torusguard audit --sarif --sarif-out ./report.sarif
 
-# Output machine-readable JSON
+# Machine-readable JSON output
 torusguard audit --json
 ```
-**Under the Hood:** Executes compiled Go static analysis engine (`internal/scanner`).
-- Auto-detects repository stack and skips build/cache directories (`node_modules`, `.git`, `.venv`, `dist`, `build`).
-- Evaluates files across 18 canonical security families:
-  - `TG-SEC-*`: Hardcoded credentials, private keys, JWT secrets, client env leaks.
-  - `TG-INPUT-*`: SQL injection, command injection, path traversal, unsafe HTML rendering.
-  - `TG-DB-*`: Missing tenant isolation, service role keys in client code.
-  - `TG-AUTH-*`: Plaintext passwords, missing cookie security flags (httpOnly, secure, sameSite).
-  - `TG-PLATFORM-*`: Permissive wildcard CORS with credentials, missing security headers.
-  - `TG-DIFF-*`: Disabled TLS verification (`verify=False`, `InsecureSkipVerify: true`).
-  - `TG-NPE-*`: Null-pointer exceptions, unchecked nil error dereferences.
-  - `TG-CONC-*`: Concurrency hazards, goroutine loop variable capture.
-- Writes findings directly to `security_report.md` at workspace root.
-- Displays standardized 75-column terminal cards.
 
-### Mode B: In-Session AI Chat Agent Scan
-When auditing files directly in AI chat:
-1. **Discover Sinks:** Use `grep_search` and `view_file` to search for dangerous patterns across server and client code.
-2. **Cluster Root Causes:** Group findings by causal architecture (e.g. `cluster-tenant-isolation`, `cluster-credentials-exposure`, `cluster-injection`).
-3. **Audit Evidence Sufficiency:** Ensure that user-controlled input reaches the vulnerable sink without prior sanitization or schema validation.
-4. **Context Minimization (1/9th Token Strategy):** Inspect only bounded AST context windows ($\pm 3$ lines) via `scanner.ExtractContext` rather than ingesting entire files.
-5. **Present Actionable Findings:** Display finding cards with severity, rule ID, file, line, and remediation recommendation.
-6. **Prompt Next Phase:** Guide the operator to `/torusguard harden` or `torusguard harden`.
+### Mode B: In-Session AI Chat Slash Command (`/torusguard audit`)
+When executing audits directly in AI chat:
+1. **Trace Dataflow (Sources → Sinks):** Track user inputs (`request.GET`, `req.body`, `r.URL.Query()`) through assignments and helper functions to dangerous sinks (`execute()`, `innerHTML`, `open()`).
+2. **Verify Sanitizer Absence:** Confirm that input is not cleansed by `int()`, `escape()`, `shlex.quote()`, or `zod.safeParse()`.
+3. **Cross-File Correlation:** Trace calls across module boundaries up to 5 interprocedural hops using `CrossFileTaintAnalyzer`.
+4. **Cluster Root Causes:** Group findings into architectural failure patterns (e.g. `cluster-prompt-injection`, `cluster-tenant-isolation`, `cluster-supply-chain`).
+5. **Calibrate Confidence:** Score findings via the 7-signal evidence chain model.
+6. **Synchronize Ground Truth:** Record active findings in `security_report.md` at workspace root.
 
-### Mode C: Native MCP Tool Execution
-For autonomous AI coding agents (Antigravity, Cursor, Windsurf, Claude Code):
-- **Tool Invocation:** Call `torusguard_audit` with target arguments:
-  ```json
-  {
-    "target": ".",
-    "include_ocr": true,
-    "max_image_mb": 10
-  }
-  ```
-- **Programmatic Return:** Receives formatted finding summaries, active rule counts, and confirmation that `security_report.md` is updated on disk.
-- **Resource Companion:** Inspect the living report via resource `torusguard://security_report` or rules catalog via `torusguard://rules_catalog`.
+### Mode C: Native MCP Tool Calling
+MCP agents invoke `torusguard_audit(target_root, incremental, use_taint)` via JSON-RPC 2.0 stdio to receive structured findings with verified taint paths and confidence scores.
 
 ---
 
-## Canonical Rule Families
-| Family | Scope | Example Violations |
+## Architectural Rule Taxonomy (86 Rules Across 22 Families)
+
+| Family Code | Security Domain | Core Invariant Enforced |
 | :--- | :--- | :--- |
-| **TG-SEC** | Secrets & Credentials | Hardcoded JWT secret, API key strings, token logging |
-| **TG-INPUT** | Injection & Input Validation | Raw SQL interpolation, DOM `innerHTML`, `path.join` traversal |
-| **TG-DB** | Database & Tenant Scoping | Unscoped `.objects.get(id=...)`, Prisma missing `tenantId` |
-| **TG-AUTH** | Authentication & Cookies | Insecure cookies (missing httpOnly/secure/sameSite) |
-| **TG-PLATFORM** | Server & Platform Config | Wildcard CORS (`origin: '*'`) with credentials |
-| **TG-DIFF** | Security Bypasses | Disabled TLS verification (`verify=False`, `# nosec`) |
-| **TG-NPE** | Null Dereference / NPE | Unchecked optional chaining, unhandled nil error returns |
-| **TG-CONC** | Concurrency & Thread-Safety | Goroutine loop variable capture, unmutexed map mutations |
+| **`TG-SEC`** | Secrets & Credentials | Zero hardcoded API keys, private certificates, or JWT secrets. |
+| **`TG-AUTH`** | Authentication & Session | Enforce timing-safe compares, strong password hashing, algorithm verification. |
+| **`TG-DB`** | Database & Tenancy | Parameterized SQL queries and tenant partition scoping across all lookups. |
+| **`TG-INPUT`** | Input & Sanitization | Strict path sanitization, command argument escaping, safe template rendering. |
+| **`TG-RATE`** | Rate Limiting | Rate-limiting middleware on auth endpoints and payload size bounds. |
+| **`TG-AGENT`** | AI Agents & Prompts | Structural prompt isolation, inert XML delimiters, MCP tool schema validation. |
+| **`TG-SSRF`** | Outbound Net & SSRF | Hostname whitelisting, private IP blocklist (127.0.0.1, 169.254.169.254). |
+| **`TG-WEBHOOK`**| Webhook Verification | Cryptographic HMAC-SHA256 signature verification and replay prevention. |
+| **`TG-WS`** | WebSockets | Origin verification, handshake authentication, inbound frame size limits. |
+| **`TG-CSRF`** | CSRF Protection | SameSite cookie attributes and anti-CSRF token verification on state mutations. |
+| **`TG-GQL`** | GraphQL Safety | Query depth limiting (max depth 6) and production schema introspection suppression. |
+| **`TG-SUPPLY`** | Supply Chain & CI/CD | Immutable commit SHA pinning in GitHub Actions, lockfile integrity audits. |
+| **`TG-BIZ`** | Business Logic | Non-negative quantity asserts, transaction locks, server-side discount bounds. |
+| **`TG-CACHE`** | Cache Poisoning | Cache-Control headers on sensitive responses, unkeyed header sanitization. |
+| **`TG-CLIENT`** | Client Bundle Secrets | Zero private environment variables (`process.env.SUPABASE_SERVICE_ROLE`) in client. |
+| **`TG-PLATFORM`**| Platform Hardening | Helmet security headers, debug mode suppression, cookie secure flags. |
+| **`TG-DIFF`** | Security Bypasses | Block `# nosec`, `InsecureSkipVerify`, and enforce Ponytail line budgets. |
+| **`TG-EDGE`** | Edge & Serverless | Subrequest fan-out limits and serverless execution timeouts. |
+| **`TG-CONT`** | Container Safety | Enforce non-root execution, zero docker socket mounts, no privileged mode. |
+| **`TG-GIT`** | Git History Secrets | Zero historical committed credentials, no tokens in remote URLs. |
+| **`TG-REDOS`** | ReDoS Prevention | Zero nested quantifiers `(a+)+` or catastrophic backtracking regular expressions. |
+| **`TG-RAG`** | RAG & Vector DB | Mandatory tenant scoping on vector similarity search and inert ingestion. |
 
 ---
 
-## Output Card Format
-```markdown
-### 🛡️ TorusGuard Static Security Audit Completed
-- **Run ID:** `run-20260910-121618-audit`
-- **Scope:** 7 files evaluated across 18 canonical families
-- **Status:** ✖ CRITICAL FINDINGS DETECTED
-- **Findings:** 2 Critical, 2 High, 2 Medium/Low (6 total)
-- **Clusters:** 3 architectural root causes identified
-- **Artifacts:** `security_report.md`
-- **Next Action:** Run `torusguard harden` or `/torusguard harden`
+## Evidence-Chain Confidence Scoring (0–100)
+
+Findings are evaluated against 7 empirical signals:
+
+```
+Final Score = Σ weighted signals:
+- rule_severity_base (0.20): Critical=90, High=75, Medium=50, Low=25
+- taint_path_confirmed (0.25): 100 if source→sink reachability is confirmed, 0 otherwise
+- taint_depth (0.10): direct=100, 1-hop=80, 2-hop=60, 3+=40
+- sanitizer_absence (0.15): 100 if no known sanitizer present, 0 if sanitized
+- framework_context_match (0.10): 100 if sink matches detected stack, 50 default
+- evidence_snippet_quality (0.10): 100 for multi-line AST context, 50 for single line
+- test_fixture_penalty (-0.10): -50 penalty if located in test suite or fixtures
+- memory_boost: -30 (false positive class) to +15 (regression watch)
+
+Classification Bands:
+- 90–100: Confirmed (High priority for automated Ponytail hardening)
+- 70–89:  High Confidence (Requires review & remediation)
+- 50–69:  Medium Confidence (Context verification needed)
+- 0–49:   Needs Review (Suppressed or test fixture)
 ```
 
 ---
 
-## 🏛️ OpenCodeReview Precision & Context Minimization
-- **1/9th Token Minimization:** Use `scanner.ExtractContext` to extract only the bounded $\pm 3$ lines context window instead of ingesting entire files.
-- **Line-Level Pinning:** Every finding is reported with exact 1-indexed line numbers, line content, severity, and suggested remediation.
+## 🏛️ Context Minimization & Performance Invariants
+- **1/9th Token Strategy:** Never ingest entire files into agent context. Always inspect bounded AST context windows ($\pm 3$ lines) via `scanner.ExtractContext`.
+- **Incremental Cache:** Uses cryptographic content hashes in `.torusguard/cache/ast_cache.json` to complete repeat audits in under 1 second.
+- **Fail-Closed Safety:** Incomplete parses or syntax anomalies in non-standard files gracefully degrade to fallback token parsing without aborting the audit.
 
 ---
 
@@ -109,28 +124,38 @@ For autonomous AI coding agents (Antigravity, Cursor, Windsurf, Claude Code):
 
 | Pattern | What AI Does Wrong | What Is Actually Correct |
 | :--- | :--- | :--- |
-| **Unbounded File Reading** | Reads entire 800+ line files to diagnose a 1-line vulnerability. | Read only the bounded context ($\pm 3$ lines) around the finding's line number. |
-| **Ignoring NPE / Concurrency** | Focuses only on secrets and misses thread-safety and null-pointer hazards. | Enforce `TG-NPE-001` and `TG-CONC-001` checks during audit review. |
-| **False Positive Escalation** | Flags documentation strings or mock test fixtures as production vulnerabilities. | Skip test files (`*_test.go`, `.test.ts`) and verify sink exploitability before reporting. |
-| **Missing Sync to Ground Truth** | Produces analysis in chat without checking or updating `security_report.md`. | Always reconcile against `security_report.md` at workspace root. |
+| **Grepping Without Taint** | Flags `db.execute(query)` even when `query` is hardcoded or parameterized. | Verify user input reaches the sink via `core.taint_graph` before reporting. |
+| **Ignoring Sanitizers** | Reports injection even though `int(user_id)` or `shlex.quote()` cleans the input. | Check if any node in the dataflow path acts as a registered sanitizer. |
+| **Single-File Blindness** | Misses vulnerabilities when input enters `utils.py` and reaches a sink in `views.py`. | Trace interprocedural call chains using `CrossFileTaintAnalyzer` (up to 5 hops). |
+| **Unbounded File Dumps** | Reads entire 1,000-line source files into chat context. | Read only the bounded context ($\pm 3$ lines) around the finding's line number. |
+| **Missing Ground Truth Sync** | Produces analysis in chat without synchronizing `security_report.md`. | Always update `security_report.md` with active findings and run IDs. |
 
 ---
 
 ## ✅ Pre-Flight Self-Audit
 
-Before completing an audit pass, verify:
-- [ ] Did I run `torusguard audit` or inspect `security_report.md` first?
-- [ ] Are all reported findings pinned to precise line numbers?
-- [ ] Did I verify user input reaches the sink without prior validation?
-- [ ] Did I extract only the minimal AST context window ($\pm 3$ lines) to conserve tokens?
-- [ ] Did I evaluate against all 18 families including NPE and concurrency rules?
+Before finishing an audit pass, confirm:
+- [ ] Did I run `torusguard audit` or inspect `security_report.md`?
+- [ ] Are all reported findings backed by confirmed taint paths or verified regex patterns?
+- [ ] Did I verify user input reaches the sink without prior sanitization?
+- [ ] Are findings pinned to exact 1-indexed line numbers with stable region hashes?
+- [ ] Did I synchronize discovering state into `security_report.md`?
 
 ---
 
 ## 🔁 VBC Protocol (Verify → Build → Confirm)
 
 ```
-VERIFY: Scan source code and image assets using torusguard audit or torusguard_audit MCP tool.
-BUILD:  Synthesize findings clustered by root cause with exact line numbers and bounded AST snippets.
-CONFIRM: Synchronize living findings into security_report.md and guide operator to /torusguard harden.
+VERIFY:  Scan source code with polyglot AST parser and trace dataflow reachability from sources to sinks.
+BUILD:   Group findings by root cause, compute 7-signal calibrated confidence scores, and format 75-column terminal cards.
+CONFIRM: Synchronize all findings to security_report.md at workspace root and guide operator to /torusguard harden.
 ```
+
+---
+
+## 🔄 Rollback Defaults
+
+If audit data becomes corrupted or a run needs to be reverted:
+1. Historical runs are preserved immutably in `.torusguard/runs/<run_id>/`.
+2. AST cache can be cleared anytime by deleting `.torusguard/cache/ast_cache.json`.
+3. Pre-apply code snapshots remain intact in `.torusguard/snapshots/`.

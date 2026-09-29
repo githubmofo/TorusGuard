@@ -673,8 +673,14 @@ func handleMCPResourceRead(uri string) (MCPResourceContent, error) {
 
 // RunMCPServer runs the stdio JSON-RPC 2.0 loop for Model Context Protocol.
 func RunMCPServer() {
+	realStdout := os.Stdout
+	os.Stdout = os.Stderr
+	defer func() {
+		os.Stdout = realStdout
+	}()
+
 	reader := bufio.NewReader(os.Stdin)
-	writer := bufio.NewWriter(os.Stdout)
+	writer := bufio.NewWriter(realStdout)
 
 	for {
 		line, err := reader.ReadBytes('\n')

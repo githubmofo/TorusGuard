@@ -18,7 +18,7 @@ import (
 	"github.com/torusguard/torusguard/internal/workspace"
 )
 
-const Version = "2.1.0"
+const Version = "2.1.1"
 
 // Standardized 75-column terminal UI formatting with Unicode emoji width calculation
 func printHelp() {
@@ -46,6 +46,7 @@ func printHelp() {
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sredos%s       Analyze regex patterns for catastrophic backtracking", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sai-guard%s    Scan AI/LLM code for prompt injection & RAG flaws", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%smcp%s         Run Model Context Protocol (MCP) server over stdio", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sfull%s        Execute master 7-stage security governance pipeline", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%supdate%s      Self-update TorusGuard engine", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%shelp%s        Show this interactive command guide", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.CardBorderBottom(termui.Cyan, false))
@@ -349,7 +350,42 @@ func main() {
 				fmt.Println(termui.FormatBoxLine(line, 67, "│", termui.Cyan))
 			}
 		}
+	case "full":
+		fmt.Println()
+		fmt.Println(termui.CardHeader("🛡️  TORUSGUARD MASTER PIPELINE", "7-Stage Security Lifecycle", "v"+Version, termui.Cyan))
+		fmt.Println(termui.FormatBoxLine("Executing Stages: Init ➔ Authorize ➔ Audit ➔ Verify ➔ Report", 67, "│", termui.Cyan))
 		fmt.Println(termui.CardBorderBottom(termui.Cyan, false))
+		fmt.Println()
+
+		// Stage 0: Init
+		fmt.Println("==> Stage 0: Workspace Stack Discovery & Rule Profiling...")
+		_ = workspace.InitWorkspace(target)
+
+		// Stage 1: Authorize
+		fmt.Println("==> Stage 1: Target Scope & Cryptographic Authorization Gate...")
+		_ = validate.RunAuthorize(target)
+
+		// Stage 2: Audit
+		fmt.Println("==> Stage 2: Polyglot AST, First-Principles & Multi-Modal Scan...")
+		cat, _ := rules.LoadRules(filepath.Join(target, ".torusguard"))
+		if cat == nil {
+			cat = &rules.Catalog{}
+		}
+		findings, _ := scanner.RunAudit(target, cat)
+		_ = report.SyncReport(target, findings)
+
+		// Stage 3: Verify
+		fmt.Println("==> Stage 3: Finding Confidence Calibration & Line Fingerprint Verification...")
+		_ = validate.RunVerify(target)
+
+		// Stage 7: Report
+		fmt.Println("==> Stage 7: Living Posture Ledger & SARIF / HTML Export...")
+		_ = report.GenerateHTMLReport(target, findings)
+		_ = report.GenerateSARIFReport(target, findings)
+
+		fmt.Println()
+		fmt.Println(termui.CardHeader("✔ PIPELINE COMPLETE", "All Stages Succeeded", "v"+Version, termui.Green))
+		fmt.Println(termui.CardBorderBottom(termui.Green, false))
 		fmt.Println()
 	default:
 		fmt.Fprintf(os.Stderr, "\n  %s✖ Unknown command:%s %s%s%s\n", termui.Red, termui.Reset, termui.White, command, termui.Reset)

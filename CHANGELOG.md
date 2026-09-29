@@ -4,6 +4,38 @@ All notable changes to TorusGuard are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] — 2026-09-29
+
+### Added
+- **Taint Analysis Engine (`core/taint.py`, `core/taint_rules.py`, `core/taint_graph.py`)**:
+  - Source-to-sink dataflow tracking connecting untrusted user/request inputs to sensitive sinks across polyglot ASTs.
+  - Multi-stage sanitizer detection canceling taint flow when properly sanitized.
+  - Taint graph serialization with path confirmation and depth calculation.
+- **Polyglot Tree-Sitter Parser & AST Walker (`core/parser.py`, `core/ast_walker.py`, `core/symbol_table.py`)**:
+  - Unified AST representation and CST node abstractions supporting Python, TypeScript, JavaScript, and Go.
+  - Symbol table tracking lexical scope, variable definitions, and assignments.
+- **Canonical Rules Expansion to 88 Rules across 22 Families**:
+  - `TG-INPUT-007`: Unvalidated URL Redirects / Open Redirection detection (`core/rules_registry.py`).
+  - `TG-INPUT-008`: Insecure Deserialization / Object Injection detection (`core/rules_registry.py`).
+  - 22 root-cause clusters in `core/clustering.py` for vulnerability aggregation.
+- **Cross-File Interprocedural Dataflow (`core/cross_file_taint.py`, `core/call_graph.py`, `core/import_resolver.py`)**:
+  - Cross-module call graph resolution mapping function calls across file boundaries.
+  - Import resolution supporting relative, absolute, and barrel file imports.
+- **7-Signal Calibrated Confidence Scorer (`core/confidence.py`, `.torusguard/scripts/finding_scorer.py`)**:
+  - Objective 0–100 calibrated confidence scoring using 7 weighted empirical signals (rule severity, taint path confirmation, taint depth, sanitizer presence, framework context, multi-line evidence, and persistent memory).
+  - Test fixture and documentation path noise suppression.
+- **Master 7-Stage Pipeline Command (`torusguard full`)**:
+  - Added native `full` CLI command in pure Go binary (`cmd/torusguard/main.go`) executing the full closed-loop security lifecycle (Init ➔ Authorize ➔ Audit ➔ Verify ➔ Report) with SARIF and HTML report emission.
+- **MCP Stdio Stream Isolation (`cmd/torusguard/mcp.go`)**:
+  - Redirected `os.Stdout` to `os.Stderr` during `RunMCPServer()` to guarantee 100% pure JSON-RPC 2.0 protocol compliance across stdin/stdout without stream corruption from diagnostic prints.
+- **Unseen Repositories Tri-Mode Validation Suite (`tests/test_unseen_repos_tri_mode_suite.py`)**:
+  - Automated multi-stack validation suite covering 6 unseen frameworks (SvelteKit 2 + Bun, FastAPI pgvector RAG, Cloud-Native DevOps Docker & Git Mine, Multi-Modal Vision OCR on PNG/JPG/WebP, Kotlin Ktor + Exposed, and Laravel 11 + Vue 3).
+  - Exercised and asserted all 18 canonical skills across Mode A (CLI), Mode B (Slash Commands), and Mode C (MCP) with automated sandboxed teardown.
+
+### Fixed
+- **Finding Scorer Type Safety**: Hardened `compute_confidence_score` and `compute_memory_boost` type annotations against optional `rule_id` mismatch, guaranteeing zero Pylance/Pyright warnings and clean IDE integration.
+- **Core Import Path Safety**: Added automatic `sys.path` resolution for `.torusguard` core modules.
+
 ---
 
 ## [2.1.0] — 2026-09-26

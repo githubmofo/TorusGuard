@@ -42,8 +42,16 @@ def get_ist_now() -> datetime.datetime:
 
 # ─── UI Formatter Bridge ──────────────────────────────────────────────────────
 scripts_dir = Path(__file__).resolve().parent
+tg_root = Path(__file__).resolve().parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent
 if str(scripts_dir) not in sys.path:
     sys.path.insert(0, str(scripts_dir))
+if str(tg_root) not in sys.path:
+    sys.path.insert(0, str(tg_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+
 
 try:
     import term_ui as tui
@@ -1240,9 +1248,10 @@ def scan_file(file_path: Path, target_root: Path) -> List[Dict[str, Any]]:
     return findings
 
 
-def score_and_cluster_findings(findings: List[Dict[str, Any]], target_root: Path) -> Tuple[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]:
+def score_and_cluster_findings(findings: List[Dict[str, Any]], target_root: Path, taint_paths: Optional[List[Any]] = None) -> Tuple[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]:
     """
-    Score each finding using finding_scorer.py and persistent memory patterns.
+    Score each finding using finding_scorer.py, persistent memory patterns,
+    and taint dataflow analysis.
     Returns (scored_findings, clusters_map).
     """
     try:
@@ -1252,6 +1261,15 @@ def score_and_cluster_findings(findings: List[Dict[str, Any]], target_root: Path
 
     scored = []
     clusters: Dict[str, List[Dict[str, Any]]] = {}
+
+    # Map taint paths by (file_path, line_number)
+    taint_by_loc: Dict[Tuple[str, int], Any] = {}
+    if taint_paths:
+        for tp in taint_paths:
+            sink_node = getattr(tp, "sink", None)
+            if sink_node:
+                norm_p = getattr(sink_node, "file_path", "").replace("\\", "/")
+                taint_by_loc[(norm_p, getattr(sink_node, "line_number", 0))] = tp
 
     # Phase 1d: Pre-compute cross-file corroboration bonus
     # If multiple rule families flag the same file, each finding gets +5 confidence
@@ -1266,6 +1284,14 @@ def score_and_cluster_findings(findings: List[Dict[str, Any]], target_root: Path
         score = 70
         band = "High Confidence"
         factors = {}
+
+        # Check for correlated taint path
+        matching_tp = taint_by_loc.get((f["file_path"], f["line_number"]))
+        is_taint_confirmed = matching_tp is not None
+        taint_depth = getattr(matching_tp, "depth", None) if matching_tp else None
+        is_sanitized = getattr(matching_tp, "is_sanitized", False) if matching_tp else False
+        if matching_tp and hasattr(matching_tp, "to_dict"):
+            f["taint_path"] = matching_tp.to_dict()
 
         if finding_scorer:
             try:
@@ -1291,7 +1317,11 @@ def score_and_cluster_findings(findings: List[Dict[str, Any]], target_root: Path
                     manual_review_status=mr,
                     rule_id=f["rule_id"],
                     file_path=f["file_path"],
-                    root_dir=target_root
+                    root_dir=target_root,
+                    taint_path_confirmed=is_taint_confirmed,
+                    taint_depth=taint_depth,
+                    sanitizer_present=is_sanitized,
+                    rule_severity=f.get("severity", "High")
                 )
                 score = s
                 band = b
@@ -1313,6 +1343,7 @@ def score_and_cluster_findings(findings: List[Dict[str, Any]], target_root: Path
     sev_rank = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1}
     scored.sort(key=lambda x: (sev_rank.get(x["severity"], 0), x["confidence_score"]), reverse=True)
     return scored, clusters
+
 
 
 def emit_run_artifacts(run_folder: Path, scored_findings: List[Dict[str, Any]], clusters: Dict[str, List[Dict[str, Any]]], target_root: Path) -> None:
@@ -1501,7 +1532,14 @@ def run_watch_mode(target_root: Path, severity_floor: str = "medium", json_outpu
         print(f"\n  {YELLOW}🛑 Watch mode stopped.{RESET}\n")
 
 
-def execute_audit(target_root: Path, severity_floor: str = "medium", json_output: bool = False, include_tests: bool = False) -> Dict[str, Any]:
+def execute_audit(
+    target_root: Path,
+    severity_floor: str = "medium",
+    json_output: bool = False,
+    include_tests: bool = False,
+    incremental: bool = False,
+    use_taint: bool = True
+) -> Dict[str, Any]:
     """Execute the full TorusGuard static security audit."""
     start_time = time.perf_counter()
     target_root = target_root.resolve()
@@ -1522,14 +1560,64 @@ def execute_audit(target_root: Path, severity_floor: str = "medium", json_output
         except Exception:
             pass
 
-    # 2. Collect files & scan
+    # 2. Collect files to scan
     files = find_files_to_scan(target_root, include_tests=include_tests)
     all_findings = []
-    for f in files:
-        all_findings.extend(scan_file(f, target_root))
 
-    # 3. Score & Cluster
-    scored_findings, clusters = score_and_cluster_findings(all_findings, target_root)
+    inc_scanner = None
+    files_to_scan = files
+    unchanged_files = []
+
+    if incremental:
+        try:
+            from core.incremental import IncrementalScanner
+            inc_scanner = IncrementalScanner(target_root)
+            files_to_scan, unchanged_files = inc_scanner.get_changed_files(files)
+            # Rehydrate findings for unchanged files
+            for uf in unchanged_files:
+                all_findings.extend(inc_scanner.get_cached_findings(uf))
+        except Exception:
+            files_to_scan = files
+            unchanged_files = []
+
+    # Parallel or sequential scan on files_to_scan
+    new_findings = []
+    try:
+        from core.parallel import ParallelAuditExecutor
+        executor = ParallelAuditExecutor()
+        new_findings = executor.scan_files_parallel(files_to_scan, lambda f: scan_file(f, target_root))
+    except Exception:
+        for f in files_to_scan:
+            new_findings.extend(scan_file(f, target_root))
+
+    all_findings.extend(new_findings)
+
+    # Update cache if incremental scanner is active
+    if inc_scanner:
+        # Group new findings by file
+        file_to_findings: Dict[Path, List[Dict[str, Any]]] = {f: [] for f in files_to_scan}
+        for nf in new_findings:
+            raw_fp = nf.get("file_path", "")
+            target_f = target_root / raw_fp
+            if target_f in file_to_findings:
+                file_to_findings[target_f].append(nf)
+        for target_f, f_list in file_to_findings.items():
+            inc_scanner.update_file_cache(target_f, f_list)
+        inc_scanner.save_cache()
+
+    # 2.5 Taint Dataflow Analysis (if enabled)
+    taint_paths = []
+    if use_taint:
+        try:
+            from core.cross_file_taint import CrossFileTaintAnalyzer
+            analyzer = CrossFileTaintAnalyzer(target_root)
+            # Analyze target files (capped to 200 files for high responsiveness)
+            taint_paths = analyzer.analyze_project(files[:200])
+        except Exception:
+            taint_paths = []
+
+    # 3. Score & Cluster with Taint Evidence
+    scored_findings, clusters = score_and_cluster_findings(all_findings, target_root, taint_paths=taint_paths)
 
     # 4. Allocate run folder
     runs_dir = target_root / ".torusguard" / "runs"
@@ -1595,6 +1683,8 @@ def main():
     parser.add_argument("--scope", "-s", help="Alternative path to target project")
     parser.add_argument("--severity", choices=["critical", "high", "medium", "low"], default="medium", help="Severity floor")
     parser.add_argument("--watch", "-w", action="store_true", help="Continuous watch mode: re-scan on file save")
+    parser.add_argument("--incremental", "-i", action="store_true", help="Incremental mode: only scan modified files")
+    parser.add_argument("--no-taint", action="store_true", help="Disable taint-aware dataflow analysis")
     parser.add_argument("--sarif", action="store_true", help="Automatically export findings to OASIS SARIF v2.1.0")
     parser.add_argument("--sarif-out", help="Output file path for SARIF export")
     parser.add_argument("--json", action="store_true", help="Output raw JSON")
@@ -1607,9 +1697,17 @@ def main():
         run_watch_mode(target, severity_floor=args.severity, json_output=args.json, include_tests=args.include_tests, sarif=args.sarif, sarif_out=args.sarif_out)
         sys.exit(0)
 
-    res = execute_audit(target, severity_floor=args.severity, json_output=args.json, include_tests=args.include_tests)
+    res = execute_audit(
+        target,
+        severity_floor=args.severity,
+        json_output=args.json,
+        include_tests=args.include_tests,
+        incremental=args.incremental,
+        use_taint=(not args.no_taint)
+    )
     if args.sarif:
         export_sarif(target, res.get("run_folder"), args.sarif_out)
+
 
     sys.exit(0 if res["critical_count"] == 0 else 1)
 

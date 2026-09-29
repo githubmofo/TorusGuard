@@ -11,8 +11,8 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-v2.1.0-orange.svg" alt="Version"></a>
-  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.1.0-CB3837?logo=npm&logoColor=white" alt="npm: v2.1.0"></a>
+  <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-v2.1.1-orange.svg" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.1.1-CB3837?logo=npm&logoColor=white" alt="npm: v2.1.1"></a>
   <img src="https://img.shields.io/badge/Privacy-Local_First-success" alt="Privacy: Local First">
   <img src="https://img.shields.io/badge/Dependencies-Zero-brightgreen" alt="Dependencies: Zero">
   <img src="https://img.shields.io/badge/SARIF-v2.1.0-6C3483" alt="SARIF">
@@ -22,9 +22,10 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Unit%20Tests-100%25%20Passing-brightgreen?logo=go&logoColor=white" alt="Unit Tests: 100% Passing">
   <img src="https://img.shields.io/badge/Polyglot%20Tests-36%2F36%20Repos%20Passed-brightgreen?logo=checkmarx&logoColor=white" alt="Polyglot Tests: 36/36 Repos Passed">
+  <a href="docs/validation/unseen-repos-tri-mode-validation-report.md"><img src="https://img.shields.io/badge/Tri--Mode%20Validation-6%2F6%20Unseen%20Stacks%20Passed-brightgreen?logo=checkmarx&logoColor=white" alt="Tri-Mode Validation: 6/6 Unseen Stacks Passed"></a>
   <img src="https://img.shields.io/badge/Tri--Mode%20E2E-16%2F16%20Verified-blue?logo=checkmarx&logoColor=white" alt="Tri-Mode E2E: 16/16 Verified">
   <img src="https://img.shields.io/badge/Vision%20OCR-Tested%20%26%20Verified-blueviolet?logo=tesseract&logoColor=white" alt="Vision OCR: Tested & Verified">
-  <img src="https://img.shields.io/badge/Rules%20Verified-86%2F86%20Rules-success" alt="Rules: 86/86 Verified">
+  <img src="https://img.shields.io/badge/Rules%20Verified-88%2F88%20Rules-success" alt="Rules: 88/88 Verified">
 </p>
 
 <p align="center">
@@ -60,7 +61,7 @@
 
 ## What Is TorusGuard?
 
-TorusGuard is a **zero-dependency, single-binary security engine** that scans, hardens, and validates AI-generated codebases. It enforces 86 security rules across 22 architectural families and works across three unified operational modes (**Tri-Mode Parity**):
+TorusGuard is a **zero-dependency, single-binary security engine** that scans, hardens, and validates AI-generated codebases. It enforces 88 security rules across 22 architectural families and works across three unified operational modes (**Tri-Mode Parity**):
 
 - **Mode A: Terminal CLI (Go Binary)** — A deterministic scanner and enforcer that runs in your terminal or CI/CD pipeline (`torusguard <command>`).
 - **Mode B: AI Chat Slash Commands** — Integrates natively with Antigravity, Cursor, Claude Code, Windsurf, VS Code, and other AI coding assistants via slash commands (`/torusguard <command>`).
@@ -72,9 +73,12 @@ TorusGuard ensures that the code your AI assistant writes is secure *before* it 
 
 ## ✨ Features
 
-- **86 Security Rules** across 22 families (Secrets, Auth, SQL Injection, SSRF, CSRF, GraphQL, Supply Chain, Containers, Git History, ReDoS, AI & RAG, and more)
+- **88 Security Rules** across 22 families (Secrets, Auth, SQL Injection, Deserialization, Open Redirects, SSRF, CSRF, GraphQL, Supply Chain, Containers, Git History, ReDoS, AI & RAG, and more)
+- **Taint Analysis & Interprocedural Dataflow Engine** — Cross-file, interprocedural taint flow tracking from untrusted sources to critical sinks across imports, modules, and call graphs
+- **7-Signal Calibrated Confidence Scorer** — Evidence-chain calibration combining rule severity, taint confirmation, taint depth, sanitizer absence, framework context, multi-line evidence, and persistent memory
 - **First-Principles Security Suite** — Built-in native scanners for Dockerfile/Compose privilege bounds, Git commit log secret mining, exponential regex backtracking, and cross-tenant vector isolation
-- **Heuristic AST Scanner** — Polyglot static analysis for Go, JavaScript, TypeScript, and Python
+- **Polyglot Parser & AST Walker** — Tree-sitter powered AST traversal with unified CST nodes and symbol resolution across Go, JavaScript, TypeScript, and Python
+- **Incremental Hash Cache & Parallel Scanning** — SHA-256 mtime incremental scan caching, process-pool parallelization, and continuous file-watcher debounce
 - **Line-Level Reflection Module** — Semantic patch synthesis (`find_snippet` / `replace_snippet`) that accurately replaces exact code blocks without brittle line-number offsets
 - **1/9th Token Bounded Context Extraction** — AST context extraction (±3 lines) via `scanner.ExtractContext` to keep review prompts hyper-efficient and prevent context saturation
 - **Ponytail Protocol** — Surgical patch bounds (≤35 additions, ≤25 deletions) to prevent full-file rewrites
@@ -200,7 +204,7 @@ npx torusguard init
 ```
 
 <a href="https://www.npmjs.com/package/torusguard">
-  <img src="https://img.shields.io/badge/npm-v2.1.0-CB3837?logo=npm&logoColor=white" alt="npm package">
+  <img src="https://img.shields.io/badge/npm-v2.1.1-CB3837?logo=npm&logoColor=white" alt="npm package">
 </a>
 
 ### Option 2: Build from Source (Recommended for Contributors)
@@ -287,12 +291,14 @@ torusguard exploit-check
 | `recipes`        | Manage the Golden Fix recipe library                           |
 | `authorize`      | Generate cryptographic auth tokens for runtime probing         |
 | `web-validate`   | Authorized HTTP probing with `X-TorusGuard-Audit` headers      |
+| `exploit-check`  | Bounded single-step exploitability confirmation                |
 | `ocr-scan`       | Run Tesseract OCR secret scan on images/diagrams (<10MB)       |
 | `container`      | Audit Dockerfile, compose, and container configurations        |
 | `git-mine`       | Mine git commit history for leaked secrets & creds             |
 | `redos`          | Analyze regex patterns for catastrophic backtracking           |
 | `ai-guard`       | Scan AI/LLM code for prompt injection & RAG flaws              |
 | `mcp`            | Run native Model Context Protocol (MCP) server over stdio      |
+| `full`           | Master 7-stage closed-loop security governance pipeline        |
 | `update`         | Self-update the TorusGuard engine                              |
 | `help`           | Show interactive command guide                                 |
 
@@ -335,7 +341,7 @@ TorusGuard/
 
 ## 🔒 Security Invariants & Rule Governance
 
-TorusGuard enforces **86 security invariants across 22 architectural families** covering Secrets, Authentication, Multi-Tenant Database Isolation, Input Sanitization, Rate Limiting, AI Agent Prompt Injection, SSRF, Webhooks, WebSockets, CSRF, GraphQL, Supply Chain, Business Logic, Cache Poisoning, Client Bundles, Platform Headers, Polyglot Bypasses, Edge Timeouts, Container & Docker Safety, Git History Secret Mining, Regular Expression Backtracking (ReDoS), and Vector Database RAG Isolation.
+TorusGuard enforces **88 security invariants across 22 architectural families** covering Secrets, Authentication, Multi-Tenant Database Isolation, Input Sanitization, Rate Limiting, AI Agent Prompt Injection, SSRF, Webhooks, WebSockets, CSRF, GraphQL, Supply Chain, Business Logic, Cache Poisoning, Client Bundles, Platform Headers, Polyglot Bypasses, Edge Timeouts, Container & Docker Safety, Git History Secret Mining, Regular Expression Backtracking (ReDoS), and Vector Database RAG Isolation.
 
 > 📘 **Full Rules Catalog & Invariants:**  
 > The complete rulebook with formal invariant definitions, severity scores, and testing signatures is maintained in [`AGENTS.md`](AGENTS.md) and the [`rules/`](rules/) directory.  
@@ -397,11 +403,12 @@ TorusGuard undergoes rigorous automated multi-tier testing across polyglot stack
 
 | Testing Tier | Scope & Target Stacks | Pass Rate | Verified Capabilities |
 | :--- | :--- | :---: | :--- |
-| **Go Engine & Unit Tests** | `cmd/torusguard`, `internal/scanner`, `internal/*` | **100% Passing** | Deterministic AST matching, 74 rule patterns, JSON-RPC 2.0 MCP protocol. |
+| **Go Engine & Unit Tests** | `cmd/torusguard`, `internal/scanner`, `internal/*` | **100% Passing** | Deterministic AST matching, 88 canonical rule patterns, JSON-RPC 2.0 MCP protocol (133/133 harness tests passing). |
 | **Mass Polyglot Benchmarks** | **20 Enterprise Tech Stacks** (Go, Python, Java, Node, Rust, PHP, C#, Ruby, Svelte, Vue, Angular) | **20/20 Passed** | Framework auto-profiling, heuristic AST analysis, finding deduplication. |
+| **Unseen Tri-Mode Validation** | **6 Unseen Framework Ecosystems** (SvelteKit 2 + Bun, FastAPI AI RAG, DevOps Git Mine, OCR Asset Suite, Kotlin Ktor, Laravel 11) | **6/6 Passed (100%)** | Mode A (CLI) + Mode B (Slash Commands) + Mode C (Native MCP Tools) across 18/18 canonical skills with automated sandbox cleanup. |
 | **Tri-Mode & Vision E2E** | **16 Diverse Framework Repos** (React, Next.js, Express, Django, FastAPI, Spring Boot, etc.) | **16/16 Passed** | Mode A (CLI) + Mode B (Slash Commands) + Mode C (Native MCP Tools) + Multi-Modal Vision OCR. |
-| **Multi-Modal Vision OCR** | Diagram & Image assets (`.png`, `.jpg`, etc.) via Tesseract v5.4.0 | **100% Recall** | Secrets detection (`TG-SEC-001` - `TG-SEC-007`), 10MB DoS bounding, OCR character substitution tolerance. |
-| **Ponytail Churn Limits** | Surgical patch validation across all 74 rules | **Bounded** | Line bounds (≤35 additions, ≤25 deletions), zero-bypass verification (`TG-DIFF-001`). |
+| **Multi-Modal Vision OCR** | Diagram & Image assets (`.png`, `.jpg`, `.webp`) via Tesseract v5.4.0 | **100% Recall** | Secrets detection (`TG-SEC-001` - `TG-SEC-007`), 10MB DoS bounding, OCR character substitution tolerance. |
+| **Ponytail Churn Limits** | Surgical patch validation across all 88 rules | **Bounded** | Line bounds (≤35 additions, ≤25 deletions), zero-bypass verification (`TG-DIFF-001`). |
 
 All test environments are completely sandboxed, verified with byte-for-byte assertions, and cleaned up automatically.
 
@@ -450,5 +457,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines and [CODE_OF_COND
 | [Testing Playbook](docs/usage/testing-playbook.md)        | Testing guide and CI integration         |
 | [Demo Guide](docs/demo.md)                                | Quick start and full lifecycle demo      |
 | [Roadmap](docs/roadmap.md)                                | Feature roadmap and release planning     |
+| [Unseen Stacks Validation Report](docs/validation/unseen-repos-tri-mode-validation-report.md) | Tri-mode validation across 6 unseen ecosystems & vision OCR |
 | [SECURITY.md](SECURITY.md)                                | Vulnerability disclosure policy          |
 | [CHANGELOG.md](CHANGELOG.md)                              | Version history and release notes        |

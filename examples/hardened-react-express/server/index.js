@@ -14,7 +14,6 @@ if (!process.env.JWT_SECRET) {
   process.exit(1);
 }
 
-const helmet = require("helmet");
 const app = express();
 app.use(helmet());
 const PORT = 3001;

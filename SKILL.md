@@ -1,7 +1,7 @@
 ---
 name: torusguard
-description: "Autonomous security engine: 86 rules across 22 families, polyglot heuristic scanning, First-Principles suite (Docker, Git Mine, ReDoS, AI & RAG), governed remediation (Ponytail Protocol ≤35 add, ≤25 del), SARIF v2.1.0 exports, dark-mode HTML dashboards, fail-closed cryptography, SSRF defense, and DoS-resilient scanning for AI-built web applications."
-version: 2.1.0
+description: "Autonomous security engine: 88 rules across 22 families, polyglot heuristic scanning, First-Principles suite (Docker, Git Mine, ReDoS, AI & RAG), governed remediation (Ponytail Protocol ≤35 add, ≤25 del), SARIF v2.1.0 exports, dark-mode HTML dashboards, fail-closed cryptography, SSRF defense, and DoS-resilient scanning for AI-built web applications."
+version: 2.1.1
 ---
 
 # TorusGuard Master Security Router

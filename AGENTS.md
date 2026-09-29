@@ -21,11 +21,11 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 | **13. Authorize** | `torusguard authorize` | `/torusguard authorize` | — | Target domain whitelisting, cryptographic ownership proof, TTL boundaries |
 | **14. Validate** | `torusguard web-validate` | `/torusguard web-validate` | — | Authorized non-destructive HTTP probing with transparent audit headers |
 | **15. Exploit** | `torusguard exploit-check` | `/torusguard exploit-check` | — | Bounded single-step exploitability confirmation with inert tokens |
-| **16. OCR Vision** | `torusguard ocr-scan <target>` | `/torusguard ocr-scan` | `torusguard_ocr_scan` | Scans diagrams/images via Tesseract OCR for leaked keys & secrets |
-| **17. Container** | `torusguard container` | `/torusguard container` | `torusguard_container` | Audits Dockerfile & Compose for root users, sockets, privileged mode |
-| **18. Git Mine** | `torusguard git-mine` | `/torusguard git-mine` | `torusguard_git_mine` | Mines git commit history & config for leaked credentials & tokens |
-| **19. ReDoS** | `torusguard redos` | `/torusguard redos` | `torusguard_redos` | Analyzes regex patterns for catastrophic exponential backtracking |
-| **20. AI Guard** | `torusguard ai-guard` | `/torusguard ai-guard` | `torusguard_ai_guard` | Audits AI agents & RAG pipelines for prompt injection & tenant leaks |
+| **16. Container** | `torusguard container` | `/torusguard container` | `torusguard_container` | Audits Dockerfile & Compose for root users, sockets, privileged mode |
+| **17. Git Mine** | `torusguard git-mine` | `/torusguard git-mine` | `torusguard_git_mine` | Mines git commit history & config for leaked credentials & tokens |
+| **18. ReDoS** | `torusguard redos` | `/torusguard redos` | `torusguard_redos` | Analyzes regex patterns for catastrophic exponential backtracking |
+| **19. AI Guard** | `torusguard ai-guard` | `/torusguard ai-guard` | `torusguard_ai_guard` | Audits AI agents & RAG pipelines for prompt injection & tenant leaks |
+| **20. Full** | `torusguard full` | `/torusguard full` | — | Master 7-stage closed-loop security governance pipeline |
 | **21. Update** | `torusguard update` | `/torusguard update` | — | Self-update the TorusGuard engine |
 | **22. Help** | `torusguard help` | `/torusguard help` | — | Interactive command guide |
 
@@ -46,14 +46,14 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 
 ---
 
-## 86 Rules Across 22 Architectural Families
+## 88 Rules Across 22 Architectural Families
 
 | Family Code | Security Domain | Rules | Core Invariant Enforced |
 | :--- | :--- | :---: | :--- |
 | **`TG-SEC`** | Core Secrets & API Tokens | 7 | Zero hardcoded API keys, private certificates, or JWT secrets in source code. |
 | **`TG-AUTH`** | Authentication & Session Integrity | 8 | Enforce timing-safe compares, strong password hashing, algorithm verification. |
 | **`TG-DB`** | Database Isolation & Injection | 4 | Parameterized SQL queries and tenant partition scoping across all queries. |
-| **`TG-INPUT`** | Input Sanitization & Traversal | 6 | Strict path sanitization, command argument escaping, safe DOM assignments. |
+| **`TG-INPUT`** | Input Sanitization & Traversal | 8 | Strict path sanitization, command escaping, safe deserialization, unvalidated redirects. |
 | **`TG-RATE`** | Rate Limiting & Resource Protection | 3 | Rate-limiting middleware on auth endpoints and payload size bounds. |
 | **`TG-AGENT`** | AI Agent & LLM Injection Defense | 4 | Structural user prompt isolation, inert delimiters, tool call schema validation. |
 | **`TG-SSRF`** | Server-Side Request Forgery | 4 | Hostname whitelisting, private IP range blocking (`169.254.169.254`, `10.0.0.0/8`). |

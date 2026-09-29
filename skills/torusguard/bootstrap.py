@@ -144,7 +144,7 @@ def card_divider(title: str = "", border_color: str = CYAN, double: bool = False
         return f"  {border_color}{left}{h} {BOLD}{WHITE}{title}{RESET}{border_color} {h * rem}{right}{RESET}"
     return f"  {border_color}{left}{h * 71}{right}{RESET}"
 
-def card_header(title: str, subtitle: str = "", version: str = "v2.1.0", border_color: str = CYAN) -> str:
+def card_header(title: str, subtitle: str = "", version: str = "v2.1.1", border_color: str = CYAN) -> str:
     """Generate standardized 75-column curved header box."""
     top = f"  {border_color}╭{'─' * 71}╮{RESET}"
     bottom = f"  {border_color}╰{'─' * 71}╯{RESET}"
@@ -164,7 +164,7 @@ def card_header(title: str, subtitle: str = "", version: str = "v2.1.0", border_
 def print_header():
     """Print the branded TorusGuard header card."""
     print()
-    print(card_header("🛡️  T O R U S G U A R D", "Autonomous Security Engine for AI-Built Applications", version="v2.1.0"))
+    print(card_header("🛡️  T O R U S G U A R D", "Autonomous Security Engine for AI-Built Applications", version="v2.1.1"))
     print()
 
 
@@ -247,7 +247,7 @@ def print_already_initialized(target_root, cfg):
     print(f"""
   {BOLD}▸ Project Root:{RESET}       {GREEN}{target_root}{RESET}
   {BOLD}▸ Workspace:{RESET}          {GREEN}.torusguard/{RESET} {DIM}(Already Initialized){RESET}
-  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '2.1.0')}{RESET}
+  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '2.1.1')}{RESET}
   {BOLD}▸ Severity Floor:{RESET}     {YELLOW}{cfg.get('severity_threshold', 'medium')}{RESET}
 
   {DIM}To refresh templates or re-scaffold, run:{RESET}

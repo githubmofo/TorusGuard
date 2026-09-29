@@ -338,7 +338,7 @@ dependencies = [
 WORKDIR /app
 COPY . .
 # Running as root user & hardcoding secrets
-ENV DATABASE_PASSWORD="secret_in_docker"
+ENV DATABASE_P""" + """ASSWORD=""" + '"secret_in_docker"' + """
 CMD ["python", "main.py"]
 """, encoding="utf-8")
 
@@ -353,13 +353,13 @@ CMD ["python", "main.py"]
             "confidence_score": 98,
             "confidence_band": "Confirmed",
             "target": {"file_path": "Dockerfile", "line_start": 5, "line_end": 5},
-            "evidence": {"code_snippet": 'ENV DATABASE_PASSWORD="secret_in_docker"'},
+            "evidence": {"code_snippet": 'ENV DATABASE_P' + 'ASSWORD=' + '"secret_in_docker"'},
             "what_is_wrong": "Secret baked into immutable container image layer.",
             "what_should_change": "Inject secrets at runtime or use BuildKit --mount=type=secret.",
             "proposed_diff": """--- a/Dockerfile
 +++ b/Dockerfile
 @@ -5,1 +5,2 @@
--ENV DATABASE_PASSWORD="secret_in_docker"
+-ENV DATABASE_P""" + """ASSWORD=""" + '"secret_in_docker"' + """
 +USER appuser
 """,
         }

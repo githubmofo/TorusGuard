@@ -1,7 +1,7 @@
 # TorusGuard API & Skill Interface Specification
 
 ## 1. Overview
-This document specifies the formal application programming interfaces, CLI command dispatchers, skill contracts, and schema payloads utilized by TorusGuard as of **v2.1.0**.
+This document specifies the formal application programming interfaces, CLI command dispatchers, skill contracts, and schema payloads utilized by TorusGuard as of **v2.1.1**.
 
 ---
 
@@ -26,11 +26,11 @@ TorusGuard enforces 100% functional parity between **Mode A (Terminal CLI)**, **
 | **13. Authorize** | `torusguard authorize` | `/torusguard authorize` | — | `internal/validate/` | Cryptographic ownership authorization tokens |
 | **14. Validate** | `torusguard web-validate` | `/torusguard web-validate` | — | `internal/validate/` | Bounded HTTP trace logs with scrubbed secrets |
 | **15. Exploit** | `torusguard exploit-check` | `/torusguard exploit-check` | — | `internal/validate/` | Exploitability confirmation matrix |
-| **16. OCR Vision** | `torusguard ocr-scan <target>` | `/torusguard ocr-scan` | `torusguard_ocr_scan` | `internal/scanner/ocr.go` | Optical finding list with redacted secrets |
-| **17. Container** | `torusguard container` | `/torusguard container` | `torusguard_container` | `internal/scanner/container.go` | Non-root and socket mount finding cards |
-| **18. Git Mine** | `torusguard git-mine` | `/torusguard git-mine` | `torusguard_git_mine` | `internal/scanner/git_mine.go` | Historical commit secret finding cards |
-| **19. ReDoS** | `torusguard redos` | `/torusguard redos` | `torusguard_redos` | `internal/scanner/redos.go` | Catastrophic backtracking regex finding cards |
-| **20. AI Guard** | `torusguard ai-guard` | `/torusguard ai-guard` | `torusguard_ai_guard` | `internal/scanner/ai_guard.go` | Prompt injection and tenant finding cards |
+| **16. Container** | `torusguard container` | `/torusguard container` | `torusguard_container` | `internal/scanner/container.go` | Non-root and socket mount finding cards |
+| **17. Git Mine** | `torusguard git-mine` | `/torusguard git-mine` | `torusguard_git_mine` | `internal/scanner/git_mine.go` | Historical commit secret finding cards |
+| **18. ReDoS** | `torusguard redos` | `/torusguard redos` | `torusguard_redos` | `internal/scanner/redos.go` | Catastrophic backtracking regex finding cards |
+| **19. AI Guard** | `torusguard ai-guard` | `/torusguard ai-guard` | `torusguard_ai_guard` | `internal/scanner/ai_guard.go` | Prompt injection and tenant finding cards |
+| **20. Full** | `torusguard full` | `/torusguard full` | — | `skills/torusguard-full` | Master 7-stage closed-loop security governance pipeline |
 | **21. Update** | `torusguard update` | `/torusguard update` | — | `cmd/torusguard/` | Engine self-update inspection |
 | **22. Help** | `torusguard help` | `/torusguard help` | — | `cmd/torusguard/` | Interactive command guide |
 

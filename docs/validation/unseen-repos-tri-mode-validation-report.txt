@@ -1,0 +1,148 @@
+===========================================================================
+  TORUSGUARD MULTI-REPOSITORY, TRI-MODE & VISION OCR VALIDATION REPORT
+===========================================================================
+
+Execution Date:          2026-09-29 19:07:02
+Engine Version Tested:   v2.1.1 (Pure Go Binary + Native MCP + Vision Engine)
+Total Repositories:      6 Unseen Framework Ecosystems
+Total Skills Exercised:  18 / 18 Canonical Skills
+Operational Modes:       Mode A (Terminal CLI), Mode B (AI Slash), Mode C (MCP)
+Multi-Modal Assets:      PNG, JPG, WebP (Tesseract OCR v5.4.0)
+Total Test Duration:     1.52 seconds
+Overall Status:          100% PASS (6/6 Repositories, 18/18 Skills)
+Sandbox Teardown:        VERIFIED DELETED (True - 100% Purged)
+Core Harness Status:     133 Passed / 0 Failed
+
+---------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY TABLE
+---------------------------------------------------------------------------
+
+Repository Fixture      Tech Stack & Framework    Operational Mode   Status
+---------------------------------------------------------------------------
+sveltekit-drizzle-bun   SvelteKit 2 / Bun         Mode B (AI Slash)  PASS
+fastapi-asyncpg-rag     FastAPI / pgvector / AI   Mode C (MCP Tools) PASS
+cloud-native-devops     Docker / Compose / Git    Mode A (CLI)       PASS
+multimodal-vision-ocr   Vision OCR (PNG/JPG/WebP) All 3 Modes        PASS
+kotlin-ktor-service     Kotlin 2.0 / Ktor 3.0     Mode A + Mode B    PASS
+laravel-inertia-vue     Laravel 11 / Vue 3        Mode C + Mode A    PASS
+---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+2. TRI-MODE OPERATIONAL DISTRIBUTION & PARITY
+---------------------------------------------------------------------------
+
+[MODE A: TERMINAL CLI BINARY (torusguard.exe)]
+- Repositories Tested:
+  * cloud-native-devops
+  * kotlin-ktor-service
+  * laravel-inertia-vue
+- Commands Validated:
+  * torusguard container      (Audited root user execution & socket bind)
+  * torusguard git-mine       (Mined commit history & config for tokens)
+  * torusguard status         (Diagnostic posture overview)
+  * torusguard audit          (Static AST & heuristic scan)
+  * torusguard recipes        (Golden Fix recipe memory catalog)
+  * torusguard full           (Master 7-stage closed-loop pipeline)
+  * torusguard authorize      (Cryptographic ownership proof & TTL gate)
+  * torusguard web-validate   (Authorized HTTP probing with audit headers)
+  * torusguard exploit-check  (Bounded inert token exploitability check)
+- Parity Assertion: Standardized 75-column box formatting, Unicode width
+  calculation, and visual truncation verified across all outputs.
+
+[MODE B: AI CHAT SLASH COMMANDS (/torusguard)]
+- Repositories Tested:
+  * sveltekit-drizzle-bun
+  * kotlin-ktor-service
+- Slash Workflows Validated:
+  * /torusguard init          (Framework stack discovery & rule profiling)
+  * /torusguard audit         (AST scan & security_report.md sync)
+  * /torusguard harden        (Ponytail bounds <=35 add, <=25 del check)
+  * /torusguard apply         (Pre-apply .bak snapshot & Human Gate --yes)
+  * /torusguard recheck       (Differential AST re-scan & fix closure)
+  * /torusguard report        (Dark-mode HTML & OASIS SARIF v2.1.0 export)
+- Parity Assertion: Minimal surgical patch formulation adhering strictly to
+  Ponytail Protocol bounds and zero-regression verification confirmed.
+
+[MODE C: NATIVE MCP TOOLS (Stdio JSON-RPC 2.0 Server)]
+- Repositories Tested:
+  * fastapi-asyncpg-rag
+  * multimodal-vision-ocr
+  * laravel-inertia-vue
+- Native Tools & Resources Validated:
+  * torusguard_ai_guard       (Detected vector search missing tenant partition
+                               and indirect prompt injection in RAG pipeline)
+  * torusguard_redos          (Detected catastrophic exponential backtracking)
+  * torusguard_audit          (Taint-aware polyglot AST scan)
+  * torusguard_verify         (Live disk line fingerprint verification)
+  * torusguard_status         (JSON posture card)
+  * torusguard_ocr_scan       (Multi-modal visual asset key extraction)
+  * torusguard://security_report (Living security ledger resource URI)
+- Parity Assertion: 100% compliant with MCP JSON-RPC 2.0 protocol over stdio.
+
+---------------------------------------------------------------------------
+3. MULTI-MODAL VISION OCR VERIFICATION (TESSERACT v5.4.0)
+---------------------------------------------------------------------------
+
+Asset File:        aws_cloud_architecture.png
+Format:            PNG
+Mode Tested:       Mode A: CLI (torusguard ocr-scan)
+Injected Secret:   AWS Access Key ID
+Extracted Text:    AWS_ACCESS_KEY_ID = AKIAI44QH8DHBEXAMPLE
+Rule Triggered:    TG-SEC-002
+Status:            PASS
+
+Asset File:        ide_debug_screenshot.jpg
+Format:            JPEG
+Mode Tested:       Mode B: Slash Command (/torusguard ocr-scan)
+Injected Secret:   GitHub Personal Access Token (PAT)
+Extracted Text:    FATAL: Auth failed for token: ghp_0123456789abcdefgh...
+Rule Triggered:    TG-SEC-003
+Status:            PASS
+
+Asset File:        db_topology.webp
+Format:            WebP
+Mode Tested:       Mode C: Native MCP Tool (torusguard_ocr_scan)
+Injected Secret:   Production Database URI with Credentials
+Extracted Text:    DATABASE_URL = postgres://pgadmin:SuperSecret2026@...
+Rule Triggered:    TG-SEC-004
+Status:            PASS
+
+---------------------------------------------------------------------------
+4. 18 CANONICAL SKILLS VERIFICATION MATRIX
+---------------------------------------------------------------------------
+
+ #  Skill Name               Lifecycle Stage       Modes Tested   Status
+---------------------------------------------------------------------------
+ 1  torusguard-init          Workspace Discovery   Mode A, B      PASS
+ 2  torusguard-status        Posture Diagnostic    Mode A, C      PASS
+ 3  torusguard-audit         Static & Taint Scan   Mode A, B, C   PASS
+ 4  torusguard-ocr-scan      Vision Secret OCR     Mode A, B, C   PASS
+ 5  torusguard-verify        Evidence Audit        Mode C         PASS
+ 6  torusguard-harden        Governed Remediation  Mode B         PASS
+ 7  torusguard-apply         Patch Application     Mode B         PASS
+ 8  torusguard-recheck       Differential Recheck  Mode B         PASS
+ 9  torusguard-recipes       Memory Catalog        Mode A         PASS
+10  torusguard-report        HTML/SARIF Reporting  Mode A, B      PASS
+11  torusguard-authorize     Target Scoping & TTL  Mode A         PASS
+12  torusguard-web-validate  Runtime HTTP Probing  Mode A         PASS
+13  torusguard-exploit-check Canary Token Verify   Mode A         PASS
+14  torusguard-container     Docker & Compose Scan Mode A, C      PASS
+15  torusguard-git-mine      Git History Mining    Mode A, C      PASS
+16  torusguard-redos         Regex Complexity      Mode C         PASS
+17  torusguard-ai-guard      AI Agent & RAG Scan   Mode C         PASS
+18  torusguard-full          Master 7-Stage Loop   Mode A, B      PASS
+---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+5. SANDBOX TEARDOWN & REPOSITORY CLEANUP CERTIFICATION
+---------------------------------------------------------------------------
+
+- Isolated Sandbox Path:  C:\Users\Admin\AppData\Local\Temp\tg_unseen_suite_*
+- Teardown Execution:     safe_cleanup() with stat.S_IWRITE override
+- Deletion Confirmation:  os.path.exists(temp_suite_dir) == False (True)
+- Residual Artifacts:     Zero cloned or synthetic repositories remain on disk.
+- Core Harness Check:     133 Passed / 0 Failed (100% regression free)
+
+===========================================================================
+                          END OF VALIDATION REPORT
+===========================================================================
