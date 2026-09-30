@@ -2,7 +2,7 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "TorusGuard v2.0 System Architecture",
+    "title": "TorusGuard v2.1.2 System Architecture",
     "subtitle": "Hybrid Governance Security Engine for AI-Built Applications",
     "output": "docs/architecture/torusguard-architecture.html",
     "quality_profile": "showcase",
@@ -11,13 +11,13 @@
         "id": "tri-mode",
         "label": "Tri-Mode Ingress",
         "focus": ["developer", "ai_agents", "cli_mode", "chat_mode", "mcp_mode", "router"],
-        "note": "Unified entry points across Terminal CLI, Chat Slash Commands, and Native MCP Tools."
+        "note": "Unified entry points across Terminal CLI (25 cmds), Chat Slash Commands, and Native MCP Tools (13 tools)."
       },
       {
         "id": "dual-scan",
         "label": "Dual AST & Vision Scan",
         "focus": ["router", "ast_engine", "ocr_vision", "living_ledger", "sarif_export"],
-        "note": "Multi-modal analysis covering source code AST heuristics and visual diagram OCR."
+        "note": "Multi-modal analysis covering polyglot AST heuristics (88 rules) and visual diagram OCR."
       },
       {
         "id": "governed-remediation",
@@ -30,11 +30,11 @@
   "components": [
     { "id": "developer", "type": "external", "label": "Developer / CI", "sublabel": "Terminal & Pipelines", "pos": [40, 150], "size": [130, 60] },
     { "id": "ai_agents", "type": "frontend", "label": "AI Coding Agents", "sublabel": "Cursor · Claude · Windsurf", "pos": [40, 310], "size": [130, 60], "tag": "Autonomous Loop" },
-    { "id": "cli_mode", "type": "backend", "label": "CLI Mode", "sublabel": "torusguard <cmd>", "brand": "go", "pos": [240, 150], "size": [140, 60] },
+    { "id": "cli_mode", "type": "backend", "label": "CLI Mode", "sublabel": "torusguard <cmd> (25)", "brand": "go", "pos": [240, 150], "size": [140, 60] },
     { "id": "chat_mode", "type": "backend", "label": "Slash Commands", "sublabel": "/torusguard <cmd>", "pos": [240, 250], "size": [140, 60], "tag": "Chat Bridge" },
-    { "id": "mcp_mode", "type": "backend", "label": "Native MCP Server", "sublabel": "JSON-RPC 2.0 Stdio", "pos": [240, 350], "size": [140, 60], "tag": "Agent Tools" },
+    { "id": "mcp_mode", "type": "backend", "label": "Native MCP Server", "sublabel": "13 Tools · 2 Resources", "pos": [240, 350], "size": [140, 60], "tag": "Agent Tools" },
     { "id": "router", "type": "backend", "label": "Command Router", "sublabel": "cmd/torusguard", "brand": "go", "pos": [450, 250], "size": [130, 60] },
-    { "id": "ast_engine", "type": "security", "label": "AST Rule Scanner", "sublabel": "74 Invariant Rules", "pos": [660, 150], "size": [140, 60], "tag": "18 Families" },
+    { "id": "ast_engine", "type": "security", "label": "AST Rule Scanner", "sublabel": "88 Rules · 22 Families", "pos": [660, 150], "size": [140, 60], "tag": "Polyglot Taint" },
     { "id": "ocr_vision", "type": "security", "label": "Vision OCR Engine", "sublabel": "Tesseract v5.4.0", "pos": [660, 250], "size": [140, 60], "tag": "10MB Bounds" },
     { "id": "harden_engine", "type": "security", "label": "Remediation Engine", "sublabel": "Ponytail Bounds (≤35/+25)", "pos": [660, 350], "size": [140, 60], "tag": "Human Gate" },
     { "id": "sarif_export", "type": "cloud", "label": "SARIF v2.1.0", "sublabel": "OASIS Standard Log", "pos": [880, 150], "size": [140, 60], "tag": "GitHub Security" },
@@ -61,8 +61,8 @@
     { "id": "harden-to-ledger", "from": "harden_engine", "to": "living_ledger", "fromSide": "top", "toSide": "bottom" }
   ],
   "cards": [
-    { "dot": "cyan", "title": "Tri-Mode Parity", "items": ["CLI, AI Chat slash commands, and Native MCP Tools execute identical governance rules", "Zero runtime divergence across developer environments"] },
-    { "dot": "emerald", "title": "Multi-Modal Analysis", "items": ["74 Heuristic AST invariant rules across 18 architectural families", "Tesseract v5.4.0 Vision OCR discovers leaked keys in diagrams & screenshots"] },
+    { "dot": "cyan", "title": "Tri-Mode Parity", "items": ["CLI (25 cmds), AI Chat slash commands, and Native MCP Tools (13 tools) execute identical governance rules", "Zero runtime divergence across developer environments"] },
+    { "dot": "emerald", "title": "Multi-Modal Analysis", "items": ["88 Heuristic AST invariant rules across 22 architectural families with TG-QL DSL", "Tesseract v5.4.0 Vision OCR discovers leaked keys in diagrams & screenshots"] },
     { "dot": "rose", "title": "Governed Remediation", "items": ["Ponytail Protocol line bounds prevent runaway file rewrites (≤35 additions, ≤25 deletions)", "Pre-apply byte-for-byte snapshots ensure instant rollback recovery"] }
   ]
 }

@@ -4,6 +4,29 @@ All notable changes to TorusGuard are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.2] — 2026-09-30
+
+### Added
+- **Declarative AST Security Query Language (`TG-QL`)**:
+  - Native YAML/JSON custom rule authoring in `.torusguard/custom_rules/` parsed dynamically via `internal/scanner/tgql.go`.
+  - Compiles metavariable patterns (`$VAR`, `$PATH`, `$HANDLER`, `...`) into high-performance Tree-sitter regex queries without recompiling Go code.
+- **Differential PR & Git Diff Review Mode (`torusguard review`)**:
+  - Incremental AST review mode (`cmd/torusguard/review.go`) analyzing only modified lines in Git commits/branches.
+  - Sub-300ms execution turnaround, net security score delta calculations, and CI gate enforcement.
+- **Automated STRIDE Threat Modeling Engine (`cmd/torusguard/threatmodel.go`, `.torusguard/scripts/stride_generator.py`)**:
+  - Automatic discovery of HTTP endpoints, trust boundaries, datastores, and egress sinks across polyglot source code.
+  - Generates `SECURITY_THREAT_MODEL.md` featuring interactive Mermaid Data Flow Diagrams (DFDs) and formal STRIDE risk matrices.
+- **Dependency Reachability & OpenVEX Engine (`.torusguard/scripts/reachability_analyzer.py`)**:
+  - AST call-graph tracing linking application entrypoints to imported package functions to suppress unreachable transitive dependency CVE noise.
+- **Tri-Perspective Multi-Agent Deliberation Tournament (`.torusguard/scripts/deliberation_tournament.py`)**:
+  - Multi-perspective consensus debate (Security Hunter vs. Devil's Advocate / Verifier vs. Ponytail Remediator) eliminating false positives before presenting findings to developers.
+- **SecurityReviewBench Benchmark Harness (`cmd/torusguard/benchmark.go`)**:
+  - Autonomous self-evaluating challenge harness testing polyglot ground-truth challenge pairs, achieving 100% precision and 100% recall.
+- **Tri-Mode MCP & CLI Expansion**:
+  - Registered native MCP tools `torusguard_review`, `torusguard_threatmodel`, and `torusguard_benchmark` in `cmd/torusguard/mcp.go`.
+  - Added new CLI subcommands `review`, `threatmodel`, `benchmark`.
+  - Created skills `.torusguard/skills/torusguard-review` and `.torusguard/skills/torusguard-threatmodel` with workflow pairings.
+
 ## [2.1.1] — 2026-09-29
 
 ### Added

@@ -157,6 +157,11 @@ func ScanDetailedAudit(targetDir string, catalog *rules.Catalog) ([]FindingDetai
 	fileCount := 0
 	const maxFileCount = 10000
 
+	activeRules := append([]RuleSignature{}, BuiltinRules...)
+	if customRules, err := LoadCustomRules(targetDir); err == nil && len(customRules) > 0 {
+		activeRules = append(activeRules, customRules...)
+	}
+
 	err := filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
 		select {
 		case <-ctx.Done():
@@ -210,8 +215,8 @@ func ScanDetailedAudit(targetDir string, catalog *rules.Catalog) ([]FindingDetai
 			lineText := fileScanner.Text()
 			fileLines = append(fileLines, lineText)
 
-			// Match against built-in rules
-			for _, r := range BuiltinRules {
+			// Match against built-in and custom TG-QL rules
+			for _, r := range activeRules {
 				// Check file extension filter
 				if len(r.FileExts) > 0 {
 					matchedExt := false

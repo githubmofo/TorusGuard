@@ -144,7 +144,7 @@ def card_divider(title: str = "", border_color: str = CYAN, double: bool = False
         return f"  {border_color}{left}{h} {BOLD}{WHITE}{title}{RESET}{border_color} {h * rem}{right}{RESET}"
     return f"  {border_color}{left}{h * 71}{right}{RESET}"
 
-def card_header(title: str, subtitle: str = "", version: str = "v2.1.1", border_color: str = CYAN) -> str:
+def card_header(title: str, subtitle: str = "", version: str = "v2.1.2", border_color: str = CYAN) -> str:
     """Generate standardized 75-column curved header box."""
     top = f"  {border_color}╭{'─' * 71}╮{RESET}"
     bottom = f"  {border_color}╰{'─' * 71}╯{RESET}"
@@ -164,7 +164,7 @@ def card_header(title: str, subtitle: str = "", version: str = "v2.1.1", border_
 def print_header():
     """Print the branded TorusGuard header card."""
     print()
-    print(card_header("🛡️  T O R U S G U A R D", "Autonomous Security Engine for AI-Built Applications", version="v2.1.1"))
+    print(card_header("🛡️  T O R U S G U A R D", "Autonomous Security Engine for AI-Built Applications", version="v2.1.2"))
     print()
 
 

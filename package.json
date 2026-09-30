@@ -1,6 +1,6 @@
 {
   "name": "torusguard",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Security guardrails, governed remediation, and authorized runtime validation for AI-built web applications.",
   "main": "bin/torusguard.js",
   "bin": {
@@ -19,6 +19,9 @@
     "init": "node bin/torusguard.js init",
     "status": "node bin/torusguard.js status",
     "audit": "node bin/torusguard.js audit",
+    "review": "node bin/torusguard.js review",
+    "threatmodel": "node bin/torusguard.js threatmodel",
+    "benchmark": "node bin/torusguard.js benchmark",
     "harden": "node bin/torusguard.js harden",
     "apply": "node bin/torusguard.js apply",
     "recipes": "node bin/torusguard.js recipes",

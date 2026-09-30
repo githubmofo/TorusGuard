@@ -133,5 +133,30 @@ func ScanGitHistory(targetDir string) ([]FindingDetail, error) {
 		}
 	}
 
+	// 4. In-Process Git Reflog & Orphaned History Forensics (pure Go, zero git CLI dependency)
+	reflogPath := filepath.Join(gitDir, "logs", "HEAD")
+	if rFile, err := os.Open(reflogPath); err == nil {
+		scanner := bufio.NewScanner(rFile)
+		lineNum := 0
+		for scanner.Scan() {
+			lineNum++
+			line := scanner.Text()
+			if match := reGitSecret.FindString(line); match != "" {
+				redacted := match[:4] + "..." + match[len(match)-4:]
+				findings = append(findings, FindingDetail{
+					RuleID:       "TG-GIT-001",
+					File:         ".git/logs/HEAD",
+					Line:         lineNum,
+					Severity:     "CRITICAL",
+					Description:  "Leaked secret in orphaned/rebased Git reflog entry: " + redacted,
+					LineContent:  line,
+					Context:      "  Reflog retains historical credentials even after rebase or amend",
+					SuggestedFix: "Purge reflogs (git reflog expire --expire=now --all && git gc --prune=now) and rotate secret.",
+				})
+			}
+		}
+		rFile.Close()
+	}
+
 	return findings, nil
 }

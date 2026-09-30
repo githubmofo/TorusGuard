@@ -18,7 +18,7 @@ import (
 	"github.com/torusguard/torusguard/internal/workspace"
 )
 
-const Version = "2.1.1"
+const Version = "2.1.2"
 
 // Standardized 75-column terminal UI formatting with Unicode emoji width calculation
 func printHelp() {
@@ -30,6 +30,9 @@ func printHelp() {
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sinit%s        Scaffold workspace, detect stack, activate TG rules", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sstatus%s      Diagnostic overview of posture, stack, and active rules", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%saudit%s       Static AST security scan against active rules", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sreview%s      Differential PR and Git diff incremental review", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sthreatmodel%s Synthesize STRIDE threat model & Mermaid DFDs", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sbenchmark%s   Run SecurityReviewBench precision & recall suite", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sverify%s      Live disk line match audit and evidence check", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sharden%s      Formulate zero-regression remediation patches", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sapply%s       Apply patches with pre-apply rollback snapshots", termui.Green, termui.Reset), 67, "│", termui.Cyan))
@@ -349,6 +352,30 @@ func main() {
 				}
 				fmt.Println(termui.FormatBoxLine(line, 67, "│", termui.Cyan))
 			}
+		}
+	case "review":
+		diffRef := "HEAD~1"
+		for i, a := range cliArgs {
+			if (a == "--diff" || a == "-d" || a == "--from") && i+1 < len(cliArgs) {
+				diffRef = cliArgs[i+1]
+			}
+		}
+		_, err := RunReview(target, diffRef)
+		if err != nil {
+			fmt.Printf("Review failed: %v\n", err)
+			os.Exit(1)
+		}
+	case "threatmodel":
+		err := RunThreatModel(target)
+		if err != nil {
+			fmt.Printf("Threat model generation failed: %v\n", err)
+			os.Exit(1)
+		}
+	case "benchmark":
+		err := RunBenchmark()
+		if err != nil {
+			fmt.Printf("Benchmark failed: %v\n", err)
+			os.Exit(1)
 		}
 	case "full":
 		fmt.Println()

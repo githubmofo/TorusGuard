@@ -11,8 +11,8 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-v2.1.1-orange.svg" alt="Version"></a>
-  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.1.1-CB3837?logo=npm&logoColor=white" alt="npm: v2.1.1"></a>
+  <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-v2.1.2-orange.svg" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.1.2-CB3837?logo=npm&logoColor=white" alt="npm: v2.1.2"></a>
   <img src="https://img.shields.io/badge/Privacy-Local_First-success" alt="Privacy: Local First">
   <img src="https://img.shields.io/badge/Dependencies-Zero-brightgreen" alt="Dependencies: Zero">
   <img src="https://img.shields.io/badge/SARIF-v2.1.0-6C3483" alt="SARIF">
@@ -118,52 +118,139 @@ TorusGuard uses a **tri-track architecture** where intelligence, deterministic e
 
 ```mermaid
 flowchart TD
-    subgraph Ingress["Unified Tri-Mode Ingress"]
-        ModeA["<b>Mode A: Terminal CLI</b><br/><code>torusguard &lt;cmd&gt;</code><br/>Deterministic Single Binary"]
-        ModeB["<b>Mode B: AI Chat Slash Commands</b><br/><code>/torusguard &lt;cmd&gt;</code><br/>Cursor &bull; Claude &bull; Windsurf &bull; Antigravity"]
-        ModeC["<b>Mode C: Native MCP Tools</b><br/><code>torusguard_*</code> (10 Tools &bull; 2 Resources)<br/>Stdio JSON-RPC 2.0 Agent Server"]
+    %% =========================================================================
+    %% STAGE 1: TRI-MODE INGRESS GATEWAY
+    %% =========================================================================
+    subgraph IngressGateway["1. Unified Tri-Mode Ingress Gateway"]
+        direction LR
+        CLI["<b>Mode A: Terminal CLI</b><br/><code>torusguard &lt;cmd&gt;</code><br/>25 Deterministic Commands"]
+        Chat["<b>Mode B: AI Chat Commands</b><br/><code>/torusguard &lt;cmd&gt;</code><br/>Cursor &bull; Claude &bull; Windsurf"]
+        MCP["<b>Mode C: Native MCP Server</b><br/><code>torusguard_*</code> (13 Tools &bull; 2 Resources)<br/>Stdio JSON-RPC 2.0 Protocol"]
     end
 
-    Ingress --> Router["<b>Command Router &amp; Dispatcher</b><br/>cmd/torusguard (21 Commands)"]
+    %% =========================================================================
+    %% STAGE 2: CORE DISPATCHER & RUNTIME KERNEL
+    %% =========================================================================
+    Kernel["<b>TorusGuard Core Dispatcher &amp; Runtime Kernel</b><br/><code>cmd/torusguard</code> (Single Standalone Go Binary)<br/>Command Parsing &bull; Flag Evaluation (<code>--yes</code>, <code>--html</code>, <code>--rules</code>) &bull; Sandbox Isolation"]
 
-    subgraph Core["TorusGuard Core Security Engine (Go Single Binary)"]
+    CLI -->|"Terminal Exec"| Kernel
+    Chat -->|"Slash Bridge"| Kernel
+    MCP -->|"Agent Tool Call"| Kernel
+
+    %% =========================================================================
+    %% STAGE 3: DETECTION & MULTI-MODAL SUITE
+    %% =========================================================================
+    subgraph DetectionSuite["2. Polyglot Static AST &amp; Multi-Modal Detection Suite"]
         direction TB
-        subgraph Scanners["First-Principles &amp; Multi-Modal Scanner Suite"]
-            AST["<b>Polyglot AST &amp; Heuristic Scanner</b><br/>Go &bull; TS/JS &bull; Python &bull; SQL &bull; Auth &bull; SSRF &bull; CSRF"]
-            OCR["<b>Multi-Modal Vision OCR Engine</b><br/>Tesseract v5.4.0 &bull; Leaked Keys in PNG/JPG &le;10MB"]
-            Container["<b>Container &amp; Dockerfile Auditor</b><br/>Root Execution &bull; Docker Sockets &bull; Build Secrets"]
-            GitMine["<b>Git History Secret Miner</b><br/>Past Commits &bull; Diff Logs &bull; Remote Credentials"]
-            ReDoS["<b>ReDoS Complexity Analyzer</b><br/>Polynomial &amp; Exponential Backtracking Loops"]
-            AIGuard["<b>AI Agent &amp; RAG Vector Guard</b><br/>Prompt Injection &bull; Tenant Vector Contamination"]
+        subgraph StaticGroup["Static Code &amp; Dependency Analysis"]
+            direction LR
+            AST["<b>Polyglot AST &amp; Taint Engine</b><br/>Tree-sitter &bull; 88 Rules across 22 Families<br/>Go &bull; TS/JS &bull; Python &bull; Java &bull; C# &bull; Rust"]
+            TGQL["<b>TG-QL Declarative AST DSL</b><br/>Custom YAML Pattern Queries<br/>Syntax Trees &bull; Taint Sinks &bull; Constraints"]
+            Reach["<b>Reachability &amp; OpenVEX</b><br/>Callgraph Traversal &bull; Reachable CVEs<br/>Zero Ineffective Dependency Alerts"]
         end
-
-        subgraph Governance["Governance &amp; Remediation Pipeline"]
-            Harden["<b>Harden &amp; Line Reflection</b><br/>Ponytail Bounds: &le;35 Add &bull; &le;25 Del"]
-            Snapshot["<b>Pre-Apply Snapshot Engine</b><br/>Byte-for-Byte Rollback Backups in .torusguard/snapshots/"]
-            HumanGate{"<b>Human Gate Authorization</b><br/>Explicit --yes Confirmation Required"}
-            Recheck["<b>Differential Recheck Engine</b><br/>Zero-Regression Fix Closure"]
+        subgraph DeepGroup["Forensics, RegEx &amp; Vision OCR"]
+            direction LR
+            OCR["<b>Multi-Modal Vision OCR Engine</b><br/>Tesseract v5.4.0 &bull; Leaked Secrets<br/>Architecture Diagrams &bull; Screenshots"]
+            ReDoS["<b>Thompson NFA ReDoS Engine</b><br/>Polynomial &amp; Exponential Exploder<br/>Catastrophic Backtracking Loops"]
+            GitMine["<b>Git History &amp; Container Audit</b><br/>Commit Packfile Secret Mining<br/>Dockerfile Non-Root Enforcement"]
         end
     end
 
-    Router --> Scanners
-    Scanners --> Ledger[("<b>Living Security Ledger</b><br/><code>security_report.md</code><br/>Single Source of Truth")]
-    Ledger --> Harden
-    Harden --> Snapshot
-    Snapshot --> HumanGate
-    HumanGate -- Approved --> Recheck
-    Recheck --> Outputs["<b>Enterprise Outputs</b><br/>OASIS SARIF v2.1.0 &bull; Dark-Mode HTML Report &bull; Golden Fix Distillation"]
+    Kernel -->|"Scan Code &amp; Dependencies"| StaticGroup
+    Kernel -->|"Analyze Visuals &amp; Commits"| DeepGroup
 
-    classDef ingressStyle fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
-    classDef scannerStyle fill:#0f172a,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
-    classDef govStyle fill:#0f172a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
-    classDef ledgerStyle fill:#312e81,stroke:#a78bfa,stroke-width:2px,color:#f8fafc;
-    classDef outStyle fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    %% =========================================================================
+    %% STAGE 4: CONSENSUS DELIBERATION & TRIAGE
+    %% =========================================================================
+    subgraph DeliberationTriage["3. Deliberation Tournament &amp; Evidence Triage"]
+        direction TB
+        Tournament["<b>3-Perspective Deliberation Tournament</b><br/>Vulnerability Hunter vs. Devil's Advocate / Sanitizer Verifier vs. Ponytail Remediator<br/>Eliminates False Positives &bull; Calibrated Confidence Scoring (0-100%)"]
+        PRGate{"<b>Differential PR Diff Gate</b><br/><code>torusguard review</code><br/>Incremental Git Diff Changes?"}
+        Tournament --> PRGate
+    end
 
-    class ModeA,ModeB,ModeC ingressStyle;
-    class AST,OCR,Container,GitMine,ReDoS,AIGuard scannerStyle;
-    class Harden,Snapshot,HumanGate,Recheck govStyle;
+    StaticGroup -->|"Raw AST Findings"| Tournament
+    DeepGroup -->|"Extracted Secrets &amp; Complexities"| Tournament
+
+    %% =========================================================================
+    %% STAGE 5: GOVERNED REMEDIATION & PONYTAIL LOOP
+    %% =========================================================================
+    subgraph GovernedRemediation["4. Governed Remediation Loop &amp; Safety Guardrails (Ponytail Protocol)"]
+        direction TB
+        
+        Harden["<b>Surgical Patch Formulation</b><br/>Semantic Line Snippet Replacement<br/>Strict Line Budget: &le;35 Additions &bull; &le;25 Deletions"]
+        
+        BoundsCheck{"<b>Ponytail Bounds Check</b><br/>Exceeds 35 Add / 25 Del?"}
+        RejectDiff["<b>Diff Rejected</b><br/>Excess Churn Detected<br/>Prompt AI for Minimal Snippet"]
+        
+        SnapshotStore[("<b>Pre-Apply Snapshot Store</b><br/><code>.torusguard/snapshots/&lt;run_id&gt;/</code><br/>Byte-for-Byte Rollback Backup")]
+        
+        HumanGate{"<b>Human Gate Authorization</b><br/>Explicit <code>--yes</code> or Interactive Confirmation"}
+        UserAbort["<b>Operation Aborted</b><br/>Zero Files Touched &bull; Safe Exit"]
+        
+        ApplyPatch["<b>Atomic Patch Application</b><br/>Apply Unified Surgical Diff to Disk"]
+        
+        RecheckGate{"<b>Differential Recheck Engine</b><br/><code>torusguard recheck</code><br/>Fix Closed with Zero Regressions?"}
+        RollbackExec["<b>Auto-Rollback Triggered!</b><br/>Instant Restoration from Snapshot<br/>Quarantine Candidate Patch"]
+        
+        Harden --> BoundsCheck
+        BoundsCheck -->|"Violation"| RejectDiff
+        RejectDiff -.->|"Re-prompt AI"| Harden
+        BoundsCheck -->|"Pass (Within Bounds)"| SnapshotStore
+        SnapshotStore --> HumanGate
+        HumanGate -->|"Denied"| UserAbort
+        HumanGate -->|"Approved"| ApplyPatch
+        ApplyPatch --> RecheckGate
+        RecheckGate -->|"Regressions"| RollbackExec
+        RollbackExec -.->|"Restore Clean State"| SnapshotStore
+    end
+
+    PRGate -->|"Target Findings"| Harden
+
+    %% =========================================================================
+    %% STAGE 6: LIVING SECURITY LEDGER & ENTERPRISE OUTPUTS
+    %% =========================================================================
+    subgraph EnterpriseDeliverables["5. Living Security Ledger &amp; Enterprise Deliverables"]
+        direction TB
+        Ledger[("<b>Living Security Ledger</b><br/><code>security_report.md</code><br/>Synchronized Single Source of Truth &bull; Status: RESOLVED 🟢")]
+        
+        subgraph DeliverableOutputs["Executive Reports &amp; Verified Memory"]
+            direction LR
+            ThreatModel["<b>STRIDE Threat Model</b><br/><code>SECURITY_THREAT_MODEL.md</code><br/>DFD Architecture Diagrams"]
+            SARIF["<b>OASIS SARIF v2.1.0</b><br/>GitHub Advanced Security<br/>CI/CD Security Center"]
+            HTMLReport["<b>Executive Dashboard</b><br/>Single-File HTML Report<br/>Interactive Posture Heatmap"]
+            GoldenRecipes[("<b>Golden Fix Memory</b><br/><code>.torusguard/recipes/</code><br/>Verified Distilled Fixes")]
+        end
+
+        Ledger --> DeliverableOutputs
+    end
+
+    RecheckGate -->|"Fix Confirmed (Clean Closure)"| Ledger
+
+    %% =========================================================================
+    %% STYLING AND THEME (Modern Dark Cyber Palette)
+    %% =========================================================================
+    classDef ingressStyle fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef routerStyle fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#f8fafc;
+    classDef scannerStyle fill:#022c22,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    classDef tourneyStyle fill:#2e1065,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
+    classDef gateStyle fill:#451a03,stroke:#f59e0b,stroke-width:2px,color:#fef3c7;
+    classDef rejectStyle fill:#450a0a,stroke:#ef4444,stroke-width:2px,color:#fee2e2;
+    classDef actionStyle fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef dbStyle fill:#1e293b,stroke:#94a3b8,stroke-width:2px,color:#f8fafc;
+    classDef ledgerStyle fill:#172554,stroke:#3b82f6,stroke-width:2px,color:#eff6ff;
+    classDef outputStyle fill:#042f2e,stroke:#14b8a6,stroke-width:2px,color:#f0fdfa;
+
+    class CLI,Chat,MCP ingressStyle;
+    class Kernel routerStyle;
+    class AST,TGQL,Reach,OCR,ReDoS,GitMine scannerStyle;
+    class Tournament tourneyStyle;
+    class PRGate,BoundsCheck,HumanGate,RecheckGate gateStyle;
+    class RejectDiff,UserAbort,RollbackExec rejectStyle;
+    class Harden,ApplyPatch actionStyle;
+    class SnapshotStore,GoldenRecipes dbStyle;
     class Ledger ledgerStyle;
-    class Outputs outStyle;
+    class ThreatModel,SARIF,HTMLReport outputStyle;
 ```
 
 > 🌐 **Interactive Architecture Visualizations:**
@@ -204,7 +291,7 @@ npx torusguard init
 ```
 
 <a href="https://www.npmjs.com/package/torusguard">
-  <img src="https://img.shields.io/badge/npm-v2.1.1-CB3837?logo=npm&logoColor=white" alt="npm package">
+  <img src="https://img.shields.io/badge/npm-v2.1.2-CB3837?logo=npm&logoColor=white" alt="npm package">
 </a>
 
 ### Option 2: Build from Source (Recommended for Contributors)
@@ -282,6 +369,9 @@ torusguard exploit-check
 | `init`           | Scaffold `.torusguard/` workspace, detect stack, activate rules |
 | `status`         | Diagnostic overview of posture, stack, and active rules         |
 | `audit`          | Static heuristic security scan against active TG-* rules       |
+| `review`         | Differential PR and Git diff incremental security review       |
+| `threatmodel`    | Synthesize architectural STRIDE threat model & Mermaid DFDs     |
+| `benchmark`      | Run SecurityReviewBench precision & recall evaluation suite    |
 | `verify`         | Live disk line match audit and evidence sufficiency check       |
 | `harden`         | Validate patches against Ponytail Protocol bounds              |
 | `apply`          | Apply patches with pre-apply `.bak` rollback snapshots         |
@@ -380,7 +470,7 @@ TorusGuard works natively inside AI coding assistants. Add the configuration fil
 
 ### Native MCP Tools (Agent Toolkit Mode)
 
-When configured with `.agents/mcp_config.json` or `mcp_config.json`, AI coding agents gain native tool calling:
+When configured with `.agents/mcp_config.json` or `mcp_config.json`, AI coding agents gain native tool calling (13 Tools & 2 Resources):
 
 - `torusguard_audit`: Deep static AST scan + Vision OCR; writes `security_report.md`
 - `torusguard_ocr_scan`: Dedicated image credential analysis via Tesseract (5-10MB bounds)
@@ -391,6 +481,9 @@ When configured with `.agents/mcp_config.json` or `mcp_config.json`, AI coding a
 - `torusguard_verify`: Asserts evidence sufficiency & line-shift invariant fingerprint matches
 - `torusguard_harden`: Validates remediation diff against Ponytail Protocol bounds
 - `torusguard_recheck`: Differential re-scan confirming fix closure
+- `torusguard_review`: Differential PR and Git diff incremental review; gate decisions
+- `torusguard_threatmodel`: Synthesizes STRIDE threat model & Mermaid DFDs (`SECURITY_THREAT_MODEL.md`)
+- `torusguard_benchmark`: Runs SecurityReviewBench self-evaluating precision & recall suite
 - `torusguard_status`: Workspace posture and tech stack inspection
 - `torusguard://security_report`: MCP Resource reading the living security report
 - `torusguard://rules_catalog`: MCP Resource exploring verified rules catalog & Golden Fix patterns

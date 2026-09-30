@@ -49,7 +49,7 @@
   "mainPath": ["code_change", "audit_scan", "harden_eval", "human_gate", "snapshot_bak", "apply_patch", "recheck_fix", "sync_ledger"],
   "nodes": [
     { "id": "code_change", "lane": "agent", "col": 0, "type": "frontend", "label": "AI Code / Diagram", "sublabel": "candidate changes", "width": 132 },
-    { "id": "audit_scan", "lane": "scanner", "col": 1, "type": "security", "label": "Audit & OCR Scan", "sublabel": "74 rules + Tesseract", "tag": "multi-modal", "width": 132 },
+    { "id": "audit_scan", "lane": "scanner", "col": 1, "type": "security", "label": "Audit & OCR Scan", "sublabel": "88 rules + Tesseract", "tag": "multi-modal", "width": 132 },
     { "id": "harden_eval", "lane": "governance", "col": 2, "type": "security", "label": "Harden Bounds", "sublabel": "≤35 add / ≤25 del", "tag": "Ponytail Protocol", "width": 132 },
     { "id": "bound_rejected", "lane": "governance", "col": 1, "type": "security", "label": "Reject Churn", "sublabel": "diff exceeds limit", "width": 132 },
     { "id": "human_gate", "lane": "governance", "col": 3, "type": "security", "label": "Human Gate", "sublabel": "explicit consent", "tag": "--yes required", "width": 132 },

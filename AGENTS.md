@@ -25,9 +25,12 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 | **17. Git Mine** | `torusguard git-mine` | `/torusguard git-mine` | `torusguard_git_mine` | Mines git commit history & config for leaked credentials & tokens |
 | **18. ReDoS** | `torusguard redos` | `/torusguard redos` | `torusguard_redos` | Analyzes regex patterns for catastrophic exponential backtracking |
 | **19. AI Guard** | `torusguard ai-guard` | `/torusguard ai-guard` | `torusguard_ai_guard` | Audits AI agents & RAG pipelines for prompt injection & tenant leaks |
-| **20. Full** | `torusguard full` | `/torusguard full` | — | Master 7-stage closed-loop security governance pipeline |
-| **21. Update** | `torusguard update` | `/torusguard update` | — | Self-update the TorusGuard engine |
-| **22. Help** | `torusguard help` | `/torusguard help` | — | Interactive command guide |
+| **20. Review** | `torusguard review` | `/torusguard review` | `torusguard_review` | Differential PR and Git diff incremental review; gate decisions |
+| **21. Threat Model** | `torusguard threatmodel` | `/torusguard threatmodel` | `torusguard_threatmodel` | Synthesizes STRIDE threat model & Mermaid DFDs (`SECURITY_THREAT_MODEL.md`) |
+| **22. Benchmark** | `torusguard benchmark` | `/torusguard benchmark` | `torusguard_benchmark` | Runs SecurityReviewBench self-evaluating precision & recall suite |
+| **23. Full** | `torusguard full` | `/torusguard full` | — | Master 7-stage closed-loop security governance pipeline |
+| **24. Update** | `torusguard update` | `/torusguard update` | — | Self-update the TorusGuard engine |
+| **25. Help** | `torusguard help` | `/torusguard help` | — | Interactive command guide |
 
 ---
 
