@@ -2,8 +2,8 @@
 name: torusguard-review
 description: Differential PR and Git diff incremental security review — detects newly introduced vulnerabilities between Git branches or commits with net security score deltas.
 tools: Read, Grep, Glob, Bash, Edit, Write
-version: 2.1.2
-last-updated: 2026-09-30
+version: 2.1.3
+last-updated: 2026-10-01
 skills:
   - torusguard
   - torusguard-audit

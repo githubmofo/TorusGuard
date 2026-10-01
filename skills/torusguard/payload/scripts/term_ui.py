@@ -143,7 +143,7 @@ def card_divider(title: str = "", border_color: str = CYAN, double: bool = False
         return f"  {border_color}{left}{h} {BOLD}{WHITE}{title}{RESET}{border_color} {h * rem}{right}{RESET}"
     return f"  {border_color}{left}{h * 71}{right}{RESET}"
 
-def card_header(title: str, subtitle: str = "", version: str = "v1.3.4", border_color: str = CYAN) -> str:
+def card_header(title: str, subtitle: str = "", version: str = "v2.1.3", border_color: str = CYAN) -> str:
     """Generate standardized 75-column curved header box."""
     top = f"  {border_color}╭{'─' * 71}╮{RESET}"
     bottom = f"  {border_color}╰{'─' * 71}╯{RESET}"

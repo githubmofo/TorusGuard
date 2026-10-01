@@ -11,8 +11,8 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-v2.1.2-orange.svg" alt="Version"></a>
-  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.1.2-CB3837?logo=npm&logoColor=white" alt="npm: v2.1.2"></a>
+  <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-v2.1.3-orange.svg" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.1.3-CB3837?logo=npm&logoColor=white" alt="npm: v2.1.3"></a>
   <img src="https://img.shields.io/badge/Privacy-Local_First-success" alt="Privacy: Local First">
   <img src="https://img.shields.io/badge/Dependencies-Zero-brightgreen" alt="Dependencies: Zero">
   <img src="https://img.shields.io/badge/SARIF-v2.1.0-6C3483" alt="SARIF">
@@ -276,23 +276,54 @@ flowchart TD
 
 ---
 
-## 🚀 Installation
+## 🚀 Installation & How to Use (3 Options)
+
+TorusGuard can be run without installation via `npx`, installed globally or locally via `npm`, compiled from source with `go build`, or installed via `go install`.
+
+| Option | Method | Best For | Dedicated Guide |
+| :--- | :--- | :--- | :--- |
+| **Option 1** | **npm & npx** | Node.js developers, zero-install CLI, CI/CD | 📖 [Option 1 Guide](docs/usage/option-1-npm.md) |
+| **Option 2** | **Build from Source** | Contributors, custom rules, Go development | 📖 [Option 2 Guide](docs/usage/option-2-source.md) |
+| **Option 3** | **Go Install** | Go projects, single-binary, zero Node.js/npm | 📖 [Option 3 Guide](docs/usage/option-3-go-install.md) |
+
+---
 
 ### Option 1: npm (Primary)
 
-```bash
-npm install -g torusguard
-```
-
-Or use directly without installing:
+#### Method A: Direct NPX Zero-Install (Recommended)
+Run directly without installing any packages globally or locally:
 
 ```bash
 npx torusguard init
 ```
 
+*Tip: Use `npx torusguard@latest init` to guarantee the freshest release.*
+
+#### Method B: Global Installation
+```bash
+npm install -g torusguard
+torusguard init
+```
+
+#### Method C: Local Project Installation
+```bash
+npm install -D torusguard
+```
+
+> 💡 **Using TorusGuard after `npm install torusguard`:**  
+> TorusGuard is a CLI security engine, not an importable JavaScript library. When installed locally, the binary resides in `node_modules/.bin/torusguard`.  
+> You can run it via:  
+> - `npx torusguard init` *(npx automatically uses your local `node_modules` binary)*  
+> - Adding `"security:audit": "torusguard audit"` to your `package.json` scripts (`npm run security:audit`)  
+> - Direct path: `./node_modules/.bin/torusguard audit`  
+
 <a href="https://www.npmjs.com/package/torusguard">
-  <img src="https://img.shields.io/badge/npm-v2.1.2-CB3837?logo=npm&logoColor=white" alt="npm package">
+  <img src="https://img.shields.io/badge/npm-v2.1.3-CB3837?logo=npm&logoColor=white" alt="npm package">
 </a>
+
+👉 **[Read the Full Option 1 (npm & npx) Dedicated Guide →](docs/usage/option-1-npm.md)**
+
+---
 
 ### Option 2: Build from Source (Recommended for Contributors)
 
@@ -302,11 +333,36 @@ cd TorusGuard
 go build -o torusguard ./cmd/torusguard
 ```
 
+On Windows:
+```powershell
+go build -o torusguard.exe ./cmd/torusguard
+```
+
+Run directly:
+```bash
+./torusguard init
+./torusguard audit
+```
+
+👉 **[Read the Full Option 2 (Build from Source) Dedicated Guide →](docs/usage/option-2-source.md)**
+
+---
+
 ### Option 3: Go Install
 
+Install directly into `$GOPATH/bin`:
+
 ```bash
-go install github.com/torusguard/torusguard/cmd/torusguard@latest
+go install github.com/githubmofo/TorusGuard/cmd/torusguard@latest
 ```
+
+Verify and run:
+```bash
+torusguard --version
+torusguard init
+```
+
+👉 **[Read the Full Option 3 (Go Install) Dedicated Guide →](docs/usage/option-3-go-install.md)**
 
 ---
 

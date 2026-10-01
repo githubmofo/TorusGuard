@@ -58,7 +58,7 @@ def collect_status(target_dir: Path) -> WorkspaceStatus:
     is_init = tg_dir.is_dir()
 
     # 1. Read config
-    version = "1.4.0"
+    version = "2.1.3"
     stack_name = "Undetected"
     cfg_file = tg_dir / "config" / "torusguard.json"
     if cfg_file.is_file():
@@ -94,7 +94,7 @@ def collect_status(target_dir: Path) -> WorkspaceStatus:
         if rules_root.is_dir():
             active_rules_count = sum(1 for f in rules_root.rglob("TG-*.md"))
     if active_rules_count == 0:
-        active_rules_count = 74  # Canonical rule catalog default
+        active_rules_count = 88  # Canonical rule catalog default
 
     # 3. Read run history
     total_runs = 0
@@ -210,7 +210,7 @@ def print_status_card(status: WorkspaceStatus) -> None:
     print(format_box_line(f"Workspace:    {WHITE}{status.target_path}{RESET}", 67))
     print(format_box_line(f"Status:       {init_str}", 67))
     print(format_box_line(f"Stack:        {BOLD}{WHITE}{status.stack_detected}{RESET}", 67))
-    print(format_box_line(f"Active Rules: {GREEN}{status.active_rules_count}{RESET} canonical rules enabled across 18 families", 67))
+    print(format_box_line(f"Active Rules: {GREEN}{status.active_rules_count}{RESET} canonical rules enabled across 22 families", 67))
     print(card_border_bottom(CYAN))
     print()
 

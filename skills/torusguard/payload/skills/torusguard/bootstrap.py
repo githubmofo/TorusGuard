@@ -144,7 +144,7 @@ def card_divider(title: str = "", border_color: str = CYAN, double: bool = False
         return f"  {border_color}{left}{h} {BOLD}{WHITE}{title}{RESET}{border_color} {h * rem}{right}{RESET}"
     return f"  {border_color}{left}{h * 71}{right}{RESET}"
 
-def card_header(title: str, subtitle: str = "", version: str = "v2.1.2", border_color: str = CYAN) -> str:
+def card_header(title: str, subtitle: str = "", version: str = "v2.1.3", border_color: str = CYAN) -> str:
     """Generate standardized 75-column curved header box."""
     top = f"  {border_color}╭{'─' * 71}╮{RESET}"
     bottom = f"  {border_color}╰{'─' * 71}╯{RESET}"
@@ -164,7 +164,7 @@ def card_header(title: str, subtitle: str = "", version: str = "v2.1.2", border_
 def print_header():
     """Print the branded TorusGuard header card."""
     print()
-    print(card_header("🛡️  T O R U S G U A R D", "Autonomous Security Engine for AI-Built Applications", version="v2.1.2"))
+    print(card_header("🛡️  T O R U S G U A R D", "Autonomous Security Engine for AI-Built Applications", version="v2.1.3"))
     print()
 
 
@@ -172,13 +172,13 @@ def print_step_1_assets(file_count):
     """Print the enhanced Step 1 asset unpacking card."""
     print(card_border_top("Step 1/3 ─── Unpacking Governance Assets"))
     print(card_line(""))
-    print(card_line(f"{GREEN}✔{RESET} Canonical security rules            {DIM}71 rules across 11 families{RESET}"))
+    print(card_line(f"{GREEN}✔{RESET} Canonical security rules            {DIM}88 rules across 22 families{RESET}"))
     print(card_line(f"{GREEN}✔{RESET} JSON validation schemas             {DIM}8 formal schemas{RESET}"))
     print(card_line(f"{GREEN}✔{RESET} Specialist agent specifications     {DIM}5 isolated agents{RESET}"))
-    print(card_line(f"{GREEN}✔{RESET} Workflow templates                   {DIM}11 slash commands{RESET}"))
-    print(card_line(f"{GREEN}✔{RESET} Framework reference guides           {DIM}10 security guides{RESET}"))
+    print(card_line(f"{GREEN}✔{RESET} Governed workflow templates         {DIM}25 commands & 13 MCP tools{RESET}"))
+    print(card_line(f"{GREEN}✔{RESET} Framework reference guides           {DIM}22 architectural guides{RESET}"))
     print(card_line(""))
-    print(card_line(f"{BOLD}{WHITE}{file_count} files unpacked{RESET}"))
+    print(card_line(f"{BOLD}{WHITE}{file_count} files unpacked into .torusguard/{RESET}"))
     print(card_border_bottom())
 
 
@@ -186,13 +186,18 @@ def print_step_2_profile(detected_stack=None):
     """Print the security profile & coverage card (in-process stack alignment)."""
     print(card_border_top("Step 2/3 ─── Security Profile & Coverage"))
     print(card_line(""))
-    print(card_line(f"{BOLD}Rule Families:{RESET}"))
-    print(card_line(f"  {YELLOW}TG-SEC{RESET}     Secrets & Credentials    {YELLOW}TG-DB{RESET}      Database Safety"))
-    print(card_line(f"  {YELLOW}TG-INPUT{RESET}   Input Validation         {YELLOW}TG-AUTH{RESET}    Authentication"))
-    print(card_line(f"  {YELLOW}TG-CLIENT{RESET}  Client Bundle Leaks      {YELLOW}TG-DIFF{RESET}    Diff Inspection"))
-    print(card_line(f"  {YELLOW}TG-AGENT{RESET}   AI Agent Security        {YELLOW}TG-EDGE{RESET}    Serverless"))
-    print(card_line(f"  {YELLOW}TG-SUPPLY{RESET}  Supply Chain & CI/CD     {YELLOW}TG-SSRF{RESET}    Outbound Net"))
-    print(card_line(f"  {YELLOW}TG-BIZ{RESET}     Business Logic"))
+    print(card_line(f"{BOLD}Rule Families (88 Rules Across 22 Families):{RESET}"))
+    print(card_line(f"  {YELLOW}TG-SEC{RESET}     Secrets & Tokens         {YELLOW}TG-AUTH{RESET}    Authentication"))
+    print(card_line(f"  {YELLOW}TG-DB{RESET}      Database Isolation       {YELLOW}TG-INPUT{RESET}   Input Sanitization"))
+    print(card_line(f"  {YELLOW}TG-RATE{RESET}    Rate Limiting            {YELLOW}TG-AGENT{RESET}   AI Prompt Injection"))
+    print(card_line(f"  {YELLOW}TG-SSRF{RESET}    Server-Side Request      {YELLOW}TG-WEBHOOK{RESET} Webhook Signature"))
+    print(card_line(f"  {YELLOW}TG-WS{RESET}      WebSocket Safety         {YELLOW}TG-CSRF{RESET}    Cross-Site Request"))
+    print(card_line(f"  {YELLOW}TG-GQL{RESET}     GraphQL Introspection    {YELLOW}TG-SUPPLY{RESET}  Supply Chain Health"))
+    print(card_line(f"  {YELLOW}TG-BIZ{RESET}     Business Logic Limits    {YELLOW}TG-CACHE{RESET}   Cache Poisoning"))
+    print(card_line(f"  {YELLOW}TG-CLIENT{RESET}  Client Bundle Secrets    {YELLOW}TG-PLATFORM{RESET}Platform Hardening"))
+    print(card_line(f"  {YELLOW}TG-DIFF{RESET}    Polyglot Bypass Guard    {YELLOW}TG-EDGE{RESET}    Edge & Serverless"))
+    print(card_line(f"  {YELLOW}TG-CONT{RESET}    Container Hardening      {YELLOW}TG-GIT{RESET}     Git Secret Mining"))
+    print(card_line(f"  {YELLOW}TG-REDOS{RESET}   ReDoS Complexity Guard   {YELLOW}TG-RAG{RESET}     RAG & Vector Scoping"))
     print(card_line(""))
     print(card_line(f"{BOLD}Supported Stacks:{RESET}"))
     print(card_line(f"  {GREEN}Python{RESET}    Django · FastAPI · Flask · DRF · SQLAlchemy"))
@@ -227,7 +232,7 @@ def print_success_card():
     print(card_line("", border="║", border_color=GREEN))
     print(card_line(f"{BOLD}Next Steps:{RESET}", border="║", border_color=GREEN))
     print(card_line("", border="║", border_color=GREEN))
-    print(card_line(f" {CYAN}1.{RESET} In AI Chat      {WHITE}/torusguard-audit{RESET}  or  {WHITE}/torusguard{RESET}", border="║", border_color=GREEN))
+    print(card_line(f" {CYAN}1.{RESET} In AI Chat      {WHITE}/torusguard audit{RESET}  or  {WHITE}/torusguard status{RESET}", border="║", border_color=GREEN))
     print(card_line(f" {CYAN}2.{RESET} In Terminal     {WHITE}npx torusguard status{RESET}", border="║", border_color=GREEN))
     print(card_line(f" {CYAN}3.{RESET} In CI/CD        {WHITE}npx torusguard audit{RESET}", border="║", border_color=GREEN))
     print(card_line("", border="║", border_color=GREEN))
@@ -238,16 +243,21 @@ def print_success_card():
 
 
 def print_already_initialized(target_root, cfg):
-    """Print the already-initialized status card."""
+    """Print the already-initialized status card with dynamic width alignment."""
     print()
     top = f"  {CYAN}╭{'─' * 71}╮{RESET}"
     bottom = f"  {CYAN}╰{'─' * 71}╯{RESET}"
-    title_line = card_line(f"{BOLD}{WHITE}🛡️  TORUSGUARD WORKSPACE{RESET}{' ' * 28}{GREEN}[Active]{RESET}")
+    title_text = f"{BOLD}{WHITE}🛡️  TORUSGUARD WORKSPACE{RESET}"
+    status_text = f"{GREEN}[Active]{RESET}"
+    title_vis = get_visual_width("🛡️  TORUSGUARD WORKSPACE")
+    status_vis = get_visual_width("[Active]")
+    pad_count = max(1, 67 - title_vis - status_vis)
+    title_line = card_line(f"{title_text}{' ' * pad_count}{status_text}")
     print(f"{top}\n{title_line}\n{bottom}")
     print(f"""
   {BOLD}▸ Project Root:{RESET}       {GREEN}{target_root}{RESET}
   {BOLD}▸ Workspace:{RESET}          {GREEN}.torusguard/{RESET} {DIM}(Already Initialized){RESET}
-  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '2.1.1')}{RESET}
+  {BOLD}▸ Version:{RESET}            {CYAN}{cfg.get('version', '2.1.3')}{RESET}
   {BOLD}▸ Severity Floor:{RESET}     {YELLOW}{cfg.get('severity_threshold', 'medium')}{RESET}
 
   {DIM}To refresh templates or re-scaffold, run:{RESET}
@@ -454,53 +464,10 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
 3. Follow the phase execution steps defined in the workflow.
 """
 
-    # Ensure .agents/workflows, .agents/skills, .agent/workflows, and .agent/skills are created
-    dest_workflow_dirs = []
+    # Core workspace governance is self-contained in .torusguard/
+    registered_ides.append("Workspace Core           .torusguard/ (Workflows & Skills)")
 
-    # 1. Antigravity / Gemini (.agents/)
-    agents_wf = target_root / ".agents" / "workflows"
-    agents_wf.mkdir(parents=True, exist_ok=True)
-    (agents_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
-    dest_workflow_dirs.append(agents_wf)
-    registered_ides.append("Antigravity / Gemini     .agents/workflows/torusguard.md")
-
-    # 2. Tribunal Agent Kit (.agent/)
-    agent_wf = target_root / ".agent" / "workflows"
-    agent_wf.mkdir(parents=True, exist_ok=True)
-    (agent_wf / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
-    dest_workflow_dirs.append(agent_wf)
-    registered_ides.append("Tribunal Agent Kit       .agent/workflows/torusguard.md")
-
-    # Unpack Skills into .agents/skills and .agent/skills for full IDE resolution
-    src_skills = torusguard_target / "skills"
-    if src_skills.is_dir():
-        for dest_base in [target_root / ".agents" / "skills", target_root / ".agent" / "skills"]:
-            dest_base.mkdir(parents=True, exist_ok=True)
-            for skill_dir in src_skills.iterdir():
-                if skill_dir.is_dir():
-                    target_skill_dir = dest_base / skill_dir.name
-                    if not target_skill_dir.exists():
-                        try:
-                            shutil.copytree(skill_dir, target_skill_dir)
-                        except Exception:
-                            pass
-
-    # When full_commands is requested (e.g. via NPM package npx torusguard init),
-    # unlock and register all individual slash commands
-    if full_commands:
-        src_wf = torusguard_target / "workflows"
-        if src_wf.is_dir():
-            count = 0
-            for wf_file in src_wf.glob("*.md"):
-                if wf_file.name == "torusguard.md":
-                    continue
-                cmd_filename = f"torusguard-{wf_file.name}"
-                for d in dest_workflow_dirs:
-                    shutil.copy2(wf_file, d / cmd_filename)
-                count += 1
-            registered_ides.append(f"{count} Slash Commands          /torusguard-audit, -harden, -apply, ...")
-
-    # Claude Code (.claude/commands)
+    # Claude Code (.claude/commands) - only if .claude exists
     claude_dir = target_root / ".claude"
     if claude_dir.exists():
         claude_commands = claude_dir / "commands"
@@ -508,7 +475,7 @@ Parse the requested action from `$ARGUMENTS` (e.g. `audit`, `verify`, `web-valid
         (claude_commands / "torusguard.md").write_text(tg_workflow_content, encoding="utf-8")
         registered_ides.append("Claude Code              .claude/commands/torusguard.md")
 
-    # Cursor (.cursor/rules)
+    # Cursor (.cursor/rules) - only if .cursor exists
     cursor_dir = target_root / ".cursor"
     if cursor_dir.exists():
         cursor_rules = cursor_dir / "rules"

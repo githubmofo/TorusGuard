@@ -15,14 +15,15 @@ const command = args[0] || 'init';
 const rootDir = path.resolve(__dirname, '..');
 const cwd = process.cwd();
 
+let PKG_VERSION = '2.1.3';
+try {
+  const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf-8'));
+  PKG_VERSION = pkg.version || PKG_VERSION;
+} catch (e) {}
+
 // Parse version flag immediately
 if (command === '--version' || command === '-v' || command === 'version') {
-  let ver = '1.4.0';
-  try {
-    const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf-8'));
-    ver = pkg.version || ver;
-  } catch (e) {}
-  console.log(`torusguard v${ver}`);
+  console.log(`torusguard v${PKG_VERSION}`);
   process.exit(0);
 }
 
@@ -196,7 +197,7 @@ function cardDivider(title = '', borderColor = CYAN, double = false) {
   return `  ${borderColor}${left}${h.repeat(71)}${right}${RESET}`;
 }
 
-function cardHeader(title, subtitle = '', version = 'v1.3.6', borderColor = CYAN) {
+function cardHeader(title, subtitle = '', version = `v${PKG_VERSION}`, borderColor = CYAN) {
   const top = `  ${borderColor}╭${'─'.repeat(71)}╮${RESET}`;
   const bottom = `  ${borderColor}╰${'─'.repeat(71)}╯${RESET}`;
   const empty = `  ${borderColor}│${' '.repeat(71)}│${RESET}`;
@@ -214,7 +215,7 @@ function cardHeader(title, subtitle = '', version = 'v1.3.6', borderColor = CYAN
 
 function printHelp() {
   console.log();
-  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', 'v1.4.0'));
+  console.log(cardHeader('🛡️  T O R U S G U A R D   C L I', 'Autonomous Security Engine for AI-Built Applications', `v${PKG_VERSION}`));
   console.log(`\n  ${BOLD}Usage:${RESET}  ${GREEN}npx torusguard${RESET} ${WHITE}[command]${RESET} ${GRAY}[options]${RESET}\n`);
 
   console.log(cardBorderTop('Commands'));
@@ -309,7 +310,7 @@ if (command === 'status') {
       }
 
       console.log();
-      console.log(cardHeader('🛡️  TORUSGUARD SECURITY POSTURE', '', 'v1.3.6'));
+      console.log(cardHeader('🛡️  TORUSGUARD SECURITY POSTURE', '', `v${PKG_VERSION}`));
       console.log(`\n  ${BOLD}▸ Workspace:${RESET}        ${GREEN}${cwd}${RESET}`);
       console.log(`  ${BOLD}▸ Governance:${RESET}       ${GREEN}Full Local Governance (.torusguard/)${RESET}`);
       console.log(`  ${BOLD}▸ Living Report:${RESET}    ${CYAN}security_report.md${RESET}\n`);
@@ -331,7 +332,7 @@ if (command === 'status') {
       console.log();
 
       console.log(cardBorderTop('Governance Telemetry'));
-      console.log(formatBoxLine(`Rules Catalog:     ${GREEN}74 Canonical Security Rules${RESET} (18 families)`));
+      console.log(formatBoxLine(`Rules Catalog:     ${GREEN}88 Canonical Security Rules${RESET} (22 families)`));
       console.log(formatBoxLine(`Severity Floor:    ${YELLOW}${cfg.severity_threshold || 'medium'}${RESET}`));
       console.log(formatBoxLine(`Runs Directory:    ${DIM}${cfg.runs_dir || '.torusguard/runs'}${RESET}`));
       console.log(formatBoxLine(`Ponytail Bounds:   ${GREEN}<= 35 additions, <= 25 deletions${RESET}`));
@@ -339,16 +340,18 @@ if (command === 'status') {
       console.log(cardBorderBottom());
       console.log();
 
-      console.log(cardBorderTop('Rule Families (18 Families / 74 Rules)'));
-      console.log(formatBoxLine(`${YELLOW}TG-SEC${RESET}     Secrets (7)              ${YELLOW}TG-DB${RESET}      Database Safety (4)`));
-      console.log(formatBoxLine(`${YELLOW}TG-INPUT${RESET}   Input Validation (6)     ${YELLOW}TG-AUTH${RESET}    Authentication (8)`));
+      console.log(cardBorderTop('Rule Families (22 Families / 88 Rules)'));
+      console.log(formatBoxLine(`${YELLOW}TG-SEC${RESET}     Secrets & Tokens (7)     ${YELLOW}TG-AUTH${RESET}    Authentication (8)`));
+      console.log(formatBoxLine(`${YELLOW}TG-DB${RESET}      Database Isolation (4)   ${YELLOW}TG-INPUT${RESET}   Input & Traversal (8)`));
       console.log(formatBoxLine(`${YELLOW}TG-RATE${RESET}    Rate Limiting (3)        ${YELLOW}TG-AGENT${RESET}   AI Agent Security (4)`));
-      console.log(formatBoxLine(`${YELLOW}TG-SSRF${RESET}    Server Request (4)       ${YELLOW}TG-WEBHOOK${RESET} Webhook Trust (4)`));
-      console.log(formatBoxLine(`${YELLOW}TG-WS${RESET}      WebSocket (4)            ${YELLOW}TG-CSRF${RESET}    Cross-Site Request (2)`));
-      console.log(formatBoxLine(`${YELLOW}TG-GQL${RESET}     GraphQL Security (4)     ${YELLOW}TG-SUPPLY${RESET}  Supply Chain (6)`));
-      console.log(formatBoxLine(`${YELLOW}TG-BIZ${RESET}     Business Logic (4)       ${YELLOW}TG-CACHE${RESET}   Cache Isolation (3)`));
-      console.log(formatBoxLine(`${YELLOW}TG-CLIENT${RESET}  Client Bundles (2)       ${YELLOW}TG-PLATFORM${RESET}Platform Config (4)`));
-      console.log(formatBoxLine(`${YELLOW}TG-DIFF${RESET}    Diff Inspection (3)      ${YELLOW}TG-EDGE${RESET}    Serverless / Edge (2)`));
+      console.log(formatBoxLine(`${YELLOW}TG-SSRF${RESET}    Server-Side Request (4)  ${YELLOW}TG-WEBHOOK${RESET} Webhook Signature (4)`));
+      console.log(formatBoxLine(`${YELLOW}TG-WS${RESET}      WebSocket Safety (4)     ${YELLOW}TG-CSRF${RESET}    Cross-Site Request (2)`));
+      console.log(formatBoxLine(`${YELLOW}TG-GQL${RESET}     GraphQL Introspection (4)${YELLOW}TG-SUPPLY${RESET}  Supply Chain Health (6)`));
+      console.log(formatBoxLine(`${YELLOW}TG-BIZ${RESET}     Business Logic (4)       ${YELLOW}TG-CACHE${RESET}   Cache Poisoning (3)`));
+      console.log(formatBoxLine(`${YELLOW}TG-CLIENT${RESET}  Client Bundle Secrets (2)${YELLOW}TG-PLATFORM${RESET}Platform Hardening (4)`));
+      console.log(formatBoxLine(`${YELLOW}TG-DIFF${RESET}    Polyglot Bypass Guard (3)${YELLOW}TG-EDGE${RESET}    Edge & Serverless (2)`));
+      console.log(formatBoxLine(`${YELLOW}TG-CONT${RESET}    Container Hardening (4)  ${YELLOW}TG-GIT${RESET}     Git Secret Mining (3)`));
+      console.log(formatBoxLine(`${YELLOW}TG-REDOS${RESET}   ReDoS Complexity Guard (2)${YELLOW}TG-RAG${RESET}    RAG & Vector Scoping (3)`));
       console.log(cardBorderBottom());
 
       console.log(`\n  ${DIM}Quick Action:${RESET} In your AI chat, run ${CYAN}/torusguard-audit${RESET} to scan.\n`);
@@ -640,6 +643,9 @@ if (command === 'recipes') {
 if (command === 'init') {
   const { target, remaining } = parseTargetAndArgs(args);
   const targetDir = path.resolve(cwd, target);
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
   const localBootstrap = path.join(rootDir, 'skills', 'torusguard', 'bootstrap.py');
   const localInstall = path.join(rootDir, 'install.py');
   const scriptToRun = fs.existsSync(localBootstrap) ? localBootstrap : localInstall;
@@ -655,13 +661,7 @@ if (command === 'init') {
 // Subcommand: update
 if (command === 'update') {
   const https = require('https');
-  const pkgJsonPath = path.join(rootDir, 'package.json');
-  let currentVersion = '1.4.0';
-  try {
-    if (fs.existsSync(pkgJsonPath)) {
-      currentVersion = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8')).version || currentVersion;
-    }
-  } catch (e) {}
+  const currentVersion = PKG_VERSION;
 
   console.log();
   console.log(cardHeader('🛡️  TORUSGUARD UPDATE CHECK', 'Package Distribution & Registry Verifier', `v${currentVersion}`));

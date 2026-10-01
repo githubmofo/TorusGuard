@@ -2,8 +2,8 @@
 name: torusguard-threatmodel
 description: Synthesizes an architectural STRIDE threat model, interactive Mermaid Data Flow Diagram (DFD), and trust boundary register into SECURITY_THREAT_MODEL.md.
 tools: Read, Grep, Glob, Bash, Edit, Write
-version: 2.1.2
-last-updated: 2026-09-30
+version: 2.1.3
+last-updated: 2026-10-01
 skills:
   - torusguard
   - torusguard-audit

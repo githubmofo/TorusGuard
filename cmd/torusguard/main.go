@@ -18,7 +18,7 @@ import (
 	"github.com/torusguard/torusguard/internal/workspace"
 )
 
-const Version = "2.1.2"
+const Version = "2.1.3"
 
 // Standardized 75-column terminal UI formatting with Unicode emoji width calculation
 func printHelp() {

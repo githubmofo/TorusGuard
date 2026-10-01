@@ -2,7 +2,7 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "TorusGuard v2.1.2 System Architecture",
+    "title": "TorusGuard v2.1.3 System Architecture",
     "subtitle": "Hybrid Governance Security Engine for AI-Built Applications",
     "output": "docs/architecture/torusguard-architecture.html",
     "quality_profile": "showcase",

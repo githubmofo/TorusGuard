@@ -4,6 +4,25 @@ All notable changes to TorusGuard are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.3] — 2026-10-01
+
+### Changed
+- **Workspace Scaffolding Hygiene**:
+  - Eliminated automatic generation of extraneous `.agent/` and `.agents/` directories during `torusguard init`. Scaffolding is now strictly self-contained within `.torusguard/` (and root `AGENTS.md`).
+- **Terminal UI Precision & Border Alignment**:
+  - Fixed visual width calculations for Unicode emojis (`🛡️`, `✅`) and variation selectors across all 75-column terminal boxes in `bootstrap.py`, `bin/torusguard.js`, and `status_runner.py`.
+  - Added recursive directory creation in `bin/torusguard.js` to prevent `ENOENT` spawn failures on non-existent targets.
+- **Distribution & Package Dynamic Versioning**:
+  - Unified version strings across all Go, Node, and Python subsystems to `v2.1.3`.
+  - Added `postinstall` guidance script in `package.json`.
+
+### Added
+- **Dedicated Multi-Track Usage Guides**:
+  - `docs/usage/option-1-npm.md`: Deep dive into direct `npx` zero-install, global `npm i -g`, and local project installs with `node_modules` execution and npm script recipes.
+  - `docs/usage/option-2-source.md`: Contributor guide for cloning, compiling the standalone Go binary, and running validation suites.
+  - `docs/usage/option-3-go-install.md`: Single-command Go toolchain installation (`go install github.com/githubmofo/TorusGuard/cmd/torusguard@latest`).
+  - Added unified comparison table and links in root `README.md`.
+
 ## [2.1.2] — 2026-09-30
 
 ### Added
