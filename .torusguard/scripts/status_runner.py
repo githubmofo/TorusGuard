@@ -58,7 +58,7 @@ def collect_status(target_dir: Path) -> WorkspaceStatus:
     is_init = tg_dir.is_dir()
 
     # 1. Read config
-    version = "2.1.3"
+    version = "2.2.0"
     stack_name = "Undetected"
     cfg_file = tg_dir / "config" / "torusguard.json"
     if cfg_file.is_file():

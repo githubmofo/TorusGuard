@@ -4,6 +4,21 @@ All notable changes to TorusGuard are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] — 2026-10-07
+
+### Added
+- **Hybrid First-Principles OCR Vision Engine (`internal/scanner/ocr.go`)**:
+  - Built-in zero-dependency stream extractor parsing PNG metadata chunks (`tEXt`/`iTXt`), SVG tags, EXIF metadata, and printable byte streams ($\ge 6$ chars) directly without external binaries.
+  - Optional deep neural OCR integration using Tesseract when available in system PATH.
+  - Graceful zero-crash resilience: if Tesseract is missing, TorusGuard executes first-principles scanning and displays 1-click install guidance (`winget`, `brew`, `apt`) rather than failing.
+  - Automatic workspace diagram and asset discovery when running `ocr-scan` without explicit file targets.
+- **Interactive Terminal Command Center (`cmd/torusguard/main.go`, `bin/torusguard.js`)**:
+  - Running `torusguard` or `npx torusguard` with zero arguments in an interactive terminal (TTY) launches a visual menu-driven command center (`[1]` to `[10]`).
+- **100% Tri-Mode Command Parity for NPM Distribution**:
+  - Wired all 25 lifecycle commands into `bin/torusguard.js` (`ocr-scan`, `container`, `git-mine`, `redos`, `ai-guard`, `threatmodel`, `benchmark`, `authorize`, `web-validate`, `exploit-check`, `mcp`, `full`, `review`), resolving the `✖ Unknown command: ocr-scan` issue with automatic native binary delegation and pure Node/Python fallbacks.
+- **Curated "Awesome TorusGuard" Catalog (`docs/awesome-rules.md`)**:
+  - Standardized catalog of all 88 security invariants across 22 architectural families with badges, severity ratings, CWE mappings, Ponytail line bounds, and verified Golden Fix recipes.
+
 ## [2.1.3] — 2026-10-01
 
 ### Changed

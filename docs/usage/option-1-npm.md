@@ -43,6 +43,15 @@ npx torusguard@latest init
 All TorusGuard commands run seamlessly through `npx`:
 
 ```bash
+# Launch Interactive Command Center (menu-driven, zero arguments!)
+npx torusguard
+
+# Scan architecture diagrams and images for leaked secrets (Hybrid First-Principles)
+npx torusguard ocr-scan
+
+# Scan a specific diagram or asset
+npx torusguard ocr-scan path/to/architecture.png
+
 # Check security posture & active rules
 npx torusguard status
 
@@ -81,7 +90,7 @@ npm install -g torusguard
 ### 2. Verify installation
 ```bash
 torusguard --version
-# Output: torusguard v2.1.3
+# Output: torusguard v2.2.0
 ```
 
 ### 3. Use directly anywhere
@@ -156,7 +165,7 @@ Add TorusGuard lifecycle scripts to your project's `package.json`:
     "security:ci": "torusguard audit && torusguard report --sarif"
   },
   "devDependencies": {
-    "torusguard": "^2.1.3"
+    "torusguard": "^2.2.0"
   }
 }
 ```
@@ -193,10 +202,13 @@ Once you initialize your workspace with `npx torusguard init` or `torusguard ini
 
 1. **AI Chat Slash Commands:**
    In your AI IDE chat, invoke:
-   - `/torusguard` — Master security orchestrator
-   - `/torusguard audit` — Execute static AST scan
+   - `/torusguard` — Master security orchestrator & interactive center
+   - `/torusguard audit` — Execute static AST scan & sync `security_report.md`
+   - `/torusguard ocr-scan` — Scan diagrams and images for leaked credentials
    - `/torusguard harden` — Formulate surgical Ponytail-bounded patches
-   - `/torusguard status` — View diagnostic posture
+   - `/torusguard apply` — Apply patch candidates with Human Gate authorization
+   - `/torusguard recheck` — Verify fix closure with zero regressions
+   - `/torusguard status` — View diagnostic posture & active rules
 
 2. **Native MCP Server:**
    Connect TorusGuard directly to agents supporting the Model Context Protocol:
@@ -244,7 +256,7 @@ npm cache clean --force
 ### Q2: How do I verify which version is currently running?
 ```bash
 npx torusguard --version
-# Expected: torusguard v2.1.3
+# Expected: torusguard v2.2.0
 ```
 
 ### Q3: Why does `init` create only `.torusguard/`?

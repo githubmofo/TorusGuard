@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -18,7 +19,7 @@ import (
 	"github.com/torusguard/torusguard/internal/workspace"
 )
 
-const Version = "2.1.3"
+const Version = "2.2.0"
 
 // Standardized 75-column terminal UI formatting with Unicode emoji width calculation
 func printHelp() {
@@ -72,8 +73,75 @@ func parseTarget(args []string) string {
 	return absTarget
 }
 
+func isTerminal() bool {
+	fi, err := os.Stdin.Stat()
+	if err != nil {
+		return false
+	}
+	return (fi.Mode() & os.ModeCharDevice) != 0
+}
+
+func runInteractiveMenu() {
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Println()
+		fmt.Println(termui.CardHeader("🛡️  TORUSGUARD COMMAND CENTER", "Interactive Security Engine", "v"+Version, termui.Cyan))
+		fmt.Println(termui.CardBorderTop("Quick Actions", termui.Cyan, false))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[1]%s  🚀 Audit Workspace          %s(Full AST & Taint Scan)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[2]%s  👁️  OCR Vision Scan          %s(Images & Diagram Secrets)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[3]%s  📊 Posture Status           %s(Active Posture & Rules)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[4]%s  🐳 Container Audit          %s(Dockerfile & Compose Scan)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[5]%s  ⚡ ReDoS Complexity Scan    %s(Catastrophic Regex Scan)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[6]%s  🤖 AI & RAG Defense         %s(Prompt Injection & Vectors)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[7]%s  🔍 Git History Mine         %s(Committed Leaks & Tokens)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[8]%s  🛡️  Harden Candidates       %s(Ponytail Bounded Patches)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[9]%s  📑 Posture Report           %s(Generate Visual HTML Report)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[10]%s 📖 Awesome Rules Catalog    %s(88 Rules Across 22 Families)%s", termui.Green, termui.Reset, termui.Gray, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s[0]%s  ❌ Exit", termui.Red, termui.Reset), 67, "│", termui.Cyan))
+		fmt.Println(termui.CardBorderBottom(termui.Cyan, false))
+		fmt.Printf("\n  %sSelect option [0-10]%s: ", termui.Bold, termui.Reset)
+
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			return
+		}
+		choice := strings.TrimSpace(input)
+		switch choice {
+		case "1":
+			executeCommand("audit", []string{})
+		case "2":
+			executeCommand("ocr-scan", []string{})
+		case "3":
+			executeCommand("status", []string{})
+		case "4":
+			executeCommand("container", []string{})
+		case "5":
+			executeCommand("redos", []string{})
+		case "6":
+			executeCommand("ai-guard", []string{})
+		case "7":
+			executeCommand("git-mine", []string{})
+		case "8":
+			executeCommand("harden", []string{})
+		case "9":
+			executeCommand("report", []string{"--html"})
+		case "10":
+			executeCommand("recipes", []string{})
+		case "0", "q", "exit":
+			fmt.Printf("\n  %sExiting TorusGuard.%s\n\n", termui.Green, termui.Reset)
+			return
+		default:
+			fmt.Printf("\n  %sInvalid selection '%s'. Enter 0-10.%s\n", termui.Yellow, choice, termui.Reset)
+		}
+	}
+}
+
 func main() {
 	if len(os.Args) < 2 {
+		if isTerminal() {
+			runInteractiveMenu()
+			return
+		}
 		printHelp()
 		return
 	}
@@ -91,6 +159,10 @@ func main() {
 		return
 	}
 
+	executeCommand(command, cliArgs)
+}
+
+func executeCommand(command string, cliArgs []string) {
 	target := parseTarget(cliArgs)
 
 	switch command {
@@ -246,31 +318,64 @@ func main() {
 		return
 	case "ocr-scan":
 		maxMB := 10
-		tessPath, err := scanner.FindTesseract()
-		if err != nil {
-			fmt.Printf("OCR scan aborted: %v\n", err)
-			os.Exit(1)
+		tessPath, _ := scanner.FindTesseract()
+
+		targetPath := target
+		explicitTarget := len(cliArgs) > 0 && !strings.HasPrefix(cliArgs[0], "-")
+		if !explicitTarget {
+			imgs, _ := scanner.FindWorkspaceImages(target)
+			if len(imgs) == 1 {
+				targetPath = imgs[0]
+			}
 		}
-		info, err := os.Stat(target)
+
+		info, err := os.Stat(targetPath)
 		if err != nil {
-			fmt.Printf("Cannot access target %s: %v\n", target, err)
-			os.Exit(1)
+			fmt.Printf("Cannot access target %s: %v\n", targetPath, err)
+			return
 		}
+
 		var findings []string
 		if info.IsDir() {
-			findings, err = scanner.ScanImagesInDir(target, int64(maxMB)*1024*1024)
+			findings, err = scanner.ScanImagesInDir(targetPath, int64(maxMB)*1024*1024)
 		} else {
-			findings, err = scanner.ScanImageFile(target, tessPath, int64(maxMB)*1024*1024)
+			findings, err = scanner.ScanImageFile(targetPath, tessPath, int64(maxMB)*1024*1024)
 		}
 		if err != nil {
-			fmt.Printf("OCR scan failed: %v\n", err)
-			os.Exit(1)
+			fmt.Printf("OCR scan notice: %v\n", err)
 		}
-		fmt.Printf("Scanned image target '%s' (Tesseract: %s)\n", target, tessPath)
-		fmt.Printf("Detected %d findings:\n", len(findings))
-		for _, f := range findings {
-			fmt.Printf(" - %s\n", f)
+
+		fmt.Println()
+		fmt.Println(termui.CardHeader("👁️   OCR VISION & ASSET SCAN", "First-Principles + Neural Extraction", "v"+Version, termui.Cyan))
+		if tessPath != "" {
+			fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sEngine:%s Neural Tesseract + First-Principles", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+		} else {
+			fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%sEngine:%s First-Principles Stream & Chunk Extractor", termui.Yellow, termui.Reset), 67, "│", termui.Cyan))
 		}
+		fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Target: %s", filepath.Base(targetPath)), 67, "│", termui.Cyan))
+		fmt.Println(termui.CardDivider("Findings", termui.Cyan, false))
+
+		if len(findings) == 0 {
+			fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s✔ Zero leaked secrets detected in image assets.%s", termui.Green, termui.Reset), 67, "│", termui.Cyan))
+		} else {
+			for _, f := range findings {
+				line := f
+				if len(line) > 65 {
+					line = line[:62] + "..."
+				}
+				fmt.Println(termui.FormatBoxLine(line, 67, "│", termui.Cyan))
+			}
+		}
+
+		if tessPath == "" {
+			fmt.Println(termui.CardDivider("Neural OCR Setup Hint", termui.Cyan, false))
+			fmt.Println(termui.FormatBoxLine("To enable optical character recognition on screenshots:", 67, "│", termui.Cyan))
+			fmt.Println(termui.FormatBoxLine("Windows: winget install UB-Mannheim.TesseractOCR", 67, "│", termui.Cyan))
+			fmt.Println(termui.FormatBoxLine("macOS:   brew install tesseract", 67, "│", termui.Cyan))
+			fmt.Println(termui.FormatBoxLine("Linux:   sudo apt-get install tesseract-ocr", 67, "│", termui.Cyan))
+		}
+		fmt.Println(termui.CardBorderBottom(termui.Cyan, false))
+		fmt.Println()
 	case "container":
 		findings, err := scanner.RunContainerAudit(target)
 		if err != nil {

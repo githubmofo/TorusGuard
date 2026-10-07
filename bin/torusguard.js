@@ -11,11 +11,11 @@ const path = require('path');
 const fs = require('fs');
 
 const args = process.argv.slice(2);
-const command = args[0] || 'init';
+const command = args[0];
 const rootDir = path.resolve(__dirname, '..');
 const cwd = process.cwd();
 
-let PKG_VERSION = '2.1.3';
+let PKG_VERSION = '2.2.0';
 try {
   const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf-8'));
   PKG_VERSION = pkg.version || PKG_VERSION;
@@ -25,6 +25,19 @@ try {
 if (command === '--version' || command === '-v' || command === 'version') {
   console.log(`torusguard v${PKG_VERSION}`);
   process.exit(0);
+}
+
+function findNativeBinary() {
+  const candidates = [
+    path.join(rootDir, 'torusguard.exe'),
+    path.join(rootDir, 'torusguard'),
+    path.join(cwd, 'torusguard.exe'),
+    path.join(cwd, 'torusguard'),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return null;
 }
 
 function parseTargetAndArgs(cliArgs) {
@@ -259,6 +272,62 @@ function printHelp() {
   console.log(`    ${CYAN}/torusguard-status${RESET}   Read-only workspace diagnostic`);
   console.log(`\n  ${DIM}Documentation:${RESET}  ${CYAN}https://github.com/githubmofo/TorusGuard${RESET}`);
   console.log(`  ${DIM}NPM Package:${RESET}   ${CYAN}https://npmjs.com/package/torusguard${RESET}\n`);
+}
+
+if (!command) {
+  if (process.stdin.isTTY) {
+    const readline = require('readline');
+    console.log();
+    console.log(cardHeader('🛡️  TORUSGUARD COMMAND CENTER', 'Interactive Security Engine', `v${PKG_VERSION}`));
+    console.log(cardBorderTop('Quick Actions'));
+    console.log(formatBoxLine(`${GREEN}[1]${RESET}  🚀 Audit Workspace          ${GRAY}(Full AST & Taint Scan)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[2]${RESET}  👁️  OCR Vision Scan          ${GRAY}(Images & Diagram Secrets)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[3]${RESET}  📊 Posture Status           ${GRAY}(Active Posture & Rules)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[4]${RESET}  🐳 Container Audit          ${GRAY}(Dockerfile & Compose Scan)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[5]${RESET}  ⚡ ReDoS Complexity Scan    ${GRAY}(Catastrophic Regex Scan)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[6]${RESET}  🤖 AI & RAG Defense         ${GRAY}(Prompt Injection & Vectors)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[7]${RESET}  🔍 Git History Mine         ${GRAY}(Committed Leaks & Tokens)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[8]${RESET}  🛡️  Harden Candidates       ${GRAY}(Ponytail Bounded Patches)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[9]${RESET}  📑 Posture Report           ${GRAY}(Generate Visual HTML Report)${RESET}`));
+    console.log(formatBoxLine(`${GREEN}[10]${RESET} 📖 Awesome Rules Catalog    ${GRAY}(88 Rules Across 22 Families)${RESET}`));
+    console.log(formatBoxLine(`${RED}[0]${RESET}  ❌ Exit`));
+    console.log(cardBorderBottom());
+
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    rl.question(`\n  ${BOLD}Select option [0-10]${RESET}: `, (ans) => {
+      rl.close();
+      const choice = ans.trim();
+      const cmdMap = {
+        '1': 'audit', '2': 'ocr-scan', '3': 'status', '4': 'container',
+        '5': 'redos', '6': 'ai-guard', '7': 'git-mine', '8': 'harden',
+        '9': 'report', '10': 'recipes'
+      };
+      if (choice === '0' || choice === 'q' || choice === 'exit') {
+        console.log(`\n  ${GREEN}Exiting TorusGuard.${RESET}\n`);
+        process.exit(0);
+      }
+      const selectedCmd = cmdMap[choice];
+      if (selectedCmd) {
+        const nativeBin = findNativeBinary();
+        if (nativeBin) {
+          const subArgs = choice === '9' ? ['report', '--html'] : [selectedCmd];
+          const p = spawnSync(nativeBin, subArgs, { stdio: 'inherit', cwd });
+          process.exit(p.status !== null ? p.status : 0);
+        } else {
+          const subArgs = choice === '9' ? [process.argv[1], 'report', '--html'] : [process.argv[1], selectedCmd];
+          const p = spawnSync(process.execPath, subArgs, { stdio: 'inherit', cwd });
+          process.exit(p.status !== null ? p.status : 0);
+        }
+      } else {
+        console.log(`\n  ${YELLOW}Invalid selection '${choice}'. Enter 0-10.${RESET}\n`);
+        process.exit(1);
+      }
+    });
+    return;
+  } else {
+    printHelp();
+    process.exit(0);
+  }
 }
 
 if (command === 'help' || command === '--help' || command === '-h') {
@@ -742,11 +811,155 @@ if (command === 'update') {
   });
 }
 
+// Native & Extended Command Dispatcher with Pure Fallbacks
+const EXTENDED_COMMANDS = new Set([
+  'ocr-scan', 'container', 'git-mine', 'redos', 'ai-guard',
+  'threatmodel', 'benchmark', 'authorize', 'web-validate',
+  'exploit-check', 'mcp', 'full', 'review'
+]);
+
+if (EXTENDED_COMMANDS.has(command)) {
+  const nativeBin = findNativeBinary();
+  if (nativeBin) {
+    const proc = spawnSync(nativeBin, args, { stdio: 'inherit', cwd });
+    process.exit(proc.status !== null ? proc.status : 0);
+  }
+
+  // Pure Node/JS Fallback Handlers
+  const { target } = parseTargetAndArgs(args);
+  const targetDir = path.resolve(cwd, target);
+
+  if (command === 'ocr-scan') {
+    const imageExtensions = new Set(['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tiff', '.tif', '.svg']);
+    const ocrSecretPatterns = [
+      { id: 'TG-SEC-001', desc: 'Hardcoded API Key / Secret Token', regex: /(api[_-]?key|secret[_-]?key|access[_-]?token|bearer|auth[_-]?token)\s*[:=]\s*["']?([a-zA-Z0-9_\-\.]{12,})["']?/i },
+      { id: 'TG-SEC-001', desc: 'OpenAI / Stripe Secret API Key', regex: /\b(sk-(?:live-)?[a-zA-Z0-9_\-\.]{20,})\b/ },
+      { id: 'TG-SEC-002', desc: 'AWS Access Key ID', regex: /\b(AKIA[0-9A-Z]{16})\b/ },
+      { id: 'TG-SEC-003', desc: 'GitHub Personal Access Token', regex: /\b(ghp_[a-zA-Z0-9]{30,40}|github_pat_[a-zA-Z0-9_]{60,90})\b/ },
+      { id: 'TG-SEC-004', desc: 'Database Connection URI with credentials', regex: /(?:postgres(?:ql)?|mysql|mongodb|redis):\/\/[a-zA-Z0-9_\-]+:[^@\s]+@[a-zA-Z0-9_\-\.]+/i },
+      { id: 'TG-SEC-005', desc: 'Private Key block header', regex: /-----BEGIN\s+(?:(?:RSA|OPENSSH|EC|DSA)\s+)?(?:PRIVATE\s+)?KEY-----/i },
+      { id: 'TG-SEC-007', desc: 'Generic Password / Secret credential assignment', regex: /(password|passwd|pwd)\s*[:=]\s*["']?([^\s"']{6,})["']?/i }
+    ];
+
+    let imageFiles = [];
+    const stat = fs.existsSync(targetDir) ? fs.statSync(targetDir) : null;
+    if (stat && stat.isFile()) {
+      imageFiles.push(targetDir);
+    } else {
+      function findImages(dir) {
+        if (!fs.existsSync(dir)) return;
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const e of entries) {
+          if (['.git', 'node_modules', '.torusguard', 'vendor'].includes(e.name)) continue;
+          const full = path.join(dir, e.name);
+          if (e.isDirectory()) findImages(full);
+          else if (imageExtensions.has(path.extname(e.name).toLowerCase())) imageFiles.push(full);
+        }
+      }
+      findImages(fs.existsSync(targetDir) ? targetDir : cwd);
+    }
+
+    let hasTesseract = false;
+    try {
+      const tCheck = spawnSync('tesseract', ['--version'], { encoding: 'utf-8' });
+      hasTesseract = tCheck.status === 0;
+    } catch (e) {}
+
+    const findings = [];
+    for (const img of imageFiles.slice(0, 100)) {
+      let text = '';
+      try {
+        const buf = fs.readFileSync(img);
+        const printable = buf.toString('latin1').replace(/[^\x20-\x7E\t\n\r]/g, '\n');
+        text += printable + '\n';
+        if (hasTesseract) {
+          const tProc = spawnSync('tesseract', [img, 'stdout', '-l', 'eng'], { encoding: 'utf-8' });
+          if (tProc.stdout) text += tProc.stdout + '\n';
+        }
+      } catch (err) {}
+
+      const rel = path.relative(cwd, img);
+      for (const pat of ocrSecretPatterns) {
+        const match = pat.regex.exec(text);
+        if (match) {
+          let red = match[0];
+          if (red.length > 40) red = red.slice(0, 37) + '...';
+          findings.push(`[${pat.id}] [OCR] ${pat.desc} in ${rel} (Evidence: ${red})`);
+        }
+      }
+    }
+
+    console.log();
+    console.log(cardHeader('👁️   OCR VISION & ASSET SCAN', 'First-Principles + Neural Extraction', `v${PKG_VERSION}`));
+    console.log(formatBoxLine(`${hasTesseract ? GREEN + 'Engine:' + RESET + ' Neural Tesseract + First-Principles' : YELLOW + 'Engine:' + RESET + ' First-Principles Stream & Chunk Extractor'}`));
+    console.log(formatBoxLine(`Scanned:  ${imageFiles.length} image asset(s) in workspace`));
+    console.log(cardDivider('Findings'));
+    if (findings.length === 0) {
+      console.log(formatBoxLine(`${GREEN}✔ Zero leaked secrets detected in image assets.${RESET}`));
+    } else {
+      findings.forEach(f => console.log(formatBoxLine(f)));
+    }
+    if (!hasTesseract) {
+      console.log(cardDivider('Neural OCR Setup Hint'));
+      console.log(formatBoxLine('To enable optical character recognition on screenshots:'));
+      console.log(formatBoxLine('Windows: winget install UB-Mannheim.TesseractOCR'));
+      console.log(formatBoxLine('macOS:   brew install tesseract'));
+      console.log(formatBoxLine('Linux:   sudo apt-get install tesseract-ocr'));
+    }
+    console.log(cardBorderBottom());
+    console.log();
+    process.exit(0);
+  }
+
+  if (command === 'threatmodel') {
+    const strideScript = path.join(rootDir, '.torusguard', 'scripts', 'stride_generator.py');
+    const proc = spawnSync(pythonCmd, [strideScript, targetDir], { stdio: 'inherit', cwd: targetDir });
+    process.exit(proc.status !== null ? proc.status : 0);
+  }
+
+  if (command === 'container') {
+    console.log();
+    console.log(cardHeader('🐳  CONTAINER AUDIT', 'Dockerfile & Compose Hardening', `v${PKG_VERSION}`));
+    const dockerfilePath = path.join(targetDir, 'Dockerfile');
+    const composePath = path.join(targetDir, 'docker-compose.yml');
+    const cFindings = [];
+    if (fs.existsSync(dockerfilePath)) {
+      const content = fs.readFileSync(dockerfilePath, 'utf-8');
+      if (!/USER\s+[^\s]+/i.test(content) || /USER\s+root/i.test(content)) {
+        cFindings.push('[TG-CONT-001] Container runs as root user in Dockerfile');
+      }
+    }
+    if (fs.existsSync(composePath)) {
+      const content = fs.readFileSync(composePath, 'utf-8');
+      if (/privileged:\s*true/i.test(content)) {
+        cFindings.push('[TG-CONT-003] Privileged mode enabled in docker-compose.yml');
+      }
+    }
+    if (cFindings.length === 0) {
+      console.log(formatBoxLine(`${GREEN}✔ Zero container vulnerabilities detected.${RESET}`));
+    } else {
+      cFindings.forEach(f => console.log(formatBoxLine(f)));
+    }
+    console.log(cardBorderBottom());
+    console.log();
+    process.exit(0);
+  }
+
+  // Fallback for git-mine, redos, ai-guard, full, review
+  console.log(`\n  ${CYAN}Running ${command} via TorusGuard engine...${RESET}`);
+  const pyAudit = path.join(rootDir, '.torusguard', 'scripts', 'audit_runner.py');
+  const proc = spawnSync(pythonCmd, [pyAudit, targetDir, `--rule-family=${command.toUpperCase()}`], { stdio: 'inherit', cwd: targetDir });
+  process.exit(proc.status !== null ? proc.status : 0);
+}
+
 // Unknown command fallback
 const KNOWN_COMMANDS = new Set([
   'init', 'status', 'rules', 'memory', 'diff-guard', 'audit',
   'report', 'harden', 'apply', 'rollback', 'recheck', 'verify',
-  'recipes', 'update', 'help', '--help', '-h', '--version', '-v', 'version'
+  'recipes', 'update', 'help', '--help', '-h', '--version', '-v', 'version',
+  'ocr-scan', 'container', 'git-mine', 'redos', 'ai-guard',
+  'threatmodel', 'benchmark', 'authorize', 'web-validate',
+  'exploit-check', 'mcp', 'full', 'review'
 ]);
 
 if (!KNOWN_COMMANDS.has(command)) {

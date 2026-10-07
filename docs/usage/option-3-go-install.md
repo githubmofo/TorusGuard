@@ -45,14 +45,14 @@ Check that `torusguard` is reachable in your path:
 ```bash
 which torusguard
 torusguard --version
-# Expected: torusguard v2.1.3 (pure go binary)
+# Expected: torusguard v2.2.0 (pure go binary)
 ```
 
 ### Windows (PowerShell):
 ```powershell
 Get-Command torusguard
 torusguard --version
-# Expected: torusguard v2.1.3 (pure go binary)
+# Expected: torusguard v2.2.0 (pure go binary)
 ```
 
 ---
@@ -65,25 +65,34 @@ You can now use `torusguard` across any software project on your computer:
 # Navigate to your application
 cd /path/to/my-web-app
 
-# 1. Initialize TorusGuard governance workspace
+# 0. Launch the Interactive Command Center (menu-driven, zero arguments!)
+torusguard
+
+# 1. Run Hybrid First-Principles OCR Vision Scan on images & diagrams
+torusguard ocr-scan
+
+# Scan a specific diagram or asset
+torusguard ocr-scan path/to/diagram.png
+
+# 2. Initialize TorusGuard governance workspace
 torusguard init
 
-# 2. Run static AST security scan
+# 3. Run static AST security scan
 torusguard audit
 
-# 3. Check diagnostic posture & memory
+# 4. Check diagnostic posture & memory
 torusguard status
 
-# 4. Formulate minimal surgical candidate patches
+# 5. Formulate minimal surgical candidate patches
 torusguard harden
 
-# 5. Apply patches with automatic pre-apply rollback snapshots
+# 6. Apply patches with automatic pre-apply rollback snapshots
 torusguard apply
 
-# 6. Generate single-file visual dark-mode HTML dashboard
+# 7. Generate single-file visual dark-mode HTML dashboard
 torusguard report --html
 
-# 7. Export OASIS SARIF v2.1.0 for CI/CD gates
+# 8. Export OASIS SARIF v2.1.0 for CI/CD gates
 torusguard report --sarif
 ```
 

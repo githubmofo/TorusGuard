@@ -51,18 +51,18 @@ go build -o torusguard.exe ./cmd/torusguard
 
 ## 🧪 Step 3: Verify the Build
 
-Confirm that the binary compiled successfully and outputs version **v2.1.3**:
+Confirm that the binary compiled successfully and outputs version **v2.2.0**:
 
 ### Linux / macOS:
 ```bash
 ./torusguard --version
-# Output: torusguard v2.1.3 (pure go binary)
+# Output: torusguard v2.2.0 (pure go binary)
 ```
 
 ### Windows:
 ```powershell
 .\torusguard.exe --version
-# Output: torusguard v2.1.3 (pure go binary)
+# Output: torusguard v2.2.0 (pure go binary)
 ```
 
 ---
@@ -72,6 +72,15 @@ Confirm that the binary compiled successfully and outputs version **v2.1.3**:
 You can run any TorusGuard lifecycle command directly using your newly built binary:
 
 ```bash
+# Launch the Interactive Command Center (menu-driven, zero arguments!)
+./torusguard
+
+# Run Hybrid First-Principles OCR Vision Scan on images & diagrams
+./torusguard ocr-scan
+
+# Scan a specific diagram or asset
+./torusguard ocr-scan path/to/diagram.png
+
 # Initialize a workspace in the current directory
 ./torusguard init
 

@@ -3,7 +3,12 @@ package scanner
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"fmt"
+	"image"
+	"image/color"
+	_ "image/jpeg"
+	"image/png"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -24,6 +29,7 @@ var ImageExtensions = map[string]bool{
 	".bmp":  true,
 	".tiff": true,
 	".tif":  true,
+	".svg":  true,
 }
 
 // OCRSecretPattern defines signatures for leaked credentials in image text.
@@ -138,7 +144,222 @@ func ExtractTextFromImage(imagePath string, tesseractPath string) (string, error
 	return stdout.String(), nil
 }
 
-// ScanImageFile extracts text from a single image and searches for secret patterns.
+// ExtractEmbeddedText uses first-principles binary parsing to extract text without external OCR binaries.
+// It parses SVG XML directly, reads PNG tEXt/iTXt chunks, and extracts printable ASCII byte streams from image files.
+func ExtractEmbeddedText(imagePath string, maxBytes int64) (string, error) {
+	if maxBytes <= 0 {
+		maxBytes = DefaultMaxImageSize
+	}
+	data, err := os.ReadFile(imagePath)
+	if err != nil {
+		return "", err
+	}
+	if int64(len(data)) > maxBytes {
+		data = data[:maxBytes]
+	}
+
+	ext := strings.ToLower(filepath.Ext(imagePath))
+	var sb strings.Builder
+
+	// 1. Direct text file formats like SVG
+	if ext == ".svg" {
+		return string(data), nil
+	}
+
+	// 2. PNG chunk extractor (tEXt, iTXt, zTXt)
+	if ext == ".png" && len(data) >= 8 && bytes.Equal(data[:8], []byte("\x89PNG\r\n\x1a\n")) {
+		offset := 8
+		for offset+8 <= len(data) {
+			length := int(binary.BigEndian.Uint32(data[offset : offset+4]))
+			chunkType := string(data[offset+4 : offset+8])
+			dataStart := offset + 8
+			dataEnd := dataStart + length
+			if dataEnd > len(data) || length < 0 {
+				break
+			}
+			chunkData := data[dataStart:dataEnd]
+			if chunkType == "tEXt" || chunkType == "iTXt" {
+				parts := bytes.SplitN(chunkData, []byte{0}, 2)
+				for _, p := range parts {
+					sb.Write(p)
+					sb.WriteString(" ")
+				}
+			}
+			offset = dataEnd + 4 // skip 4 bytes CRC
+		}
+	}
+
+	// 3. First-principles printable ASCII string scanner (strings >= 6 chars)
+	// Catches EXIF headers, uncompressed strings, embedded API tokens, and URLs
+	var current []byte
+	for _, b := range data {
+		if (b >= 32 && b <= 126) || b == '\t' || b == '\n' || b == '\r' {
+			current = append(current, b)
+		} else {
+			if len(current) >= 6 {
+				sb.Write(current)
+				sb.WriteString("\n")
+			}
+			current = current[:0]
+		}
+	}
+	if len(current) >= 6 {
+		sb.Write(current)
+		sb.WriteString("\n")
+	}
+
+	return sb.String(), nil
+}
+
+// FindWorkspaceImages traverses target directory and returns all discoverable image files.
+func FindWorkspaceImages(targetDir string) ([]string, error) {
+	var images []string
+	const maxImages = 300
+
+	err := filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if info.IsDir() {
+			name := info.Name()
+			if name == ".git" || name == "node_modules" || name == ".torusguard" || name == "vendor" {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		ext := strings.ToLower(filepath.Ext(path))
+		if ImageExtensions[ext] {
+			images = append(images, path)
+			if len(images) >= maxImages {
+				return fmt.Errorf("max images reached")
+			}
+		}
+		return nil
+	})
+	if err != nil && !strings.Contains(err.Error(), "max images reached") {
+		return images, err
+	}
+	return images, nil
+}
+
+// computeOtsuThreshold calculates the optimal binarization threshold for a grayscale image.
+func computeOtsuThreshold(hist [256]int, totalPixels int) uint8 {
+	if totalPixels == 0 {
+		return 128
+	}
+
+	var sum float64
+	for i := 0; i < 256; i++ {
+		sum += float64(i * hist[i])
+	}
+
+	var sumB float64
+	var wB int
+	var maxVariance float64
+	var threshold uint8 = 128
+
+	for t := 0; t < 256; t++ {
+		wB += hist[t]
+		if wB == 0 {
+			continue
+		}
+		wF := totalPixels - wB
+		if wF == 0 {
+			break
+		}
+
+		sumB += float64(t * hist[t])
+		mB := sumB / float64(wB)
+		mF := (sum - sumB) / float64(wF)
+
+		varianceBetween := float64(wB) * float64(wF) * (mB - mF) * (mB - mF)
+		if varianceBetween > maxVariance {
+			maxVariance = varianceBetween
+			threshold = uint8(t)
+		}
+	}
+
+	return threshold
+}
+
+// EnhanceImageContrast creates a high-contrast binarized PNG image (monochrome black text on pure white)
+// using Otsu adaptive thresholding and background polarity inversion.
+func EnhanceImageContrast(imagePath string) (string, func(), error) {
+	file, err := os.Open(imagePath)
+	if err != nil {
+		return "", func() {}, err
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return "", func() {}, err
+	}
+
+	bounds := img.Bounds()
+	w, h := bounds.Dx(), bounds.Dy()
+	if w <= 0 || h <= 0 {
+		return "", func() {}, fmt.Errorf("invalid image dimensions")
+	}
+
+	var hist [256]int
+	totalPixels := w * h
+	grayImg := image.NewGray(bounds)
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			c := color.GrayModel.Convert(img.At(x, y)).(color.Gray)
+			grayImg.Set(x, y, c)
+			hist[c.Y]++
+		}
+	}
+
+	threshold := computeOtsuThreshold(hist, totalPixels)
+
+	whiteCount := 0
+	for i := int(threshold) + 1; i < 256; i++ {
+		whiteCount += hist[i]
+	}
+	invert := whiteCount < totalPixels/2 // If dark pixels dominate background, invert so background is white
+
+	binarized := image.NewGray(bounds)
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			v := grayImg.GrayAt(x, y).Y
+			isLight := v > threshold
+			if invert {
+				isLight = !isLight
+			}
+
+			if isLight {
+				binarized.Set(x, y, color.Gray{Y: 255})
+			} else {
+				binarized.Set(x, y, color.Gray{Y: 0})
+			}
+		}
+	}
+
+	tempFile, err := os.CreateTemp("", "tg_binarized_*.png")
+	if err != nil {
+		return "", func() {}, err
+	}
+	tempPath := tempFile.Name()
+
+	if err := png.Encode(tempFile, binarized); err != nil {
+		tempFile.Close()
+		_ = os.Remove(tempPath)
+		return "", func() {}, err
+	}
+	tempFile.Close()
+
+	cleanup := func() {
+		_ = os.Remove(tempPath)
+	}
+
+	return tempPath, cleanup, nil
+}
+
+// ScanImageFile extracts text from a single image via hybrid first-principles + neural OCR and searches for secret patterns.
 func ScanImageFile(imagePath string, tesseractPath string, maxBytes int64) ([]string, error) {
 	if maxBytes <= 0 {
 		maxBytes = DefaultMaxImageSize
@@ -154,10 +375,27 @@ func ScanImageFile(imagePath string, tesseractPath string, maxBytes int64) ([]st
 			imagePath, info.Size()/(1024*1024), maxBytes/(1024*1024))}, nil
 	}
 
-	rawText, err := ExtractTextFromImage(imagePath, tesseractPath)
-	if err != nil {
-		return nil, err
+	// 1. Built-in first-principles text extraction (zero external dependencies)
+	embeddedText, _ := ExtractEmbeddedText(imagePath, maxBytes)
+
+	// 2. Deep optical character recognition (if Tesseract binary is available)
+	var opticalText string
+	if tesseractPath != "" {
+		opticalText, _ = ExtractTextFromImage(imagePath, tesseractPath)
+
+		// Secondary pass: if direct OCR extracted sparse or no text, attempt contrast-enhanced binarization
+		ext := strings.ToLower(filepath.Ext(imagePath))
+		if ext != ".svg" && len(strings.TrimSpace(opticalText)) < 15 {
+			if enhPath, cleanup, err := EnhanceImageContrast(imagePath); err == nil {
+				defer cleanup()
+				if enhText, err := ExtractTextFromImage(enhPath, tesseractPath); err == nil && len(enhText) > 0 {
+					opticalText += "\n" + enhText
+				}
+			}
+		}
 	}
+
+	combinedText := embeddedText + "\n" + opticalText
 
 	var findings []string
 	cleanPath, _ := filepath.Rel(".", imagePath)
@@ -166,7 +404,7 @@ func ScanImageFile(imagePath string, tesseractPath string, maxBytes int64) ([]st
 	}
 
 	for _, pattern := range OCRPatterns {
-		matches := pattern.Regex.FindAllString(rawText, -1)
+		matches := pattern.Regex.FindAllString(combinedText, -1)
 		for _, m := range matches {
 			// Redact potential secret payload before logging/returning
 			redacted := m
@@ -184,10 +422,7 @@ func ScanImageFile(imagePath string, tesseractPath string, maxBytes int64) ([]st
 
 // ScanImagesInDir traverses target directory and runs OCR secret detection on all supported image formats.
 func ScanImagesInDir(targetDir string, maxBytes int64) ([]string, error) {
-	tessPath, err := FindTesseract()
-	if err != nil {
-		return []string{fmt.Sprintf("[WARN] OCR image scanning skipped: %v", err)}, nil
-	}
+	tessPath, _ := FindTesseract()
 
 	var imageFindings []string
 	imageCount := 0
@@ -232,3 +467,4 @@ func ScanImagesInDir(targetDir string, maxBytes int64) ([]string, error) {
 
 	return imageFindings, nil
 }
+

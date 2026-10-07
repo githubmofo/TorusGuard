@@ -9,7 +9,7 @@ TorusGuard enforces autonomous security guardrails, governed remediation, and au
 | **1. Init** | `torusguard init` | `/torusguard init` | — | Profiles workspace stack, activates `TG-*` rules, initializes `.torusguard/` |
 | **2. Status** | `torusguard status` | `/torusguard status` | `torusguard_status` | Read-only diagnostic overview of posture, stack, rules & run history |
 | **3. Audit** | `torusguard audit` | `/torusguard audit` | `torusguard_audit` | Polyglot heuristic + OCR scan; synchronizes `security_report.md` |
-| **4. OCR Vision** | `torusguard ocr-scan <target>` | `/torusguard ocr-scan` | `torusguard_ocr_scan` | Scans diagrams/images via Tesseract OCR for leaked keys & secrets |
+| **4. OCR Vision** | `torusguard ocr-scan [target]` | `/torusguard ocr-scan` | `torusguard_ocr_scan` | Hybrid first-principles + Tesseract OCR scan for leaked keys & secrets |
 | **5. Verify** | `torusguard verify` | `/torusguard verify` | `torusguard_verify` | Asserts evidence sufficiency & line-shift invariant fingerprint matches |
 | **6. Harden** | `torusguard harden` | `/torusguard harden` | `torusguard_harden` | Validates patches against Ponytail bounds (≤35 add, ≤25 del) |
 | **7. Apply** | `torusguard apply [--yes]` | `/torusguard apply` | — | Human Gate, pre-apply `.bak` snapshots, Golden Fix distillation |
@@ -86,7 +86,7 @@ When assisting developers in a TorusGuard workspace:
    - **Mode A (Terminal CLI):** Run `torusguard audit`, `torusguard ocr-scan`, `torusguard harden`, etc.
    - **Mode B (Chat Slash Commands):** Execute `/torusguard audit`, `/torusguard ocr-scan`, etc.
    - **Mode C (Native MCP Tools):** In MCP-capable agents (Antigravity, Cursor, Windsurf, Claude Code), call `torusguard_audit`, `torusguard_ocr_scan`, and `torusguard_harden` directly.
-3. **Multi-Modal Vision OCR:** When images or architecture diagrams exist (`.png`, `.jpg`, etc.), invoke `torusguard ocr-scan` or `torusguard_ocr_scan` to detect leaked credentials and private keys hidden inside visual assets (file size bounded to 10MB).
+3. **Multi-Modal Vision OCR:** When images or architecture diagrams exist (`.png`, `.jpg`, `.svg`, etc.), invoke `torusguard ocr-scan` or `torusguard_ocr_scan` to detect leaked credentials and private keys hidden inside visual assets (file size bounded to 10MB). TorusGuard executes hybrid first-principles binary extraction with optional neural Tesseract recognition, ensuring graceful zero-dependency resilience.
 4. **Context Minimization (1/9th Token Strategy):** Never ingest entire multi-hundred line source files into chat prompts. Always inspect bounded AST context windows ($\pm 3$ lines) via `scanner.ExtractContext` to keep review tokens minimal.
 5. **Line-Level Reflection (Semantic Patching):** Formulate patches as semantic replacements (`find_snippet` and `replace_snippet`) rather than guessing error-prone line-number diff offsets. The Go engine will deterministically match, count churn, and verify line bounds.
 6. **Adhere to Ponytail Bounds:** When repairing security flaws, formulate surgical patches (≤35 additions, ≤25 deletions). Validate candidate patches with `torusguard harden` or `torusguard_harden`. Do NOT rewrite surrounding business logic.

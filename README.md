@@ -11,8 +11,8 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-v2.1.3-orange.svg" alt="Version"></a>
-  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.1.3-CB3837?logo=npm&logoColor=white" alt="npm: v2.1.3"></a>
+  <a href="https://github.com/githubmofo/TorusGuard/releases"><img src="https://img.shields.io/badge/version-v2.2.0-orange.svg" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/torusguard"><img src="https://img.shields.io/badge/npm-v2.2.0-CB3837?logo=npm&logoColor=white" alt="npm: v2.2.0"></a>
   <img src="https://img.shields.io/badge/Privacy-Local_First-success" alt="Privacy: Local First">
   <img src="https://img.shields.io/badge/Dependencies-Zero-brightgreen" alt="Dependencies: Zero">
   <img src="https://img.shields.io/badge/SARIF-v2.1.0-6C3483" alt="SARIF">
@@ -45,17 +45,17 @@
 - [Features](#-features)
 - [Autonomous Architecture & Workflow](#-autonomous-architecture--workflow)
 - [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Commands](#-commands)
-- [Project Structure](#-project-structure)
-- [Security Invariants & Rule Governance](#-security-invariants--rule-governance)
-- [AI Agent Integration](#-ai-agent-integration)
+- [Installation & Setup (3 Options)](#-installation--how-to-use-3-options)
+- [🕹️ Interactive Command Center](#-interactive-terminal-command-center)
+- [👁️ How to Use OCR Vision & Secret Scan](#-how-to-use-ocr-vision--secret-scan)
+- [🖥️ How to Use CLI Commands](#-how-to-use-cli-commands)
+- [Remediation & Hardening Workflow](#remediation-workflow)
+- [📖 Awesome Rules Catalog](docs/awesome-rules.md)
+- [AI Agent Integration & Slash Commands](#-ai-agent-integration)
 - [Verified Test Suite & Benchmarks](#-verified-test-suite--mass-benchmarks)
 - [Non-Negotiable Invariants](#-non-negotiable-invariants)
 - [Contributing](#-contributing)
 - [License](#-license)
-- [Documentation](#-documentation)
 
 ---
 
@@ -90,9 +90,11 @@ TorusGuard ensures that the code your AI assistant writes is secure *before* it 
 - **Fail-Closed Cryptography** — No fallback tokens; panics on entropy failure
 - **DoS Resilience** — 10,000-file scan limit and 5-minute context timeout to prevent resource exhaustion
 - **16+ Language Stack Detection** — Go, Rust, Java, C#, PHP, Ruby, Kotlin, Elixir, Dart, Swift, Python, TypeScript, and more
-- **Multi-Modal Vision OCR** — Scans architecture diagrams, mockups, and screenshots (`.png`, `.jpg`, `.webp`) via Tesseract OCR to detect leaked keys, tokens, and credentials
+- **Hybrid First-Principles Vision OCR** — Built-in zero-dependency stream extractor (PNG chunks, SVG text, EXIF, byte streams) + optional deep neural optical scanning via Tesseract
+- **Interactive Terminal Command Center** — Launching `torusguard` with zero arguments renders an interactive, menu-driven command center in the terminal
 - **Native MCP Server (Model Context Protocol)** — Exposes standard JSON-RPC 2.0 stdio tools and resources for direct agent integration
-- **Tri-Mode Parity** — Terminal CLI, AI Chat slash commands, and Native MCP Tools share identical governance workflows
+- **100% Tri-Mode Parity** — Terminal CLI, AI Chat slash commands, and Native MCP Tools share identical governance workflows
+- **Curated Awesome Catalog** — Full standardized taxonomy of [88 Security Invariants](docs/awesome-rules.md) across 22 architectural families
 
 ---
 
@@ -318,7 +320,7 @@ npm install -D torusguard
 > - Direct path: `./node_modules/.bin/torusguard audit`  
 
 <a href="https://www.npmjs.com/package/torusguard">
-  <img src="https://img.shields.io/badge/npm-v2.1.3-CB3837?logo=npm&logoColor=white" alt="npm package">
+  <img src="https://img.shields.io/badge/npm-v2.2.0-CB3837?logo=npm&logoColor=white" alt="npm package">
 </a>
 
 👉 **[Read the Full Option 1 (npm & npx) Dedicated Guide →](docs/usage/option-1-npm.md)**
@@ -366,40 +368,259 @@ torusguard init
 
 ---
 
-## 💻 Usage
+## 🕹️ Interactive Terminal Command Center
 
-### Quick Start
+The easiest, zero-friction way to run TorusGuard in your terminal without memorizing command names, flags, or syntax:
 
 ```bash
-# Initialize TorusGuard in your project
-torusguard init
+# Launch interactive center via npx (zero installation):
+npx torusguard
 
-# Run a full security audit
-torusguard audit
-
-# Check workspace posture
-torusguard status
-
-# Generate an HTML report
-torusguard report --html
-
-# Generate a SARIF report
-torusguard report --sarif
+# Or using the standalone Go executable:
+./torusguard.exe
+# on Linux/macOS: ./torusguard
 ```
+
+When launched with zero arguments in an interactive terminal, TorusGuard automatically renders a menu-driven command center:
+
+```text
+  ╭───────────────────────────────────────────────────────────────────────╮
+  │                                                                       │
+  │  🛡️  TORUSGUARD COMMAND CENTER                                v2.2.0  │
+  │  Interactive Security Engine                                          │
+  │                                                                       │
+  ╰───────────────────────────────────────────────────────────────────────╯
+  ┌─ Quick Actions ───────────────────────────────────────────────────────┐
+  │  [1]   🚀 Audit Workspace          (Full AST & Taint Scan)            │
+  │  [2]   👁️  OCR Vision Scan          (Images & Diagram Secrets)         │
+  │  [3]   📊 Posture Status           (Active Posture & Rules)           │
+  │  [4]   🐳 Container Audit          (Dockerfile & Compose Scan)        │
+  │  [5]   ⚡ ReDoS Complexity Scan    (Catastrophic Regex Scan)          │
+  │  [6]   🤖 AI & RAG Defense         (Prompt Injection & Vectors)       │
+  │  [7]   🔍 Git History Mine         (Committed Leaks & Tokens)         │
+  │  [8]   🛡️  Harden Candidates       (Ponytail Bounded Patches)         │
+  │  [9]   📑 Posture Report           (Generate Visual HTML Report)      │
+  │  [10]  📖 Awesome Rules Catalog    (88 Rules Across 22 Families)      │
+  │  [0]   ❌ Exit                                                        │
+  └───────────────────────────────────────────────────────────────────────┘
+```
+
+> 💡 **How it works:** Simply type the number corresponding to your action (for example, `2` for **OCR Vision Scan** or `1` for **Audit Workspace**) and press Enter. TorusGuard executes the workflow immediately and prints the 75-column result card.
+
+---
+
+## 👁️ How to Use OCR Vision & Secret Scan
+
+### The Problem: Secrets Hidden in Images
+Software engineers and architects frequently add cloud architecture diagrams (AWS/GCP), database ERDs, terminal screenshots, and API mockups into repository folders like `docs/`, `assets/`, or `README.md`. These images often contain **live API keys**, **AWS credentials**, **database connection strings**, or **GitHub access tokens**. 
+
+Standard linters and static analyzers only inspect text files and are completely blind to images. TorusGuard’s **Hybrid First-Principles Vision OCR engine** solves this vulnerability.
+
+### Key Capabilities
+- **Hybrid First-Principles (Zero Dependencies):** Pure Go extractor parses PNG metadata chunks (`tEXt`/`zTXt`/`iTXt`), SVG XML tags, EXIF metadata, and raw uncompressed string sequences ($\ge 6$ characters) directly from binary image streams. No external C++ software required.
+- **Deep Optical OCR (Optional Neural Engine):** If Tesseract OCR is installed in your PATH, TorusGuard automatically runs 300 DPI neural character recognition on flattened pixel rasters.
+- **Zero-Crash Resilience:** Missing Tesseract? TorusGuard **never crashes or aborts your CI pipeline**. It seamlessly falls back to first-principles extraction, reports findings, and displays a friendly 1-click install command.
+- **Automatic Workspace Auto-Discovery:** When run without arguments, TorusGuard traverses the entire project and scans all visual assets (`.png`, `.jpg`, `.jpeg`, `.webp`, `.svg`, `.bmp`).
+- **Safe Evidence Masking:** Detected credentials are automatically redacted (e.g., `AKIA****************`) so live keys are never echoed in console logs or shared CI outputs.
+
+---
+
+### Step-by-Step Usage
+
+#### Option A: Auto-Scan the Entire Workspace
+Scan every diagram, screenshot, and image across your repository:
+
+```bash
+# Via NPX (Node/NPM - zero install)
+npx torusguard ocr-scan
+
+# Via Go binary
+./torusguard.exe ocr-scan
+# on Linux/macOS: ./torusguard ocr-scan
+
+# In AI Agent Chat (Cursor, Claude Code, Windsurf, Antigravity)
+/torusguard ocr-scan
+```
+
+#### Option B: Scan a Specific Diagram or Folder
+Point TorusGuard directly to an asset or media directory:
+
+```bash
+# Scan a specific architecture diagram:
+npx torusguard ocr-scan docs/architecture/aws-infrastructure.png
+
+# Scan an assets folder:
+npx torusguard ocr-scan ./assets/images/
+```
+
+---
+
+### Sample Output Card
+When a secret is detected inside an image, TorusGuard prints a standardized 75-column warning card:
+
+```text
+┌─ OCR VISION SECRET SCAN ─────────────────────────────────────────────┐
+│ Target: docs/architecture.png                                        │
+│ Engine: Hybrid First-Principles + Tesseract OCR                      │
+│ Status: 1 Leaked Credential Detected                                 │
+│                                                                      │
+│ ✖ TG-SEC-002: AWS Access Key ID Detected                             │
+│   Extracted: AKIA**************** (Redacted for safety)              │
+│   Remediation: Invalidate key in AWS IAM and move to Vault / Env     │
+│   Ledger: Synchronized with security_report.md                       │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### What Secrets Does OCR Detect?
+TorusGuard scans extracted optical text against 7 canonical credential signatures:
+
+| Rule ID | Credential Type | Signature Pattern Checked | Remediation |
+| :--- | :--- | :--- | :--- |
+| **`TG-SEC-001`** | **API & Service Tokens** | `sk-live-...`, `sk-...`, Stripe keys, Bearer tokens | Invalidate token; load via environment variable. |
+| **`TG-SEC-002`** | **AWS Access Key IDs** | `AKIA[0-9A-Z]{16}` | Rotate AWS IAM credentials immediately. |
+| **`TG-SEC-003`** | **GitHub Access Tokens** | `ghp_...`, `github_pat_...` | Revoke PAT in GitHub Developer Settings. |
+| **`TG-SEC-004`** | **Database Connection URIs**| `postgres://`, `mysql://`, `mongodb+srv://` | Replace URI credentials with secret manager references. |
+| **`TG-SEC-005`** | **Private Keys & Certs** | `-----BEGIN RSA PRIVATE KEY-----` | Invalidate compromised private key pair. |
+| **`TG-SEC-006`** | **JSON Web Tokens (JWT)** | `eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}` | Invalidate secret and re-sign tokens. |
+| **`TG-SEC-007`** | **Plaintext Passwords** | `password = "..."`, `db_pass: "..."` | Scrub password and use KMS / .env secrets. |
+
+---
+
+### Optional: Installing Tesseract for Deep Neural OCR
+To enable optical recognition on raster pixel screenshots without text metadata, install Tesseract OCR:
+- **Windows (PowerShell):** `winget install UB-Mannheim.TesseractOCR`
+- **macOS (Homebrew):** `brew install tesseract`
+- **Linux (Ubuntu/Debian):** `sudo apt-get install tesseract-ocr`
+
+*(Note: If Tesseract is not installed, TorusGuard still inspects all PNG text chunks, SVG XML, EXIF data, and printable string tables natively without errors).*
+
+---
+
+## 🖥️ How to Use CLI Commands
+
+TorusGuard offers **100% command parity** across:
+- **`npx torusguard <cmd>`** — Zero-install execution via npm / Node.js
+- **`./torusguard.exe <cmd>`** (or `./torusguard <cmd>`) — Native Go executable with 0-byte external runtime footprint
+- **`/torusguard <cmd>`** — Direct AI Chat Slash Command inside Cursor, Claude Code, Windsurf, and Antigravity
+
+---
+
+### Complete Command Reference (25 Commands)
+
+#### 🚀 1. Quick Start & Posture Diagnostics
+| Command | NPX Syntax | Go Binary Syntax | Slash Command | What It Does |
+| :--- | :--- | :--- | :--- | :--- |
+| **Command Center** | `npx torusguard` | `./torusguard` | `/torusguard` | Launch interactive menu with zero arguments |
+| **Init** | `npx torusguard init` | `./torusguard init` | `/torusguard init` | Scaffold `.torusguard/` workspace & activate rules |
+| **Status** | `npx torusguard status` | `./torusguard status` | `/torusguard status` | Inspect active posture, stack & rules catalog |
+| **Help** | `npx torusguard help` | `./torusguard help` | `/torusguard help` | Interactive command guide & flag cheat sheet |
+| **Update** | `npx torusguard update` | `./torusguard update` | — | Check or install the newest engine version |
+
+#### 🔍 2. Security Auditing & Deep Scanners
+| Command | NPX Syntax | Go Binary Syntax | Slash Command | What It Does |
+| :--- | :--- | :--- | :--- | :--- |
+| **Audit Workspace** | `npx torusguard audit` | `./torusguard audit` | `/torusguard audit` | Polyglot static AST scan & taint flow analysis |
+| **OCR Vision Scan** | `npx torusguard ocr-scan [path]`| `./torusguard ocr-scan [path]`| `/torusguard ocr-scan` | Hybrid optical & first-principles secret scan |
+| **Container Audit** | `npx torusguard container` | `./torusguard container` | `/torusguard container` | Audit Dockerfile/Compose for root users & sockets |
+| **Git Secret Mining**| `npx torusguard git-mine` | `./torusguard git-mine` | `/torusguard git-mine` | Mine git commit packfiles & configs for leaks |
+| **ReDoS Analysis** | `npx torusguard redos` | `./torusguard redos` | `/torusguard redos` | Check regexes for exponential backtracking |
+| **AI & RAG Defense** | `npx torusguard ai-guard` | `./torusguard ai-guard` | `/torusguard ai-guard` | Scan prompts for injection & vector tenant leaks |
+| **Verify Evidence** | `npx torusguard verify` | `./torusguard verify` | `/torusguard verify` | Validate finding evidence against disk fingerprints |
+
+#### 🛡️ 3. Governed Remediation & Patching (Ponytail Protocol)
+| Command | NPX Syntax | Go Binary Syntax | Slash Command | What It Does |
+| :--- | :--- | :--- | :--- | :--- |
+| **Harden Fixes** | `npx torusguard harden [patch]` | `./torusguard harden [patch]` | `/torusguard harden` | Assert diff bounds ($\le 35$ additions, $\le 25$ deletions) |
+| **Apply Patch** | `npx torusguard apply [--yes]` | `./torusguard apply [--yes]` | `/torusguard apply` | Apply patch with automatic pre-apply `.bak` backup |
+| **Rollback** | `npx torusguard rollback` | `./torusguard rollback` | `/torusguard rollback` | Instantly restore sources from pre-apply snapshot |
+| **Recheck Fixes** | `npx torusguard recheck` | `./torusguard recheck` | `/torusguard recheck` | Differential re-scan confirming clean fix closure |
+
+#### 📊 4. Reports, Compliance & Threat Modeling
+| Command | NPX Syntax | Go Binary Syntax | Slash Command | What It Does |
+| :--- | :--- | :--- | :--- | :--- |
+| **HTML Report** | `npx torusguard report --html` | `./torusguard report --html` | `/torusguard report` | Generate single-file visual dark-mode dashboard |
+| **SARIF Export** | `npx torusguard report --sarif`| `./torusguard report --sarif`| — | Export OASIS SARIF v2.1.0 for CI/CD gates |
+| **Awesome Recipes** | `npx torusguard recipes` | `./torusguard recipes` | `/torusguard recipes` | Explore verified Golden Fix patterns from memory |
+| **PR & Git Review** | `npx torusguard review` | `./torusguard review` | `/torusguard review` | Differential PR diff review and security gating |
+| **Threat Model** | `npx torusguard threatmodel` | `./torusguard threatmodel` | `/torusguard threatmodel` | Synthesize STRIDE threat model & Mermaid DFDs |
+| **Benchmark Suite** | `npx torusguard benchmark` | `./torusguard benchmark` | `/torusguard benchmark` | Run SecurityReviewBench precision/recall test |
+
+#### 🌐 5. Authorized Runtime Web Validation
+| Command | NPX Syntax | Go Binary Syntax | Slash Command | What It Does |
+| :--- | :--- | :--- | :--- | :--- |
+| **Authorize Scope** | `npx torusguard authorize` | `./torusguard authorize` | `/torusguard authorize` | Cryptographic domain ownership proof & token |
+| **Web Validate** | `npx torusguard web-validate` | `./torusguard web-validate` | `/torusguard web-validate` | Non-destructive HTTP probing with audit headers |
+| **Exploit Check** | `npx torusguard exploit-check` | `./torusguard exploit-check` | `/torusguard exploit-check` | Safe inert payload verification (e.g. SQL injection) |
+
+#### 🤖 6. AI Agent Protocols & Pipelines
+| Command | NPX Syntax | Go Binary Syntax | Slash Command | What It Does |
+| :--- | :--- | :--- | :--- | :--- |
+| **MCP Server** | `npx torusguard mcp` | `./torusguard mcp` | — | Stdio JSON-RPC 2.0 interface for AI agents |
+| **Full Pipeline** | `npx torusguard full` | `./torusguard full` | — | Master 7-stage closed-loop security governance |
+
+---
+
+### Common CLI Flags Reference
+
+| Flag | Applicable Commands | Description |
+| :--- | :--- | :--- |
+| `--yes` | `apply` | Skip interactive Human Gate confirmation (recommended for CI/CD) |
+| `--html` | `report` | Render single-file visual dark-mode HTML dashboard (`report.html`) |
+| `--sarif` | `report` | Export OASIS SARIF v2.1.0 structured log (`report.sarif`) |
+| `--rules` | `status` | Print all 88 active security rules in standardized 75-column cards |
+| `--install` | `update` | Automatically install the newest TorusGuard version from registry |
+| `[path]` | `ocr-scan`, `harden`, `apply` | Specify target image file, directory, or patch file path |
+
+---
+
+### Practical Command Recipes
+
+#### Recipe 1: Pre-Commit Security Check
+Run a quick, complete security audit and OCR scan before pushing code:
+```bash
+npx torusguard audit
+npx torusguard ocr-scan
+```
+
+#### Recipe 2: Fix a Vulnerability with Zero Risk
+Validate that an AI-generated patch is surgical, apply it safely with a backup, and verify it:
+```bash
+# 1. Check patch line budget (<=35 additions, <=25 deletions)
+npx torusguard harden fix.patch
+
+# 2. Apply patch (creates .bak snapshot automatically)
+npx torusguard apply --yes fix.patch
+
+# 3. Verify fix closed without any new regressions
+npx torusguard recheck
+
+# 4. If anything broke, rollback instantly:
+npx torusguard rollback
+```
+
+#### Recipe 3: Generate Visual Posture Report for Your Team
+```bash
+npx torusguard report --html
+# Open report.html in any browser for an interactive dashboard!
+```
+
+---
 
 ### Remediation Workflow
 
 ```bash
-# Validate a candidate patch against Ponytail bounds
+# 1. Validate a candidate patch against Ponytail bounds
 torusguard harden fix.patch
 
-# Apply the patch with rollback snapshot (requires --yes for Human Gate)
+# 2. Apply the patch with rollback snapshot (requires --yes for Human Gate)
 torusguard apply --yes fix.patch
 
-# Verify the fix was applied correctly
+# 3. Verify the fix was applied correctly
 torusguard recheck
 
-# Roll back if something went wrong
+# 4. Roll back if something went wrong
 torusguard rollback
 ```
 
@@ -415,38 +636,6 @@ torusguard web-validate
 # Send bounded inert payloads to test input handling
 torusguard exploit-check
 ```
-
----
-
-## 🔧 Commands
-
-| Command          | Description                                                    |
-| :--------------- | :------------------------------------------------------------- |
-| `init`           | Scaffold `.torusguard/` workspace, detect stack, activate rules |
-| `status`         | Diagnostic overview of posture, stack, and active rules         |
-| `audit`          | Static heuristic security scan against active TG-* rules       |
-| `review`         | Differential PR and Git diff incremental security review       |
-| `threatmodel`    | Synthesize architectural STRIDE threat model & Mermaid DFDs     |
-| `benchmark`      | Run SecurityReviewBench precision & recall evaluation suite    |
-| `verify`         | Live disk line match audit and evidence sufficiency check       |
-| `harden`         | Validate patches against Ponytail Protocol bounds              |
-| `apply`          | Apply patches with pre-apply `.bak` rollback snapshots         |
-| `rollback`       | Instant restoration from pre-apply snapshots                   |
-| `recheck`        | Differential re-scan on modified files                         |
-| `report`         | Generate HTML (`--html`) or SARIF (`--sarif`) posture reports  |
-| `recipes`        | Manage the Golden Fix recipe library                           |
-| `authorize`      | Generate cryptographic auth tokens for runtime probing         |
-| `web-validate`   | Authorized HTTP probing with `X-TorusGuard-Audit` headers      |
-| `exploit-check`  | Bounded single-step exploitability confirmation                |
-| `ocr-scan`       | Run Tesseract OCR secret scan on images/diagrams (<10MB)       |
-| `container`      | Audit Dockerfile, compose, and container configurations        |
-| `git-mine`       | Mine git commit history for leaked secrets & creds             |
-| `redos`          | Analyze regex patterns for catastrophic backtracking           |
-| `ai-guard`       | Scan AI/LLM code for prompt injection & RAG flaws              |
-| `mcp`            | Run native Model Context Protocol (MCP) server over stdio      |
-| `full`           | Master 7-stage closed-loop security governance pipeline        |
-| `update`         | Self-update the TorusGuard engine                              |
-| `help`           | Show interactive command guide                                 |
 
 ---
 

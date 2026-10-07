@@ -4,7 +4,8 @@
 
 | Version       | Supported          |
 | :------------ | :----------------- |
-| 2.1.x         | ✅ Active development |
+| 2.2.x         | ✅ Active development |
+| 2.1.x         | ✅ Security patches |
 | 2.0.x         | ✅ Security patches |
 | 1.4.x         | ✅ Security patches |
 | < 1.4.0       | ❌ End of life      |
@@ -38,20 +39,22 @@ TorusGuard itself is built following the security principles it enforces:
 
 ### Tri-Mode Governance Model
 - TorusGuard operates as a strictly enforced **Tri-Track Security Engine**:
-  - **Mode A (Terminal CLI):** Deterministic enforcement via the standalone Go binary.
+  - **Mode A (Terminal CLI):** Deterministic enforcement via the standalone Go binary and npm executable wrapper.
   - **Mode B (AI Chat Slash Commands):** Prompt-guided workflow bridge.
   - **Mode C (Native MCP Protocol):** Standardized JSON-RPC 2.0 stdio tools and resources for direct agent invocation.
 - The AI Agent acts purely as an intelligence layer (formulating fixes) and is restricted from bypassing the Go enforcement binary.
 - All three modes converge directly into `security_report.md` as the living ground truth to eliminate finding drift or hallucination.
 
 ### Multi-Modal Vision OCR Security Controls
+- **Hybrid First-Principles Extraction:** Zero external dependencies required. Inspects PNG metadata chunks (`tEXt`/`iTXt`), SVG tags, EXIF metadata, and printable byte streams natively before invoking external processes.
+- **Graceful Zero-Crash Fallback:** If Tesseract OCR is not installed or unavailable, TorusGuard executes first-principles extraction and reports findings with install hints rather than aborting.
 - **Resource Exhaustion Bounds:** Image scanning is strictly bounded to a 10MB memory safety envelope (configurable 5MB–10MB) to mitigate decompression bombs and image-based Denial of Service (DoS) attacks.
 - **Directory Traversal Defense:** Image file discovery is constrained within the target repository and skips `.git/`, `node_modules/`, and internal system folders.
 - **Automated Evidence Redaction:** Extracted secret payloads in OCR evidence strings are automatically truncated and masked prior to logging or streaming over MCP.
 
 ### Model Context Protocol (MCP) Boundary Defense
 - **Stdio Isolation:** The MCP server communicates strictly over standard input/output using JSON-RPC 2.0; no raw network listeners or unsandboxed RPC ports are opened.
-- **Strict Schema Parameter Validation:** Every exposed tool (`torusguard_audit`, `torusguard_ocr_scan`, `torusguard_container`, `torusguard_git_mine`, `torusguard_redos`, `torusguard_ai_guard`, `torusguard_verify`, `torusguard_harden`, `torusguard_recheck`, `torusguard_status`) enforces typed JSON Schema input contracts.
+- **Strict Schema Parameter Validation:** Every exposed tool (`torusguard_audit`, `torusguard_ocr_scan`, `torusguard_container`, `torusguard_git_mine`, `torusguard_redos`, `torusguard_ai_guard`, `torusguard_verify`, `torusguard_harden`, `torusguard_recheck`, `torusguard_status`, `torusguard_review`, `torusguard_threatmodel`, `torusguard_benchmark`) enforces typed JSON Schema input contracts.
 - **Output Truncation Safeguard:** Tool responses are capped at a 32,000-character ceiling (`maxOutputChars = 32000`) to strictly prevent LLM context window saturation attacks.
 
 ### First-Principles Security Suite Defenses
@@ -90,10 +93,4 @@ This security policy covers:
 This security policy does **not** cover:
 - Third-party AI agents that consume TorusGuard rules (Cursor, Claude Code, etc.)
 - User-authored security rules or custom scanners
-- The npm wrapper (`bin/torusguard.js`) which delegates to the Go binary
-
-## Known Security Boundaries
-
-1. **Heuristic Scanner Limitations:** The scanner uses regex-based heuristic analysis rather than full AST parsing. It may produce false negatives on obfuscated or dynamically generated code patterns.
-2. **Local-Only Probing:** The `web-validate` and `exploit-check` commands are designed exclusively for `localhost` testing. Pointing them at production systems is outside the intended security boundary.
-3. **Agent Trust Model:** When running in AI Agent Mode, TorusGuard relies on the host agent's isolation model. It does not independently sandbox agent-generated code.
+- The npm wrapper (`bin/torusguard.js`) which delegates to the native Go binary

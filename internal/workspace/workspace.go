@@ -45,10 +45,10 @@ func InitWorkspace(target string) error {
 
 	// Write config
 	cfg := TorusConfig{
-		Version:        "2.0.0",
+		Version:        "2.2.0",
 		Stack:          stack,
-		ActiveRules:    74,
-		RulesFamily:    18,
+		ActiveRules:    88,
+		RulesFamily:    22,
 		MaxImageMB:     10,
 		PonytailMaxAdd: 35,
 		PonytailMaxDel: 25,
@@ -68,13 +68,28 @@ func InitWorkspace(target string) error {
 		_ = os.WriteFile(secPath, []byte(secContent), 0644)
 	}
 
+	// Baseline .torusguardignore if absent
+	ignorePath := filepath.Join(target, ".torusguardignore")
+	if _, err := os.Stat(ignorePath); os.IsNotExist(err) {
+		ignoreContent := "# TorusGuard Ignore Rules (.torusguardignore)\n" +
+			"# Ignore test mocks and fixtures\n" +
+			"tests/mocks/**\n" +
+			"**/fixtures/**\n" +
+			"*.mock.ts\n" +
+			"*.test.env\n\n" +
+			"# Rule-specific exceptions syntax:\n" +
+			"# TG-SEC-001: test/dummies/*\n"
+		_ = os.WriteFile(ignorePath, []byte(ignoreContent), 0644)
+	}
+
 	fmt.Println()
-	fmt.Println(termui.CardHeader("🛡️  TORUSGUARD INITIALIZED", "Workspace Provisioned", "v2.0.0", termui.Green))
+	fmt.Println(termui.CardHeader("🛡️  TORUSGUARD INITIALIZED", "Workspace Provisioned", "v2.2.0", termui.Green))
 	fmt.Println(termui.CardBorderTop("Configuration", termui.Green, false))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Primary Stack:     %s", strings.Join(stack, ", ")), 67, "│", termui.Green))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Active Rules:      %d canonical invariants across %d families", cfg.ActiveRules, cfg.RulesFamily), 67, "│", termui.Green))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Config Path:       .torusguard/config/torusguard.json"), 67, "│", termui.Green))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Security Policy:   SECURITY.md provisioned at root"), 67, "│", termui.Green))
+	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Ignore Rules:      .torusguardignore provisioned at root"), 67, "│", termui.Green))
 	fmt.Println(termui.CardBorderBottom(termui.Green, false))
 	fmt.Println()
 
@@ -86,16 +101,35 @@ func DetectStack(target string) ([]string, error) {
 	var stack []string
 
 	if _, err := os.Stat(filepath.Join(target, "package.json")); err == nil {
-		stack = append(stack, "Node.js / JavaScript")
+		stack = append(stack, "Node.js / TypeScript")
 	}
 	if _, err := os.Stat(filepath.Join(target, "go.mod")); err == nil {
 		stack = append(stack, "Go")
 	}
 	if _, err := os.Stat(filepath.Join(target, "requirements.txt")); err == nil {
 		stack = append(stack, "Python")
+	} else if _, err := os.Stat(filepath.Join(target, "pyproject.toml")); err == nil {
+		stack = append(stack, "Python")
+	} else if _, err := os.Stat(filepath.Join(target, "Pipfile")); err == nil {
+		stack = append(stack, "Python")
+	}
+	if _, err := os.Stat(filepath.Join(target, "Dockerfile")); err == nil {
+		stack = append(stack, "Docker / Containers")
+	} else if _, err := os.Stat(filepath.Join(target, "compose.yml")); err == nil {
+		stack = append(stack, "Docker / Containers")
+	} else if _, err := os.Stat(filepath.Join(target, "docker-compose.yml")); err == nil {
+		stack = append(stack, "Docker / Containers")
 	}
 	if _, err := os.Stat(filepath.Join(target, "Cargo.toml")); err == nil {
 		stack = append(stack, "Rust")
+	}
+	if _, err := os.Stat(filepath.Join(target, "pom.xml")); err == nil {
+		stack = append(stack, "Java")
+	} else if _, err := os.Stat(filepath.Join(target, "build.gradle")); err == nil {
+		stack = append(stack, "Java")
+	}
+	if _, err := os.Stat(filepath.Join(target, "composer.json")); err == nil {
+		stack = append(stack, "PHP")
 	}
 
 	return stack, nil

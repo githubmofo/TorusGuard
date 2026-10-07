@@ -162,6 +162,8 @@ func ScanDetailedAudit(targetDir string, catalog *rules.Catalog) ([]FindingDetai
 		activeRules = append(activeRules, customRules...)
 	}
 
+	ignoreEngine := LoadIgnoreEngine(targetDir)
+
 	err := filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
 		select {
 		case <-ctx.Done():
@@ -173,11 +175,23 @@ func ScanDetailedAudit(targetDir string, catalog *rules.Catalog) ([]FindingDetai
 			return err
 		}
 
+		relPath, _ := filepath.Rel(targetDir, path)
+		if relPath == "" {
+			relPath = path
+		}
+
 		if info.IsDir() {
 			name := info.Name()
 			if name == "node_modules" || name == ".git" || name == ".torusguard" || name == "dist" || name == "build" || name == ".next" {
 				return filepath.SkipDir
 			}
+			if ignoreEngine.ShouldIgnoreFile(relPath) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		if ignoreEngine.ShouldIgnoreFile(relPath) {
 			return nil
 		}
 
@@ -200,20 +214,19 @@ func ScanDetailedAudit(targetDir string, catalog *rules.Catalog) ([]FindingDetai
 			return nil // Skip files larger than 5MB to prevent memory bloat
 		}
 
-		file, err := os.Open(path)
+		data, err := os.ReadFile(path)
 		if err != nil {
 			return nil
 		}
-		defer file.Close()
 
-		fileScanner := bufio.NewScanner(file)
-		lineNum := 0
-		var fileLines []string
+		rawLines := strings.Split(string(data), "\n")
+		fileLines := make([]string, len(rawLines))
+		for i, l := range rawLines {
+			fileLines[i] = strings.TrimSuffix(l, "\r")
+		}
 
-		for fileScanner.Scan() {
-			lineNum++
-			lineText := fileScanner.Text()
-			fileLines = append(fileLines, lineText)
+		for idx, lineText := range fileLines {
+			lineNum := idx + 1
 
 			// Match against built-in and custom TG-QL rules
 			for _, r := range activeRules {
@@ -232,9 +245,8 @@ func ScanDetailedAudit(targetDir string, catalog *rules.Catalog) ([]FindingDetai
 				}
 
 				if r.Regex.MatchString(lineText) {
-					relPath, _ := filepath.Rel(targetDir, path)
-					if relPath == "" {
-						relPath = path
+					if ignoreEngine.ShouldIgnoreFinding(r.RuleID, relPath, lineNum, fileLines) {
+						continue
 					}
 
 					finding := FindingDetail{
@@ -250,6 +262,10 @@ func ScanDetailedAudit(targetDir string, catalog *rules.Catalog) ([]FindingDetai
 				}
 			}
 		}
+
+		// Run multi-hop lexical taint tracking
+		taintFindings := AnalyzeFileTaint(relPath, fileLines, ignoreEngine)
+		detailed = append(detailed, taintFindings...)
 
 		return nil
 	})

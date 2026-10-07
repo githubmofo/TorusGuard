@@ -13,12 +13,14 @@ TorusGuard is an autonomous security engine. When working in a TorusGuard worksp
 
 ## Available Commands
 
-Run these via the terminal or as slash commands in chat:
+Run these via the terminal (`npx torusguard <cmd>` or `./torusguard <cmd>`) or as slash commands in chat (`/torusguard <cmd>`):
 
 ```
-torusguard init           # Initialize workspace
-torusguard audit          # Run security + OCR scan; sync security_report.md
-torusguard ocr-scan       # Scan diagram/image assets for leaked credentials
+torusguard                # Launch Interactive Terminal Command Center (zero arguments)
+torusguard init           # Initialize workspace and activate 88 rules across 22 families
+torusguard status         # View posture, stack & active rules
+torusguard audit          # Run AST security + taint scan; sync security_report.md
+torusguard ocr-scan       # Hybrid First-Principles Vision OCR scan on diagram/image assets
 torusguard container      # Audit Dockerfile & Compose for root users & sockets
 torusguard git-mine       # Mine git commit history & config for leaked secrets
 torusguard redos          # Analyze regex patterns for catastrophic backtracking
@@ -28,18 +30,24 @@ torusguard harden         # Validate patch bounds (<=35 add, <=25 del)
 torusguard apply --yes    # Apply patch with snapshot
 torusguard rollback       # Restore from snapshot
 torusguard recheck        # Re-scan modified files
-torusguard report --html  # Generate HTML report
-torusguard report --sarif # Generate SARIF report
+torusguard review         # Incremental Git diff and PR gate review
+torusguard threatmodel    # Synthesize STRIDE threat model & Mermaid DFD
+torusguard benchmark      # Run SecurityReviewBench test suite
+torusguard report --html  # Generate visual dark-mode HTML report
+torusguard report --sarif # Generate OASIS SARIF v2.1.0 report
+torusguard recipes        # Explore verified Golden Fix recipes
 torusguard mcp            # Start Model Context Protocol stdio server
 torusguard authorize      # Generate auth token
 torusguard web-validate   # Probe running app
 torusguard exploit-check  # Send inert test payloads
+torusguard full           # Master 7-stage security governance pipeline
+torusguard help           # Interactive command guide
 ```
 
 ### Native MCP Tools
 When Claude Code is connected to TorusGuard via MCP (`mcp_config.json`), invoke native tools directly:
 - `torusguard_audit`: Run polyglot AST + Vision OCR scan; writes `security_report.md`
-- `torusguard_ocr_scan`: Analyze images/diagrams for leaked API keys and tokens
+- `torusguard_ocr_scan`: Analyze images/diagrams with hybrid first-principles + Tesseract OCR
 - `torusguard_container`: Audit container configs for root execution and socket leaks
 - `torusguard_git_mine`: Mine git history for historical secrets and token leaks
 - `torusguard_redos`: Analyze regexes for catastrophic exponential backtracking
@@ -48,6 +56,9 @@ When Claude Code is connected to TorusGuard via MCP (`mcp_config.json`), invoke 
 - `torusguard_harden`: Validate proposed diff against Ponytail bounds
 - `torusguard_recheck`: Differential re-scan confirming zero regressions
 - `torusguard_status`: Inspect detected stack and active security rules
+- `torusguard_review`: Differential PR and Git diff incremental review; gate decisions
+- `torusguard_threatmodel`: Synthesizes STRIDE threat model & Mermaid DFDs (`SECURITY_THREAT_MODEL.md`)
+- `torusguard_benchmark`: Runs SecurityReviewBench self-evaluating precision & recall suite
 - `torusguard://security_report`: Read living security report resource
 - `torusguard://rules_catalog`: Explore verified rules catalog & Golden Fix patterns
 
@@ -55,7 +66,7 @@ When Claude Code is connected to TorusGuard via MCP (`mcp_config.json`), invoke 
 
 - **Go CLI binary & MCP Server** at `cmd/torusguard/main.go` and `cmd/torusguard/mcp.go`.
 - **Internal packages** at `internal/` — scanner (including `ocr.go`, `container.go`, `git_mine.go`, `redos.go`, `ai_guard.go`), apply, validate, harden, report, rules, workspace, memory, recheck, termui.
-- **86 rules across 22 families** — loaded from `.torusguard/rules/`.
+- **88 rules across 22 families** — loaded from `.torusguard/rules/`.
 - **Snapshot engine** — creates `.bak` files in `.torusguard/snapshots/` before every modification.
 
 ## Security Invariants

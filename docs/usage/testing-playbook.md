@@ -1,56 +1,102 @@
-# TorusGuard Testing Playbook
+# 🧪 TorusGuard Testing Playbook (v2.2.0)
 
-## Running Tests
+This playbook outlines comprehensive verification procedures across the Go engine, multi-modal Vision OCR, CLI commands, and CI/CD pipelines.
 
-### Go Unit Tests
+---
 
+## 1. Engine & Unit Testing
+
+### Run Go Unit Tests
 ```bash
 cd TorusGuard
-go test ./...
+go test -v ./...
+# Expected: 100% PASS across scanner, ocr, harden, apply, workspace, etc.
 ```
 
-### Go Vet (Static Analysis)
-
+### Static Analysis with Go Vet
 ```bash
 go vet ./...
+# Expected: Clean exit (0 warnings)
 ```
 
 ### Build Verification
-
 ```bash
+# On Linux/macOS:
+go build -o torusguard ./cmd/torusguard
+
+# On Windows (PowerShell):
 go build -o torusguard.exe ./cmd/torusguard
 ```
 
-## Command-Level Testing
+---
 
-### 1. Init
+## 2. Command-Level Verification Suite
 
+### 1. Interactive Command Center
 ```bash
-# Create a temp directory and initialize TorusGuard
-mkdir /tmp/test-project && cd /tmp/test-project
-echo '{"name": "test"}' > package.json
-torusguard init
-# Verify: .torusguard/ directory should be created with rules/ and schemas/
+# Test launching zero-argument interactive center:
+./torusguard.exe
+# Verify: Renders 75-column menu with options [1] through [10] and [0] Exit.
 ```
 
-### 2. Status
+### 2. Workspace Initialization (`init`)
+```bash
+mkdir -p /tmp/tg-test && cd /tmp/tg-test
+echo '{"name": "test-app"}' > package.json
+torusguard init
+# Verify: .torusguard/ directory is created with active rules and security_report.md
+```
 
+### 3. Diagnostic Posture (`status`)
 ```bash
 torusguard status
-# Verify: Should display detected stack and posture overview
+# Verify: Outputs 75-column posture card with detected stack and active rules.
 ```
 
-### 3. Audit
+### 4. Hybrid First-Principles Vision OCR (`ocr-scan`)
+```bash
+# Test A: Auto-discovery across workspace
+torusguard ocr-scan
+# Verify: Scans all .png, .jpg, .svg in workspace without crashing even if Tesseract is missing.
 
+# Test B: Specific file test
+torusguard ocr-scan docs/architecture.png
+# Verify: Emits structured finding card if secret signatures exist, or reports 0 leaks found.
+```
+
+### 5. Static AST & Taint Audit (`audit`)
 ```bash
 torusguard audit
-# Verify: security_report.md should be created/updated with findings
+# Verify: Traverses code ASTs, updates security_report.md, prints calibrated confidence.
 ```
 
-### 4. Harden
-
+### 6. Container Hardening Audit (`container`)
 ```bash
-# Create a test patch
+torusguard container
+# Verify: Inspects Dockerfile/Compose for root users, sockets, and privileged flags.
+```
+
+### 7. Git History Secret Mining (`git-mine`)
+```bash
+torusguard git-mine
+# Verify: Scans commit logs for committed credentials within bounded depth (50 commits).
+```
+
+### 8. ReDoS Complexity Scan (`redos`)
+```bash
+torusguard redos
+# Verify: Identifies catastrophic exponential backtracking in regular expressions.
+```
+
+### 9. AI & RAG Defense Scan (`ai-guard`)
+```bash
+torusguard ai-guard
+# Verify: Audits system prompts and vector searches for prompt injection / unpartitioned tenants.
+```
+
+### 10. Remediation Bounds Enforcement (`harden`)
+```bash
+# Test valid patch:
 cat > test.patch << 'EOF'
 --- a/file.go
 +++ b/file.go
@@ -60,63 +106,45 @@ cat > test.patch << 'EOF'
  func main() {}
 EOF
 torusguard harden test.patch
-# Verify: Should pass Ponytail bounds (1 addition, 0 deletions)
+# Verify: Passes Ponytail bounds (1 addition, 0 deletions <= 35/25 limits).
 ```
 
-### 5. Apply
-
+### 11. Atomic Patch Application (`apply`)
 ```bash
 torusguard apply --yes test.patch
-# Verify: .torusguard/snapshots/ should contain a .bak file
-# Verify: The patch should be applied to the target file
+# Verify: Creates byte-for-byte .bak snapshot in .torusguard/snapshots/ and applies patch.
 ```
 
-### 6. Rollback
-
+### 12. Instant Rollback (`rollback`)
 ```bash
 torusguard rollback
-# Verify: The target file should be restored from the snapshot
+# Verify: Restores file to previous state from snapshot.
 ```
 
-### 7. Report
-
+### 13. Differential Recheck (`recheck`)
 ```bash
-torusguard report --sarif
-# Verify: report.sarif should contain valid JSON with findings
+torusguard recheck
+# Verify: Confirms fix closure and marks findings RESOLVED in security_report.md.
+```
 
+### 14. Executive Posture Reporting (`report`)
+```bash
+# Dark-mode HTML report
 torusguard report --html
-# Verify: report.html should contain a dark-mode HTML dashboard
+# Verify: Creates report.html (single-file visual dashboard)
+
+# OASIS SARIF v2.1.0 log
+torusguard report --sarif
+# Verify: Emits valid SARIF JSON conforming to OASIS v2.1.0 specification
 ```
 
-### 8. Authorize
+---
 
-```bash
-torusguard authorize
-# Verify: .torusguard/auth.json should contain a cryptographic token with TTL
-```
-
-### 9. Web Validate
-
-```bash
-# Start a local server first, then:
-torusguard web-validate
-# Verify: Should report HTTP status code and check for Content-Security-Policy header
-# If no server is running, should gracefully report "Could not reach target application"
-```
-
-### 10. Exploit Check
-
-```bash
-torusguard exploit-check
-# Verify: Should report whether the application handled inert SQL injection payload gracefully
-```
-
-## Security Self-Tests
+## 3. Security Self-Tests & Invariant Verification
 
 ### Path Traversal Defense
-
 ```bash
-# Create a malicious patch targeting outside the workspace
+# Attempt to escape workspace via patch
 cat > evil.patch << 'EOF'
 --- a/../../../etc/passwd
 +++ b/../../../etc/passwd
@@ -124,13 +152,12 @@ cat > evil.patch << 'EOF'
 +malicious content
 EOF
 torusguard apply --yes evil.patch
-# Verify: Should fail with "target file does not exist" or path traversal error
+# Verify: Rejected with path traversal error.
 ```
 
-### Ponytail Bounds Enforcement
-
+### Ponytail Churn Limit Enforcement
 ```bash
-# Create a patch exceeding 35 additions
+# Create patch exceeding 35 additions
 python -c "
 lines = ['--- a/big.go', '+++ b/big.go', '@@ -0,0 +1,40 @@']
 for i in range(40):
@@ -138,10 +165,12 @@ for i in range(40):
 print('\n'.join(lines))
 " > big.patch
 torusguard harden big.patch
-# Verify: Should fail with "exceeds Ponytail Protocol bounds"
+# Verify: Rejected with 'exceeds Ponytail Protocol bounds' error.
 ```
 
-## CI Integration
+---
+
+## 4. CI/CD Integration Testing
 
 ```yaml
 # .github/workflows/security.yml
@@ -152,13 +181,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-node@v4
         with:
-          go-version: '1.25'
-      - run: go build -o torusguard ./cmd/torusguard
-      - run: ./torusguard init
-      - run: ./torusguard audit
-      - run: ./torusguard report --sarif
+          node-version: 20
+      - name: Run TorusGuard Security Audit
+        run: npx torusguard audit
+      - name: Run Hybrid OCR Vision Scan
+        run: npx torusguard ocr-scan
+      - name: Export SARIF Log
+        run: npx torusguard report --sarif
       - uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: report.sarif

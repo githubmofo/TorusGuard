@@ -1,63 +1,42 @@
 # TorusGuard Roadmap
 
-## Current Version: 2.1.1
+## Current Version: 2.2.0
 
-### Completed ✅
+### Completed in v2.2.0 & Prior Milestones ✅
 
-- [x] Taint Analysis Engine (source-to-sink graph tracking, multi-stage sanitizers)
-- [x] Polyglot AST Walker & Tree-Sitter Parsers (Python, TypeScript, JavaScript, Go)
-- [x] Cross-File Interprocedural Dataflow Analysis (call graph & import resolution)
-- [x] 88 canonical security rules across 22 architectural families (added TG-INPUT-007 and TG-INPUT-008)
-- [x] 7-Signal Calibrated Confidence Scoring (evidence-chain calibration)
-- [x] Incremental Hash Cache & Multi-Worker Parallel Scanning
-- [x] First-Principles Security Suite (Docker/Container, Git History, ReDoS, AI & RAG)
-- [x] 22 terminal CLI commands with standardized 75-column formatting
-- [x] Master 7-Stage Pipeline command (`torusguard full`)
-- [x] 10 native Model Context Protocol (MCP) tools and 2 living resources with stdio stream isolation
-- [x] Multi-modal Vision OCR (Tesseract v5.4.0 with 10MB memory safety bounds on PNG, JPG, WebP)
-- [x] Unseen Repositories Tri-Mode Validation Suite (100% pass across 6 unseen ecosystems & 18 canonical skills)
-- [x] Line-level reflection module with semantic patching (`find_snippet` / `replace_snippet`)
-- [x] Streamlined README with dynamic multi-tier architecture & remediation flowchart
-- [x] Ponytail Protocol bounds enforcement (≤35 additions, ≤25 deletions)
-- [x] Pre-apply snapshot engine with rollback
-- [x] Dynamic SARIF v2.1.0 report generation
-- [x] Dark-mode HTML posture dashboards
-- [x] Cryptographic authorization token generation
-- [x] HTTP security probing with audit headers
-- [x] Bounded exploit checking with inert payloads
-- [x] Evidence verification against `security_report.md`
-- [x] Stack detection (Go, Node.js, Python, Rust, Java, etc.)
-- [x] Fail-closed cryptography (panic on entropy failure)
-- [x] Path traversal defense in snapshot engine
-- [x] SSRF blocking (private IP ranges + AWS metadata)
-- [x] DoS resilience (10,000-file limit, 5-minute timeout)
-- [x] AI agent integration (Antigravity, Cursor, Claude Code, Windsurf)
+- [x] **Hybrid First-Principles Vision OCR:** Built-in zero-dependency stream and metadata extractor (PNG chunks, SVG text, EXIF, printable byte streams) with optional deep optical scanning via Tesseract v5.4.0.
+- [x] **Zero-Crash OCR Fallback:** Graceful fallback when Tesseract is missing—never aborts or crashes; auto-discovers all project images.
+- [x] **Interactive Terminal Command Center:** Launching `torusguard` or `npx torusguard` with zero arguments renders a menu-driven TTY dashboard.
+- [x] **Universal CLI Parity across NPM & Go:** All 25 commands (`ocr-scan`, `container`, `git-mine`, `redos`, `ai-guard`, etc.) wired directly into `bin/torusguard.js` and `cmd/torusguard/main.go`.
+- [x] **Curated Awesome Rules Catalog:** Standardized taxonomy of all 88 security invariants across 22 architectural families (`docs/awesome-rules.md`).
+- [x] **Taint Analysis Engine:** Source-to-sink graph tracking, cross-file interprocedural dataflow, multi-stage sanitizers.
+- [x] **Polyglot AST Walker:** Tree-sitter powered syntax trees across Go, TypeScript, JavaScript, Python.
+- [x] **88 Canonical Security Rules:** Covering Secrets, Auth, Tenant DB Isolation, SSRF, Webhooks, CSRF, Supply Chain, Containers, Git History, ReDoS, AI & RAG.
+- [x] **7-Signal Calibrated Confidence Scorer:** Evidence-chain calibration combining severity, taint depth, sanitizer checks, and memory.
+- [x] **First-Principles Security Suite:** Dockerfile/Compose privileges, Git commit log mining, Thompson NFA ReDoS, RAG vector isolation.
+- [x] **Model Context Protocol (MCP) Server:** 13 native JSON-RPC 2.0 tools and 2 living resources with stdio stream isolation.
+- [x] **Line-Level Reflection Module:** Semantic patch synthesis (`find_snippet` / `replace_snippet`) preventing line-shift errors.
+- [x] **Ponytail Protocol Enforcement:** Strict churn bounds ($\le 35$ additions, $\le 25$ deletions) preventing full-file rewrites.
+- [x] **Pre-Apply Snapshot Engine:** Automatic `.bak` backups before modifying files on disk with instant rollback.
+- [x] **Standards Compliant Reporting:** OASIS SARIF v2.1.0 exports and single-file dark-mode HTML dashboards.
+- [x] **Living Security Report Ground Truth:** Real-time synchronization with `security_report.md` eliminating hallucination.
+- [x] **Fail-Closed Cryptography:** Panic on entropy failure; zero hardcoded fallback tokens.
+- [x] **SSRF Defense:** Resolves hostnames and blocks private IP ranges (`10.0.0.0/8`) and AWS metadata (`169.254.169.254`).
+- [x] **DoS Resilience:** 10,000-file maximum traversal limit and 5-minute scan timeout.
 
 ---
 
-### v2.0.0-beta (Next)
+### v2.3.0 (Planned)
 
-- [ ] Go `go/ast` native parser for Go source files (replacing regex for Go-specific rules)
-- [ ] Worker pool concurrency for parallel file scanning
-- [ ] SARIF report with precise `physicalLocation` (file, line, column)
-- [ ] `torusguard diff` command for pre-commit security gate
-- [ ] `torusguard rules list` and `torusguard rules sync` commands
-- [ ] JSON-structured CLI output (`--json` flag on all commands)
-- [ ] Configuration file (`.torusguard/config.yaml`) for custom rule overrides
+- [ ] **Native WASM OCR Preprocessor:** In-memory WebAssembly image binarization for enhanced low-contrast text extraction.
+- [ ] **Custom Rule Engine:** TG-QL user-defined YAML rule patterns in `.torusguard/rules/custom/`.
+- [ ] **Git Pre-Commit Hook Integration:** Zero-latency incremental diff gating via `torusguard review --pre-commit`.
+- [ ] **Interactive Remediation TUI:** Terminal cursor-driven patch preview and approval interface.
 
-### v2.1.0
+---
 
-- [ ] Support for additional languages: Rust, Java, C#, Ruby, PHP
-- [ ] Custom rule authoring (user-defined regex patterns)
-- [ ] GitHub Actions marketplace action
-- [ ] GitLab CI integration template
-- [ ] VS Code extension for inline findings
-- [ ] Persistent finding database (SQLite) for trend tracking
+### v3.0.0 (Long-Term Horizon)
 
-### v3.0.0 (Long-term)
-
-- [ ] WebAssembly (WASM) build for browser-based scanning
-- [ ] Remote rule distribution (pull rules from a registry)
-- [ ] Team dashboards with aggregated posture metrics
-- [ ] API server mode for CI/CD webhook integration
-- [ ] Plugin system for third-party rule packages
+- [ ] **WebAssembly (WASM) Engine Build:** Browser-native and edge execution with zero binary installation.
+- [ ] **Distributed Rule Registry:** Enterprise private catalog synchronization and team rule distribution.
+- [ ] **Centralized Posture Telemetry:** Multi-repository aggregated posture heatmaps and team dashboards.

@@ -100,3 +100,20 @@ func CardBorderBottom(borderColor string, double bool) string {
 	}
 	return fmt.Sprintf("  %s%s%s%s%s", borderColor, left, strings.Repeat(h, 71), right, Reset)
 }
+
+func CardDivider(title string, borderColor string, double bool) string {
+	left, right, h := "├", "┤", "─"
+	if double {
+		left, right, h = "╠", "╣", "═"
+	}
+	if title != "" {
+		vis := VisualWidth(title)
+		rem := 68 - vis
+		if rem < 0 {
+			rem = 0
+		}
+		return fmt.Sprintf("  %s%s%s %s%s%s%s %s%s%s", borderColor, left, h, Bold, White, title, Reset, borderColor, strings.Repeat(h, rem), right)
+	}
+	return fmt.Sprintf("  %s%s%s%s%s", borderColor, left, strings.Repeat(h, 71), right, Reset)
+}
+
