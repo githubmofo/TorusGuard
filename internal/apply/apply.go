@@ -25,6 +25,9 @@ func getTargetFileFromPatch(patchFilePath string) (string, error) {
 			return strings.TrimPrefix(line, "--- a/"), nil
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
 	return "", fmt.Errorf("could not detect target file in patch")
 }
 

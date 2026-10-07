@@ -111,6 +111,7 @@ func ScanAIGuard(targetDir string) ([]FindingDetail, error) {
 				})
 			}
 		}
+		_ = scanner.Err()
 
 		return nil
 	})

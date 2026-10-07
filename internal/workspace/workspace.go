@@ -87,9 +87,9 @@ func InitWorkspace(target string) error {
 	fmt.Println(termui.CardBorderTop("Configuration", termui.Green, false))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Primary Stack:     %s", strings.Join(stack, ", ")), 67, "│", termui.Green))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Active Rules:      %d canonical invariants across %d families", cfg.ActiveRules, cfg.RulesFamily), 67, "│", termui.Green))
-	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Config Path:       .torusguard/config/torusguard.json"), 67, "│", termui.Green))
-	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Security Policy:   SECURITY.md provisioned at root"), 67, "│", termui.Green))
-	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Ignore Rules:      .torusguardignore provisioned at root"), 67, "│", termui.Green))
+	fmt.Println(termui.FormatBoxLine("Config Path:       .torusguard/config/torusguard.json", 67, "│", termui.Green))
+	fmt.Println(termui.FormatBoxLine("Security Policy:   SECURITY.md provisioned at root", 67, "│", termui.Green))
+	fmt.Println(termui.FormatBoxLine("Ignore Rules:      .torusguardignore provisioned at root", 67, "│", termui.Green))
 	fmt.Println(termui.CardBorderBottom(termui.Green, false))
 	fmt.Println()
 

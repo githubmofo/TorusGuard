@@ -56,7 +56,7 @@ func RunAuthorize(targetDir string) error {
 	fmt.Println(termui.CardBorderTop("Scope Authorization", termui.Cyan, false))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Target Directory:  %s", targetDir), 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Session TTL:       24 Hours (Expires: %s)", token.ExpiresAt.Format("15:04:05 MST")), 67, "│", termui.Cyan))
-	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("Token Persisted:   .torusguard/auth.json"), 67, "│", termui.Cyan))
+	fmt.Println(termui.FormatBoxLine("Token Persisted:   .torusguard/auth.json", 67, "│", termui.Cyan))
 	fmt.Println(termui.FormatBoxLine(fmt.Sprintf("%s✔ Target ownership proof registered. Safety gate active.%s", termui.Green, termui.Reset), 67, "│", termui.Cyan))
 	fmt.Println(termui.CardBorderBottom(termui.Cyan, false))
 	fmt.Println()

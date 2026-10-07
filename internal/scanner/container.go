@@ -54,6 +54,7 @@ func ScanContainerFiles(targetDir string) ([]FindingDetail, error) {
 		for scanner.Scan() {
 			lines = append(lines, scanner.Text())
 		}
+		_ = scanner.Err()
 
 		for idx, line := range lines {
 			lineNum := idx + 1

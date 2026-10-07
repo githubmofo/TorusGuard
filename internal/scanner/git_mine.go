@@ -48,6 +48,7 @@ func ScanGitHistory(targetDir string) ([]FindingDetail, error) {
 				})
 			}
 		}
+		_ = scanner.Err()
 		file.Close()
 	}
 
@@ -155,6 +156,7 @@ func ScanGitHistory(targetDir string) ([]FindingDetail, error) {
 				})
 			}
 		}
+		_ = scanner.Err()
 		rFile.Close()
 	}
 
